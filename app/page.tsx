@@ -77,7 +77,6 @@ export default function Home() {
             <li><a href="#reel" onClick={(e) => { e.preventDefault(); scrollTo('reel') }}>Reel</a></li>
             <li><a href="#book" onClick={(e) => { e.preventDefault(); scrollTo('book') }}>Book</a></li>
             <li><a href="#testimonials" onClick={(e) => { e.preventDefault(); scrollTo('testimonials') }}>Testimonials</a></li>
-            <li><a href="#impactiq" onClick={(e) => { e.preventDefault(); scrollTo('impactiq') }}>ImpactIQ</a></li>
             <li><a href="#contact" className="nav-cta" onClick={(e) => { e.preventDefault(); scrollTo('contact') }}>Book Chris</a></li>
           </ul>
           <button className="mobile-toggle" onClick={() => setMenuOpen(!menuOpen)}>
@@ -90,6 +89,9 @@ export default function Home() {
       <section className="hero" id="home">
         <div className="container">
           <div className="hero-content">
+            <div className="hero-logo">
+              <img src="/images/chris-marvel-logo.png" alt="Chris Marvel logo" />
+            </div>
             <span className="badge badge-gold">Mental Health Performance Coach</span>
             <h1>Turning Pressure<br />Into <span className="accent">Power</span></h1>
             <p className="hero-tagline">
@@ -305,36 +307,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ===== IMPACTIQ ===== */}
-      <section className="impactiq" id="impactiq">
-        <div className="container">
-          <span className="badge" style={{ background: '#818CF8', color: '#fff' }}>Powered by Pivot</span>
-          <h2>Introducing ImpactIQ&trade;</h2>
-          <p className="impactiq-subtitle">
-            The world&rsquo;s first stress-response personality assessment. Discover your Impact Archetype —
-            how you process pressure, drive action, and influence those around you.
-          </p>
-          <div className="impactiq-features">
-            <div className="impactiq-feature fade-in">
-              <div className="impactiq-feature-icon">&#x1F9E0;</div>
-              <h3>6 Archetypes</h3>
-              <p>Absorber, Reactor, Executor, Avoider, Strategist, Interrogator — which one drives you?</p>
-            </div>
-            <div className="impactiq-feature fade-in">
-              <div className="impactiq-feature-icon">&#x1F4CA;</div>
-              <h3>Science-Backed</h3>
-              <p>Built on Polyvagal Theory, Emotional Intelligence research, and behavioral psychology.</p>
-            </div>
-            <div className="impactiq-feature fade-in">
-              <div className="impactiq-feature-icon">&#x1F3AF;</div>
-              <h3>Team Insights</h3>
-              <p>Understand team dynamics, communication gaps, and collaboration opportunities.</p>
-            </div>
-          </div>
-          <a href="https://impactiq-taupe.vercel.app/" target="_blank" rel="noopener noreferrer" className="btn btn-indigo">Take the Free Assessment</a>
-        </div>
-      </section>
-
       {/* ===== CTA BANNER ===== */}
       <section className="cta-banner">
         <div className="bg-img">
@@ -473,7 +445,6 @@ export default function Home() {
             <div className="footer-col">
               <h4>Resources</h4>
               <ul>
-                <li><a href="#impactiq" onClick={(e) => { e.preventDefault(); scrollTo('impactiq') }}>ImpactIQ Assessment</a></li>
                 <li><a href="#reel" onClick={(e) => { e.preventDefault(); scrollTo('reel') }}>Speaker Reel</a></li>
                 <li><a href="#contact" onClick={(e) => { e.preventDefault(); scrollTo('contact') }}>Book Chris</a></li>
               </ul>

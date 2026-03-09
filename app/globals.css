@@ -71,8 +71,6 @@ a { text-decoration: none; color: inherit; }
 .btn-outline-white:hover { border-color: var(--white); background: rgba(255,255,255,0.1); }
 .btn-navy { background: var(--navy); color: var(--white); border-color: var(--navy); }
 .btn-navy:hover { background: var(--navy-light); }
-.btn-indigo { background: #818CF8; color: var(--white); border-color: #818CF8; }
-.btn-indigo:hover { background: #6366F1; border-color: #6366F1; }
 
 /* ===== NAVIGATION ===== */
 nav {
@@ -114,6 +112,11 @@ nav .container { display: flex; align-items: center; justify-content: space-betw
 .hero-image-container { order: -1; }
 .hero-image-container img { width: 100%; max-width: 520px; border-radius: 12px; box-shadow: 0 30px 60px rgba(0,0,0,0.4); }
 .hero-content { color: var(--white); }
+.hero-logo { margin-bottom: 24px; }
+.hero-logo img {
+  width: 80px; height: auto;
+  opacity: 0.9;
+}
 .hero-content .badge { margin-bottom: 24px; }
 .hero-content h1 { font-family: var(--font-heading); font-size: 3.6rem; font-weight: 900; line-height: 1.05; text-transform: uppercase; letter-spacing: -0.5px; margin-bottom: 24px; }
 .hero-content h1 .accent { color: var(--gold); }
@@ -196,17 +199,6 @@ nav .container { display: flex; align-items: center; justify-content: space-betw
 .testimonial-author { font-family: var(--font-heading); font-weight: 800; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.5px; color: var(--navy); }
 .testimonial-title { font-size: 0.8rem; color: var(--gray-600); margin-top: 4px; }
 
-/* ===== IMPACTIQ ===== */
-.impactiq { padding: 100px 0; background: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%); text-align: center; color: var(--white); }
-.impactiq .badge { margin-bottom: 20px; }
-.impactiq h2 { font-family: var(--font-heading); font-size: 2.8rem; font-weight: 900; text-transform: uppercase; margin-bottom: 16px; }
-.impactiq-subtitle { font-size: 1rem; color: rgba(255,255,255,0.65); max-width: 600px; margin: 0 auto 48px; line-height: 1.6; }
-.impactiq-features { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; max-width: 900px; margin: 0 auto 40px; }
-.impactiq-feature { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 32px 24px; }
-.impactiq-feature-icon { font-size: 2rem; margin-bottom: 16px; }
-.impactiq-feature h3 { font-family: var(--font-heading); font-size: 1rem; font-weight: 700; text-transform: uppercase; margin-bottom: 10px; }
-.impactiq-feature p { font-size: 0.88rem; line-height: 1.6; color: rgba(255,255,255,0.6); }
-
 /* ===== CTA BANNER ===== */
 .cta-banner { position: relative; padding: 100px 0; background: var(--navy-deep); text-align: center; color: var(--white); overflow: hidden; }
 .cta-banner::before { content: ''; position: absolute; inset: 0; background: linear-gradient(135deg, var(--navy-deep) 0%, rgba(27,42,74,0.85) 100%); z-index: 1; }
@@ -276,7 +268,6 @@ footer { background: var(--navy-deep); color: var(--white); padding: 60px 0 30px
   .book-cover img { width: 220px; }
   .book-buttons { justify-content: center; }
   .keynote-grid, .testimonial-grid { grid-template-columns: 1fr; }
-  .impactiq-features { grid-template-columns: 1fr; }
   .gallery-strip { grid-template-columns: repeat(2, 1fr); }
   .footer-grid { grid-template-columns: 1fr 1fr; gap: 30px; }
   .credentials-row { justify-content: center; }
@@ -288,6 +279,7 @@ footer { background: var(--navy-deep); color: var(--white); padding: 60px 0 30px
   .nav-links.show { display: flex; }
   .nav-links li a { display: block; padding: 12px 16px; }
   .mobile-toggle { display: flex; }
+  .hero-logo img { width: 70px; }
   .hero-content h1 { font-size: 2.2rem; }
   .mission-content h2, .keynotes h2, .book-content h2, .testimonials h2, .cta-banner h2 { font-size: 2rem; }
   .hero-buttons { flex-direction: column; align-items: center; }

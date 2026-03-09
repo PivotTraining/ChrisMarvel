@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  metadataBase: new URL('https://chrismarvel.com'),
+  metadataBase: new URL('https://chrismarvelspeaks.com'),
   title: 'Chris Marvel — Mental Health Performance Coach & Keynote Speaker',
   description:
     'Chris Marvel is a Mental Health Performance Coach, keynote speaker, and author of The What If Effect. Book Chris for your next corporate, education, or nonprofit event.',
@@ -50,7 +50,7 @@ const jsonLd = {
   jobTitle: 'Mental Health Performance Coach & Keynote Speaker',
   description:
     'Mental Health Performance Coach, professional speaker, and author with over a decade of experience optimizing performance through the lens of psychology.',
-  url: 'https://chrismarvel.com',
+  url: 'https://chrismarvelspeaks.com',
   image: '/images/hero-headshot.jpg',
   email: 'Jazmine@pivottraining.us',
   telephone: '(770) 313-1232',

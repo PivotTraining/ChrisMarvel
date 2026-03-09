@@ -1,8 +1,7 @@
 'use client'
 
 import './globals.css'
-import { useEffect, useState, useRef } from 'react'
-import Image from 'next/image'
+import { useEffect, useState } from 'react'
 
 export default function Home() {
   const [menuOpen, setMenuOpen] = useState(false)
@@ -10,33 +9,25 @@ export default function Home() {
   const [formSubmitting, setFormSubmitting] = useState(false)
 
   useEffect(() => {
-    // Navbar background on scroll
     const handleScroll = () => {
       const nav = document.getElementById('navbar')
       if (nav) {
         nav.style.background = window.scrollY > 50
-          ? 'rgba(27, 42, 74, 0.98)'
-          : 'rgba(27, 42, 74, 0.95)'
+          ? 'rgba(17, 29, 53, 0.98)'
+          : 'rgba(17, 29, 53, 0.95)'
       }
     }
     window.addEventListener('scroll', handleScroll)
 
-    // Fade-in animation on scroll
     const observer = new IntersectionObserver((entries) => {
       entries.forEach(entry => {
         if (entry.isIntersecting) {
-          ;(entry.target as HTMLElement).style.opacity = '1'
-          ;(entry.target as HTMLElement).style.transform = 'translateY(0)'
+          entry.target.classList.add('visible')
         }
       })
     }, { threshold: 0.1 })
 
-    document.querySelectorAll('.keynote-card, .testimonial-card, .client-item, .impactiq-feature').forEach(el => {
-      ;(el as HTMLElement).style.opacity = '0'
-      ;(el as HTMLElement).style.transform = 'translateY(20px)'
-      ;(el as HTMLElement).style.transition = 'all 0.6s ease'
-      observer.observe(el)
-    })
+    document.querySelectorAll('.fade-in').forEach(el => observer.observe(el))
 
     return () => {
       window.removeEventListener('scroll', handleScroll)
@@ -74,13 +65,13 @@ export default function Home() {
 
   return (
     <>
-      {/* NAVIGATION */}
+      {/* ===== NAVIGATION ===== */}
       <nav id="navbar" className={menuOpen ? 'open' : ''}>
         <div className="container">
           <a href="#" className="nav-logo" onClick={(e) => { e.preventDefault(); window.scrollTo({ top: 0, behavior: 'smooth' }) }}>
             Chris <span>Marvel</span>
           </a>
-          <ul className={`nav-links ${menuOpen ? 'show' : ''}`} id="navLinks">
+          <ul className={`nav-links ${menuOpen ? 'show' : ''}`}>
             <li><a href="#about" onClick={(e) => { e.preventDefault(); scrollTo('about') }}>About</a></li>
             <li><a href="#keynotes" onClick={(e) => { e.preventDefault(); scrollTo('keynotes') }}>Keynotes</a></li>
             <li><a href="#reel" onClick={(e) => { e.preventDefault(); scrollTo('reel') }}>Reel</a></li>
@@ -95,198 +86,190 @@ export default function Home() {
         </div>
       </nav>
 
-      {/* HERO */}
+      {/* ===== HERO ===== */}
       <section className="hero" id="home">
         <div className="container">
           <div className="hero-content">
-            <div className="hero-subtitle">Mental Health Performance Coach</div>
-            <h1>Turning Pressure Into <span>Power</span></h1>
+            <span className="badge badge-gold">Mental Health Performance Coach</span>
+            <h1>Turning Pressure<br />Into <span className="accent">Power</span></h1>
+            <p className="hero-tagline">
+              From NFL locker rooms to Fortune 500 boardrooms — Chris Marvel transforms how organizations think about mental health.
+            </p>
             <p className="hero-description">
-              Chris Marvel helps organizations transform how they think about mental health —
-              moving from crisis response to performance strategy. From NFL locker rooms to Fortune 500 boardrooms,
-              his approach is direct, evidence-based, and built for real results.
+              With over a decade of experience and a Master&rsquo;s in Psychology, Chris helps
+              high-performers and organizations move from crisis response to performance strategy.
+              His approach is direct, evidence-based, and built for real results.
             </p>
             <div className="hero-buttons">
-              <a href="#contact" className="btn btn-primary" onClick={(e) => { e.preventDefault(); scrollTo('contact') }}>Book Chris to Speak</a>
-              <a href="#reel" className="btn btn-outline" onClick={(e) => { e.preventDefault(); scrollTo('reel') }}>Watch the Reel</a>
-            </div>
-            <div className="hero-stats">
-              <div className="hero-stat">
-                <div className="hero-stat-number">10+</div>
-                <div className="hero-stat-label">Years Experience</div>
-              </div>
-              <div className="hero-stat">
-                <div className="hero-stat-number">NFL/NBA</div>
-                <div className="hero-stat-label">Athlete Clients</div>
-              </div>
-              <div className="hero-stat">
-                <div className="hero-stat-number">M.S.</div>
-                <div className="hero-stat-label">Psychology</div>
-              </div>
+              <a href="#contact" className="btn btn-gold" onClick={(e) => { e.preventDefault(); scrollTo('contact') }}>Book Chris to Speak</a>
+              <a href="#reel" className="btn btn-outline-white" onClick={(e) => { e.preventDefault(); scrollTo('reel') }}>Watch the Reel</a>
             </div>
           </div>
           <div className="hero-image-container">
-            <div className="hero-image-frame">
-              <img src="/images/hero-headshot.jpg" alt="Chris Marvel — Mental Health Performance Coach" />
-            </div>
+            <img src="/images/hero-headshot.jpg" alt="Chris Marvel — Mental Health Performance Coach" />
           </div>
         </div>
       </section>
 
-      {/* MEDIA BAR */}
-      <div className="media-bar">
+      {/* ===== TRUSTED BY BAR ===== */}
+      <div className="trusted-bar">
         <div className="container">
-          <div className="media-bar-label">As Featured In</div>
-          <div className="media-logos">
-            <span className="media-logo">ESPN</span>
-            <span className="media-logo">FOX SPORTS</span>
-            <span className="media-logo">HUFFPOST</span>
-            <span className="media-logo">YAHOO</span>
-            <span className="media-logo">NBC</span>
+          <div className="trusted-bar-label">Trusted By</div>
+          <div className="trusted-logos">
+            <span>Johnson &amp; Johnson</span>
+            <span>Cleveland Metro Schools</span>
+            <span>Clark County Schools</span>
+            <span>Head Start</span>
+            <span>NFL / NBA</span>
           </div>
         </div>
       </div>
 
-      {/* ABOUT */}
-      <section className="about" id="about">
+      {/* ===== MISSION / ABOUT ===== */}
+      <section className="mission" id="about">
         <div className="container">
-          <div className="about-image">
-            <img src="/images/about-presenting.jpg" alt="Chris Marvel presenting at corporate workshop" />
-          </div>
-          <div className="about-content">
-            <span className="section-label">About Chris</span>
-            <h2>The Coach Behind the Movement</h2>
-            <p className="about-text">
+          <div className="mission-content">
+            <span className="badge badge-gold">About Chris</span>
+            <h2>The Coach Behind<br />The <span className="accent">Movement</span></h2>
+            <p>
               Christopher &ldquo;Chris Marvel&rdquo; Davis is a Mental Health Performance Coach, professional speaker,
               and author with over a decade of experience optimizing performance through the lens of psychology.
               He holds a Bachelor&rsquo;s and Master&rsquo;s degree in Psychology, along with several life coaching certifications.
             </p>
-            <p className="about-text">
+            <p>
               Chris has worked with some of the biggest names in professional sports — including Lamar Odom,
               Terrell Owens, and Ted Ginn Jr. — helping elite performers manage the mental demands of
               high-pressure environments. His work extends beyond athletics into corporate boardrooms,
               school districts, and nonprofit organizations nationwide.
             </p>
-            <p className="about-text">
+            <p>
               As founder of Pivot Training &amp; Development alongside co-founder Jazmine Davis, Chris has built
               a mental health professional development company headquartered in Cleveland, Ohio and Atlanta, Georgia
               that is reshaping how organizations approach employee wellbeing.
             </p>
-            <div className="about-credentials">
+            <div className="credentials-row">
               <span className="credential-tag">M.S. Psychology</span>
               <span className="credential-tag">Certified Life Coach</span>
               <span className="credential-tag">Published Author</span>
               <span className="credential-tag">10+ Years Experience</span>
               <span className="credential-tag">NFL/NBA Coach</span>
             </div>
+            <a href="#contact" className="btn btn-navy" onClick={(e) => { e.preventDefault(); scrollTo('contact') }} style={{ marginTop: '32px' }}>Get In Touch</a>
+          </div>
+          <div className="mission-image">
+            <img src="/images/about-presenting.jpg" alt="Chris Marvel presenting at corporate workshop" />
           </div>
         </div>
       </section>
 
-      {/* KEYNOTES */}
+      {/* ===== FULL-WIDTH STAGE PHOTO ===== */}
+      <div className="stage-photo">
+        <img src="/images/gallery-stage.jpg" alt="Chris Marvel delivering keynote on stage" />
+      </div>
+
+      {/* ===== KEYNOTES ===== */}
       <section className="keynotes" id="keynotes">
         <div className="container">
-          <span className="section-label">Signature Keynotes</span>
-          <h2>Three Talks That Transform Organizations</h2>
-          <p className="keynotes-subtitle">Each keynote is customizable for corporate, education, and nonprofit audiences. Available as 60-minute keynotes, half-day workshops, or full-day immersive training.</p>
+          <span className="badge badge-gold">Signature Keynotes</span>
+          <h2>Talks That <span className="accent">Transform</span></h2>
+          <p className="keynotes-subtitle">
+            Each keynote is customizable for corporate, education, and nonprofit audiences.
+            Available as 60-minute keynotes, half-day workshops, or full-day immersive training.
+          </p>
           <div className="keynote-grid">
-            <div className="keynote-card">
-              <div className="keynote-number">01</div>
+            <div className="keynote-card fade-in">
+              <div className="keynote-card-icon">&#9889;</div>
               <h3>Pressure Is a Privilege</h3>
-              <p>A powerful exploration of how high performers can reframe stress as fuel rather than a barrier to success.</p>
-              <ul className="keynote-takeaways">
-                <li>Reframe pressure as a performance catalyst</li>
-                <li>Build mental resilience frameworks for sustained excellence</li>
-                <li>Identify personal stress signatures and response patterns</li>
-                <li>Develop team-wide psychological safety practices</li>
-              </ul>
-              <div className="keynote-audience">Best For: Corporate Teams &bull; Leadership Retreats &bull; Conferences</div>
+              <p>
+                A powerful exploration of how high performers can reframe stress as fuel rather than a barrier.
+                Learn to build mental resilience frameworks and develop team-wide psychological safety practices.
+              </p>
             </div>
-            <div className="keynote-card">
-              <div className="keynote-number">02</div>
+            <div className="keynote-card fade-in">
+              <div className="keynote-card-icon">&#128065;</div>
               <h3>The Invisible Injury</h3>
-              <p>Unveiling the hidden mental health challenges that silently erode performance, culture, and retention.</p>
-              <ul className="keynote-takeaways">
-                <li>Recognize the signs others miss — in yourself and your team</li>
-                <li>Understand the true cost of unaddressed mental health in the workplace</li>
-                <li>Build environments where seeking help is strength, not weakness</li>
-                <li>Implement early intervention strategies that prevent crises</li>
-              </ul>
-              <div className="keynote-audience">Best For: Education &bull; Healthcare &bull; HR Professionals</div>
+              <p>
+                Unveiling the hidden mental health challenges that silently erode performance, culture, and retention.
+                Recognize the signs others miss and build environments where seeking help is strength.
+              </p>
             </div>
-            <div className="keynote-card">
-              <div className="keynote-number">03</div>
+            <div className="keynote-card fade-in">
+              <div className="keynote-card-icon">&#128161;</div>
               <h3>The What If Effect</h3>
-              <p>Based on Chris&rsquo;s bestselling book — a framework for breaking through the mental barriers that keep us stuck.</p>
-              <ul className="keynote-takeaways">
-                <li>Overcome the &ldquo;what if&rdquo; paralysis that blocks action</li>
-                <li>Transform fear-based thinking into possibility-driven strategy</li>
-                <li>Build a personal operating system for mental clarity</li>
-                <li>Create accountability structures that sustain growth</li>
-              </ul>
-              <div className="keynote-audience">Best For: All Audiences &bull; Motivational Events &bull; Student Groups</div>
+              <p>
+                Based on Chris&rsquo;s book — a framework for breaking through the mental barriers that keep us stuck.
+                Transform fear-based thinking into possibility-driven strategy.
+              </p>
+            </div>
+            <div className="keynote-card fade-in">
+              <div className="keynote-card-icon">&#127919;</div>
+              <h3>Custom Programs</h3>
+              <p>
+                Multi-session training designed for your organization&rsquo;s specific needs.
+                From corporate wellness initiatives to school district programs — tailored for lasting impact.
+              </p>
             </div>
           </div>
+          <a href="#contact" className="btn btn-gold" onClick={(e) => { e.preventDefault(); scrollTo('contact') }}>Request a Topic</a>
         </div>
       </section>
 
-      {/* PHOTO GALLERY STRIP */}
+      {/* ===== PHOTO GALLERY STRIP ===== */}
       <section className="photo-gallery">
         <div className="gallery-strip">
-          <img src="/images/gallery-stage.jpg" alt="Chris Marvel on stage with microphone" />
           <img src="/images/gallery-workshop.jpg" alt="Chris Marvel leading workshop" />
           <img src="/images/gallery-ballroom.jpg" alt="Chris Marvel speaking to packed ballroom" />
           <img src="/images/gallery-education.jpg" alt="Chris Marvel presenting on emotional intelligence in education" />
+          <img src="/images/about-presenting.jpg" alt="Chris Marvel engaging audience in blue shirt" />
         </div>
       </section>
 
-      {/* SPEAKER REEL */}
-      <section className="reel" id="reel">
+      {/* ===== SPEAKER REEL ===== */}
+      <section className="reel-section" id="reel">
         <div className="container">
-          <span className="section-label" style={{ textAlign: 'center', display: 'block' }}>See Chris In Action</span>
-          <h2>Speaker Reel</h2>
+          <span className="badge badge-navy">See Chris In Action</span>
+          <h2>Speaker <span className="accent">Reel</span></h2>
           <p className="reel-subtitle">60 seconds of what it looks like when psychology meets the stage.</p>
-          <div className="reel-container" data-video-url="">
-            <img className="reel-bg" src="/images/reel-thumbnail.jpg" alt="Chris Marvel speaking on stage" />
-            <div className="play-button"></div>
-            <span className="reel-label">Click to play speaker reel</span>
+          <div className="reel-container">
+            <img src="/images/gallery-stage.jpg" alt="Chris Marvel speaking on stage" />
+            <div className="play-btn"></div>
           </div>
         </div>
       </section>
 
-      {/* BOOK */}
-      <section className="book" id="book">
+      {/* ===== BOOK ===== */}
+      <section className="book-section" id="book">
         <div className="container">
           <div className="book-cover">
             <img src="/images/book-cover.jpg" alt="The What If Effect by Chris Marvel Davis — Flip Doubt Into Direction" />
           </div>
           <div className="book-content">
-            <span className="section-label">The Book</span>
-            <h2>The What If Effect</h2>
-            <p className="book-description">
+            <span className="badge badge-gold">The Book</span>
+            <h2>The What If <span className="accent">Effect</span></h2>
+            <p>
               What if the only thing standing between you and your breakthrough is the story you keep telling yourself?
               In &ldquo;The What If Effect: Flip Doubt Into Direction,&rdquo; Chris Marvel draws on a decade of coaching elite athletes
               and corporate leaders to reveal the mental patterns that keep high performers stuck — and the precise strategies to break through them.
             </p>
-            <p className="book-description">
+            <p>
               This isn&rsquo;t another motivational book filled with empty affirmations. It&rsquo;s a psychology-backed playbook
               for anyone ready to stop asking &ldquo;what if&rdquo; out of fear and start asking &ldquo;what if&rdquo; out of possibility.
             </p>
-            <div className="book-cta">
-              <a href="#" className="btn btn-dark">Get the Book</a>
-              <a href="#contact" className="btn btn-outline" style={{ color: 'var(--navy)', borderColor: 'var(--navy)' }} onClick={(e) => { e.preventDefault(); scrollTo('contact') }}>Bulk Orders for Events</a>
+            <div className="book-buttons">
+              <a href="#" className="btn btn-navy">Get the Book</a>
+              <a href="#contact" className="btn btn-outline-white" style={{ color: 'var(--navy)', borderColor: 'var(--navy)' }} onClick={(e) => { e.preventDefault(); scrollTo('contact') }}>Bulk Orders for Events</a>
             </div>
           </div>
         </div>
       </section>
 
-      {/* TESTIMONIALS */}
+      {/* ===== TESTIMONIALS ===== */}
       <section className="testimonials" id="testimonials">
         <div className="container">
-          <span className="section-label" style={{ textAlign: 'center', display: 'block' }}>What People Say</span>
-          <h2>Client Testimonials</h2>
+          <span className="badge badge-gold">What People Say</span>
+          <h2>Client <span className="accent">Testimonials</span></h2>
           <div className="testimonial-grid">
-            <div className="testimonial-card">
+            <div className="testimonial-card fade-in">
               <p className="testimonial-text">
                 Chris has a rare ability to connect complex psychology concepts to real-world workplace challenges.
                 Our leadership team walked away with actionable strategies they started implementing the same week.
@@ -294,7 +277,7 @@ export default function Home() {
               <div className="testimonial-author">Johnson &amp; Johnson</div>
               <div className="testimonial-title">Corporate Workshop Client</div>
             </div>
-            <div className="testimonial-card">
+            <div className="testimonial-card fade-in">
               <p className="testimonial-text">
                 The way Chris broke down mental health for our educators was a game-changer. Our teachers finally
                 felt seen and equipped. Absenteeism dropped and morale went up within one semester.
@@ -302,7 +285,7 @@ export default function Home() {
               <div className="testimonial-author">Cleveland Metropolitan School District</div>
               <div className="testimonial-title">Education Partner</div>
             </div>
-            <div className="testimonial-card">
+            <div className="testimonial-card fade-in">
               <p className="testimonial-text">
                 Working with Chris changed how I approach the mental side of competition. He doesn&rsquo;t just talk
                 about mental health — he gives you a system that actually works under pressure.
@@ -310,7 +293,7 @@ export default function Home() {
               <div className="testimonial-author">Professional Athlete Client</div>
               <div className="testimonial-title">NFL / NBA</div>
             </div>
-            <div className="testimonial-card">
+            <div className="testimonial-card fade-in">
               <p className="testimonial-text">
                 We brought Chris in for our annual staff development day and the feedback was overwhelming.
                 Staff rated his session the highest of any professional development we&rsquo;ve offered in five years.
@@ -322,46 +305,27 @@ export default function Home() {
         </div>
       </section>
 
-      {/* CLIENTS */}
-      <section className="clients">
-        <div className="container">
-          <span className="section-label" style={{ textAlign: 'center', display: 'block' }}>Trusted By</span>
-          <h2>Organizations That Trust Chris</h2>
-          <p className="clients-subtitle">From professional sports franchises to Fortune 500 companies to public school districts.</p>
-          <div className="client-grid">
-            <div className="client-item">Johnson &amp; Johnson</div>
-            <div className="client-item">Cleveland Metro Schools</div>
-            <div className="client-item">Clark County Schools</div>
-            <div className="client-item">Head Start</div>
-            <div className="client-item">Fort Valley State University</div>
-            <div className="client-item">NFL Athletes</div>
-            <div className="client-item">NBA Athletes</div>
-            <div className="client-item">Nonprofit Organizations</div>
-          </div>
-        </div>
-      </section>
-
-      {/* IMPACTIQ */}
+      {/* ===== IMPACTIQ ===== */}
       <section className="impactiq" id="impactiq">
         <div className="container">
-          <span className="section-label" style={{ textAlign: 'center', display: 'block', color: '#818CF8' }}>Powered by Pivot</span>
+          <span className="badge" style={{ background: '#818CF8', color: '#fff' }}>Powered by Pivot</span>
           <h2>Introducing ImpactIQ&trade;</h2>
           <p className="impactiq-subtitle">
             The world&rsquo;s first stress-response personality assessment. Discover your Impact Archetype —
             how you process pressure, drive action, and influence those around you.
           </p>
           <div className="impactiq-features">
-            <div className="impactiq-feature">
+            <div className="impactiq-feature fade-in">
               <div className="impactiq-feature-icon">&#x1F9E0;</div>
               <h3>6 Archetypes</h3>
               <p>Absorber, Reactor, Executor, Avoider, Strategist, Interrogator — which one drives you?</p>
             </div>
-            <div className="impactiq-feature">
+            <div className="impactiq-feature fade-in">
               <div className="impactiq-feature-icon">&#x1F4CA;</div>
               <h3>Science-Backed</h3>
               <p>Built on Polyvagal Theory, Emotional Intelligence research, and behavioral psychology.</p>
             </div>
-            <div className="impactiq-feature">
+            <div className="impactiq-feature fade-in">
               <div className="impactiq-feature-icon">&#x1F3AF;</div>
               <h3>Team Insights</h3>
               <p>Understand team dynamics, communication gaps, and collaboration opportunities.</p>
@@ -371,11 +335,24 @@ export default function Home() {
         </div>
       </section>
 
-      {/* CONTACT */}
+      {/* ===== CTA BANNER ===== */}
+      <section className="cta-banner">
+        <div className="bg-img">
+          <img src="/images/gallery-ballroom.jpg" alt="Chris Marvel speaking" />
+        </div>
+        <div className="container">
+          <div className="cta-banner-sub">Ready to Transform Your Organization?</div>
+          <h2>Bring Chris Marvel<br />To Your Next Event</h2>
+          <p>Whether it&rsquo;s a keynote, workshop, or multi-session program — Chris delivers results that last.</p>
+          <a href="#contact" className="btn btn-gold" onClick={(e) => { e.preventDefault(); scrollTo('contact') }}>Book Chris Now</a>
+        </div>
+      </section>
+
+      {/* ===== CONTACT ===== */}
       <section className="contact" id="contact">
         <div className="container">
           <div className="contact-info">
-            <span className="section-label">Book Chris</span>
+            <span className="badge badge-gold">Book Chris</span>
             <h2>Let&rsquo;s Build Something Together</h2>
             <p className="contact-description">
               Whether you need a keynote that moves the room, a workshop that transforms your team,
@@ -464,18 +441,63 @@ export default function Home() {
         </div>
       </section>
 
-      {/* FOOTER */}
+      {/* ===== FOOTER ===== */}
       <footer>
         <div className="container">
-          <div className="footer-content">
-            <div className="footer-brand">Chris <span>Marvel</span> &bull; Pivot Training &amp; Development</div>
-            <ul className="footer-links">
-              <li><a href="#keynotes" onClick={(e) => { e.preventDefault(); scrollTo('keynotes') }}>Keynotes</a></li>
-              <li><a href="#book" onClick={(e) => { e.preventDefault(); scrollTo('book') }}>Book</a></li>
-              <li><a href="#impactiq" onClick={(e) => { e.preventDefault(); scrollTo('impactiq') }}>ImpactIQ</a></li>
-              <li><a href="#contact" onClick={(e) => { e.preventDefault(); scrollTo('contact') }}>Contact</a></li>
-            </ul>
-            <div className="footer-copy">&copy; 2026 Pivot Training &amp; Development. All rights reserved.</div>
+          <div className="footer-grid">
+            {/* Brand Column */}
+            <div className="footer-col">
+              <div className="footer-brand-name">Chris <span>Marvel</span></div>
+              <p className="footer-brand-tagline">
+                Mental Health Performance Coach, keynote speaker, and author transforming how organizations approach wellbeing.
+              </p>
+              <div className="social-links">
+                <a href="#" aria-label="LinkedIn">in</a>
+                <a href="#" aria-label="Instagram">ig</a>
+                <a href="#" aria-label="Facebook">fb</a>
+              </div>
+            </div>
+
+            {/* Quick Links */}
+            <div className="footer-col">
+              <h4>Navigate</h4>
+              <ul>
+                <li><a href="#about" onClick={(e) => { e.preventDefault(); scrollTo('about') }}>About</a></li>
+                <li><a href="#keynotes" onClick={(e) => { e.preventDefault(); scrollTo('keynotes') }}>Keynotes</a></li>
+                <li><a href="#book" onClick={(e) => { e.preventDefault(); scrollTo('book') }}>The Book</a></li>
+                <li><a href="#testimonials" onClick={(e) => { e.preventDefault(); scrollTo('testimonials') }}>Testimonials</a></li>
+              </ul>
+            </div>
+
+            {/* Resources */}
+            <div className="footer-col">
+              <h4>Resources</h4>
+              <ul>
+                <li><a href="#impactiq" onClick={(e) => { e.preventDefault(); scrollTo('impactiq') }}>ImpactIQ Assessment</a></li>
+                <li><a href="#reel" onClick={(e) => { e.preventDefault(); scrollTo('reel') }}>Speaker Reel</a></li>
+                <li><a href="#contact" onClick={(e) => { e.preventDefault(); scrollTo('contact') }}>Book Chris</a></li>
+              </ul>
+            </div>
+
+            {/* Contact */}
+            <div className="footer-col">
+              <h4>Contact</h4>
+              <div className="footer-contact-item">
+                <span className="footer-contact-icon">&#9993;</span>
+                <span>Jazmine@pivottraining.us</span>
+              </div>
+              <div className="footer-contact-item">
+                <span className="footer-contact-icon">&#9742;</span>
+                <span>(770) 313-1232</span>
+              </div>
+              <div className="footer-contact-item">
+                <span className="footer-contact-icon">&#9679;</span>
+                <span>Cleveland, OH &bull; Atlanta, GA</span>
+              </div>
+            </div>
+          </div>
+          <div className="footer-bottom">
+            &copy; 2026 Pivot Training &amp; Development. All rights reserved.
           </div>
         </div>
       </footer>

@@ -25,8 +25,8 @@ export const metadata: Metadata = {
     images: [
       {
         url: '/images/hero-headshot.jpg',
-        width: 420,
-        height: 520,
+        width: 1400,
+        height: 1400,
         alt: 'Chris Marvel — Mental Health Performance Coach',
       },
     ],
@@ -75,8 +75,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en">
       <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link
-          href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700;800;900&family=Inter:wght@300;400;500;600;700&display=swap"
+          href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700&display=swap"
           rel="stylesheet"
         />
         <script

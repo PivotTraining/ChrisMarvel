@@ -48,7 +48,7 @@ export default function Home() {
     const data = new FormData(form)
 
     try {
-      const res = await fetch('https://formspree.io/f/YOUR_FORM_ID', {
+      const res = await fetch('https://api.web3forms.com/submit', {
         method: 'POST',
         body: data,
         headers: { Accept: 'application/json' },
@@ -241,10 +241,10 @@ export default function Home() {
           <span className="badge badge-navy">See Chris Marvel In Action</span>
           <h2>Keynote Speaker <span className="accent">Reel</span></h2>
           <p className="reel-subtitle">Watch what happens when psychology meets the stage. See why event planners and speaker bureaus book Chris Marvel for their most important events.</p>
-          <div className="reel-container">
+          <a href="https://youtu.be/AAAURVaEE48?si=4LKNwd9qRLYzhkNp" target="_blank" rel="noopener noreferrer" className="reel-container" aria-label="Watch Chris Marvel keynote speaker demo reel on YouTube">
             <img src="/images/gallery-stage.jpg" alt="Chris Marvel keynote speaker demo reel — watch highlights from corporate events, conferences, and workshops" loading="lazy" />
             <div className="play-btn" role="button" aria-label="Play speaker demo reel video"></div>
-          </div>
+          </a>
         </div>
       </section>
 
@@ -418,7 +418,9 @@ export default function Home() {
               </div>
             ) : (
               <form onSubmit={handleSubmit} aria-label="Speaker booking inquiry form">
-                <input type="hidden" name="_subject" value="New Booking Inquiry — ChrisMarvelSpeaks.com" />
+                <input type="hidden" name="access_key" value="2ed4e63f-0743-4e95-8ee7-c115f3661ad8" />
+                <input type="hidden" name="subject" value="New Booking Inquiry — ChrisMarvelSpeaks.com" />
+                <input type="hidden" name="from_name" value="ChrisMarvelSpeaks.com" />
                 <div className="form-row">
                   <div className="form-group">
                     <label htmlFor="name">Your Name</label>
@@ -477,9 +479,9 @@ export default function Home() {
                 Available for corporate keynotes, workshops, and training programs nationwide.
               </p>
               <div className="social-links">
-                <a href="#" aria-label="Chris Marvel on LinkedIn">in</a>
-                <a href="#" aria-label="Chris Marvel on Instagram">ig</a>
-                <a href="#" aria-label="Chris Marvel on Facebook">fb</a>
+                <a href="https://www.linkedin.com/in/chrismarvel" target="_blank" rel="noopener noreferrer" aria-label="Chris Marvel on LinkedIn">in</a>
+                <a href="https://www.instagram.com/chrismarvel/" target="_blank" rel="noopener noreferrer" aria-label="Chris Marvel on Instagram">ig</a>
+                <a href="https://youtu.be/AAAURVaEE48?si=4LKNwd9qRLYzhkNp" target="_blank" rel="noopener noreferrer" aria-label="Chris Marvel on YouTube">yt</a>
               </div>
             </div>
 

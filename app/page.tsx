@@ -69,7 +69,7 @@ export default function Home() {
       <nav id="navbar" className={menuOpen ? 'open' : ''}>
         <div className="container">
           <a href="#" className="nav-logo" onClick={(e) => { e.preventDefault(); window.scrollTo({ top: 0, behavior: 'smooth' }) }}>
-            Chris <span>Marvel</span>
+            Chris <img src="/images/chris-marvel-logo.png" alt="Chris Marvel logo" className="nav-logo-icon" /> <span>Marvel</span>
           </a>
           <ul className={`nav-links ${menuOpen ? 'show' : ''}`}>
             <li><a href="#about" onClick={(e) => { e.preventDefault(); scrollTo('about') }}>About</a></li>
@@ -89,9 +89,6 @@ export default function Home() {
       <section className="hero" id="home">
         <div className="container">
           <div className="hero-content">
-            <div className="hero-logo">
-              <img src="/images/chris-marvel-logo.png" alt="Chris Marvel logo" />
-            </div>
             <span className="badge badge-gold">Mental Health Performance Coach</span>
             <h1>Turning Pressure<br />Into <span className="accent">Power</span></h1>
             <p className="hero-tagline">

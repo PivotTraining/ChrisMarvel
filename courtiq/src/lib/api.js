@@ -6,7 +6,7 @@ export async function getGames(userId, { limit = 50, offset = 0 } = {}) {
     .from('games')
     .select('*')
     .eq('user_id', userId)
-    .order('date', { ascending: false })
+    .order('game_date', { ascending: false })
     .range(offset, offset + limit - 1);
   if (error) throw error;
   return data;
@@ -38,47 +38,21 @@ export async function deleteGame(id) {
   if (error) throw error;
 }
 
-// ── Shot Sessions ──────────────────────────────────────
-export async function getShotSessions(userId, { limit = 50, offset = 0 } = {}) {
+// ── Shot Logs ──────────────────────────────────────────
+export async function getShotLogs(userId, { limit = 200, offset = 0 } = {}) {
   const { data, error } = await supabase
-    .from('shot_sessions')
-    .select('*, shots(id, shot_type, zone, made)')
+    .from('shot_logs')
+    .select('*')
     .eq('user_id', userId)
-    .order('date', { ascending: false })
+    .order('created_at', { ascending: false })
     .range(offset, offset + limit - 1);
   if (error) throw error;
   return data;
 }
 
-export async function createShotSession(session) {
+export async function createShotLog(shot) {
   const { data, error } = await supabase
-    .from('shot_sessions')
-    .insert(session)
-    .select()
-    .single();
-  if (error) throw error;
-  return data;
-}
-
-export async function deleteShotSession(id) {
-  const { error } = await supabase.from('shot_sessions').delete().eq('id', id);
-  if (error) throw error;
-}
-
-// ── Shots ──────────────────────────────────────────────
-export async function getShots(sessionId) {
-  const { data, error } = await supabase
-    .from('shots')
-    .select('*')
-    .eq('session_id', sessionId)
-    .order('created_at', { ascending: true });
-  if (error) throw error;
-  return data;
-}
-
-export async function createShot(shot) {
-  const { data, error } = await supabase
-    .from('shots')
+    .from('shot_logs')
     .insert(shot)
     .select()
     .single();
@@ -86,35 +60,35 @@ export async function createShot(shot) {
   return data;
 }
 
-export async function createShotsBatch(shots) {
+export async function createShotLogsBatch(shots) {
   const { data, error } = await supabase
-    .from('shots')
+    .from('shot_logs')
     .insert(shots)
     .select();
   if (error) throw error;
   return data;
 }
 
-export async function deleteShot(id) {
-  const { error } = await supabase.from('shots').delete().eq('id', id);
+export async function deleteShotLog(id) {
+  const { error } = await supabase.from('shot_logs').delete().eq('id', id);
   if (error) throw error;
 }
 
-// ── Drills ─────────────────────────────────────────────
-export async function getDrills(userId, { limit = 50, offset = 0 } = {}) {
+// ── Drill Sessions ─────────────────────────────────────
+export async function getDrillSessions(userId, { limit = 50, offset = 0 } = {}) {
   const { data, error } = await supabase
-    .from('drills')
+    .from('drill_sessions')
     .select('*')
     .eq('user_id', userId)
-    .order('date', { ascending: false })
+    .order('session_date', { ascending: false })
     .range(offset, offset + limit - 1);
   if (error) throw error;
   return data;
 }
 
-export async function createDrill(drill) {
+export async function createDrillSession(drill) {
   const { data, error } = await supabase
-    .from('drills')
+    .from('drill_sessions')
     .insert(drill)
     .select()
     .single();
@@ -122,9 +96,9 @@ export async function createDrill(drill) {
   return data;
 }
 
-export async function updateDrill(id, updates) {
+export async function updateDrillSession(id, updates) {
   const { data, error } = await supabase
-    .from('drills')
+    .from('drill_sessions')
     .update(updates)
     .eq('id', id)
     .select()
@@ -133,18 +107,18 @@ export async function updateDrill(id, updates) {
   return data;
 }
 
-export async function deleteDrill(id) {
-  const { error } = await supabase.from('drills').delete().eq('id', id);
+export async function deleteDrillSession(id) {
+  const { error } = await supabase.from('drill_sessions').delete().eq('id', id);
   if (error) throw error;
 }
 
-// ── Journal ────────────────────────────────────────────
+// ── Journal Entries ────────────────────────────────────
 export async function getJournalEntries(userId, { limit = 50, offset = 0 } = {}) {
   const { data, error } = await supabase
     .from('journal_entries')
     .select('*')
     .eq('user_id', userId)
-    .order('date', { ascending: false })
+    .order('entry_date', { ascending: false })
     .range(offset, offset + limit - 1);
   if (error) throw error;
   return data;
@@ -176,66 +150,87 @@ export async function deleteJournalEntry(id) {
   if (error) throw error;
 }
 
-// ── Training Sessions ──────────────────────────────────
-export async function getTrainingSessions(userId, { limit = 50, offset = 0 } = {}) {
-  const { data, error } = await supabase
-    .from('training_sessions')
+// ── Training Content (curated library) ─────────────────
+export async function getTrainingContent({ category, difficulty, limit = 50, offset = 0 } = {}) {
+  let query = supabase
+    .from('training_content')
     .select('*')
-    .eq('user_id', userId)
-    .order('date', { ascending: false })
+    .order('is_featured', { ascending: false })
+    .order('created_at', { ascending: false })
     .range(offset, offset + limit - 1);
+
+  if (category) query = query.eq('category', category);
+  if (difficulty) query = query.eq('difficulty', difficulty);
+
+  const { data, error } = await query;
   if (error) throw error;
   return data;
 }
 
-export async function createTrainingSession(session) {
+export async function getTrainingContentById(id) {
   const { data, error } = await supabase
-    .from('training_sessions')
-    .insert(session)
-    .select()
-    .single();
-  if (error) throw error;
-  return data;
-}
-
-export async function updateTrainingSession(id, updates) {
-  const { data, error } = await supabase
-    .from('training_sessions')
-    .update(updates)
+    .from('training_content')
+    .select('*')
     .eq('id', id)
+    .single();
+  if (error) throw error;
+  return data;
+}
+
+// ── Saved Content ──────────────────────────────────────
+export async function getSavedContent(userId) {
+  const { data, error } = await supabase
+    .from('saved_content')
+    .select('*, training_content(*)')
+    .eq('user_id', userId)
+    .order('saved_at', { ascending: false });
+  if (error) throw error;
+  return data;
+}
+
+export async function saveContent(userId, contentId) {
+  const { data, error } = await supabase
+    .from('saved_content')
+    .insert({ user_id: userId, content_id: contentId })
     .select()
     .single();
   if (error) throw error;
   return data;
 }
 
-export async function deleteTrainingSession(id) {
-  const { error } = await supabase.from('training_sessions').delete().eq('id', id);
+export async function unsaveContent(userId, contentId) {
+  const { error } = await supabase
+    .from('saved_content')
+    .delete()
+    .eq('user_id', userId)
+    .eq('content_id', contentId);
   if (error) throw error;
 }
 
 // ── Dashboard Stats ────────────────────────────────────
 export async function getDashboardStats(userId) {
-  const [gamesRes, drillsRes, sessionsRes, journalRes] = await Promise.allSettled([
-    supabase.from('games').select('id, result, user_score, opponent_score', { count: 'exact' }).eq('user_id', userId),
-    supabase.from('drills').select('id, duration_minutes', { count: 'exact' }).eq('user_id', userId),
-    supabase.from('shot_sessions').select('id, shots(id, made)').eq('user_id', userId),
+  const [gamesRes, drillsRes, shotsRes, journalRes] = await Promise.allSettled([
+    supabase.from('games').select('id, result, points', { count: 'exact' }).eq('user_id', userId),
+    supabase.from('drill_sessions').select('id, duration_minutes, category', { count: 'exact' }).eq('user_id', userId),
+    supabase.from('shot_logs').select('id, made, shot_type').eq('user_id', userId),
     supabase.from('journal_entries').select('id', { count: 'exact' }).eq('user_id', userId),
   ]);
 
   const games = gamesRes.status === 'fulfilled' ? gamesRes.value.data || [] : [];
   const drills = drillsRes.status === 'fulfilled' ? drillsRes.value.data || [] : [];
-  const shotSessions = sessionsRes.status === 'fulfilled' ? sessionsRes.value.data || [] : [];
+  const shots = shotsRes.status === 'fulfilled' ? shotsRes.value.data || [] : [];
   const journalCount = journalRes.status === 'fulfilled' ? (journalRes.value.count || 0) : 0;
 
-  const wins = games.filter((g) => g.result === 'W').length;
-  const losses = games.filter((g) => g.result === 'L').length;
+  const wins = games.filter((g) => g.result === 'Win').length;
+  const losses = games.filter((g) => g.result === 'Loss').length;
+  const avgPoints = games.length > 0
+    ? Math.round(games.reduce((sum, g) => sum + (g.points || 0), 0) / games.length)
+    : 0;
 
   const totalDrillMinutes = drills.reduce((sum, d) => sum + (d.duration_minutes || 0), 0);
 
-  const allShots = shotSessions.flatMap((s) => s.shots || []);
-  const totalShots = allShots.length;
-  const madeShots = allShots.filter((s) => s.made).length;
+  const totalShots = shots.length;
+  const madeShots = shots.filter((s) => s.made).length;
   const shootingPct = totalShots > 0 ? Math.round((madeShots / totalShots) * 100) : 0;
 
   return {
@@ -243,6 +238,7 @@ export async function getDashboardStats(userId) {
     wins,
     losses,
     winPct: games.length > 0 ? Math.round((wins / games.length) * 100) : 0,
+    avgPoints,
     totalDrills: drills.length,
     totalDrillMinutes,
     totalShots,

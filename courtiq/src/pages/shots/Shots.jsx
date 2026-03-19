@@ -1,155 +1,225 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
-import { Target, Plus, Square, TrendingUp, Percent, Trophy, ChevronLeft, Trash2 } from 'lucide-react';
+import {
+  Target,
+  Plus,
+  Square,
+  TrendingUp,
+  Percent,
+  Trophy,
+  ChevronLeft,
+  Trash2,
+  Crosshair,
+  BarChart3,
+} from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
-import { getShotSessions, createShotSession, deleteShotSession, createShot } from '../../lib/api';
+import { getShotLogs, createShotLogsBatch, deleteShotLog } from '../../lib/api';
 import { formatDate } from '../../lib/dateUtils';
 import PageWrapper from '../../components/layout/PageWrapper';
 import Button from '../../components/ui/Button';
 import Card from '../../components/ui/Card';
+import Select from '../../components/ui/Select';
 import EmptyState from '../../components/ui/EmptyState';
 import FilterChips from '../../components/ui/FilterChips';
 import SkeletonLoader from '../../components/ui/SkeletonLoader';
 
-const SHOT_TYPES = [
-  { value: 'layup', label: 'Layup' },
-  { value: 'mid_range', label: 'Mid-Range' },
-  { value: 'three_pointer', label: 'Three-Pointer' },
-  { value: 'free_throw', label: 'Free Throw' },
+// ── Constants ──────────────────────────────────────────
+
+const ZONES = [
+  { id: 'left_corner_3', label: 'L Corner 3', row: 0, col: 0 },
+  { id: 'paint', label: 'Paint', row: 0, col: 1 },
+  { id: 'right_corner_3', label: 'R Corner 3', row: 0, col: 2 },
+  { id: 'left_wing_3', label: 'L Wing 3', row: 1, col: 0 },
+  { id: 'free_throw', label: 'Free Throw', row: 1, col: 1 },
+  { id: 'right_wing_3', label: 'R Wing 3', row: 1, col: 2 },
+  { id: 'mid_left', label: 'Mid Left', row: 2, col: 0 },
+  { id: 'top_key_3', label: 'Top Key 3', row: 2, col: 1 },
+  { id: 'mid_right', label: 'Mid Right', row: 2, col: 2 },
+  { id: 'left_elbow', label: 'L Elbow', row: 3, col: 0 },
+  { id: 'right_elbow', label: 'R Elbow', row: 3, col: 2 },
 ];
 
-const FILTER_OPTIONS = [
-  { value: 'all', label: 'All' },
+const ZONE_MAP = Object.fromEntries(ZONES.map((z) => [z.id, z.label]));
+
+const SHOT_TYPES = [
+  { value: 'Catch & Shoot', label: 'Catch & Shoot' },
+  { value: 'Off Dribble', label: 'Off Dribble' },
+  { value: 'Post Up', label: 'Post Up' },
+  { value: 'Free Throw', label: 'Free Throw' },
+  { value: 'Floater', label: 'Floater' },
+  { value: 'Hook Shot', label: 'Hook Shot' },
+];
+
+const CONTEXT_OPTIONS = [
+  { value: 'Practice', label: 'Practice' },
+  { value: 'Game', label: 'Game' },
+  { value: 'Warmup', label: 'Warmup' },
+];
+
+const FILTER_TYPE_OPTIONS = [
+  { value: 'all', label: 'All Types' },
   ...SHOT_TYPES,
 ];
 
-function calcPercentage(made, total) {
+const FILTER_ZONE_OPTIONS = [
+  { value: 'all', label: 'All Zones' },
+  ...ZONES.map((z) => ({ value: z.id, label: z.label })),
+];
+
+// ── Helpers ────────────────────────────────────────────
+
+function pct(made, total) {
   if (total === 0) return 0;
   return Math.round((made / total) * 100);
 }
 
-function getSessionStats(session) {
-  const shots = session.shots || [];
-  const total = shots.length;
-  const made = shots.filter((s) => s.made).length;
-  return { total, made, pct: calcPercentage(made, total) };
+function todayISO() {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 }
+
+function groupByDate(shots) {
+  const groups = {};
+  for (const shot of shots) {
+    const key = shot.session_date;
+    if (!groups[key]) groups[key] = [];
+    groups[key].push(shot);
+  }
+  return Object.entries(groups).sort(([a], [b]) => (a > b ? -1 : 1));
+}
+
+// ── Component ──────────────────────────────────────────
 
 export default function Shots() {
   const { user } = useAuth();
   const { showToast } = useToast();
 
-  const [sessions, setSessions] = useState([]);
+  // Log view state
+  const [shots, setShots] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [filter, setFilter] = useState('all');
+  const [filterType, setFilterType] = useState('all');
+  const [filterZone, setFilterZone] = useState('all');
+  const [deleteConfirm, setDeleteConfirm] = useState(null);
 
-  // Active session state
-  const [activeSession, setActiveSession] = useState(null);
-  const [activeShots, setActiveShots] = useState([]);
-  const [pendingShotType, setPendingShotType] = useState(null);
+  // Mode toggle
+  const [mode, setMode] = useState('log'); // 'log' | 'track'
+
+  // Quick Track state
+  const [trackZone, setTrackZone] = useState(null);
+  const [trackShotType, setTrackShotType] = useState('Catch & Shoot');
+  const [trackContext, setTrackContext] = useState('Practice');
+  const [trackShots, setTrackShots] = useState([]);
   const [saving, setSaving] = useState(false);
 
-  // Fetch sessions
-  const fetchSessions = useCallback(async () => {
+  // ── Fetch shots ──────────────────────────────────────
+
+  const fetchShots = useCallback(async () => {
     if (!user) return;
     setLoading(true);
     try {
-      const data = await getShotSessions(user.id, { limit: 50, offset: 0 });
-      setSessions(data || []);
+      const data = await getShotLogs(user.id, { limit: 200, offset: 0 });
+      setShots(data || []);
     } catch {
-      showToast('Failed to load sessions', 'error');
+      showToast('Failed to load shot logs', 'error');
     } finally {
       setLoading(false);
     }
   }, [user, showToast]);
 
   useEffect(() => {
-    fetchSessions();
-  }, [fetchSessions]);
+    fetchShots();
+  }, [fetchShots]);
 
-  // Summary stats across all sessions
+  // ── Summary stats ────────────────────────────────────
+
   const summaryStats = useMemo(() => {
-    const allShots = sessions.flatMap((s) => s.shots || []);
-    const total = allShots.length;
-    const made = allShots.filter((s) => s.made).length;
-    const pct = calcPercentage(made, total);
+    const total = shots.length;
+    const made = shots.filter((s) => s.made).length;
+    const overall = pct(made, total);
 
-    let bestType = null;
-    let bestPct = -1;
-    for (const type of SHOT_TYPES) {
-      const typeShots = allShots.filter((s) => s.shot_type === type.value);
-      if (typeShots.length >= 1) {
-        const typeMade = typeShots.filter((s) => s.made).length;
-        const typePct = calcPercentage(typeMade, typeShots.length);
-        if (typePct > bestPct) {
-          bestPct = typePct;
-          bestType = type.label;
+    // Best zone
+    let bestZone = null;
+    let bestZonePct = -1;
+    const zoneIds = [...new Set(shots.map((s) => s.zone_id))];
+    for (const zid of zoneIds) {
+      const zShots = shots.filter((s) => s.zone_id === zid);
+      if (zShots.length >= 3) {
+        const zMade = zShots.filter((s) => s.made).length;
+        const zPct = pct(zMade, zShots.length);
+        if (zPct > bestZonePct) {
+          bestZonePct = zPct;
+          bestZone = ZONE_MAP[zid] || zid;
         }
       }
     }
 
-    return { total, made, pct, bestType, bestPct };
-  }, [sessions]);
+    return { total, made, overall, bestZone, bestZonePct };
+  }, [shots]);
 
-  // Filtered sessions
-  const filteredSessions = useMemo(() => {
-    if (filter === 'all') return sessions;
-    return sessions.filter((session) => {
-      const shots = session.shots || [];
-      return shots.some((s) => s.shot_type === filter);
-    });
-  }, [sessions, filter]);
+  // ── Filtered & grouped shots ─────────────────────────
 
-  // Start new session
-  const handleStartSession = async () => {
+  const filteredGrouped = useMemo(() => {
+    let filtered = shots;
+    if (filterType !== 'all') {
+      filtered = filtered.filter((s) => s.shot_type === filterType);
+    }
+    if (filterZone !== 'all') {
+      filtered = filtered.filter((s) => s.zone_id === filterZone);
+    }
+    return groupByDate(filtered);
+  }, [shots, filterType, filterZone]);
+
+  // ── Delete shot ──────────────────────────────────────
+
+  const handleDelete = async (id) => {
     try {
-      const session = await createShotSession({
-        user_id: user.id,
-        date: new Date().toISOString(),
-        location: null,
-        notes: null,
-      });
-      setActiveSession(session);
-      setActiveShots([]);
-      setPendingShotType(null);
-      showToast('Session started', 'success');
+      await deleteShotLog(id);
+      setShots((prev) => prev.filter((s) => s.id !== id));
+      showToast('Shot deleted', 'success');
     } catch {
-      showToast('Failed to start session', 'error');
+      showToast('Failed to delete shot', 'error');
+    } finally {
+      setDeleteConfirm(null);
     }
   };
 
-  // Record a shot type tap
-  const handleShotTypeTap = (type) => {
-    setPendingShotType(type);
-  };
+  // ── Quick Track handlers ─────────────────────────────
 
-  // Record make/miss
-  const handleResult = async (made) => {
-    if (!pendingShotType || !activeSession) return;
-    try {
-      const shot = await createShot({
-        session_id: activeSession.id,
-        user_id: user.id,
-        shot_type: pendingShotType,
-        zone: null,
+  const handleTrackResult = (made) => {
+    if (!trackZone) {
+      showToast('Select a zone first', 'error');
+      return;
+    }
+    setTrackShots((prev) => [
+      ...prev,
+      {
+        zone_id: trackZone,
+        shot_type: trackShotType,
         made,
-      });
-      setActiveShots((prev) => [...prev, shot]);
-      setPendingShotType(null);
-    } catch {
-      showToast('Failed to record shot', 'error');
-    }
+        context: trackContext,
+        session_date: todayISO(),
+        _id: Date.now(),
+      },
+    ]);
   };
 
-  // End session
   const handleEndSession = async () => {
+    if (trackShots.length === 0) {
+      showToast('No shots to save', 'error');
+      return;
+    }
     setSaving(true);
     try {
-      setActiveSession(null);
-      setActiveShots([]);
-      setPendingShotType(null);
-      await fetchSessions();
-      showToast('Session saved', 'success');
+      const payload = trackShots.map(({ _id, ...rest }) => ({
+        ...rest,
+        user_id: user.id,
+      }));
+      await createShotLogsBatch(payload);
+      showToast(`Saved ${trackShots.length} shots`, 'success');
+      setTrackShots([]);
+      setTrackZone(null);
+      setMode('log');
+      await fetchShots();
     } catch {
       showToast('Failed to save session', 'error');
     } finally {
@@ -157,39 +227,42 @@ export default function Shots() {
     }
   };
 
-  // Delete session
-  const handleDeleteSession = async (id) => {
-    try {
-      await deleteShotSession(id);
-      setSessions((prev) => prev.filter((s) => s.id !== id));
-      showToast('Session deleted', 'success');
-    } catch {
-      showToast('Failed to delete session', 'error');
-    }
+  const handleDiscardSession = () => {
+    setTrackShots([]);
+    setTrackZone(null);
+    setMode('log');
+    showToast('Session discarded', 'success');
   };
 
-  // Active session running stats
-  const activeStats = useMemo(() => {
-    const total = activeShots.length;
-    const made = activeShots.filter((s) => s.made).length;
-    return { total, made, pct: calcPercentage(made, total) };
-  }, [activeShots]);
+  // Quick Track running stats
+  const trackStats = useMemo(() => {
+    const total = trackShots.length;
+    const made = trackShots.filter((s) => s.made).length;
+    return { total, made, pct: pct(made, total) };
+  }, [trackShots]);
 
-  // --- Active Session View ---
-  if (activeSession) {
+  // ── Quick Track Mode ─────────────────────────────────
+
+  if (mode === 'track') {
     return (
       <PageWrapper>
-        <div className="space-y-6">
+        <div className="space-y-5">
           {/* Header */}
           <div className="flex items-center gap-3">
             <button
-              onClick={handleEndSession}
+              onClick={() => {
+                if (trackShots.length > 0) {
+                  // Don't navigate away — confirm first
+                  return;
+                }
+                setMode('log');
+              }}
               className="p-2 rounded-lg bg-bg-surface hover:bg-bg-surface-hover transition-colors"
             >
               <ChevronLeft className="w-5 h-5 text-text-secondary" />
             </button>
             <h1 className="font-display text-2xl font-bold text-text-primary uppercase tracking-wide">
-              Active Session
+              Quick Track
             </h1>
           </div>
 
@@ -197,77 +270,97 @@ export default function Shots() {
           <div className="grid grid-cols-3 gap-3">
             <Card glass padding="md" className="text-center">
               <p className="text-text-muted text-xs font-body uppercase tracking-wider mb-1">Shots</p>
-              <p className="font-display text-3xl font-bold text-text-primary">{activeStats.total}</p>
+              <p className="font-display text-3xl font-bold text-text-primary">{trackStats.total}</p>
             </Card>
             <Card glass padding="md" className="text-center">
               <p className="text-text-muted text-xs font-body uppercase tracking-wider mb-1">Makes</p>
-              <p className="font-display text-3xl font-bold text-success">{activeStats.made}</p>
+              <p className="font-display text-3xl font-bold text-success">{trackStats.made}</p>
             </Card>
             <Card glass padding="md" className="text-center">
               <p className="text-text-muted text-xs font-body uppercase tracking-wider mb-1">Pct</p>
-              <p className="font-display text-3xl font-bold text-accent-primary">{activeStats.pct}%</p>
+              <p className="font-display text-3xl font-bold text-accent-primary">{trackStats.pct}%</p>
             </Card>
           </div>
 
-          {/* Shot Type Buttons */}
-          <div className="space-y-3">
-            <p className="text-text-secondary font-body text-sm">Tap a shot type:</p>
-            <div className="grid grid-cols-2 gap-3">
-              {SHOT_TYPES.map((type) => (
+          {/* Context & Shot Type selectors */}
+          <div className="grid grid-cols-2 gap-3">
+            <Select
+              label="Shot Type"
+              value={trackShotType}
+              onChange={(e) => setTrackShotType(e.target.value)}
+              options={SHOT_TYPES}
+            />
+            <Select
+              label="Context"
+              value={trackContext}
+              onChange={(e) => setTrackContext(e.target.value)}
+              options={CONTEXT_OPTIONS}
+            />
+          </div>
+
+          {/* Court Zone Selector */}
+          <div className="space-y-2">
+            <p className="text-text-secondary font-body text-sm">Select zone:</p>
+            <div className="grid grid-cols-3 gap-2">
+              {ZONES.map((zone) => (
                 <button
-                  key={type.value}
-                  onClick={() => handleShotTypeTap(type.value)}
-                  className={`p-4 rounded-xl font-display text-lg font-semibold uppercase tracking-wide transition-all ${
-                    pendingShotType === type.value
+                  key={zone.id}
+                  onClick={() => setTrackZone(zone.id)}
+                  className={`p-3 rounded-xl text-xs font-display font-semibold uppercase tracking-wide transition-all ${
+                    trackZone === zone.id
                       ? 'bg-accent-primary text-white ring-2 ring-accent-primary ring-offset-2 ring-offset-bg-primary scale-95'
-                      : 'bg-bg-surface hover:bg-bg-surface-hover text-text-primary'
+                      : 'bg-bg-surface hover:bg-bg-surface-hover text-text-primary border border-border-subtle'
                   }`}
                 >
-                  {type.label}
+                  {zone.label}
                 </button>
               ))}
             </div>
           </div>
 
-          {/* Make / Miss Buttons */}
-          {pendingShotType && (
-            <div className="space-y-3">
-              <p className="text-text-secondary font-body text-sm text-center">
-                {SHOT_TYPES.find((t) => t.value === pendingShotType)?.label} — Made or Missed?
-              </p>
-              <div className="grid grid-cols-2 gap-4">
-                <button
-                  onClick={() => handleResult(true)}
-                  className="p-5 rounded-xl bg-success/15 hover:bg-success/25 border border-success/30 transition-all active:scale-95"
-                >
-                  <span className="font-display text-xl font-bold text-success uppercase">Made</span>
-                </button>
-                <button
-                  onClick={() => handleResult(false)}
-                  className="p-5 rounded-xl bg-danger/15 hover:bg-danger/25 border border-danger/30 transition-all active:scale-95"
-                >
-                  <span className="font-display text-xl font-bold text-danger uppercase">Missed</span>
-                </button>
-              </div>
+          {/* Made / Missed Buttons */}
+          <div className="space-y-2">
+            <p className="text-text-secondary font-body text-sm text-center">
+              {trackZone
+                ? `${ZONE_MAP[trackZone]} \u2014 ${trackShotType}`
+                : 'Pick a zone, then tap Made or Missed'}
+            </p>
+            <div className="grid grid-cols-2 gap-4">
+              <button
+                onClick={() => handleTrackResult(true)}
+                disabled={!trackZone}
+                className="p-5 rounded-xl bg-success/15 hover:bg-success/25 border border-success/30 transition-all active:scale-95 disabled:opacity-40 disabled:active:scale-100"
+              >
+                <span className="font-display text-xl font-bold text-success uppercase">Made</span>
+              </button>
+              <button
+                onClick={() => handleTrackResult(false)}
+                disabled={!trackZone}
+                className="p-5 rounded-xl bg-danger/15 hover:bg-danger/25 border border-danger/30 transition-all active:scale-95 disabled:opacity-40 disabled:active:scale-100"
+              >
+                <span className="font-display text-xl font-bold text-danger uppercase">Missed</span>
+              </button>
             </div>
-          )}
+          </div>
 
           {/* Recent shots feed */}
-          {activeShots.length > 0 && (
+          {trackShots.length > 0 && (
             <Card glass padding="md" className="space-y-2">
-              <p className="text-text-muted text-xs font-body uppercase tracking-wider mb-2">Recent Shots</p>
+              <p className="text-text-muted text-xs font-body uppercase tracking-wider mb-2">
+                Session Shots
+              </p>
               <div className="flex flex-wrap gap-2">
-                {activeShots
-                  .slice(-20)
+                {trackShots
+                  .slice(-24)
                   .reverse()
-                  .map((shot, i) => (
+                  .map((shot) => (
                     <span
-                      key={shot.id || i}
+                      key={shot._id}
                       className={`inline-flex items-center gap-1 px-2 py-1 rounded-md text-xs font-body font-medium ${
                         shot.made ? 'bg-success/15 text-success' : 'bg-danger/15 text-danger'
                       }`}
                     >
-                      {SHOT_TYPES.find((t) => t.value === shot.shot_type)?.label}
+                      {ZONE_MAP[shot.zone_id] || shot.zone_id}
                       <span>{shot.made ? '\u2713' : '\u2717'}</span>
                     </span>
                   ))}
@@ -275,17 +368,25 @@ export default function Shots() {
             </Card>
           )}
 
-          {/* End Session */}
-          <Button variant="primary" fullWidth loading={saving} onClick={handleEndSession}>
-            <Square className="w-4 h-4 mr-2" />
-            End Session
-          </Button>
+          {/* End / Discard Session */}
+          <div className="space-y-2">
+            <Button variant="primary" fullWidth loading={saving} onClick={handleEndSession}>
+              <Square className="w-4 h-4 mr-2" />
+              End Session ({trackShots.length} shots)
+            </Button>
+            {trackShots.length > 0 && (
+              <Button variant="ghost" fullWidth onClick={handleDiscardSession}>
+                Discard Session
+              </Button>
+            )}
+          </div>
         </div>
       </PageWrapper>
     );
   }
 
-  // --- Session List View ---
+  // ── Shot Log View ────────────────────────────────────
+
   return (
     <PageWrapper>
       <div className="space-y-6">
@@ -294,21 +395,21 @@ export default function Shots() {
           <h1 className="font-display text-2xl font-bold text-text-primary uppercase tracking-wide">
             Shot Tracker
           </h1>
-          <Button variant="primary" onClick={handleStartSession}>
-            <Plus className="w-4 h-4 mr-2" />
-            New Session
+          <Button variant="primary" onClick={() => setMode('track')}>
+            <Crosshair className="w-4 h-4 mr-2" />
+            Quick Track
           </Button>
         </div>
 
         {loading ? (
           <SkeletonLoader variant="card" count={3} />
-        ) : sessions.length === 0 ? (
+        ) : shots.length === 0 ? (
           <EmptyState
-            icon={Target}
-            title="No Shot Sessions Yet"
-            description="Start a new session to begin tracking your shots and improving your game."
-            actionLabel="Start First Session"
-            onAction={handleStartSession}
+            icon={<Target className="w-12 h-12" />}
+            title="No Shots Logged Yet"
+            description="Start a quick track session to log shots and track your shooting from every zone."
+            actionLabel="Start Tracking"
+            onAction={() => setMode('track')}
           />
         ) : (
           <>
@@ -318,99 +419,168 @@ export default function Shots() {
                 <div className="flex items-center justify-center mb-2">
                   <TrendingUp className="w-4 h-4 text-accent-secondary" />
                 </div>
-                <p className="text-text-muted text-xs font-body uppercase tracking-wider mb-1">Total Shots</p>
-                <p className="font-display text-2xl font-bold text-text-primary">{summaryStats.total}</p>
+                <p className="text-text-muted text-xs font-body uppercase tracking-wider mb-1">
+                  Total Shots
+                </p>
+                <p className="font-display text-2xl font-bold text-text-primary">
+                  {summaryStats.total}
+                </p>
               </Card>
               <Card glass padding="md" className="text-center">
                 <div className="flex items-center justify-center mb-2">
                   <Percent className="w-4 h-4 text-accent-secondary" />
                 </div>
-                <p className="text-text-muted text-xs font-body uppercase tracking-wider mb-1">Overall %</p>
-                <p className="font-display text-2xl font-bold text-accent-primary">{summaryStats.pct}%</p>
+                <p className="text-text-muted text-xs font-body uppercase tracking-wider mb-1">
+                  Overall %
+                </p>
+                <p className="font-display text-2xl font-bold text-accent-primary">
+                  {summaryStats.overall}%
+                </p>
               </Card>
               <Card glass padding="md" className="text-center">
                 <div className="flex items-center justify-center mb-2">
                   <Trophy className="w-4 h-4 text-accent-secondary" />
                 </div>
-                <p className="text-text-muted text-xs font-body uppercase tracking-wider mb-1">Best Type</p>
-                <p className="font-display text-sm font-bold text-text-primary leading-tight">
-                  {summaryStats.bestType || '\u2014'}
+                <p className="text-text-muted text-xs font-body uppercase tracking-wider mb-1">
+                  Best Zone
                 </p>
-                {summaryStats.bestType && (
-                  <p className="text-xs text-success font-body">{summaryStats.bestPct}%</p>
+                <p className="font-display text-sm font-bold text-text-primary leading-tight">
+                  {summaryStats.bestZone || '\u2014'}
+                </p>
+                {summaryStats.bestZone && (
+                  <p className="text-xs text-success font-body">{summaryStats.bestZonePct}%</p>
                 )}
               </Card>
             </div>
 
             {/* Filters */}
-            <FilterChips options={FILTER_OPTIONS} selected={filter} onChange={setFilter} />
+            <div className="space-y-2">
+              <FilterChips
+                options={FILTER_TYPE_OPTIONS}
+                selected={filterType}
+                onChange={setFilterType}
+              />
+              <FilterChips
+                options={FILTER_ZONE_OPTIONS}
+                selected={filterZone}
+                onChange={setFilterZone}
+              />
+            </div>
 
-            {/* Session List */}
-            <div className="space-y-3">
-              {filteredSessions.length === 0 ? (
+            {/* Zone Breakdown */}
+            <Card glass padding="md" className="space-y-3">
+              <div className="flex items-center gap-2 mb-1">
+                <BarChart3 className="w-4 h-4 text-accent-secondary" />
+                <p className="text-text-muted text-xs font-body uppercase tracking-wider">
+                  Zone Breakdown
+                </p>
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                {ZONES.map((zone) => {
+                  const zShots = shots.filter((s) => s.zone_id === zone.id);
+                  if (zShots.length === 0) return null;
+                  const zMade = zShots.filter((s) => s.made).length;
+                  return (
+                    <div
+                      key={zone.id}
+                      className="flex items-center justify-between px-3 py-2 rounded-lg bg-bg-surface"
+                    >
+                      <span className="text-xs font-body text-text-secondary">{zone.label}</span>
+                      <span className="text-xs font-display font-bold text-text-primary">
+                        {zMade}/{zShots.length}{' '}
+                        <span className="text-accent-primary">({pct(zMade, zShots.length)}%)</span>
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
+            </Card>
+
+            {/* Grouped Shot Logs */}
+            <div className="space-y-4">
+              {filteredGrouped.length === 0 ? (
                 <p className="text-text-muted text-center py-8 font-body">
-                  No sessions match this filter.
+                  No shots match these filters.
                 </p>
               ) : (
-                filteredSessions.map((session) => {
-                  const stats = getSessionStats(session);
+                filteredGrouped.map(([date, dateShots]) => {
+                  const dateMade = dateShots.filter((s) => s.made).length;
                   return (
-                    <Card key={session.id} glass padding="md" className="space-y-3">
-                      <div className="flex items-start justify-between">
-                        <div>
-                          <p className="font-display text-lg font-semibold text-text-primary">
-                            {formatDate(session.date)}
-                          </p>
-                          {session.location && (
-                            <p className="text-text-muted text-sm font-body">{session.location}</p>
-                          )}
-                        </div>
-                        <button
-                          onClick={() => handleDeleteSession(session.id)}
-                          className="p-2 rounded-lg hover:bg-bg-surface-hover transition-colors"
-                        >
-                          <Trash2 className="w-4 h-4 text-text-muted hover:text-danger" />
-                        </button>
+                    <div key={date} className="space-y-2">
+                      {/* Date header */}
+                      <div className="flex items-center justify-between">
+                        <p className="font-display text-base font-semibold text-text-primary">
+                          {formatDate(date)}
+                        </p>
+                        <span className="text-xs font-body text-text-muted">
+                          {dateMade}/{dateShots.length} ({pct(dateMade, dateShots.length)}%)
+                        </span>
                       </div>
 
-                      <div className="flex items-center gap-4">
-                        <div>
-                          <p className="text-text-muted text-xs font-body uppercase tracking-wider">Shots</p>
-                          <p className="font-display text-xl font-bold text-text-primary">{stats.total}</p>
-                        </div>
-                        <div>
-                          <p className="text-text-muted text-xs font-body uppercase tracking-wider">Makes</p>
-                          <p className="font-display text-xl font-bold text-success">{stats.made}</p>
-                        </div>
-                        <div>
-                          <p className="text-text-muted text-xs font-body uppercase tracking-wider">Pct</p>
-                          <p className="font-display text-xl font-bold text-accent-primary">{stats.pct}%</p>
-                        </div>
-                      </div>
+                      {/* Individual shots */}
+                      <div className="space-y-2">
+                        {dateShots.map((shot) => (
+                          <Card key={shot.id} glass padding="sm" className="flex items-center gap-3">
+                            {/* Made/missed indicator */}
+                            <div
+                              className={`w-3 h-3 rounded-full flex-shrink-0 ${
+                                shot.made ? 'bg-success' : 'bg-danger'
+                              }`}
+                            />
 
-                      {/* Shot type breakdown */}
-                      <div className="flex flex-wrap gap-2">
-                        {SHOT_TYPES.map((type) => {
-                          const typeShots = (session.shots || []).filter(
-                            (s) => s.shot_type === type.value
-                          );
-                          if (typeShots.length === 0) return null;
-                          const typeMade = typeShots.filter((s) => s.made).length;
-                          return (
+                            {/* Shot info */}
+                            <div className="flex-1 min-w-0">
+                              <p className="text-sm font-display font-semibold text-text-primary truncate">
+                                {ZONE_MAP[shot.zone_id] || shot.zone_id}
+                              </p>
+                              <p className="text-xs font-body text-text-muted truncate">
+                                {shot.shot_type}
+                                {shot.context && shot.context !== 'Practice'
+                                  ? ` \u00B7 ${shot.context}`
+                                  : ''}
+                                {shot.notes ? ` \u00B7 ${shot.notes}` : ''}
+                              </p>
+                            </div>
+
+                            {/* Made / Missed label */}
                             <span
-                              key={type.value}
-                              className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-bg-surface-hover text-xs font-body text-text-secondary"
+                              className={`text-xs font-body font-medium px-2 py-0.5 rounded-full ${
+                                shot.made
+                                  ? 'bg-success/15 text-success'
+                                  : 'bg-danger/15 text-danger'
+                              }`}
                             >
-                              {type.label}: {typeMade}/{typeShots.length}
+                              {shot.made ? 'Made' : 'Missed'}
                             </span>
-                          );
-                        })}
-                      </div>
 
-                      {session.notes && (
-                        <p className="text-text-muted text-sm font-body italic">{session.notes}</p>
-                      )}
-                    </Card>
+                            {/* Delete */}
+                            {deleteConfirm === shot.id ? (
+                              <div className="flex items-center gap-1 flex-shrink-0">
+                                <button
+                                  onClick={() => handleDelete(shot.id)}
+                                  className="text-xs px-2 py-1 rounded-lg bg-danger/15 text-danger hover:bg-danger/25 transition-colors"
+                                >
+                                  Yes
+                                </button>
+                                <button
+                                  onClick={() => setDeleteConfirm(null)}
+                                  className="text-xs px-2 py-1 rounded-lg bg-bg-surface-hover text-text-muted hover:text-text-primary transition-colors"
+                                >
+                                  No
+                                </button>
+                              </div>
+                            ) : (
+                              <button
+                                onClick={() => setDeleteConfirm(shot.id)}
+                                className="p-1.5 rounded-lg hover:bg-bg-surface-hover transition-colors flex-shrink-0"
+                              >
+                                <Trash2 className="w-3.5 h-3.5 text-text-muted hover:text-danger" />
+                              </button>
+                            )}
+                          </Card>
+                        ))}
+                      </div>
+                    </div>
                   );
                 })
               )}

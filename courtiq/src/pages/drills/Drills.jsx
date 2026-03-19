@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
-import { Activity, Plus, Trash2, Clock, Dumbbell, X } from 'lucide-react';
+import { Activity, Plus, Trash2, Clock, Dumbbell, X, Calendar } from 'lucide-react';
 import PageWrapper from '../../components/layout/PageWrapper';
 import Button from '../../components/ui/Button';
 import Card from '../../components/ui/Card';
@@ -8,43 +8,62 @@ import Select from '../../components/ui/Select';
 import EmptyState from '../../components/ui/EmptyState';
 import FilterChips from '../../components/ui/FilterChips';
 import SkeletonLoader from '../../components/ui/SkeletonLoader';
+import StarRating from '../../components/ui/StarRating';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
-import { getDrills, createDrill, deleteDrill } from '../../lib/api';
+import { getDrillSessions, createDrillSession, deleteDrillSession } from '../../lib/api';
 import { formatDate } from '../../lib/dateUtils';
 
-const DRILL_TYPES = [
-  { value: 'ball_handling', label: 'Ball Handling' },
-  { value: 'shooting', label: 'Shooting' },
-  { value: 'footwork', label: 'Footwork' },
-  { value: 'defense', label: 'Defense' },
-  { value: 'conditioning', label: 'Conditioning' },
-  { value: 'passing', label: 'Passing' },
+const CATEGORIES = [
+  { value: 'Ball Handling', label: 'Ball Handling' },
+  { value: 'Shooting', label: 'Shooting' },
+  { value: 'Finishing', label: 'Finishing' },
+  { value: 'Defense', label: 'Defense' },
+  { value: 'Passing', label: 'Passing' },
+  { value: 'Conditioning', label: 'Conditioning' },
+  { value: 'Custom', label: 'Custom' },
 ];
 
 const INTENSITY_OPTIONS = [
-  { value: 'low', label: 'Low' },
-  { value: 'medium', label: 'Medium' },
-  { value: 'high', label: 'High' },
+  { value: 'Low', label: 'Low' },
+  { value: 'Medium', label: 'Medium' },
+  { value: 'High', label: 'High' },
 ];
 
 const FILTER_OPTIONS = [
   { value: 'all', label: 'All' },
-  ...DRILL_TYPES,
+  ...CATEGORIES,
 ];
 
-const DRILL_TYPE_LABELS = Object.fromEntries(DRILL_TYPES.map(t => [t.value, t.label]));
-const INTENSITY_LABELS = { low: 'Low', medium: 'Medium', high: 'High' };
+const CATEGORY_COLORS = {
+  'Ball Handling': 'text-accent-primary bg-accent-primary/15',
+  'Shooting': 'text-success bg-success/15',
+  'Finishing': 'text-danger bg-danger/15',
+  'Defense': 'text-accent-secondary bg-accent-primary/15',
+  'Passing': 'text-text-primary bg-bg-surface-elevated',
+  'Conditioning': 'text-danger bg-danger/15',
+  'Custom': 'text-text-secondary bg-bg-surface-elevated',
+};
 
-const today = () => new Date().toISOString().split('T')[0];
+const INTENSITY_COLORS = {
+  High: 'text-danger bg-danger/15',
+  Medium: 'text-accent-secondary bg-accent-primary/15',
+  Low: 'text-success bg-success/15',
+};
+
+function todayISO() {
+  return new Date().toISOString().slice(0, 10);
+}
 
 const INITIAL_FORM = {
-  date: today(),
-  drill_type: '',
-  duration_minutes: '',
-  reps: '',
+  session_date: todayISO(),
+  category: '',
+  drill_name: '',
   sets: '',
+  reps: '',
+  duration_minutes: '',
   intensity: '',
+  rating: 0,
   notes: '',
 };
 
@@ -66,7 +85,7 @@ export default function Drills() {
     if (!user) return;
     try {
       setLoading(true);
-      const data = await getDrills(user.id, { limit: 200, offset: 0 });
+      const data = await getDrillSessions(user.id, { limit: 200, offset: 0 });
       setDrills(data || []);
     } catch {
       showToast('Failed to load drills', 'error');
@@ -80,20 +99,20 @@ export default function Drills() {
   }, [fetchDrills]);
 
   const filteredDrills = useMemo(
-    () => (filter === 'all' ? drills : drills.filter(d => d.drill_type === filter)),
+    () => (filter === 'all' ? drills : drills.filter(d => d.category === filter)),
     [drills, filter],
   );
 
   const stats = useMemo(() => {
     const totalDrills = drills.length;
     const totalMinutes = drills.reduce((sum, d) => sum + (d.duration_minutes || 0), 0);
-    const typeCounts = {};
+    const categoryCounts = {};
     drills.forEach(d => {
-      typeCounts[d.drill_type] = (typeCounts[d.drill_type] || 0) + 1;
+      categoryCounts[d.category] = (categoryCounts[d.category] || 0) + 1;
     });
     const mostPracticed =
-      Object.keys(typeCounts).length > 0
-        ? Object.entries(typeCounts).sort((a, b) => b[1] - a[1])[0][0]
+      Object.keys(categoryCounts).length > 0
+        ? Object.entries(categoryCounts).sort((a, b) => b[1] - a[1])[0][0]
         : null;
     return { totalDrills, totalMinutes, mostPracticed };
   }, [drills]);
@@ -111,11 +130,9 @@ export default function Drills() {
 
   const validate = () => {
     const errors = {};
-    if (!form.date) errors.date = 'Date is required';
-    if (!form.drill_type) errors.drill_type = 'Select a drill type';
-    if (!form.duration_minutes || Number(form.duration_minutes) <= 0)
-      errors.duration_minutes = 'Enter a valid duration';
-    if (!form.intensity) errors.intensity = 'Select intensity';
+    if (!form.session_date) errors.session_date = 'Date is required';
+    if (!form.category) errors.category = 'Select a category';
+    if (!form.drill_name.trim()) errors.drill_name = 'Enter a drill name';
     setFormErrors(errors);
     return Object.keys(errors).length === 0;
   };
@@ -127,15 +144,18 @@ export default function Drills() {
       setSubmitting(true);
       const drill = {
         user_id: user.id,
-        date: form.date,
-        drill_type: form.drill_type,
-        duration_minutes: parseInt(form.duration_minutes, 10),
-        reps: form.reps ? parseInt(form.reps, 10) : null,
+        session_date: form.session_date,
+        category: form.category,
+        drill_name: form.drill_name.trim(),
         sets: form.sets ? parseInt(form.sets, 10) : null,
-        intensity: form.intensity,
-        notes: form.notes || null,
+        reps: form.reps ? parseInt(form.reps, 10) : null,
+        duration_minutes: form.duration_minutes ? parseInt(form.duration_minutes, 10) : null,
+        intensity: form.intensity || null,
+        rating: form.rating || null,
+        notes: form.notes.trim() || null,
+        is_custom_drill: form.category === 'Custom',
       };
-      const created = await createDrill(drill);
+      const created = await createDrillSession(drill);
       setDrills(prev => [created, ...prev]);
       setForm(INITIAL_FORM);
       setFormErrors({});
@@ -152,7 +172,7 @@ export default function Drills() {
     if (!deleteId) return;
     try {
       setDeleting(true);
-      await deleteDrill(deleteId);
+      await deleteDrillSession(deleteId);
       setDrills(prev => prev.filter(d => d.id !== deleteId));
       showToast('Drill deleted', 'success');
     } catch {
@@ -161,12 +181,6 @@ export default function Drills() {
       setDeleting(false);
       setDeleteId(null);
     }
-  };
-
-  const intensityColor = intensity => {
-    if (intensity === 'high') return 'text-danger bg-danger/15';
-    if (intensity === 'medium') return 'text-accent-secondary bg-accent-primary/15';
-    return 'text-success bg-success/15';
   };
 
   return (
@@ -182,7 +196,10 @@ export default function Drills() {
             variant={showForm ? 'ghost' : 'primary'}
             onClick={() => {
               setShowForm(prev => !prev);
-              setFormErrors({});
+              if (showForm) {
+                setForm(INITIAL_FORM);
+                setFormErrors({});
+              }
             }}
             className="flex items-center gap-2"
           >
@@ -205,7 +222,7 @@ export default function Drills() {
             <Card padding="sm" className="text-center">
               <p className="text-text-muted text-xs uppercase tracking-wide font-body">Most Practiced</p>
               <p className="font-display text-lg font-bold text-accent-primary mt-1">
-                {stats.mostPracticed ? DRILL_TYPE_LABELS[stats.mostPracticed] : '—'}
+                {stats.mostPracticed || '—'}
               </p>
             </Card>
           </div>
@@ -221,53 +238,68 @@ export default function Drills() {
                 <Input
                   label="Date"
                   type="date"
-                  value={form.date}
-                  onChange={e => updateField('date', e.target.value)}
-                  error={formErrors.date}
+                  value={form.session_date}
+                  onChange={e => updateField('session_date', e.target.value)}
+                  error={formErrors.session_date}
                 />
                 <Select
-                  label="Drill Type"
-                  options={DRILL_TYPES}
-                  placeholder="Select type"
-                  value={form.drill_type}
-                  onChange={e => updateField('drill_type', e.target.value)}
-                  error={formErrors.drill_type}
+                  label="Category"
+                  options={CATEGORIES}
+                  placeholder="Select category"
+                  value={form.category}
+                  onChange={e => updateField('category', e.target.value)}
+                  error={formErrors.category}
                 />
               </div>
 
+              <Input
+                label="Drill Name"
+                placeholder="e.g. Crossover combos, Free throws"
+                value={form.drill_name}
+                onChange={e => updateField('drill_name', e.target.value)}
+                error={formErrors.drill_name}
+              />
+
               <div className="grid grid-cols-3 gap-4">
+                <Input
+                  label="Sets (optional)"
+                  type="number"
+                  min="1"
+                  value={form.sets}
+                  onChange={e => updateField('sets', e.target.value)}
+                />
+                <Input
+                  label="Reps (optional)"
+                  type="number"
+                  min="1"
+                  value={form.reps}
+                  onChange={e => updateField('reps', e.target.value)}
+                />
                 <Input
                   label="Duration (min)"
                   type="number"
                   min="1"
                   value={form.duration_minutes}
                   onChange={e => updateField('duration_minutes', e.target.value)}
-                  error={formErrors.duration_minutes}
-                />
-                <Input
-                  label="Reps (optional)"
-                  type="number"
-                  min="0"
-                  value={form.reps}
-                  onChange={e => updateField('reps', e.target.value)}
-                />
-                <Input
-                  label="Sets (optional)"
-                  type="number"
-                  min="0"
-                  value={form.sets}
-                  onChange={e => updateField('sets', e.target.value)}
                 />
               </div>
 
               <Select
-                label="Intensity"
+                label="Intensity (optional)"
                 options={INTENSITY_OPTIONS}
                 placeholder="Select intensity"
                 value={form.intensity}
                 onChange={e => updateField('intensity', e.target.value)}
-                error={formErrors.intensity}
               />
+
+              <div>
+                <label className="block text-sm font-medium text-text-secondary mb-1">Rating (optional)</label>
+                <StarRating
+                  value={form.rating}
+                  onChange={star => updateField('rating', star)}
+                  size={28}
+                />
+              </div>
 
               <div>
                 <label className="block text-sm font-medium text-text-secondary mb-1">Notes (optional)</label>
@@ -321,7 +353,7 @@ export default function Drills() {
             <EmptyState
               icon={Activity}
               title="No drills match this filter"
-              description="Try selecting a different drill type."
+              description="Try selecting a different category."
             />
           )
         ) : (
@@ -336,28 +368,44 @@ export default function Drills() {
                   <div className="space-y-2 flex-1 min-w-0">
                     <div className="flex items-center gap-3 flex-wrap">
                       <span className="font-display font-semibold text-text-primary">
-                        {DRILL_TYPE_LABELS[drill.drill_type] || drill.drill_type}
+                        {drill.drill_name}
                       </span>
                       <span
-                        className={`text-xs font-medium px-2 py-0.5 rounded-full ${intensityColor(drill.intensity)}`}
+                        className={`text-xs font-medium px-2 py-0.5 rounded-full ${CATEGORY_COLORS[drill.category] || 'text-text-secondary bg-bg-surface-elevated'}`}
                       >
-                        {INTENSITY_LABELS[drill.intensity] || drill.intensity}
+                        {drill.category}
                       </span>
-                    </div>
-
-                    <div className="flex items-center gap-4 text-sm text-text-secondary">
-                      <span className="flex items-center gap-1">
-                        <Clock className="w-3.5 h-3.5" />
-                        {drill.duration_minutes} min
-                      </span>
-                      {drill.reps != null && (
-                        <span className="flex items-center gap-1">
-                          <Dumbbell className="w-3.5 h-3.5" />
-                          {drill.reps} reps
-                          {drill.sets != null && ` x ${drill.sets} sets`}
+                      {drill.intensity && (
+                        <span
+                          className={`text-xs font-medium px-2 py-0.5 rounded-full ${INTENSITY_COLORS[drill.intensity] || ''}`}
+                        >
+                          {drill.intensity}
                         </span>
                       )}
-                      <span>{formatDate(drill.date)}</span>
+                    </div>
+
+                    <div className="flex items-center gap-4 text-sm text-text-secondary flex-wrap">
+                      {drill.duration_minutes != null && (
+                        <span className="flex items-center gap-1">
+                          <Clock className="w-3.5 h-3.5" />
+                          {drill.duration_minutes} min
+                        </span>
+                      )}
+                      {(drill.sets != null || drill.reps != null) && (
+                        <span className="flex items-center gap-1">
+                          <Dumbbell className="w-3.5 h-3.5" />
+                          {drill.sets != null && `${drill.sets} sets`}
+                          {drill.sets != null && drill.reps != null && ' x '}
+                          {drill.reps != null && `${drill.reps} reps`}
+                        </span>
+                      )}
+                      {drill.rating != null && drill.rating > 0 && (
+                        <StarRating value={drill.rating} onChange={() => {}} size={14} />
+                      )}
+                      <span className="flex items-center gap-1">
+                        <Calendar className="w-3.5 h-3.5" />
+                        {formatDate(drill.session_date)}
+                      </span>
                     </div>
 
                     {drill.notes && (

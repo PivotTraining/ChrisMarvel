@@ -1,5 +1,8 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Trophy, Plus, Trash2, Calendar, MapPin, StickyNote, X } from 'lucide-react';
+import {
+  Trophy, Plus, Trash2, Calendar, MapPin, StickyNote, X,
+  ChevronDown, ChevronUp, Target, Activity,
+} from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
 import { getGames, createGame, deleteGame } from '../../lib/api';
@@ -8,37 +11,108 @@ import PageWrapper from '../../components/layout/PageWrapper';
 import Button from '../../components/ui/Button';
 import Card from '../../components/ui/Card';
 import Input from '../../components/ui/Input';
+import Select from '../../components/ui/Select';
+import Slider from '../../components/ui/Slider';
+import Badge from '../../components/ui/Badge';
 import EmptyState from '../../components/ui/EmptyState';
 import FilterChips from '../../components/ui/FilterChips';
 import SkeletonLoader from '../../components/ui/SkeletonLoader';
 
 const FILTER_OPTIONS = [
   { value: 'all', label: 'All' },
-  { value: 'W', label: 'Wins' },
-  { value: 'L', label: 'Losses' },
+  { value: 'Win', label: 'Wins' },
+  { value: 'Loss', label: 'Losses' },
+  { value: 'Draw', label: 'Draws' },
 ];
 
-function getResultFromScores(userScore, opponentScore) {
-  const us = parseInt(userScore, 10);
-  const os = parseInt(opponentScore, 10);
-  if (isNaN(us) || isNaN(os)) return null;
-  if (us > os) return 'W';
-  if (us < os) return 'L';
-  return 'T';
-}
+const GAME_TYPE_OPTIONS = [
+  { value: 'League', label: 'League' },
+  { value: 'Tournament', label: 'Tournament' },
+  { value: 'Pickup', label: 'Pickup' },
+  { value: 'Practice', label: 'Practice' },
+  { value: 'Scrimmage', label: 'Scrimmage' },
+];
+
+const RESULT_OPTIONS = [
+  { value: 'Win', label: 'Win' },
+  { value: 'Loss', label: 'Loss' },
+  { value: 'Draw', label: 'Draw' },
+];
 
 function todayISO() {
   return new Date().toISOString().slice(0, 10);
 }
 
 const INITIAL_FORM = {
-  date: todayISO(),
+  game_date: todayISO(),
   opponent: '',
-  user_score: '',
-  opponent_score: '',
   location: '',
+  game_type: 'League',
+  result: 'Win',
+  minutes_played: '',
+  points: '',
+  rebounds: '',
+  assists: '',
+  steals: '',
+  blocks: '',
+  turnovers: '',
+  fouls: '',
+  fg_made: '',
+  fg_attempted: '',
+  three_made: '',
+  three_attempted: '',
+  ft_made: '',
+  ft_attempted: '',
+  energy_level: 5,
+  performance_rating: 5,
   notes: '',
 };
+
+function resultBadgeStyle(result) {
+  switch (result) {
+    case 'Win':
+      return 'bg-success/15 text-success';
+    case 'Loss':
+      return 'bg-danger/15 text-danger';
+    case 'Draw':
+      return 'bg-white/10 text-text-secondary';
+    default:
+      return 'bg-white/10 text-text-secondary';
+  }
+}
+
+function resultLabel(result) {
+  switch (result) {
+    case 'Win': return 'W';
+    case 'Loss': return 'L';
+    case 'Draw': return 'D';
+    default: return '?';
+  }
+}
+
+function FormSection({ title, icon: Icon, defaultOpen = true, children }) {
+  const [open, setOpen] = useState(defaultOpen);
+  return (
+    <div className="border border-border-subtle rounded-xl overflow-hidden">
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        className="w-full flex items-center justify-between px-4 py-3 bg-bg-surface-hover/50 hover:bg-bg-surface-hover transition-colors"
+      >
+        <span className="flex items-center gap-2 text-sm font-semibold text-text-primary uppercase tracking-wide font-display">
+          {Icon && <Icon className="w-4 h-4 text-accent-primary" />}
+          {title}
+        </span>
+        {open ? (
+          <ChevronUp className="w-4 h-4 text-text-muted" />
+        ) : (
+          <ChevronDown className="w-4 h-4 text-text-muted" />
+        )}
+      </button>
+      {open && <div className="p-4 space-y-4">{children}</div>}
+    </div>
+  );
+}
 
 export default function Games() {
   const { user } = useAuth();
@@ -70,17 +144,20 @@ export default function Games() {
     fetchGames();
   }, [fetchGames]);
 
-  const filteredGames = filter === 'all'
-    ? games
-    : games.filter((g) => g.result === filter);
+  // Filtering
+  const filteredGames =
+    filter === 'all' ? games : games.filter((g) => g.result === filter);
 
-  // Stats
+  // Summary stats
   const totalGames = games.length;
-  const wins = games.filter((g) => g.result === 'W').length;
-  const losses = games.filter((g) => g.result === 'L').length;
-  const winPct = totalGames > 0 ? Math.round((wins / totalGames) * 100) : 0;
+  const wins = games.filter((g) => g.result === 'Win').length;
+  const losses = games.filter((g) => g.result === 'Loss').length;
+  const avgPoints =
+    totalGames > 0
+      ? Math.round(games.reduce((sum, g) => sum + (g.points || 0), 0) / totalGames)
+      : 0;
 
-  // Form handling
+  // ── Form helpers ────────────────────────────────────────
   function handleFormChange(e) {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
@@ -89,15 +166,28 @@ export default function Games() {
     }
   }
 
+  function handleSliderChange(name) {
+    return (e) => {
+      setFormData((prev) => ({ ...prev, [name]: Number(e.target.value) }));
+    };
+  }
+
   function validateForm() {
     const errors = {};
-    if (!formData.date) errors.date = 'Date is required';
-    if (!formData.opponent.trim()) errors.opponent = 'Opponent is required';
-    if (formData.user_score === '' || isNaN(parseInt(formData.user_score, 10)) || parseInt(formData.user_score, 10) < 0)
-      errors.user_score = 'Enter a valid score';
-    if (formData.opponent_score === '' || isNaN(parseInt(formData.opponent_score, 10)) || parseInt(formData.opponent_score, 10) < 0)
-      errors.opponent_score = 'Enter a valid score';
+    if (!formData.game_date) errors.game_date = 'Date is required';
+    if (!formData.result) errors.result = 'Result is required';
     return errors;
+  }
+
+  function resetForm() {
+    setShowForm(false);
+    setFormData(INITIAL_FORM);
+    setFormErrors({});
+  }
+
+  function intOrNull(val) {
+    const n = parseInt(val, 10);
+    return isNaN(n) ? null : n;
   }
 
   async function handleSubmit(e) {
@@ -108,25 +198,37 @@ export default function Games() {
       return;
     }
 
-    const userScore = parseInt(formData.user_score, 10);
-    const opponentScore = parseInt(formData.opponent_score, 10);
-    const result = getResultFromScores(userScore, opponentScore);
-
     setSubmitting(true);
     try {
-      const newGame = await createGame({
+      const payload = {
         user_id: user.id,
-        date: formData.date,
-        opponent: formData.opponent.trim(),
-        user_score: userScore,
-        opponent_score: opponentScore,
-        result,
+        game_date: formData.game_date,
+        opponent: formData.opponent.trim() || null,
         location: formData.location.trim() || null,
+        game_type: formData.game_type,
+        result: formData.result,
+        minutes_played: intOrNull(formData.minutes_played),
+        points: intOrNull(formData.points) ?? 0,
+        rebounds: intOrNull(formData.rebounds) ?? 0,
+        assists: intOrNull(formData.assists) ?? 0,
+        steals: intOrNull(formData.steals) ?? 0,
+        blocks: intOrNull(formData.blocks) ?? 0,
+        turnovers: intOrNull(formData.turnovers) ?? 0,
+        fouls: intOrNull(formData.fouls) ?? 0,
+        fg_made: intOrNull(formData.fg_made),
+        fg_attempted: intOrNull(formData.fg_attempted),
+        three_made: intOrNull(formData.three_made),
+        three_attempted: intOrNull(formData.three_attempted),
+        ft_made: intOrNull(formData.ft_made),
+        ft_attempted: intOrNull(formData.ft_attempted),
+        energy_level: formData.energy_level,
+        performance_rating: formData.performance_rating,
         notes: formData.notes.trim() || null,
-      });
+      };
+
+      const newGame = await createGame(payload);
       setGames((prev) => [newGame, ...prev]);
-      setFormData(INITIAL_FORM);
-      setShowForm(false);
+      resetForm();
       showToast('Game logged successfully', 'success');
     } catch {
       showToast('Failed to log game', 'error');
@@ -146,8 +248,7 @@ export default function Games() {
     }
   }
 
-  const previewResult = getResultFromScores(formData.user_score, formData.opponent_score);
-
+  // ── Render ──────────────────────────────────────────────
   return (
     <PageWrapper>
       {/* Header */}
@@ -168,7 +269,7 @@ export default function Games() {
         )}
       </div>
 
-      {/* Inline Form */}
+      {/* ── Inline Form ── */}
       {showForm && (
         <Card className="mb-6" padding="lg">
           <div className="flex items-center justify-between mb-4">
@@ -176,11 +277,7 @@ export default function Games() {
               Log a Game
             </h2>
             <button
-              onClick={() => {
-                setShowForm(false);
-                setFormData(INITIAL_FORM);
-                setFormErrors({});
-              }}
+              onClick={resetForm}
               className="text-text-muted hover:text-text-primary transition-colors"
             >
               <X className="w-5 h-5" />
@@ -188,100 +285,245 @@ export default function Games() {
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <Input
-                label="Date"
-                type="date"
-                name="date"
-                value={formData.date}
-                onChange={handleFormChange}
-                error={formErrors.date}
-              />
-              <Input
-                label="Opponent"
-                name="opponent"
-                placeholder="e.g. East Side Eagles"
-                value={formData.opponent}
-                onChange={handleFormChange}
-                error={formErrors.opponent}
-              />
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <Input
-                label="Your Score"
-                type="number"
-                name="user_score"
-                min="0"
-                placeholder="0"
-                value={formData.user_score}
-                onChange={handleFormChange}
-                error={formErrors.user_score}
-              />
-              <Input
-                label="Opponent Score"
-                type="number"
-                name="opponent_score"
-                min="0"
-                placeholder="0"
-                value={formData.opponent_score}
-                onChange={handleFormChange}
-                error={formErrors.opponent_score}
-              />
-            </div>
-
-            {previewResult && (
-              <div className="flex items-center gap-2">
-                <span className="text-text-secondary text-sm font-body">Result:</span>
-                <span
-                  className={`text-sm font-bold ${
-                    previewResult === 'W'
-                      ? 'text-success'
-                      : previewResult === 'L'
-                      ? 'text-danger'
-                      : 'text-text-secondary'
-                  }`}
-                >
-                  {previewResult === 'W' ? 'Win' : previewResult === 'L' ? 'Loss' : 'Tie'}
-                </span>
+            {/* ── Basic Info ── */}
+            <FormSection title="Basic Info" icon={Calendar} defaultOpen>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <Input
+                  label="Date"
+                  type="date"
+                  name="game_date"
+                  value={formData.game_date}
+                  onChange={handleFormChange}
+                  error={formErrors.game_date}
+                />
+                <Input
+                  label="Opponent"
+                  name="opponent"
+                  placeholder="e.g. East Side Eagles"
+                  value={formData.opponent}
+                  onChange={handleFormChange}
+                />
               </div>
-            )}
-
-            <Input
-              label="Location (optional)"
-              name="location"
-              placeholder="e.g. Central Park Courts"
-              value={formData.location}
-              onChange={handleFormChange}
-            />
-
-            <div>
-              <label className="block text-sm font-medium text-text-secondary mb-1 font-body">
-                Notes (optional)
-              </label>
-              <textarea
-                name="notes"
-                rows={3}
-                placeholder="How did the game go?"
-                value={formData.notes}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <Select
+                  label="Game Type"
+                  name="game_type"
+                  value={formData.game_type}
+                  onChange={handleFormChange}
+                  options={GAME_TYPE_OPTIONS}
+                />
+                <Select
+                  label="Result"
+                  name="result"
+                  value={formData.result}
+                  onChange={handleFormChange}
+                  options={RESULT_OPTIONS}
+                  error={formErrors.result}
+                />
+                <Input
+                  label="Minutes Played"
+                  type="number"
+                  name="minutes_played"
+                  min="0"
+                  max="60"
+                  placeholder="0"
+                  value={formData.minutes_played}
+                  onChange={handleFormChange}
+                />
+              </div>
+              <Input
+                label="Location"
+                name="location"
+                placeholder="e.g. Central Park Courts"
+                value={formData.location}
                 onChange={handleFormChange}
-                className="w-full rounded-lg bg-bg-surface border border-border-subtle px-3 py-2 text-text-primary font-body text-sm placeholder:text-text-muted focus:outline-none focus:border-border-active transition-colors resize-none"
               />
-            </div>
+            </FormSection>
 
+            {/* ── Box Score ── */}
+            <FormSection title="Box Score" icon={Trophy} defaultOpen={false}>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                <Input
+                  label="Points"
+                  type="number"
+                  name="points"
+                  min="0"
+                  placeholder="0"
+                  value={formData.points}
+                  onChange={handleFormChange}
+                />
+                <Input
+                  label="Rebounds"
+                  type="number"
+                  name="rebounds"
+                  min="0"
+                  placeholder="0"
+                  value={formData.rebounds}
+                  onChange={handleFormChange}
+                />
+                <Input
+                  label="Assists"
+                  type="number"
+                  name="assists"
+                  min="0"
+                  placeholder="0"
+                  value={formData.assists}
+                  onChange={handleFormChange}
+                />
+                <Input
+                  label="Steals"
+                  type="number"
+                  name="steals"
+                  min="0"
+                  placeholder="0"
+                  value={formData.steals}
+                  onChange={handleFormChange}
+                />
+                <Input
+                  label="Blocks"
+                  type="number"
+                  name="blocks"
+                  min="0"
+                  placeholder="0"
+                  value={formData.blocks}
+                  onChange={handleFormChange}
+                />
+                <Input
+                  label="Turnovers"
+                  type="number"
+                  name="turnovers"
+                  min="0"
+                  placeholder="0"
+                  value={formData.turnovers}
+                  onChange={handleFormChange}
+                />
+                <Input
+                  label="Fouls"
+                  type="number"
+                  name="fouls"
+                  min="0"
+                  placeholder="0"
+                  value={formData.fouls}
+                  onChange={handleFormChange}
+                />
+              </div>
+            </FormSection>
+
+            {/* ── Shooting ── */}
+            <FormSection title="Shooting" icon={Target} defaultOpen={false}>
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-x-6 gap-y-4">
+                <div>
+                  <p className="text-text-muted text-xs uppercase tracking-wider mb-2 font-body">
+                    Field Goals
+                  </p>
+                  <div className="flex items-center gap-2">
+                    <Input
+                      type="number"
+                      name="fg_made"
+                      min="0"
+                      placeholder="Made"
+                      value={formData.fg_made}
+                      onChange={handleFormChange}
+                    />
+                    <span className="text-text-muted">/</span>
+                    <Input
+                      type="number"
+                      name="fg_attempted"
+                      min="0"
+                      placeholder="Att"
+                      value={formData.fg_attempted}
+                      onChange={handleFormChange}
+                    />
+                  </div>
+                </div>
+                <div>
+                  <p className="text-text-muted text-xs uppercase tracking-wider mb-2 font-body">
+                    3-Pointers
+                  </p>
+                  <div className="flex items-center gap-2">
+                    <Input
+                      type="number"
+                      name="three_made"
+                      min="0"
+                      placeholder="Made"
+                      value={formData.three_made}
+                      onChange={handleFormChange}
+                    />
+                    <span className="text-text-muted">/</span>
+                    <Input
+                      type="number"
+                      name="three_attempted"
+                      min="0"
+                      placeholder="Att"
+                      value={formData.three_attempted}
+                      onChange={handleFormChange}
+                    />
+                  </div>
+                </div>
+                <div>
+                  <p className="text-text-muted text-xs uppercase tracking-wider mb-2 font-body">
+                    Free Throws
+                  </p>
+                  <div className="flex items-center gap-2">
+                    <Input
+                      type="number"
+                      name="ft_made"
+                      min="0"
+                      placeholder="Made"
+                      value={formData.ft_made}
+                      onChange={handleFormChange}
+                    />
+                    <span className="text-text-muted">/</span>
+                    <Input
+                      type="number"
+                      name="ft_attempted"
+                      min="0"
+                      placeholder="Att"
+                      value={formData.ft_attempted}
+                      onChange={handleFormChange}
+                    />
+                  </div>
+                </div>
+              </div>
+            </FormSection>
+
+            {/* ── Self-Assessment ── */}
+            <FormSection title="Self-Assessment" icon={Activity} defaultOpen={false}>
+              <Slider
+                label="Energy Level"
+                value={formData.energy_level}
+                onChange={handleSliderChange('energy_level')}
+                min={1}
+                max={10}
+              />
+              <Slider
+                label="Performance Rating"
+                value={formData.performance_rating}
+                onChange={handleSliderChange('performance_rating')}
+                min={1}
+                max={10}
+              />
+              <div>
+                <label className="block text-sm font-medium text-text-secondary mb-1 font-body">
+                  Notes
+                </label>
+                <textarea
+                  name="notes"
+                  rows={3}
+                  placeholder="How did the game go?"
+                  value={formData.notes}
+                  onChange={handleFormChange}
+                  className="w-full rounded-lg bg-bg-surface border border-border-subtle px-3 py-2 text-text-primary font-body text-sm placeholder:text-text-muted focus:outline-none focus:border-border-active transition-colors resize-none"
+                />
+              </div>
+            </FormSection>
+
+            {/* Actions */}
             <div className="flex gap-3 pt-2">
               <Button type="submit" variant="primary" loading={submitting} disabled={submitting}>
                 Save Game
               </Button>
-              <Button
-                type="button"
-                variant="ghost"
-                onClick={() => {
-                  setShowForm(false);
-                  setFormData(INITIAL_FORM);
-                  setFormErrors({});
-                }}
-              >
+              <Button type="button" variant="ghost" onClick={resetForm}>
                 Cancel
               </Button>
             </div>
@@ -289,13 +531,15 @@ export default function Games() {
         </Card>
       )}
 
-      {/* Stats Bar */}
+      {/* ── Summary Stats ── */}
       {!loading && totalGames > 0 && (
         <Card className="mb-6" padding="md">
           <div className="grid grid-cols-3 divide-x divide-border-subtle text-center">
             <div>
               <p className="text-text-muted text-xs font-body uppercase tracking-wider">Games</p>
-              <p className="text-text-primary font-display text-2xl font-bold mt-0.5">{totalGames}</p>
+              <p className="text-text-primary font-display text-2xl font-bold mt-0.5">
+                {totalGames}
+              </p>
             </div>
             <div>
               <p className="text-text-muted text-xs font-body uppercase tracking-wider">Record</p>
@@ -306,24 +550,26 @@ export default function Games() {
               </p>
             </div>
             <div>
-              <p className="text-text-muted text-xs font-body uppercase tracking-wider">Win %</p>
-              <p className="text-text-primary font-display text-2xl font-bold mt-0.5">{winPct}%</p>
+              <p className="text-text-muted text-xs font-body uppercase tracking-wider">Avg Pts</p>
+              <p className="text-text-primary font-display text-2xl font-bold mt-0.5">
+                {avgPoints}
+              </p>
             </div>
           </div>
         </Card>
       )}
 
-      {/* Filters */}
+      {/* ── Filters ── */}
       {!loading && totalGames > 0 && (
         <div className="mb-4">
           <FilterChips options={FILTER_OPTIONS} selected={filter} onChange={setFilter} />
         </div>
       )}
 
-      {/* Loading State */}
+      {/* ── Loading ── */}
       {loading && <SkeletonLoader variant="card" count={4} />}
 
-      {/* Empty State */}
+      {/* ── Empty State ── */}
       {!loading && totalGames === 0 && (
         <EmptyState
           icon={Trophy}
@@ -334,16 +580,16 @@ export default function Games() {
         />
       )}
 
-      {/* Filtered Empty */}
+      {/* ── Filtered Empty ── */}
       {!loading && totalGames > 0 && filteredGames.length === 0 && (
         <EmptyState
           icon={Trophy}
-          title={`No ${filter === 'W' ? 'wins' : 'losses'} found`}
+          title={`No ${filter === 'Win' ? 'wins' : filter === 'Loss' ? 'losses' : 'draws'} found`}
           description="Try changing your filter to see other results."
         />
       )}
 
-      {/* Games List */}
+      {/* ── Games List ── */}
       {!loading && filteredGames.length > 0 && (
         <div className="space-y-3">
           {filteredGames.map((game) => (
@@ -354,33 +600,30 @@ export default function Games() {
             >
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-4 min-w-0">
-                  {/* Result Badge */}
+                  {/* Result badge */}
                   <div
-                    className={`flex-shrink-0 w-10 h-10 rounded-lg flex items-center justify-center font-display font-bold text-lg ${
-                      game.result === 'W'
-                        ? 'bg-success/15 text-success'
-                        : game.result === 'L'
-                        ? 'bg-danger/15 text-danger'
-                        : 'bg-bg-surface-elevated text-text-secondary'
-                    }`}
+                    className={`flex-shrink-0 w-10 h-10 rounded-lg flex items-center justify-center font-display font-bold text-lg ${resultBadgeStyle(game.result)}`}
                   >
-                    {game.result}
+                    {resultLabel(game.result)}
                   </div>
 
-                  {/* Game Info */}
+                  {/* Game info */}
                   <div className="min-w-0">
                     <div className="flex items-center gap-2 flex-wrap">
-                      <span className="font-display text-lg font-semibold text-text-primary truncate">
-                        vs {game.opponent}
-                      </span>
+                      {game.opponent && (
+                        <span className="font-display text-lg font-semibold text-text-primary truncate">
+                          vs {game.opponent}
+                        </span>
+                      )}
                       <span className="font-display text-lg font-bold text-text-primary">
-                        {game.user_score} - {game.opponent_score}
+                        {game.points ?? 0} pts
                       </span>
+                      <Badge variant="default">{game.game_type || 'League'}</Badge>
                     </div>
-                    <div className="flex items-center gap-3 mt-1 text-text-muted text-sm font-body">
+                    <div className="flex items-center gap-3 mt-1 text-text-muted text-sm font-body flex-wrap">
                       <span className="flex items-center gap-1">
                         <Calendar className="w-3.5 h-3.5" />
-                        {formatDate(game.date)}
+                        {formatDate(game.game_date)}
                       </span>
                       {game.location && (
                         <span className="flex items-center gap-1">

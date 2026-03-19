@@ -24,30 +24,41 @@ export function AuthProvider({ children }) {
   const [demoMode, setDemoMode] = useState(false);
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session: currentSession } }) => {
-      setSession(currentSession);
-      setUser(currentSession?.user ?? null);
-      if (currentSession?.user) {
-        fetchProfile(currentSession.user.id);
-      } else {
-        setLoading(false);
-      }
-    });
+    let subscription;
 
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange(async (_event, newSession) => {
-      setSession(newSession);
-      setUser(newSession?.user ?? null);
-      if (newSession?.user) {
-        await fetchProfile(newSession.user.id);
-      } else {
-        setProfile(null);
+    supabase.auth
+      .getSession()
+      .then(({ data: { session: currentSession } }) => {
+        setSession(currentSession);
+        setUser(currentSession?.user ?? null);
+        if (currentSession?.user) {
+          fetchProfile(currentSession.user.id);
+        } else {
+          setLoading(false);
+        }
+      })
+      .catch(() => {
+        // Supabase unavailable (no credentials) — fall through to login/demo
         setLoading(false);
-      }
-    });
+      });
 
-    return () => subscription.unsubscribe();
+    try {
+      const result = supabase.auth.onAuthStateChange(async (_event, newSession) => {
+        setSession(newSession);
+        setUser(newSession?.user ?? null);
+        if (newSession?.user) {
+          await fetchProfile(newSession.user.id);
+        } else {
+          setProfile(null);
+          setLoading(false);
+        }
+      });
+      subscription = result.data.subscription;
+    } catch {
+      // Supabase unavailable — ignore
+    }
+
+    return () => subscription?.unsubscribe();
   }, []);
 
   async function fetchProfile(userId) {

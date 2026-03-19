@@ -1,15 +1,34 @@
 import { createContext, useContext, useState, useEffect } from 'react'
-import { supabase } from '../lib/supabase'
+import { supabase, BYPASS_AUTH } from '../lib/supabase'
 
 const AuthContext = createContext(null)
 
+const DEMO_USER = {
+  id: 'demo-user-001',
+  email: 'demo@courtiq.app',
+}
+
+const DEMO_PROFILE = {
+  id: 'demo-user-001',
+  full_name: 'Demo Player',
+  position: 'SG',
+  skill_level: 'Intermediate',
+  onboarding_completed: true,
+  date_of_birth: '2005-06-15',
+  xp: 450,
+  level: 3,
+  streak_count: 5,
+  created_at: new Date().toISOString(),
+}
+
 export function AuthProvider({ children }) {
-  const [user, setUser] = useState(null)
-  const [session, setSession] = useState(null)
-  const [loading, setLoading] = useState(true)
-  const [profile, setProfile] = useState(null)
+  const [user, setUser] = useState(BYPASS_AUTH ? DEMO_USER : null)
+  const [session, setSession] = useState(BYPASS_AUTH ? { user: DEMO_USER } : null)
+  const [loading, setLoading] = useState(!BYPASS_AUTH)
+  const [profile, setProfile] = useState(BYPASS_AUTH ? DEMO_PROFILE : null)
 
   async function fetchProfile(userId) {
+    if (BYPASS_AUTH) return DEMO_PROFILE
     try {
       const { data, error } = await supabase
         .from('profiles')
@@ -20,13 +39,14 @@ export function AuthProvider({ children }) {
       setProfile(data)
       return data
     } catch (err) {
-      console.error('Error fetching profile:', err.message)
       setProfile(null)
       return null
     }
   }
 
   useEffect(() => {
+    if (BYPASS_AUTH) return
+
     supabase.auth.getSession().then(({ data: { session: currentSession } }) => {
       setSession(currentSession)
       setUser(currentSession?.user ?? null)
@@ -53,6 +73,11 @@ export function AuthProvider({ children }) {
   }, [])
 
   async function signUp(email, password, metadata = {}) {
+    if (BYPASS_AUTH) {
+      setUser(DEMO_USER)
+      setProfile(DEMO_PROFILE)
+      return { user: DEMO_USER }
+    }
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
@@ -63,6 +88,11 @@ export function AuthProvider({ children }) {
   }
 
   async function signIn(email, password) {
+    if (BYPASS_AUTH) {
+      setUser(DEMO_USER)
+      setProfile(DEMO_PROFILE)
+      return { user: DEMO_USER }
+    }
     const { data, error } = await supabase.auth.signInWithPassword({
       email,
       password,
@@ -72,6 +102,11 @@ export function AuthProvider({ children }) {
   }
 
   async function signOut() {
+    if (BYPASS_AUTH) {
+      setUser(DEMO_USER)
+      setProfile(DEMO_PROFILE)
+      return
+    }
     const { error } = await supabase.auth.signOut()
     if (error) throw error
     setUser(null)
@@ -80,6 +115,11 @@ export function AuthProvider({ children }) {
   }
 
   async function updateProfile(updates) {
+    if (BYPASS_AUTH) {
+      const updated = { ...profile, ...updates }
+      setProfile(updated)
+      return updated
+    }
     if (!user) throw new Error('No authenticated user')
     const { data, error } = await supabase
       .from('profiles')

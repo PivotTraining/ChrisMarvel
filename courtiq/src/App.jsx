@@ -1,36 +1,38 @@
-import { Routes, Route, Navigate } from 'react-router-dom'
-import { Loader2 } from 'lucide-react'
+import { Routes, Route, Navigate } from 'react-router-dom';
+import { Loader2 } from 'lucide-react';
 
-import { OfflineProvider } from './context/OfflineContext'
-import { AuthProvider, useAuth } from './context/AuthContext'
-import { ToastProvider } from './context/ToastContext'
+import { OfflineProvider } from './context/OfflineContext';
+import { AuthProvider, useAuth } from './context/AuthContext';
+import { ToastProvider } from './context/ToastContext';
 
-import Header from './components/layout/Header'
-import BottomNav from './components/layout/BottomNav'
+import Header from './components/layout/Header';
+import BottomNav from './components/layout/BottomNav';
 
-import Login from './pages/auth/Login'
-import Signup from './pages/auth/Signup'
-import Onboarding from './pages/auth/Onboarding'
+import Login from './pages/auth/Login';
+import Signup from './pages/auth/Signup';
+import Onboarding from './pages/auth/Onboarding';
 
-import Home from './pages/home/Home'
-import Train from './pages/train/Train'
-import Drills from './pages/drills/Drills'
-import Shots from './pages/shots/Shots'
-import Games from './pages/games/Games'
-import Journal from './pages/journal/Journal'
-import Settings from './pages/settings/Settings'
+import Home from './pages/home/Home';
+import Train from './pages/train/Train';
+import Drills from './pages/drills/Drills';
+import Shots from './pages/shots/Shots';
+import Games from './pages/games/Games';
+import Journal from './pages/journal/Journal';
+import Settings from './pages/settings/Settings';
 
 function AppRoutes() {
-  const { user, profile, loading } = useAuth()
+  const { user, profile, loading } = useAuth();
 
+  /* ── Full-screen loading spinner ── */
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-bg-primary">
         <Loader2 className="h-8 w-8 animate-spin text-accent-primary" />
       </div>
-    )
+    );
   }
 
+  /* ── Not authenticated — auth routes only ── */
   if (!user) {
     return (
       <Routes>
@@ -38,18 +40,20 @@ function AppRoutes() {
         <Route path="/signup" element={<Signup />} />
         <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
-    )
+    );
   }
 
+  /* ── Authenticated but onboarding incomplete ── */
   if (profile && !profile.onboarding_completed) {
     return (
       <Routes>
         <Route path="/onboarding" element={<Onboarding />} />
         <Route path="*" element={<Navigate to="/onboarding" replace />} />
       </Routes>
-    )
+    );
   }
 
+  /* ── Authenticated and onboarded — full app ── */
   return (
     <>
       <Header />
@@ -65,7 +69,7 @@ function AppRoutes() {
       </Routes>
       <BottomNav />
     </>
-  )
+  );
 }
 
 export default function App() {
@@ -77,5 +81,5 @@ export default function App() {
         </ToastProvider>
       </AuthProvider>
     </OfflineProvider>
-  )
+  );
 }

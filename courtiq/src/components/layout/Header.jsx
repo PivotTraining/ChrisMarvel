@@ -3,7 +3,7 @@ import { Settings } from 'lucide-react';
 import { useOffline } from '../../context/OfflineContext';
 
 export default function Header() {
-  const { isOffline } = useOffline();
+  const { isOnline } = useOffline();
 
   return (
     <header className="fixed top-0 inset-x-0 z-50 h-14 bg-bg-surface border-b border-border-subtle">
@@ -19,9 +19,9 @@ export default function Header() {
           {/* Online / Offline indicator */}
           <span
             className={`h-2.5 w-2.5 rounded-full ${
-              isOffline ? 'bg-yellow-400' : 'bg-green-400'
+              isOnline ? 'bg-green-400' : 'bg-yellow-400'
             }`}
-            title={isOffline ? 'Offline' : 'Online'}
+            title={isOnline ? 'Online' : 'Offline'}
           />
 
           {/* Settings link */}

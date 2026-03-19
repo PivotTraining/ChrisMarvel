@@ -1,24 +1,36 @@
+import { lazy, Suspense } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { Loader2 } from 'lucide-react';
 
 import { OfflineProvider } from './context/OfflineContext';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { ToastProvider } from './context/ToastContext';
+import ErrorBoundary from './components/ErrorBoundary';
 
 import Header from './components/layout/Header';
 import BottomNav from './components/layout/BottomNav';
 
+// Auth pages (small, loaded eagerly for instant auth UX)
 import Login from './pages/auth/Login';
 import Signup from './pages/auth/Signup';
 import Onboarding from './pages/auth/Onboarding';
 
-import Home from './pages/home/Home';
-import Train from './pages/train/Train';
-import Drills from './pages/drills/Drills';
-import Shots from './pages/shots/Shots';
-import Games from './pages/games/Games';
-import Journal from './pages/journal/Journal';
-import Settings from './pages/settings/Settings';
+// App pages (lazy-loaded for code splitting)
+const Home = lazy(() => import('./pages/home/Home'));
+const Train = lazy(() => import('./pages/train/Train'));
+const Drills = lazy(() => import('./pages/drills/Drills'));
+const Shots = lazy(() => import('./pages/shots/Shots'));
+const Games = lazy(() => import('./pages/games/Games'));
+const Journal = lazy(() => import('./pages/journal/Journal'));
+const Settings = lazy(() => import('./pages/settings/Settings'));
+
+function PageLoader() {
+  return (
+    <div className="flex items-center justify-center py-20">
+      <Loader2 className="h-6 w-6 animate-spin text-accent-primary" />
+    </div>
+  );
+}
 
 function AppRoutes() {
   const { user, profile, loading } = useAuth();
@@ -57,16 +69,18 @@ function AppRoutes() {
   return (
     <>
       <Header />
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/train" element={<Train />} />
-        <Route path="/drills" element={<Drills />} />
-        <Route path="/shots" element={<Shots />} />
-        <Route path="/games" element={<Games />} />
-        <Route path="/journal" element={<Journal />} />
-        <Route path="/settings" element={<Settings />} />
-        <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
+      <Suspense fallback={<PageLoader />}>
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/train" element={<Train />} />
+          <Route path="/drills" element={<Drills />} />
+          <Route path="/shots" element={<Shots />} />
+          <Route path="/games" element={<Games />} />
+          <Route path="/journal" element={<Journal />} />
+          <Route path="/settings" element={<Settings />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </Suspense>
       <BottomNav />
     </>
   );
@@ -77,7 +91,9 @@ export default function App() {
     <OfflineProvider>
       <AuthProvider>
         <ToastProvider>
-          <AppRoutes />
+          <ErrorBoundary>
+            <AppRoutes />
+          </ErrorBoundary>
         </ToastProvider>
       </AuthProvider>
     </OfflineProvider>

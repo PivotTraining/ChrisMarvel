@@ -151,7 +151,7 @@ export async function deleteJournalEntry(id) {
 }
 
 // ── Training Content (curated library) ─────────────────
-export async function getTrainingContent({ category, difficulty, limit = 50, offset = 0 } = {}) {
+export async function getTrainingContent({ category, contentType, difficulty, limit = 50, offset = 0 } = {}) {
   let query = supabase
     .from('training_content')
     .select('*')
@@ -159,6 +159,7 @@ export async function getTrainingContent({ category, difficulty, limit = 50, off
     .order('created_at', { ascending: false })
     .range(offset, offset + limit - 1);
 
+  if (contentType) query = query.eq('content_type', contentType);
   if (category) query = query.eq('category', category);
   if (difficulty) query = query.eq('difficulty', difficulty);
 

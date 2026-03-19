@@ -237,7 +237,7 @@ export default function Train() {
     try {
       setLoadingContent(true);
       const params = { limit: 50, offset: 0 };
-      if (contentTypeFilter !== 'all') params.category = contentTypeFilter;
+      if (contentTypeFilter !== 'all') params.contentType = contentTypeFilter;
       if (difficultyFilter !== 'all') params.difficulty = difficultyFilter;
       const data = await getTrainingContent(params);
       setContent(data || []);

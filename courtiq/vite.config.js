@@ -4,6 +4,7 @@ import tailwindcss from '@tailwindcss/vite'
 import { VitePWA } from 'vite-plugin-pwa'
 
 export default defineConfig({
+  base: '/ChrisMarvel/',
   plugins: [
     react(),
     tailwindcss(),
@@ -18,7 +19,7 @@ export default defineConfig({
         background_color: '#0A0A0F',
         display: 'standalone',
         orientation: 'portrait',
-        start_url: '/',
+        start_url: '/ChrisMarvel/',
         icons: [
           {
             src: '/favicon.svg',

@@ -34,7 +34,7 @@ function ProfileField({ label, value }) {
 }
 
 export default function Settings() {
-  const { user, profile, signOut, updateProfile } = useAuth();
+  const { user, profile, signOut, updateProfile, demoMode } = useAuth();
   const { showToast } = useToast();
 
   const [editing, setEditing] = useState(false);
@@ -59,6 +59,7 @@ export default function Settings() {
   }
 
   async function handleSave() {
+    if (demoMode) { showToast('Demo mode — changes not saved', 'info'); return; }
     setSaving(true);
     try {
       await updateProfile(form);

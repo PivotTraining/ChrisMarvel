@@ -14,6 +14,7 @@ import {
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
 import { getShotLogs, createShotLogsBatch, deleteShotLog } from '../../lib/api';
+import { DEMO_SHOT_LOGS } from '../../lib/demoData';
 import { formatDate } from '../../lib/dateUtils';
 import PageWrapper from '../../components/layout/PageWrapper';
 import Button from '../../components/ui/Button';
@@ -91,7 +92,7 @@ function groupByDate(shots) {
 // ── Component ──────────────────────────────────────────
 
 export default function Shots() {
-  const { user } = useAuth();
+  const { user, demoMode } = useAuth();
   const { showToast } = useToast();
 
   // Log view state
@@ -115,6 +116,7 @@ export default function Shots() {
 
   const fetchShots = useCallback(async () => {
     if (!user) return;
+    if (demoMode) { setShots(DEMO_SHOT_LOGS); setLoading(false); return; }
     setLoading(true);
     try {
       const data = await getShotLogs(user.id, { limit: 200, offset: 0 });
@@ -124,7 +126,7 @@ export default function Shots() {
     } finally {
       setLoading(false);
     }
-  }, [user, showToast]);
+  }, [user, demoMode, showToast]);
 
   useEffect(() => {
     fetchShots();
@@ -172,6 +174,7 @@ export default function Shots() {
   // ── Delete shot ──────────────────────────────────────
 
   const handleDelete = async (id) => {
+    if (demoMode) { showToast('Demo mode — changes not saved', 'info'); setDeleteConfirm(null); return; }
     try {
       await deleteShotLog(id);
       setShots((prev) => prev.filter((s) => s.id !== id));
@@ -208,6 +211,7 @@ export default function Shots() {
       showToast('No shots to save', 'error');
       return;
     }
+    if (demoMode) { showToast('Demo mode — changes not saved', 'info'); return; }
     setSaving(true);
     try {
       const payload = trackShots.map(({ _id, ...rest }) => ({

@@ -248,3 +248,26 @@ export async function getDashboardStats(userId) {
     journalEntries: journalCount,
   };
 }
+
+// ── Weekly Challenges ──────────────────────────────────
+export async function getWeeklyChallenges(userId) {
+  const { data, error } = await supabase
+    .from('weekly_challenges')
+    .select('*')
+    .eq('user_id', userId)
+    .order('week_start', { ascending: false })
+    .limit(10);
+  if (error) throw error;
+  return data;
+}
+
+// ── Badges ─────────────────────────────────────────────
+export async function getUserBadges(userId) {
+  const { data, error } = await supabase
+    .from('user_badges')
+    .select('*, badges(*)')
+    .eq('user_id', userId)
+    .order('earned_at', { ascending: false });
+  if (error) throw error;
+  return data;
+}

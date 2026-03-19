@@ -13,8 +13,15 @@ import PageWrapper from '../../components/layout/PageWrapper';
 import Card from '../../components/ui/Card';
 import EmptyState from '../../components/ui/EmptyState';
 import SkeletonLoader from '../../components/ui/SkeletonLoader';
+import WeeklyChallenges from '../../components/WeeklyChallenges';
+import BadgeShowcase from '../../components/BadgeShowcase';
 import { useAuth } from '../../context/AuthContext';
-import { getDashboardStats } from '../../lib/api';
+import { getDashboardStats, getWeeklyChallenges, getUserBadges } from '../../lib/api';
+import {
+  DEMO_DASHBOARD_STATS,
+  DEMO_CHALLENGES,
+  DEMO_BADGES,
+} from '../../lib/demoData';
 import { getGreeting } from '../../lib/dateUtils';
 
 const quickActions = [
@@ -25,13 +32,28 @@ const quickActions = [
 ];
 
 export default function Home() {
-  const { user, profile } = useAuth();
+  const { user, profile, demoMode } = useAuth();
   const navigate = useNavigate();
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [challenges, setChallenges] = useState([]);
+  const [challengesLoading, setChallengesLoading] = useState(true);
+  const [badges, setBadges] = useState([]);
+  const [badgesLoading, setBadgesLoading] = useState(true);
 
   useEffect(() => {
     if (!user?.id) return;
+
+    // Demo mode: use mock data
+    if (demoMode) {
+      setStats(DEMO_DASHBOARD_STATS);
+      setChallenges(DEMO_CHALLENGES);
+      setBadges(DEMO_BADGES);
+      setLoading(false);
+      setChallengesLoading(false);
+      setBadgesLoading(false);
+      return;
+    }
 
     let cancelled = false;
 
@@ -46,12 +68,36 @@ export default function Home() {
       }
     }
 
+    async function fetchChallenges() {
+      try {
+        const data = await getWeeklyChallenges(user.id);
+        if (!cancelled) setChallenges(data);
+      } catch (err) {
+        console.error('Failed to fetch weekly challenges:', err);
+      } finally {
+        if (!cancelled) setChallengesLoading(false);
+      }
+    }
+
+    async function fetchBadges() {
+      try {
+        const data = await getUserBadges(user.id);
+        if (!cancelled) setBadges(data);
+      } catch (err) {
+        console.error('Failed to fetch badges:', err);
+      } finally {
+        if (!cancelled) setBadgesLoading(false);
+      }
+    }
+
     fetchStats();
+    fetchChallenges();
+    fetchBadges();
 
     return () => {
       cancelled = true;
     };
-  }, [user?.id]);
+  }, [user?.id, demoMode]);
 
   const firstName =
     profile?.first_name || profile?.full_name?.split(' ')[0] || 'Player';
@@ -70,10 +116,43 @@ export default function Home() {
         <h1 className="font-display font-bold text-2xl text-text-primary">
           {getGreeting()}, {firstName}
         </h1>
-        <p className="text-text-secondary font-body text-sm mt-1">
-          Welcome to CourtIQ
-        </p>
+        {profile?.current_streak > 0 && (
+          <div className="flex items-center gap-1.5 mt-1.5">
+            <Flame className="h-4 w-4 text-orange-400" />
+            <span className="text-sm font-body text-text-secondary">
+              <span className="text-orange-400 font-semibold">{profile.current_streak}</span> day streak
+            </span>
+          </div>
+        )}
+        {demoMode && (
+          <span className="inline-block mt-1 px-2.5 py-0.5 rounded-full bg-accent-primary/20 text-accent-primary text-xs font-medium">
+            Demo Mode
+          </span>
+        )}
       </section>
+
+      {/* ── Level & XP ─────────────────────────────────── */}
+      {profile?.xp != null && (
+        <section className="mb-6">
+          <Card padding="md">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-sm font-body font-medium text-text-primary">
+                Level {profile.level}
+              </span>
+              <span className="text-xs text-text-muted">{profile.xp} XP</span>
+            </div>
+            <div className="h-2 bg-bg-primary rounded-full overflow-hidden">
+              <div
+                className="h-full bg-gradient-to-r from-accent-primary to-purple-500 rounded-full transition-all duration-500"
+                style={{ width: `${Math.min(((profile.xp % 500) / 500) * 100, 100)}%` }}
+              />
+            </div>
+            <p className="text-xs text-text-muted mt-1">
+              {500 - (profile.xp % 500)} XP to Level {(profile.level || 1) + 1}
+            </p>
+          </Card>
+        </section>
+      )}
 
       {/* ── Quick Actions ────────────────────────────── */}
       <section className="mb-8">
@@ -106,7 +185,7 @@ export default function Home() {
       </section>
 
       {/* ── Stats Overview ───────────────────────────── */}
-      <section>
+      <section className="mb-8">
         <div className="flex items-center gap-2 mb-3">
           <BarChart3 className="h-5 w-5 text-accent-primary" />
           <h2 className="font-display font-semibold text-lg text-text-primary">
@@ -203,6 +282,12 @@ export default function Home() {
           </div>
         )}
       </section>
+
+      {/* ── Weekly Challenges ─────────────────────────── */}
+      <WeeklyChallenges challenges={challenges} loading={challengesLoading} />
+
+      {/* ── Badge Showcase ────────────────────────────── */}
+      <BadgeShowcase badges={badges} loading={badgesLoading} />
     </PageWrapper>
   );
 }

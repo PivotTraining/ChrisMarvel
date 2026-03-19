@@ -6,7 +6,7 @@ import Button from '../../components/ui/Button';
 
 export default function Login() {
   const navigate = useNavigate();
-  const { signIn } = useAuth();
+  const { signIn, enterDemoMode } = useAuth();
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -81,6 +81,19 @@ export default function Login() {
               Log In
             </Button>
           </form>
+
+          <div className="mt-4">
+            <Button
+              variant="outline"
+              fullWidth
+              onClick={() => {
+                enterDemoMode();
+                navigate('/', { replace: true });
+              }}
+            >
+              Try Demo
+            </Button>
+          </div>
 
           <p className="text-center text-text-muted text-sm mt-6 font-body">
             Don&apos;t have an account?{' '}

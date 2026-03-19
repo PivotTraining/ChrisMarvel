@@ -11,6 +11,7 @@ import SkeletonLoader from '../../components/ui/SkeletonLoader';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
 import { getJournalEntries, createJournalEntry, deleteJournalEntry } from '../../lib/api';
+import { DEMO_JOURNAL_ENTRIES } from '../../lib/demoData';
 import { formatDate } from '../../lib/dateUtils';
 
 const ENTRIES_PER_PAGE = 20;
@@ -249,7 +250,7 @@ function EntryCard({ entry, onDelete }) {
 }
 
 export default function Journal() {
-  const { user } = useAuth();
+  const { user, demoMode } = useAuth();
   const { showToast } = useToast();
 
   const [entries, setEntries] = useState([]);
@@ -261,6 +262,7 @@ export default function Journal() {
 
   const fetchEntries = useCallback(async () => {
     if (!user) return;
+    if (demoMode) { setEntries(DEMO_JOURNAL_ENTRIES); setLoading(false); return; }
     setLoading(true);
     try {
       const data = await getJournalEntries(user.id, {
@@ -273,7 +275,7 @@ export default function Journal() {
     } finally {
       setLoading(false);
     }
-  }, [user, showToast]);
+  }, [user, demoMode, showToast]);
 
   useEffect(() => {
     fetchEntries();
@@ -286,6 +288,8 @@ export default function Journal() {
 
   async function handleSubmit(e) {
     e.preventDefault();
+
+    if (demoMode) { showToast('Demo mode — changes not saved', 'info'); return; }
 
     if (!form.mood) {
       setFormError('Mood is required');
@@ -333,6 +337,7 @@ export default function Journal() {
   }
 
   async function handleDelete(id) {
+    if (demoMode) { showToast('Demo mode — changes not saved', 'info'); return; }
     try {
       await deleteJournalEntry(id);
       setEntries((prev) => prev.filter((entry) => entry.id !== id));

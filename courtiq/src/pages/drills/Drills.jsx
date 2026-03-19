@@ -12,6 +12,7 @@ import StarRating from '../../components/ui/StarRating';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
 import { getDrillSessions, createDrillSession, deleteDrillSession } from '../../lib/api';
+import { DEMO_DRILL_SESSIONS } from '../../lib/demoData';
 import { formatDate } from '../../lib/dateUtils';
 
 const CATEGORIES = [
@@ -68,7 +69,7 @@ const INITIAL_FORM = {
 };
 
 export default function Drills() {
-  const { user } = useAuth();
+  const { user, demoMode } = useAuth();
   const { showToast } = useToast();
 
   const [drills, setDrills] = useState([]);
@@ -83,6 +84,7 @@ export default function Drills() {
 
   const fetchDrills = useCallback(async () => {
     if (!user) return;
+    if (demoMode) { setDrills(DEMO_DRILL_SESSIONS); setLoading(false); return; }
     try {
       setLoading(true);
       const data = await getDrillSessions(user.id, { limit: 200, offset: 0 });
@@ -92,7 +94,7 @@ export default function Drills() {
     } finally {
       setLoading(false);
     }
-  }, [user, showToast]);
+  }, [user, demoMode, showToast]);
 
   useEffect(() => {
     fetchDrills();
@@ -140,6 +142,7 @@ export default function Drills() {
   const handleSubmit = async e => {
     e.preventDefault();
     if (!validate()) return;
+    if (demoMode) { showToast('Demo mode — changes not saved', 'info'); return; }
     try {
       setSubmitting(true);
       const drill = {
@@ -170,6 +173,7 @@ export default function Drills() {
 
   const handleDelete = async () => {
     if (!deleteId) return;
+    if (demoMode) { showToast('Demo mode — changes not saved', 'info'); setDeleteId(null); return; }
     try {
       setDeleting(true);
       await deleteDrillSession(deleteId);

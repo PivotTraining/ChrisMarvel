@@ -1,15 +1,19 @@
 import { createContext, useContext, useEffect, useState } from 'react';
 import { supabase } from '../lib/supabase';
+import { DEMO_PROFILE } from '../lib/demoData';
 
 const AuthContext = createContext({
   user: null,
   session: null,
   profile: null,
   loading: true,
+  demoMode: false,
   signUp: async () => {},
   signIn: async () => {},
   signOut: async () => {},
   updateProfile: async () => {},
+  enterDemoMode: () => {},
+  exitDemoMode: () => {},
 });
 
 export function AuthProvider({ children }) {
@@ -17,6 +21,7 @@ export function AuthProvider({ children }) {
   const [session, setSession] = useState(null);
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [demoMode, setDemoMode] = useState(false);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session: currentSession } }) => {
@@ -84,6 +89,10 @@ export function AuthProvider({ children }) {
   }
 
   async function signOut() {
+    if (demoMode) {
+      exitDemoMode();
+      return;
+    }
     const { error } = await supabase.auth.signOut();
     if (error) throw error;
     setUser(null);
@@ -92,6 +101,12 @@ export function AuthProvider({ children }) {
   }
 
   async function updateProfile(updates) {
+    if (demoMode) {
+      const updated = { ...profile, ...updates };
+      setProfile(updated);
+      return updated;
+    }
+
     if (!user) throw new Error('No authenticated user.');
 
     const { data, error } = await supabase
@@ -106,9 +121,41 @@ export function AuthProvider({ children }) {
     return data;
   }
 
+  function enterDemoMode() {
+    const demoUser = {
+      id: DEMO_PROFILE.id,
+      email: DEMO_PROFILE.email,
+      user_metadata: { full_name: DEMO_PROFILE.full_name },
+    };
+    setDemoMode(true);
+    setUser(demoUser);
+    setSession({ user: demoUser });
+    setProfile(DEMO_PROFILE);
+    setLoading(false);
+  }
+
+  function exitDemoMode() {
+    setDemoMode(false);
+    setUser(null);
+    setSession(null);
+    setProfile(null);
+  }
+
   return (
     <AuthContext.Provider
-      value={{ user, session, profile, loading, signUp, signIn, signOut, updateProfile }}
+      value={{
+        user,
+        session,
+        profile,
+        loading,
+        demoMode,
+        signUp,
+        signIn,
+        signOut,
+        updateProfile,
+        enterDemoMode,
+        exitDemoMode,
+      }}
     >
       {children}
     </AuthContext.Provider>

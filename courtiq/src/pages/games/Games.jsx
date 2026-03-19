@@ -6,6 +6,7 @@ import {
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
 import { getGames, createGame, deleteGame } from '../../lib/api';
+import { DEMO_GAMES } from '../../lib/demoData';
 import { formatDate } from '../../lib/dateUtils';
 import PageWrapper from '../../components/layout/PageWrapper';
 import Button from '../../components/ui/Button';
@@ -115,7 +116,7 @@ function FormSection({ title, icon: Icon, defaultOpen = true, children }) {
 }
 
 export default function Games() {
-  const { user } = useAuth();
+  const { user, demoMode } = useAuth();
   const { showToast } = useToast();
 
   const [games, setGames] = useState([]);
@@ -128,6 +129,11 @@ export default function Games() {
   const [deleteConfirmId, setDeleteConfirmId] = useState(null);
 
   const fetchGames = useCallback(async () => {
+    if (demoMode) {
+      setGames(DEMO_GAMES);
+      setLoading(false);
+      return;
+    }
     if (!user) return;
     try {
       setLoading(true);
@@ -138,7 +144,7 @@ export default function Games() {
     } finally {
       setLoading(false);
     }
-  }, [user, showToast]);
+  }, [user, demoMode, showToast]);
 
   useEffect(() => {
     fetchGames();
@@ -192,6 +198,10 @@ export default function Games() {
 
   async function handleSubmit(e) {
     e.preventDefault();
+    if (demoMode) {
+      showToast('Demo mode — changes not saved', 'info');
+      return;
+    }
     const errors = validateForm();
     if (Object.keys(errors).length > 0) {
       setFormErrors(errors);
@@ -238,6 +248,10 @@ export default function Games() {
   }
 
   async function handleDelete(id) {
+    if (demoMode) {
+      showToast('Demo mode — changes not saved', 'info');
+      return;
+    }
     try {
       await deleteGame(id);
       setGames((prev) => prev.filter((g) => g.id !== id));

@@ -1,0 +1,73 @@
+@import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=DM+Sans:wght@400;500;600;700&display=swap');
+@import "tailwindcss";
+
+:root {
+  --bg-primary: #0A0A0F;
+  --bg-surface: #13131A;
+  --bg-surface-hover: #1A1A25;
+  --bg-surface-elevated: #1E1E2A;
+  --accent-primary: #F97316;
+  --accent-primary-hover: #EA580C;
+  --accent-secondary: #3B82F6;
+  --success: #22C55E;
+  --danger: #EF4444;
+  --warning: #EAB308;
+  --text-primary: #F1F5F9;
+  --text-secondary: #CBD5E1;
+  --text-muted: #94A3B8;
+  --border-subtle: rgba(255,255,255,0.08);
+  --border-active: rgba(249,115,22,0.3);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  font-family: 'DM Sans', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  min-height: 100dvh;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 700;
+}
+
+input, select, textarea, button {
+  font-family: 'DM Sans', sans-serif;
+}
+
+::-webkit-scrollbar {
+  width: 4px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-primary);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border-subtle);
+  border-radius: 2px;
+}
+
+.glass-card {
+  background: rgba(19, 19, 26, 0.8);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--border-subtle);
+  border-radius: 12px;
+}
+
+.hide-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}

@@ -1,18 +1,37 @@
 {
-  "name": "chris-marvel-site",
-  "version": "1.0.0",
+  "name": "courtiq-temp",
   "private": true,
+  "version": "0.0.0",
+  "type": "module",
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start"
+    "dev": "vite",
+    "build": "vite build",
+    "lint": "eslint .",
+    "preview": "vite preview"
   },
   "dependencies": {
-    "@types/node": "^25.3.5",
-    "@types/react": "^19.2.14",
-    "next": "^16.1.6",
+    "@supabase/supabase-js": "^2.99.3",
+    "lucide-react": "^0.577.0",
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
-    "typescript": "^5.9.3"
+    "react-router-dom": "^7.13.1",
+    "recharts": "^3.8.0"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.4",
+    "@tailwindcss/vite": "^4.2.2",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "^6.0.1",
+    "eslint": "^9.39.4",
+    "eslint-plugin-react-hooks": "^7.0.1",
+    "eslint-plugin-react-refresh": "^0.5.2",
+    "globals": "^17.4.0",
+    "tailwindcss": "^4.2.2",
+    "vite": "^8.0.1",
+    "vite-plugin-pwa": "^1.2.0",
+    "workbox-precaching": "^7.4.0",
+    "workbox-routing": "^7.4.0",
+    "workbox-strategies": "^7.4.0"
   }
 }

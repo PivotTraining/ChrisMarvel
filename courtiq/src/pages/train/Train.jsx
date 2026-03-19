@@ -28,6 +28,7 @@ import {
   saveContent,
   unsaveContent,
 } from '../../lib/api';
+import { DEMO_TRAINING_CONTENT } from '../../lib/demoData';
 
 const TABS = [
   { value: 'browse', label: 'Browse' },
@@ -66,7 +67,18 @@ function ContentCard({ item, isSaved, onToggleSave, savingId }) {
   const saving = savingId === item.id;
 
   return (
-    <Card padding="md" className="relative">
+    <Card padding="none" className="relative overflow-hidden">
+      {/* Card image */}
+      {item.image_url && (
+        <img
+          src={item.image_url}
+          alt={item.title}
+          loading="lazy"
+          className="w-full h-36 object-cover rounded-t-2xl"
+        />
+      )}
+
+      <div className="p-4">
       {/* Featured indicator */}
       {item.is_featured && (
         <div className="absolute top-3 right-3">
@@ -214,12 +226,13 @@ function ContentCard({ item, isSaved, onToggleSave, savingId }) {
           )}
         </div>
       )}
+      </div>
     </Card>
   );
 }
 
 export default function Train() {
-  const { user } = useAuth();
+  const { user, demoMode } = useAuth();
   const { showToast } = useToast();
 
   const [activeTab, setActiveTab] = useState('browse');
@@ -234,6 +247,14 @@ export default function Train() {
 
   // Fetch browse content
   const fetchContent = useCallback(async () => {
+    if (demoMode) {
+      let items = DEMO_TRAINING_CONTENT;
+      if (contentTypeFilter !== 'all') items = items.filter((i) => i.content_type === contentTypeFilter);
+      if (difficultyFilter !== 'all') items = items.filter((i) => i.difficulty === difficultyFilter);
+      setContent(items);
+      setLoadingContent(false);
+      return;
+    }
     try {
       setLoadingContent(true);
       const params = { limit: 50, offset: 0 };
@@ -246,10 +267,11 @@ export default function Train() {
     } finally {
       setLoadingContent(false);
     }
-  }, [contentTypeFilter, difficultyFilter, showToast]);
+  }, [contentTypeFilter, difficultyFilter, demoMode, showToast]);
 
   // Fetch saved content
   const fetchSaved = useCallback(async () => {
+    if (demoMode) { setSavedItems([]); setLoadingSaved(false); return; }
     if (!user?.id) return;
     try {
       setLoadingSaved(true);
@@ -260,7 +282,7 @@ export default function Train() {
     } finally {
       setLoadingSaved(false);
     }
-  }, [user?.id, showToast]);
+  }, [user?.id, demoMode, showToast]);
 
   useEffect(() => {
     fetchContent();
@@ -296,6 +318,7 @@ export default function Train() {
   }, [savedItems, contentTypeFilter, difficultyFilter]);
 
   async function handleToggleSave(contentId) {
+    if (demoMode) { showToast('Demo mode — changes not saved', 'info'); return; }
     if (!user?.id) return;
     const alreadySaved = savedContentIds.has(contentId);
     try {

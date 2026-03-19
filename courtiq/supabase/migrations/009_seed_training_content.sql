@@ -14,7 +14,7 @@ VALUES
     'Keep the ball high—never bring it below your chin between finishes.',
     'Finishing', 'Beginner', 10,
     ARRAY['basketball', 'hoop'],
-    NULL, NULL, FALSE, NULL, TRUE,
+    NULL, 'https://images.pexels.com/photos/2834917/pexels-photo-2834917.jpeg?auto=compress&cs=tinysrgb&w=600', FALSE, NULL, TRUE,
     ARRAY['layups', 'finishing', 'fundamentals']
   ),
   (
@@ -23,7 +23,7 @@ VALUES
     'Pound the ball as hard as you can—the floor is your enemy.',
     'Ball Handling', 'Beginner', 10,
     ARRAY['basketball'],
-    NULL, NULL, FALSE, NULL, FALSE,
+    NULL, 'https://images.pexels.com/photos/8084841/pexels-photo-8084841.jpeg?auto=compress&cs=tinysrgb&w=600', FALSE, NULL, FALSE,
     ARRAY['dribbling', 'ball handling', 'fundamentals']
   ),
   (
@@ -32,7 +32,7 @@ VALUES
     'Stay low in an athletic stance and keep your eyes up.',
     'Ball Handling', 'Beginner', 8,
     ARRAY['basketball'],
-    NULL, NULL, FALSE, NULL, FALSE,
+    NULL, 'https://images.pexels.com/photos/8084841/pexels-photo-8084841.jpeg?auto=compress&cs=tinysrgb&w=600', FALSE, NULL, FALSE,
     ARRAY['dribbling', 'coordination', 'ball handling']
   ),
   (
@@ -41,7 +41,7 @@ VALUES
     'Sell the first move before exploding into the second.',
     'Ball Handling', 'Intermediate', 15,
     ARRAY['basketball', 'cones'],
-    NULL, NULL, FALSE, NULL, TRUE,
+    NULL, 'https://images.pexels.com/photos/8084841/pexels-photo-8084841.jpeg?auto=compress&cs=tinysrgb&w=600', FALSE, NULL, TRUE,
     ARRAY['dribbling', 'moves', 'ball handling']
   ),
   (
@@ -50,7 +50,7 @@ VALUES
     'Land in your shot before the ball arrives—feet set, hands ready.',
     'Shooting', 'Beginner', 15,
     ARRAY['basketball', 'hoop'],
-    NULL, NULL, FALSE, NULL, FALSE,
+    NULL, 'https://images.pexels.com/photos/358042/pexels-photo-358042.jpeg?auto=compress&cs=tinysrgb&w=600', FALSE, NULL, FALSE,
     ARRAY['shooting', 'catch and shoot', 'footwork']
   ),
   (
@@ -59,7 +59,7 @@ VALUES
     'Find your routine and never skip it—same breaths, same bounce, every time.',
     'Shooting', 'Beginner', 10,
     ARRAY['basketball', 'hoop'],
-    NULL, NULL, FALSE, NULL, FALSE,
+    NULL, 'https://images.pexels.com/photos/358042/pexels-photo-358042.jpeg?auto=compress&cs=tinysrgb&w=600', FALSE, NULL, FALSE,
     ARRAY['free throws', 'shooting', 'routine']
   ),
   (
@@ -68,7 +68,7 @@ VALUES
     'Sprint to the spot, gather your feet, then fire—don''t rush the release itself.',
     'Shooting', 'Intermediate', 20,
     ARRAY['basketball', 'hoop', 'cones'],
-    NULL, NULL, FALSE, NULL, TRUE,
+    NULL, 'https://images.pexels.com/photos/358042/pexels-photo-358042.jpeg?auto=compress&cs=tinysrgb&w=600', FALSE, NULL, TRUE,
     ARRAY['three pointers', 'shooting', 'conditioning']
   ),
   (
@@ -77,7 +77,7 @@ VALUES
     'Plant your inside foot hard to kill momentum before you rise.',
     'Shooting', 'Advanced', 20,
     ARRAY['basketball', 'hoop', 'cones'],
-    NULL, NULL, FALSE, NULL, FALSE,
+    NULL, 'https://images.pexels.com/photos/358042/pexels-photo-358042.jpeg?auto=compress&cs=tinysrgb&w=600', FALSE, NULL, FALSE,
     ARRAY['mid-range', 'shooting', 'advanced moves']
   ),
   (
@@ -86,7 +86,7 @@ VALUES
     'Your first step should freeze the defender, your second step goes around them.',
     'Finishing', 'Intermediate', 15,
     ARRAY['basketball', 'hoop', 'cones'],
-    NULL, NULL, FALSE, NULL, FALSE,
+    NULL, 'https://images.pexels.com/photos/2834917/pexels-photo-2834917.jpeg?auto=compress&cs=tinysrgb&w=600', FALSE, NULL, FALSE,
     ARRAY['euro step', 'finishing', 'footwork']
   ),
   (
@@ -95,7 +95,7 @@ VALUES
     'High hands, choppy feet—never fly past the shooter.',
     'Defense', 'Intermediate', 12,
     ARRAY['basketball', 'cones'],
-    NULL, NULL, FALSE, NULL, FALSE,
+    NULL, 'https://images.pexels.com/photos/2874717/pexels-photo-2874717.jpeg?auto=compress&cs=tinysrgb&w=600', FALSE, NULL, FALSE,
     ARRAY['defense', 'closeouts', 'agility']
   ),
   (
@@ -104,7 +104,7 @@ VALUES
     'Stay low—if your hips rise, you lose.',
     'Defense', 'Beginner', 10,
     ARRAY['cones'],
-    NULL, NULL, FALSE, NULL, FALSE,
+    NULL, 'https://images.pexels.com/photos/2874717/pexels-photo-2874717.jpeg?auto=compress&cs=tinysrgb&w=600', FALSE, NULL, FALSE,
     ARRAY['defense', 'footwork', 'lateral quickness']
   ),
   (
@@ -113,7 +113,7 @@ VALUES
     'Step into every pass and snap your wrists—thumbs should point down on the follow-through.',
     'Passing', 'Beginner', 8,
     ARRAY['basketball', 'wall'],
-    NULL, NULL, FALSE, NULL, FALSE,
+    NULL, 'https://images.pexels.com/photos/1080882/pexels-photo-1080882.jpeg?auto=compress&cs=tinysrgb&w=600', FALSE, NULL, FALSE,
     ARRAY['passing', 'fundamentals', 'hand strength']
   ),
   (
@@ -122,7 +122,7 @@ VALUES
     'Throw off your back foot and aim chest-high at your target.',
     'Passing', 'Intermediate', 12,
     ARRAY['basketball', 'cones', 'partner'],
-    NULL, NULL, FALSE, NULL, FALSE,
+    NULL, 'https://images.pexels.com/photos/1080882/pexels-photo-1080882.jpeg?auto=compress&cs=tinysrgb&w=600', FALSE, NULL, FALSE,
     ARRAY['passing', 'court vision', 'zone offense']
   ),
   (
@@ -131,7 +131,7 @@ VALUES
     'Touch every line and drive through the last sprint—don''t coast.',
     'Conditioning', 'Intermediate', 15,
     ARRAY[]::TEXT[],
-    NULL, NULL, FALSE, NULL, FALSE,
+    NULL, 'https://images.pexels.com/photos/3771071/pexels-photo-3771071.jpeg?auto=compress&cs=tinysrgb&w=600', FALSE, NULL, FALSE,
     ARRAY['conditioning', 'speed', 'endurance']
   ),
   (
@@ -140,7 +140,7 @@ VALUES
     'Stay on the balls of your feet—flat feet are dead feet.',
     'Conditioning', 'Advanced', 20,
     ARRAY['agility ladder', 'cones'],
-    NULL, NULL, FALSE, NULL, FALSE,
+    NULL, 'https://images.pexels.com/photos/3771071/pexels-photo-3771071.jpeg?auto=compress&cs=tinysrgb&w=600', FALSE, NULL, FALSE,
     ARRAY['conditioning', 'agility', 'defense']
   );
 
@@ -157,7 +157,7 @@ VALUES
     'Move through each exercise with purpose—this is not a cool-down.',
     'Mobility', 'Beginner', 10,
     ARRAY[]::TEXT[],
-    NULL, NULL, FALSE, NULL, TRUE,
+    NULL, 'https://images.pexels.com/photos/4775199/pexels-photo-4775199.jpeg?auto=compress&cs=tinysrgb&w=600', FALSE, NULL, TRUE,
     ARRAY['warm-up', 'mobility', 'pre-game']
   ),
   (
@@ -166,7 +166,7 @@ VALUES
     'Breathe deeply into each stretch—never bounce.',
     'Stretching', 'Beginner', 15,
     ARRAY['yoga mat'],
-    NULL, NULL, FALSE, NULL, FALSE,
+    NULL, 'https://images.pexels.com/photos/3771071/pexels-photo-3771071.jpeg?auto=compress&cs=tinysrgb&w=600', FALSE, NULL, FALSE,
     ARRAY['stretching', 'cool-down', 'recovery']
   ),
   (
@@ -175,7 +175,7 @@ VALUES
     'Don''t force depth—work at the edge of your range and let it open up.',
     'Mobility', 'Intermediate', 12,
     ARRAY['yoga mat'],
-    NULL, NULL, FALSE, NULL, FALSE,
+    NULL, 'https://images.pexels.com/photos/4775199/pexels-photo-4775199.jpeg?auto=compress&cs=tinysrgb&w=600', FALSE, NULL, FALSE,
     ARRAY['hips', 'mobility', 'flexibility']
   ),
   (
@@ -184,7 +184,7 @@ VALUES
     'Start on a flat surface; progress to a balance pad only when you feel solid.',
     'Mobility', 'Beginner', 10,
     ARRAY['resistance band', 'balance pad'],
-    NULL, NULL, FALSE, NULL, FALSE,
+    NULL, 'https://images.pexels.com/photos/4775199/pexels-photo-4775199.jpeg?auto=compress&cs=tinysrgb&w=600', FALSE, NULL, FALSE,
     ARRAY['ankles', 'stability', 'injury prevention']
   ),
   (
@@ -193,7 +193,7 @@ VALUES
     'Roll slowly—when you hit a tender spot, pause and breathe through it for 20 seconds.',
     'Rest', 'Beginner', 15,
     ARRAY['foam roller'],
-    NULL, NULL, FALSE, NULL, TRUE,
+    NULL, 'https://images.pexels.com/photos/5485460/pexels-photo-5485460.jpeg?auto=compress&cs=tinysrgb&w=600', FALSE, NULL, TRUE,
     ARRAY['foam rolling', 'recovery', 'soreness']
   ),
   (
@@ -202,7 +202,7 @@ VALUES
     'Control your breathing on entry—slow exhales calm the shock response.',
     'Rest', 'Intermediate', 15,
     ARRAY['ice bath', 'thermometer', 'timer'],
-    NULL, NULL, FALSE, NULL, FALSE,
+    NULL, 'https://images.pexels.com/photos/2567016/pexels-photo-2567016.jpeg?auto=compress&cs=tinysrgb&w=600', FALSE, NULL, FALSE,
     ARRAY['cold therapy', 'recovery', 'inflammation']
   ),
   (
@@ -211,7 +211,7 @@ VALUES
     'Keep your heart rate under 120 bpm—today is about recovery, not training.',
     'Rest', 'Beginner', 30,
     ARRAY['yoga mat'],
-    NULL, NULL, FALSE, NULL, FALSE,
+    NULL, 'https://images.pexels.com/photos/2567016/pexels-photo-2567016.jpeg?auto=compress&cs=tinysrgb&w=600', FALSE, NULL, FALSE,
     ARRAY['rest day', 'active recovery', 'wellness']
   ),
   (
@@ -220,7 +220,7 @@ VALUES
     'Set a consistent bedtime—your body clock is your best recovery tool.',
     'Rest', 'Beginner', 5,
     ARRAY[]::TEXT[],
-    NULL, NULL, FALSE, NULL, FALSE,
+    NULL, 'https://images.pexels.com/photos/2567016/pexels-photo-2567016.jpeg?auto=compress&cs=tinysrgb&w=600', FALSE, NULL, FALSE,
     ARRAY['sleep', 'recovery', 'wellness']
   );
 
@@ -237,7 +237,7 @@ VALUES
     'Eat your big meal 3 hours out—a small snack 60 minutes before is fine.',
     'Pre-Game', 'Beginner', 5,
     ARRAY[]::TEXT[],
-    NULL, NULL, FALSE, NULL, TRUE,
+    NULL, 'https://images.pexels.com/photos/6632286/pexels-photo-6632286.jpeg?auto=compress&cs=tinysrgb&w=600', FALSE, NULL, TRUE,
     ARRAY['meal plan', 'pre-game', 'energy']
   ),
   (
@@ -246,7 +246,7 @@ VALUES
     'Hit the 3:1 carb-to-protein ratio for optimal recovery.',
     'Post-Game', 'Beginner', 5,
     ARRAY['blender', 'shaker bottle'],
-    NULL, NULL, FALSE, NULL, FALSE,
+    NULL, 'https://images.pexels.com/photos/6740517/pexels-photo-6740517.jpeg?auto=compress&cs=tinysrgb&w=600', FALSE, NULL, FALSE,
     ARRAY['protein', 'post-workout', 'shakes']
   ),
   (
@@ -255,7 +255,7 @@ VALUES
     'If your urine isn''t pale yellow, you''re behind on fluids.',
     'Hydration', 'Beginner', 3,
     ARRAY[]::TEXT[],
-    NULL, NULL, FALSE, NULL, FALSE,
+    NULL, 'https://images.pexels.com/photos/1640770/pexels-photo-1640770.jpeg?auto=compress&cs=tinysrgb&w=600', FALSE, NULL, FALSE,
     ARRAY['hydration', 'water', 'electrolytes']
   ),
   (
@@ -264,7 +264,7 @@ VALUES
     'Front-load your calories early—don''t try to catch up at halftime.',
     'Pre-Game', 'Intermediate', 5,
     ARRAY[]::TEXT[],
-    NULL, NULL, FALSE, NULL, FALSE,
+    NULL, 'https://images.pexels.com/photos/6632286/pexels-photo-6632286.jpeg?auto=compress&cs=tinysrgb&w=600', FALSE, NULL, FALSE,
     ARRAY['game day', 'meal timing', 'performance']
   ),
   (
@@ -273,7 +273,7 @@ VALUES
     'Keep a snack in your bag—hunger is the enemy of focus.',
     'General', 'Beginner', 3,
     ARRAY[]::TEXT[],
-    NULL, NULL, FALSE, NULL, FALSE,
+    NULL, 'https://images.pexels.com/photos/842571/pexels-photo-842571.jpeg?auto=compress&cs=tinysrgb&w=600', FALSE, NULL, FALSE,
     ARRAY['snacks', 'healthy eating', 'portable']
   ),
   (
@@ -282,7 +282,7 @@ VALUES
     'Prep on Sunday, win all week—consistency beats perfection.',
     'General', 'Intermediate', 10,
     ARRAY[]::TEXT[],
-    NULL, NULL, FALSE, NULL, FALSE,
+    NULL, 'https://images.pexels.com/photos/842571/pexels-photo-842571.jpeg?auto=compress&cs=tinysrgb&w=600', FALSE, NULL, FALSE,
     ARRAY['meal prep', 'protein', 'weekly plan']
   ),
   (
@@ -291,6 +291,6 @@ VALUES
     'Add one anti-inflammatory food to every meal—small changes add up.',
     'General', 'Beginner', 5,
     ARRAY[]::TEXT[],
-    NULL, NULL, FALSE, NULL, FALSE,
+    NULL, 'https://images.pexels.com/photos/842571/pexels-photo-842571.jpeg?auto=compress&cs=tinysrgb&w=600', FALSE, NULL, FALSE,
     ARRAY['anti-inflammatory', 'joint health', 'nutrition']
   );

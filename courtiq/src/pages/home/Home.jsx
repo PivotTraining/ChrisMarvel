@@ -111,24 +111,37 @@ export default function Home() {
 
   return (
     <PageWrapper>
-      {/* ── Greeting ─────────────────────────────────── */}
-      <section className="mb-8">
-        <h1 className="font-display font-bold text-2xl text-text-primary">
-          {getGreeting()}, {firstName}
-        </h1>
-        {profile?.current_streak > 0 && (
-          <div className="flex items-center gap-1.5 mt-1.5">
-            <Flame className="h-4 w-4 text-orange-400" />
-            <span className="text-sm font-body text-text-secondary">
-              <span className="text-orange-400 font-semibold">{profile.current_streak}</span> day streak
-            </span>
+      {/* ── Hero Banner ────────────────────────────────── */}
+      <section className="mb-6 -mx-4 -mt-2">
+        <div className="relative h-40 overflow-hidden rounded-b-2xl">
+          <img
+            src="https://images.pexels.com/photos/2834917/pexels-photo-2834917.jpeg?auto=compress&cs=tinysrgb&w=800"
+            alt="Basketball game"
+            className="w-full h-full object-cover"
+            loading="lazy"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-bg-primary via-bg-primary/60 to-transparent" />
+          <div className="absolute bottom-0 left-0 right-0 px-4 pb-3">
+            <h1 className="font-display font-bold text-2xl text-text-primary drop-shadow-lg">
+              {getGreeting()}, {firstName}
+            </h1>
+            <div className="flex items-center gap-3 mt-1">
+              {profile?.current_streak > 0 && (
+                <div className="flex items-center gap-1">
+                  <Flame className="h-4 w-4 text-orange-400" />
+                  <span className="text-sm font-body text-white/90 font-semibold drop-shadow">
+                    {profile.current_streak} day streak
+                  </span>
+                </div>
+              )}
+              {demoMode && (
+                <span className="px-2 py-0.5 rounded-full bg-accent-primary/30 text-accent-primary text-xs font-medium backdrop-blur-sm">
+                  Demo
+                </span>
+              )}
+            </div>
           </div>
-        )}
-        {demoMode && (
-          <span className="inline-block mt-1 px-2.5 py-0.5 rounded-full bg-accent-primary/20 text-accent-primary text-xs font-medium">
-            Demo Mode
-          </span>
-        )}
+        </div>
       </section>
 
       {/* ── Level & XP ─────────────────────────────────── */}

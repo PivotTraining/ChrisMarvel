@@ -36,8 +36,19 @@ export default function Login() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-bg-primary px-4 py-8">
       <div className="w-full max-w-sm">
+        {/* Basketball hero image */}
+        <div className="relative w-full max-h-48 overflow-hidden rounded-t-2xl">
+          <img
+            src="https://images.pexels.com/photos/358042/pexels-photo-358042.jpeg?auto=compress&cs=tinysrgb&w=800"
+            alt="Basketball going into hoop"
+            className="w-full h-48 object-cover"
+            loading="lazy"
+          />
+          <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-bg-primary" />
+        </div>
+
         {/* Glassmorphism card */}
-        <div className="backdrop-blur-xl bg-white/5 border border-white/10 rounded-2xl p-8 shadow-2xl">
+        <div className="backdrop-blur-xl bg-white/5 border border-white/10 rounded-b-2xl rounded-t-none p-8 shadow-2xl -mt-4 relative z-10">
           {/* Wordmark */}
           <div className="text-center mb-8">
             <h1 className="font-display font-bold text-3xl tracking-tight">

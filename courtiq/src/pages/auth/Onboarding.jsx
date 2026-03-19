@@ -6,6 +6,21 @@ import Select from '../../components/ui/Select';
 import Button from '../../components/ui/Button';
 import { Target, TrendingUp, BarChart3, ChevronLeft, ChevronRight } from 'lucide-react';
 
+const STEP_IMAGES = [
+  {
+    src: 'https://images.pexels.com/photos/2874717/pexels-photo-2874717.jpeg?auto=compress&cs=tinysrgb&w=600',
+    alt: 'Basketball players in action',
+  },
+  {
+    src: 'https://images.pexels.com/photos/8084841/pexels-photo-8084841.jpeg?auto=compress&cs=tinysrgb&w=600',
+    alt: 'Person dribbling basketball',
+  },
+  {
+    src: 'https://images.pexels.com/photos/2834917/pexels-photo-2834917.jpeg?auto=compress&cs=tinysrgb&w=600',
+    alt: 'Basketball game',
+  },
+];
+
 const POSITIONS = [
   { value: 'PG', label: 'Point Guard (PG)' },
   { value: 'SG', label: 'Shooting Guard (SG)' },
@@ -248,6 +263,16 @@ export default function Onboarding() {
       <div className="w-full max-w-sm">
         {/* Glassmorphism card */}
         <div className="backdrop-blur-xl bg-white/5 border border-white/10 rounded-2xl p-8 shadow-2xl">
+          {/* Step image */}
+          <div className="flex justify-center mb-4">
+            <img
+              src={STEP_IMAGES[step].src}
+              alt={STEP_IMAGES[step].alt}
+              className="h-32 w-full object-cover rounded-xl"
+              loading="lazy"
+            />
+          </div>
+
           {/* Step content with crossfade */}
           <div className="transition-opacity duration-200">
             {step === 0 && (

@@ -173,6 +173,7 @@ export default function Library() {
                     <button
                       onClick={(e) => { e.stopPropagation(); toggleSave(item.id) }}
                       className="p-1.5 rounded-lg hover:bg-bg-section transition-colors shrink-0"
+                      aria-label={isSaved ? "Unsave" : "Save"}
                     >
                       {isSaved
                         ? <BookmarkCheck size={16} className="text-blue" />

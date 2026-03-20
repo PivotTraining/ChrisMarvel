@@ -73,6 +73,7 @@ export default function ContentDetail() {
             type="button"
             onClick={() => navigate(-1)}
             className="w-10 h-10 rounded-xl bg-bg-card border border-border flex items-center justify-center text-text-secondary hover:text-text-primary transition-colors"
+            aria-label="Go back"
           >
             <ArrowLeft size={20} />
           </button>
@@ -83,6 +84,7 @@ export default function ContentDetail() {
           <button
             onClick={() => toggleSave(item.id)}
             className="w-10 h-10 rounded-xl bg-bg-card border border-border flex items-center justify-center transition-colors"
+            aria-label={isSaved ? "Unsave" : "Save"}
           >
             {isSaved
               ? <BookmarkCheck size={18} className="text-blue" />

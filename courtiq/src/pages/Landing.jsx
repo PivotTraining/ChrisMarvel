@@ -66,13 +66,16 @@ function Navbar() {
         </div>
 
         {/* Desktop CTA */}
-        <a href="/signup" className="hidden lg:flex btn-glow bg-blue hover:bg-blue-dark text-white px-6 py-2.5 rounded-full text-sm font-semibold items-center gap-2">
-          Get Early Access
-          <ArrowRight className="w-4 h-4" />
-        </a>
+        <div className="hidden lg:flex items-center gap-4">
+          <a href="/login" className="text-text-secondary hover:text-white transition-colors text-sm font-medium">Log In</a>
+          <a href="/signup" className="btn-glow bg-blue hover:bg-blue-dark text-white px-6 py-2.5 rounded-full text-sm font-semibold flex items-center gap-2">
+            Get Early Access
+            <ArrowRight className="w-4 h-4" />
+          </a>
+        </div>
 
         {/* Mobile toggle */}
-        <button onClick={() => setOpen(!open)} className="lg:hidden text-text-primary p-2">
+        <button onClick={() => setOpen(!open)} className="lg:hidden text-text-primary p-2" aria-label={open ? "Close menu" : "Open menu"}>
           {open ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
         </button>
       </div>
@@ -84,6 +87,7 @@ function Navbar() {
           <a href="#how-it-works" onClick={() => setOpen(false)} className="block text-text-secondary hover:text-white text-lg">How It Works</a>
           <a href="#premium" onClick={() => setOpen(false)} className="block text-text-secondary hover:text-white text-lg">Premium</a>
           <a href="#faq" onClick={() => setOpen(false)} className="block text-text-secondary hover:text-white text-lg">FAQ</a>
+          <a href="/login" onClick={() => setOpen(false)} className="block text-text-secondary hover:text-white text-lg">Log In</a>
           <a href="/signup" onClick={() => setOpen(false)} className="block bg-blue text-white text-center px-6 py-3 rounded-full font-semibold mt-4">Get Early Access</a>
         </div>
       )}

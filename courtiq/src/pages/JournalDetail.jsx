@@ -130,7 +130,7 @@ export default function JournalDetail() {
         <div className="flex flex-col gap-8">
           <div className="flex items-center gap-3">
             <button type="button" onClick={() => { setEditing(false); setForm({ ...entry }) }}
-              className="w-10 h-10 rounded-xl bg-bg-card border border-border flex items-center justify-center text-text-secondary hover:text-text-primary transition-colors">
+              className="w-10 h-10 rounded-xl bg-bg-card border border-border flex items-center justify-center text-text-secondary hover:text-text-primary transition-colors" aria-label="Go back">
               <ArrowLeft size={20} />
             </button>
             <div>
@@ -202,7 +202,7 @@ export default function JournalDetail() {
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <button type="button" onClick={() => navigate(-1)}
-              className="w-10 h-10 rounded-xl bg-bg-card border border-border flex items-center justify-center text-text-secondary hover:text-text-primary transition-colors">
+              className="w-10 h-10 rounded-xl bg-bg-card border border-border flex items-center justify-center text-text-secondary hover:text-text-primary transition-colors" aria-label="Go back">
               <ArrowLeft size={20} />
             </button>
             <div>
@@ -212,7 +212,7 @@ export default function JournalDetail() {
           </div>
           <div className="flex items-center gap-2">
             <button onClick={() => setEditing(true)}
-              className="w-10 h-10 rounded-xl bg-bg-card border border-border flex items-center justify-center text-text-secondary hover:text-blue transition-colors">
+              className="w-10 h-10 rounded-xl bg-bg-card border border-border flex items-center justify-center text-text-secondary hover:text-blue transition-colors" aria-label="Edit">
               <Pencil size={16} />
             </button>
             {confirmDelete ? (
@@ -222,7 +222,7 @@ export default function JournalDetail() {
               </div>
             ) : (
               <button onClick={() => setConfirmDelete(true)}
-                className="w-10 h-10 rounded-xl bg-bg-card border border-border flex items-center justify-center text-text-secondary hover:text-danger transition-colors">
+                className="w-10 h-10 rounded-xl bg-bg-card border border-border flex items-center justify-center text-text-secondary hover:text-danger transition-colors" aria-label="Delete">
                 <Trash2 size={16} />
               </button>
             )}

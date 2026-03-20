@@ -27,6 +27,7 @@ export default function SavedContent() {
             type="button"
             onClick={() => navigate(-1)}
             className="w-10 h-10 rounded-xl bg-bg-card border border-border flex items-center justify-center text-text-secondary hover:text-text-primary transition-colors"
+            aria-label="Go back"
           >
             <ArrowLeft size={20} />
           </button>
@@ -78,6 +79,7 @@ export default function SavedContent() {
                     <button
                       onClick={(e) => { e.stopPropagation(); toggleSave(item.id) }}
                       className="p-1.5 rounded-lg hover:bg-bg-section transition-colors shrink-0"
+                      aria-label="Unsave"
                     >
                       <BookmarkCheck size={16} className="text-blue" />
                     </button>

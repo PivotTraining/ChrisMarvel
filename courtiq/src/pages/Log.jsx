@@ -87,7 +87,7 @@ function GameCard({ game, onDelete, onNavigate }) {
             <button onClick={(e) => { e.stopPropagation(); onDelete(game.id) }} className="text-[10px] font-semibold text-danger">Delete</button>
           </div>
         ) : (
-          <button onClick={(e) => { e.stopPropagation(); setConfirming(true) }} className="p-1 rounded-lg hover:bg-bg-section transition-colors">
+          <button onClick={(e) => { e.stopPropagation(); setConfirming(true) }} className="p-1 rounded-lg hover:bg-bg-section transition-colors" aria-label="Delete">
             <Trash2 size={13} className="text-text-muted" />
           </button>
         )}

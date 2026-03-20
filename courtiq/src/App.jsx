@@ -1,10 +1,44 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import {
   Target, Trophy, TrendingUp, Zap, BarChart3, Users,
   ChevronRight, Star, Activity, Menu, X, ArrowRight,
   Crosshair, Flame, BookOpen, Award, Smartphone,
   ChevronDown, Shield, Brain
 } from 'lucide-react';
+
+/* ─────────────────────────────────────────────
+   SCROLL REVEAL HOOK
+   ───────────────────────────────────────────── */
+function useReveal(threshold = 0.15) {
+  const ref = useRef(null);
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const obs = new IntersectionObserver(
+      ([entry]) => { if (entry.isIntersecting) { setVisible(true); obs.unobserve(el); } },
+      { threshold }
+    );
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, [threshold]);
+
+  return [ref, visible];
+}
+
+function Reveal({ children, className = '', delay = 0 }) {
+  const [ref, visible] = useReveal();
+  return (
+    <div
+      ref={ref}
+      className={`transition-all duration-700 ease-out ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'} ${className}`}
+      style={{ transitionDelay: `${delay}ms` }}
+    >
+      {children}
+    </div>
+  );
+}
 
 /* ─────────────────────────────────────────────
    NAVBAR
@@ -32,7 +66,7 @@ function Navbar() {
         </div>
 
         {/* Desktop CTA */}
-        <a href="#waitlist" className="hidden lg:flex btn-glow bg-blue hover:bg-blue-dark text-white px-7 py-3 rounded-full text-[15px] font-semibold items-center gap-2">
+        <a href="#waitlist" className="hidden lg:flex btn-glow bg-blue hover:bg-blue-dark text-white px-6 py-2.5 rounded-full text-sm font-semibold items-center gap-2">
           Get Early Access
           <ArrowRight className="w-4 h-4" />
         </a>
@@ -70,32 +104,32 @@ function Hero() {
       </div>
 
       <div className="relative max-w-[1280px] mx-auto px-6 lg:px-10 w-full">
-        <div className="grid lg:grid-cols-2 gap-16 lg:gap-20 items-center">
+        <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
           {/* Left — Copy */}
           <div className="text-center lg:text-left">
-            <div className="inline-flex items-center gap-2 bg-bg-card/80 border border-border rounded-full px-5 py-2 mb-8 animate-fade-in-up">
+            <div className="inline-flex items-center gap-2 bg-bg-card/80 border border-border rounded-full px-5 py-2 mb-6 animate-fade-in-up">
               <Zap className="w-4 h-4 text-blue" />
               <span className="text-text-secondary text-sm font-medium">AI-Powered Basketball Analytics</span>
             </div>
 
-            <h1 className="font-sans text-6xl sm:text-7xl lg:text-8xl xl:text-[6.5rem] font-extrabold text-white leading-[0.9] mb-8 tracking-tight anim-delay-1">
+            <h1 className="font-sans text-5xl sm:text-6xl lg:text-7xl font-extrabold text-white leading-[0.9] mb-6 tracking-tight anim-delay-1">
               UPGRADE<br />
               YOUR<br />
               <span className="gradient-text-blue">GAME.</span>
             </h1>
 
-            <p className="text-text-secondary text-lg lg:text-xl max-w-lg mx-auto lg:mx-0 mb-10 leading-relaxed anim-delay-2">
+            <p className="text-text-secondary text-base lg:text-lg max-w-md mx-auto lg:mx-0 mb-8 leading-relaxed anim-delay-2">
               Track every shot, log every game, follow elite drills, and watch your
               basketball skills transform. CourtIQ turns your phone into a personal
               development coach.
             </p>
 
             <div className="flex flex-col sm:flex-row items-center lg:items-start gap-4 anim-delay-3">
-              <a href="#waitlist" className="btn-glow bg-blue hover:bg-blue-dark text-white px-10 py-4 rounded-full text-lg font-bold flex items-center gap-3">
+              <a href="#waitlist" className="btn-glow bg-blue hover:bg-blue-dark text-white px-8 py-3.5 rounded-full text-base font-bold flex items-center gap-2">
                 Get Early Access
-                <ChevronRight className="w-5 h-5" />
+                <ChevronRight className="w-4 h-4" />
               </a>
-              <a href="#features" className="text-text-secondary hover:text-white px-8 py-4 text-lg font-medium transition-colors flex items-center gap-2">
+              <a href="#features" className="text-text-secondary hover:text-white px-6 py-3.5 text-base font-medium transition-colors flex items-center gap-2">
                 Learn More
                 <ArrowRight className="w-4 h-4" />
               </a>
@@ -168,14 +202,14 @@ function Hero() {
    ───────────────────────────────────────────── */
 function SocialProof() {
   return (
-    <section className="py-16 border-y border-border bg-bg-section">
+    <section className="py-12 border-y border-border bg-bg-section">
       <div className="max-w-[1280px] mx-auto px-6 lg:px-10">
-        <p className="text-center text-text-muted text-sm uppercase tracking-[0.2em] mb-10 font-medium">
+        <p className="text-center text-text-muted text-xs uppercase tracking-[0.25em] mb-8 font-medium">
           As featured in
         </p>
-        <div className="flex flex-wrap items-center justify-center gap-x-16 gap-y-8">
+        <div className="flex flex-wrap items-center justify-center gap-x-12 lg:gap-x-16 gap-y-6">
           {['TechCrunch', 'ESPN', 'WIRED', 'Fast Company', 'Bleacher Report'].map((name) => (
-            <span key={name} className="font-sans text-xl lg:text-2xl font-bold text-text-muted/40 tracking-wider uppercase hover:text-text-muted/60 transition-colors">
+            <span key={name} className="font-sans text-lg lg:text-xl font-bold text-text-muted/30 tracking-widest uppercase hover:text-text-muted/50 transition-colors">
               {name}
             </span>
           ))}
@@ -318,57 +352,58 @@ function FeatureSection({ section }) {
   const { badge, badgeIcon: BadgeIcon, title, subtitle, description, stats, reversed, mockupContent } = section;
 
   return (
-    <div className="max-w-[1280px] mx-auto px-6 lg:px-10">
-      <div className={`grid lg:grid-cols-2 gap-16 lg:gap-24 items-center`}
-           style={reversed ? { direction: 'rtl' } : {}}>
-        {/* Text side */}
-        <div style={{ direction: 'ltr' }}>
-          <div className="inline-flex items-center gap-2 bg-bg-card border border-border rounded-full px-4 py-2 mb-8">
-            <BadgeIcon className="w-4 h-4 text-blue" />
-            <span className="text-text-secondary text-sm font-medium">{badge}</span>
+    <Reveal>
+      <div className="max-w-[1280px] mx-auto px-6 lg:px-10">
+        <div className={`grid lg:grid-cols-2 gap-12 lg:gap-20 items-center ${reversed ? 'lg:[&>*:first-child]:order-2' : ''}`}>
+          {/* Text side */}
+          <div>
+            <div className="inline-flex items-center gap-2 bg-bg-card border border-border rounded-full px-4 py-1.5 mb-6">
+              <BadgeIcon className="w-4 h-4 text-blue" />
+              <span className="text-text-secondary text-sm font-medium">{badge}</span>
+            </div>
+
+            <h2 className="font-sans text-3xl md:text-4xl lg:text-5xl font-extrabold text-white leading-[0.95] mb-2 tracking-tight">
+              {title}
+            </h2>
+            <h3 className="font-sans text-3xl md:text-4xl lg:text-5xl font-extrabold gradient-text-blue leading-[0.95] mb-6 tracking-tight">
+              {subtitle}
+            </h3>
+
+            <p className="text-text-secondary text-base lg:text-lg leading-relaxed mb-8 max-w-lg">
+              {description}
+            </p>
+
+            <div className="flex gap-8">
+              {stats.map((s) => (
+                <div key={s.label}>
+                  <div className="font-sans text-2xl lg:text-3xl font-bold text-white">{s.value}</div>
+                  <div className="text-text-muted text-sm mt-1">{s.label}</div>
+                </div>
+              ))}
+            </div>
           </div>
 
-          <h2 className="font-sans text-5xl md:text-6xl lg:text-7xl font-extrabold text-white leading-[0.95] mb-3 tracking-tight">
-            {title}
-          </h2>
-          <h3 className="font-sans text-5xl md:text-6xl lg:text-7xl font-extrabold gradient-text-blue leading-[0.95] mb-8 tracking-tight">
-            {subtitle}
-          </h3>
-
-          <p className="text-text-secondary text-lg lg:text-xl leading-relaxed mb-10 max-w-xl">
-            {description}
-          </p>
-
-          <div className="flex gap-10">
-            {stats.map((s) => (
-              <div key={s.label}>
-                <div className="font-sans text-3xl lg:text-4xl font-bold text-white">{s.value}</div>
-                <div className="text-text-muted text-sm mt-1">{s.label}</div>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Mockup side */}
-        <div className="flex justify-center" style={{ direction: 'ltr' }}>
-          <div className="phone-mockup w-[280px] lg:w-[320px] aspect-[9/19.5]">
-            <div className="w-full h-full bg-bg-card p-5 flex flex-col">
-              {/* Notch */}
-              <div className="w-28 h-6 bg-bg-primary rounded-full mx-auto mb-6" />
-              <div className="flex-1 overflow-hidden">
-                {mockupContent}
+          {/* Mockup side */}
+          <div className="flex justify-center">
+            <div className="phone-mockup w-[260px] lg:w-[290px] aspect-[9/19.5]">
+              <div className="w-full h-full bg-bg-card p-5 flex flex-col">
+                {/* Notch */}
+                <div className="w-24 h-5 bg-bg-primary rounded-full mx-auto mb-5" />
+                <div className="flex-1 overflow-hidden">
+                  {mockupContent}
+                </div>
               </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
+    </Reveal>
   );
 }
 
 function Features() {
   return (
-    <section id="features" className="py-32 space-y-40">
+    <section id="features" className="py-24 space-y-28">
       {featureSections.map((section) => (
         <FeatureSection key={section.id} section={section} />
       ))}
@@ -402,27 +437,31 @@ function HowItWorks() {
   ];
 
   return (
-    <section id="how-it-works" className="py-32 bg-bg-section">
+    <section id="how-it-works" className="py-24 bg-bg-section">
       <div className="max-w-[1280px] mx-auto px-6 lg:px-10">
-        <div className="text-center mb-20">
-          <h2 className="font-sans text-5xl md:text-6xl lg:text-7xl font-extrabold text-white leading-[0.95] tracking-tight mb-4">
-            HOW IT <span className="gradient-text-blue">WORKS.</span>
-          </h2>
-          <p className="text-text-secondary text-lg lg:text-xl max-w-xl mx-auto">
-            Simple to start. Powerful over time.
-          </p>
-        </div>
+        <Reveal>
+          <div className="text-center mb-14">
+            <h2 className="font-sans text-3xl md:text-4xl lg:text-5xl font-extrabold text-white leading-[0.95] tracking-tight mb-4">
+              HOW IT <span className="gradient-text-blue">WORKS.</span>
+            </h2>
+            <p className="text-text-secondary text-base lg:text-lg max-w-md mx-auto">
+              Simple to start. Powerful over time.
+            </p>
+          </div>
+        </Reveal>
 
-        <div className="grid md:grid-cols-3 gap-8 lg:gap-12">
-          {steps.map((step) => (
-            <div key={step.number} className="text-center lg:text-left card-hover bg-bg-card border border-border rounded-3xl p-8 lg:p-10">
-              <div className="w-20 h-20 rounded-2xl bg-blue-glow border border-blue-border flex items-center justify-center mx-auto lg:mx-0 mb-6">
-                <step.icon className="w-9 h-9 text-blue" />
+        <div className="grid md:grid-cols-3 gap-6 lg:gap-8">
+          {steps.map((step, i) => (
+            <Reveal key={step.number} delay={i * 100}>
+              <div className="text-center lg:text-left card-hover bg-bg-card border border-border rounded-2xl p-6 lg:p-8 h-full">
+                <div className="w-16 h-16 rounded-xl bg-blue-glow border border-blue-border flex items-center justify-center mx-auto lg:mx-0 mb-5">
+                  <step.icon className="w-7 h-7 text-blue" />
+                </div>
+                <div className="font-sans text-xs font-bold text-blue tracking-widest mb-2">STEP {step.number}</div>
+                <h3 className="font-sans text-xl lg:text-2xl font-bold text-white mb-3">{step.title}</h3>
+                <p className="text-text-secondary text-sm lg:text-base leading-relaxed">{step.description}</p>
               </div>
-              <div className="font-sans text-sm font-bold text-blue tracking-widest mb-3">STEP {step.number}</div>
-              <h3 className="font-sans text-3xl lg:text-4xl font-bold text-white mb-4">{step.title}</h3>
-              <p className="text-text-secondary text-base lg:text-lg leading-relaxed">{step.description}</p>
-            </div>
+            </Reveal>
           ))}
         </div>
       </div>
@@ -435,23 +474,24 @@ function HowItWorks() {
    ───────────────────────────────────────────── */
 function Premium() {
   return (
-    <section id="premium" className="py-32">
+    <section id="premium" className="py-24">
       <div className="max-w-[1280px] mx-auto px-6 lg:px-10">
-        <div className="text-center mb-20">
-          <div className="inline-flex items-center gap-2 bg-gold-glow border border-gold/20 rounded-full px-5 py-2 mb-8">
-            <Award className="w-4 h-4 text-gold" />
-            <span className="text-gold text-sm font-semibold">CourtIQ+</span>
+        <Reveal>
+          <div className="text-center mb-14">
+            <div className="inline-flex items-center gap-2 bg-gold-glow border border-gold/20 rounded-full px-4 py-1.5 mb-6">
+              <Award className="w-4 h-4 text-gold" />
+              <span className="text-gold text-sm font-semibold">CourtIQ+</span>
+            </div>
+            <h2 className="font-sans text-3xl md:text-4xl lg:text-5xl font-extrabold text-white leading-[0.95] tracking-tight mb-4">
+              TAKE YOUR GAME <span className="gradient-text-gold">FURTHER.</span>
+            </h2>
+            <p className="text-text-secondary text-base lg:text-lg max-w-md mx-auto">
+              Unlock advanced analytics, personalized training programs, and exclusive content.
+            </p>
           </div>
-          <h2 className="font-sans text-5xl md:text-6xl lg:text-7xl font-extrabold text-white leading-[0.95] tracking-tight mb-4">
-            TAKE YOUR GAME<br />
-            <span className="gradient-text-gold">FURTHER.</span>
-          </h2>
-          <p className="text-text-secondary text-lg lg:text-xl max-w-xl mx-auto">
-            Unlock advanced analytics, personalized training programs, and exclusive content.
-          </p>
-        </div>
+        </Reveal>
 
-        <div className="grid md:grid-cols-3 gap-6 lg:gap-8">
+        <div className="grid md:grid-cols-3 gap-5 lg:gap-6">
           {[
             {
               icon: BarChart3,
@@ -468,14 +508,16 @@ function Premium() {
               title: 'Team Features',
               description: 'Share stats with coaches, compare with teammates, and compete on team leaderboards.',
             },
-          ].map((f) => (
-            <div key={f.title} className="card-hover bg-bg-card border border-border rounded-3xl p-8 lg:p-10">
-              <div className="w-14 h-14 rounded-2xl bg-gold-glow flex items-center justify-center mb-6">
-                <f.icon className="w-7 h-7 text-gold" />
+          ].map((f, i) => (
+            <Reveal key={f.title} delay={i * 100}>
+              <div className="card-hover bg-bg-card border border-border rounded-2xl p-6 lg:p-8 h-full">
+                <div className="w-12 h-12 rounded-xl bg-gold-glow flex items-center justify-center mb-5">
+                  <f.icon className="w-6 h-6 text-gold" />
+                </div>
+                <h3 className="font-sans text-xl lg:text-2xl font-bold text-white mb-2">{f.title}</h3>
+                <p className="text-text-muted text-sm lg:text-base leading-relaxed">{f.description}</p>
               </div>
-              <h3 className="font-sans text-2xl lg:text-3xl font-bold text-white mb-3">{f.title}</h3>
-              <p className="text-text-muted text-base leading-relaxed">{f.description}</p>
-            </div>
+            </Reveal>
           ))}
         </div>
       </div>
@@ -513,20 +555,22 @@ function FAQ() {
   ];
 
   return (
-    <section id="faq" className="py-32 bg-bg-section">
+    <section id="faq" className="py-24 bg-bg-section">
       <div className="max-w-3xl mx-auto px-6 lg:px-10">
-        <div className="text-center mb-16">
-          <h2 className="font-sans text-5xl md:text-6xl font-extrabold text-white leading-[0.95] tracking-tight mb-4">
-            <span className="gradient-text-blue">FAQ</span>
-          </h2>
-          <p className="text-text-secondary text-lg">
-            Common questions about CourtIQ.
-          </p>
-        </div>
+        <Reveal>
+          <div className="text-center mb-12">
+            <h2 className="font-sans text-3xl md:text-4xl font-extrabold text-white leading-[0.95] tracking-tight mb-3">
+              <span className="gradient-text-blue">FAQ</span>
+            </h2>
+            <p className="text-text-secondary text-base">
+              Common questions about CourtIQ.
+            </p>
+          </div>
+        </Reveal>
 
-        <div className="space-y-4">
+        <div className="space-y-3">
           {faqs.map((faq, i) => (
-            <div key={i} className="bg-bg-card border border-border rounded-2xl overflow-hidden">
+            <div key={i} className="bg-bg-card border border-border rounded-xl overflow-hidden">
               <button
                 onClick={() => setOpenIndex(openIndex === i ? null : i)}
                 className="w-full flex items-center justify-between px-6 py-5 text-left"
@@ -550,21 +594,23 @@ function FAQ() {
    ───────────────────────────────────────────── */
 function StatsBar() {
   return (
-    <section className="py-24">
+    <section className="py-20 border-y border-border">
       <div className="max-w-[1280px] mx-auto px-6 lg:px-10">
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-10">
-          {[
-            { value: '11', label: 'Court Zones Tracked' },
-            { value: '50+', label: 'Curated Drills' },
-            { value: '20+', label: 'Stats Per Game' },
-            { value: '100%', label: 'Free to Start' },
-          ].map((stat) => (
-            <div key={stat.label} className="text-center">
-              <div className="font-sans text-6xl lg:text-7xl font-extrabold text-white mb-2">{stat.value}</div>
-              <div className="text-text-muted text-sm lg:text-base uppercase tracking-wider font-medium">{stat.label}</div>
-            </div>
-          ))}
-        </div>
+        <Reveal>
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-10">
+            {[
+              { value: '11', label: 'Court Zones Tracked' },
+              { value: '50+', label: 'Curated Drills' },
+              { value: '20+', label: 'Stats Per Game' },
+              { value: '100%', label: 'Free to Start' },
+            ].map((stat) => (
+              <div key={stat.label} className="text-center">
+                <div className="font-sans text-4xl lg:text-5xl font-extrabold text-white mb-1">{stat.value}</div>
+                <div className="text-text-muted text-xs lg:text-sm uppercase tracking-wider font-medium">{stat.label}</div>
+              </div>
+            ))}
+          </div>
+        </Reveal>
       </div>
     </section>
   );
@@ -575,53 +621,53 @@ function StatsBar() {
    ───────────────────────────────────────────── */
 function Waitlist() {
   return (
-    <section id="waitlist" className="py-32">
+    <section id="waitlist" className="py-24">
       <div className="max-w-[1280px] mx-auto px-6 lg:px-10">
-        <div className="relative bg-bg-card border border-border rounded-[2rem] overflow-hidden">
-          {/* Background gradient */}
-          <div className="absolute inset-0 bg-gradient-to-br from-blue-glow via-transparent to-blue-glow/30 pointer-events-none" />
-          <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-blue/5 rounded-full blur-[120px] pointer-events-none" />
+        <Reveal>
+          <div className="relative bg-bg-card border border-border rounded-2xl overflow-hidden">
+            {/* Single subtle gradient */}
+            <div className="absolute inset-0 bg-gradient-to-br from-blue-glow/60 via-transparent to-transparent pointer-events-none" />
 
-          <div className="relative px-8 py-20 md:px-16 lg:px-24 lg:py-28 text-center">
-            <h2 className="font-sans text-5xl md:text-6xl lg:text-7xl font-extrabold text-white leading-[0.95] tracking-tight mb-6">
-              READY TO<br />
-              <span className="gradient-text-blue">LEVEL UP?</span>
-            </h2>
-            <p className="text-text-secondary text-lg lg:text-xl max-w-lg mx-auto mb-12">
-              Join the waitlist to get early access when CourtIQ launches.
-              Be the first to start tracking your game.
-            </p>
+            <div className="relative px-8 py-16 md:px-14 lg:px-20 lg:py-20 text-center">
+              <h2 className="font-sans text-3xl md:text-4xl lg:text-5xl font-extrabold text-white leading-[0.95] tracking-tight mb-4">
+                READY TO <span className="gradient-text-blue">LEVEL UP?</span>
+              </h2>
+              <p className="text-text-secondary text-base lg:text-lg max-w-md mx-auto mb-10">
+                Join the waitlist to get early access when CourtIQ launches.
+                Be the first to start tracking your game.
+              </p>
 
-            <form
-              className="flex flex-col sm:flex-row gap-4 max-w-xl mx-auto"
-              onSubmit={(e) => {
-                e.preventDefault();
-                const email = e.target.elements.email.value;
-                if (email) {
-                  alert('Thanks for signing up! We\'ll be in touch.');
-                  e.target.reset();
-                }
-              }}
-            >
-              <input
-                name="email"
-                type="email"
-                required
-                placeholder="Enter your email address"
-                className="flex-1 bg-bg-primary/80 border border-border rounded-full px-7 py-4 text-white placeholder:text-text-muted text-base focus:outline-none focus:border-blue transition-colors"
-              />
-              <button
-                type="submit"
-                className="btn-glow bg-blue hover:bg-blue-dark text-white px-10 py-4 rounded-full text-base font-bold whitespace-nowrap flex items-center justify-center gap-2"
+              <form
+                className="flex flex-col sm:flex-row gap-3 max-w-lg mx-auto"
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  const email = e.target.elements.email.value;
+                  if (email) {
+                    alert('Thanks for signing up! We\'ll be in touch.');
+                    e.target.reset();
+                  }
+                }}
               >
-                Join Waitlist
-                <ArrowRight className="w-4 h-4" />
-              </button>
-            </form>
+                <input
+                  name="email"
+                  type="email"
+                  required
+                  placeholder="Enter your email address"
+                  className="flex-1 bg-bg-primary/80 border border-border rounded-full px-6 py-3.5 text-white placeholder:text-text-muted text-sm focus:outline-none focus:border-blue transition-colors"
+                />
+                <button
+                  type="submit"
+                  className="btn-glow bg-blue hover:bg-blue-dark text-white px-8 py-3.5 rounded-full text-sm font-bold whitespace-nowrap flex items-center justify-center gap-2"
+                >
+                  Join Waitlist
+                  <ArrowRight className="w-4 h-4" />
+                </button>
+              </form>
 
-            <p className="text-text-muted text-sm mt-6">Free to join. No spam. Unsubscribe anytime.</p>
+              <p className="text-text-muted text-xs mt-5">Free to join. No spam. Unsubscribe anytime.</p>
+            </div>
           </div>
-        </div>
+        </Reveal>
       </div>
     </section>
   );
@@ -633,8 +679,8 @@ function Waitlist() {
 function Footer() {
   return (
     <footer className="border-t border-border bg-bg-section">
-      <div className="max-w-[1280px] mx-auto px-6 lg:px-10 py-16">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-10 lg:gap-16 mb-16">
+      <div className="max-w-[1280px] mx-auto px-6 lg:px-10 py-12">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-8 lg:gap-12 mb-12">
           {/* Brand */}
           <div className="col-span-2 md:col-span-1">
             <div className="flex items-center gap-3 mb-5">

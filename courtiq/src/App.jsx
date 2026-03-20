@@ -4,7 +4,10 @@ import ProtectedRoute from './components/ProtectedRoute'
 import AppLayout from './layouts/AppLayout'
 import Dashboard from './pages/Dashboard'
 import Log from './pages/Log'
+import LogGame from './pages/LogGame'
 import Train from './pages/Train'
+import LogDrill from './pages/LogDrill'
+import ShotTracker from './pages/ShotTracker'
 import Profile from './pages/Profile'
 import Login from './pages/Login'
 import Signup from './pages/Signup'
@@ -32,7 +35,10 @@ export default function App() {
           >
             <Route index element={<Dashboard />} />
             <Route path="log" element={<Log />} />
+            <Route path="log/new" element={<LogGame />} />
             <Route path="train" element={<Train />} />
+            <Route path="train/new" element={<LogDrill />} />
+            <Route path="shots" element={<ShotTracker />} />
             <Route path="profile" element={<Profile />} />
           </Route>
         </Routes>

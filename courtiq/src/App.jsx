@@ -8,6 +8,10 @@ import LogGame from './pages/LogGame'
 import Train from './pages/Train'
 import LogDrill from './pages/LogDrill'
 import ShotTracker from './pages/ShotTracker'
+import Analytics from './pages/Analytics'
+import Journal from './pages/Journal'
+import JournalEntry from './pages/JournalEntry'
+import Badges from './pages/Badges'
 import Profile from './pages/Profile'
 import Login from './pages/Login'
 import Signup from './pages/Signup'
@@ -39,6 +43,10 @@ export default function App() {
             <Route path="train" element={<Train />} />
             <Route path="train/new" element={<LogDrill />} />
             <Route path="shots" element={<ShotTracker />} />
+            <Route path="analytics" element={<Analytics />} />
+            <Route path="journal" element={<Journal />} />
+            <Route path="journal/new" element={<JournalEntry />} />
+            <Route path="badges" element={<Badges />} />
             <Route path="profile" element={<Profile />} />
           </Route>
         </Routes>

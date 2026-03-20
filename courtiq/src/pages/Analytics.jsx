@@ -1,0 +1,232 @@
+import { useMemo } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { BarChart3, TrendingUp, Target, Percent } from 'lucide-react'
+import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Tooltip, LineChart, Line } from 'recharts'
+import { useGames } from '../hooks/useGames'
+import { useShots } from '../hooks/useShots'
+import PageShell from '../components/ui/PageShell'
+import SectionHeader from '../components/ui/SectionHeader'
+import StatCard from '../components/ui/StatCard'
+import Card from '../components/ui/Card'
+
+const CustomTooltip = ({ active, payload, label }) => {
+  if (!active || !payload?.length) return null
+  return (
+    <div className="rounded-lg bg-bg-card border border-border px-3 py-2 text-xs shadow-lg">
+      <p className="text-text-muted">{label}</p>
+      {payload.map((entry, i) => (
+        <p key={i} className="font-semibold" style={{ color: entry.color }}>
+          {entry.name}: {entry.value}
+        </p>
+      ))}
+    </div>
+  )
+}
+
+export default function Analytics() {
+  const navigate = useNavigate()
+  const { games } = useGames()
+  const { shots, stats: shotStats } = useShots()
+
+  // Game averages
+  const avgStats = useMemo(() => {
+    if (games.length === 0) return { ppg: 0, rpg: 0, apg: 0, fgPct: 0 }
+    const totals = games.reduce(
+      (acc, g) => ({
+        pts: acc.pts + g.points,
+        reb: acc.reb + g.rebounds,
+        ast: acc.ast + g.assists,
+        fgm: acc.fgm + g.fg_made,
+        fga: acc.fga + g.fg_attempted,
+      }),
+      { pts: 0, reb: 0, ast: 0, fgm: 0, fga: 0 }
+    )
+    return {
+      ppg: (totals.pts / games.length).toFixed(1),
+      rpg: (totals.reb / games.length).toFixed(1),
+      apg: (totals.ast / games.length).toFixed(1),
+      fgPct: totals.fga > 0 ? Math.round((totals.fgm / totals.fga) * 100) : 0,
+    }
+  }, [games])
+
+  // Game trend data (last 10 games, oldest first)
+  const gameTrend = useMemo(() => {
+    return games
+      .slice(0, 10)
+      .reverse()
+      .map(g => {
+        const date = new Date(g.game_date + 'T12:00:00')
+        return {
+          label: date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+          PTS: g.points,
+          REB: g.rebounds,
+          AST: g.assists,
+        }
+      })
+  }, [games])
+
+  // Shooting by zone
+  const zoneBreakdown = useMemo(() => {
+    const map = {}
+    shots.forEach(s => {
+      if (!map[s.zone_id]) map[s.zone_id] = { made: 0, total: 0 }
+      map[s.zone_id].total++
+      if (s.made) map[s.zone_id].made++
+    })
+    return Object.entries(map)
+      .map(([zone, stat]) => ({
+        zone: zone.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase()),
+        'FG%': Math.round((stat.made / stat.total) * 100),
+        shots: stat.total,
+      }))
+      .sort((a, b) => b.shots - a.shots)
+      .slice(0, 8)
+  }, [shots])
+
+  // Win/Loss record
+  const record = useMemo(() => {
+    const w = games.filter(g => g.result === 'Win').length
+    const l = games.filter(g => g.result === 'Loss').length
+    return { w, l, pct: (w + l) > 0 ? Math.round((w / (w + l)) * 100) : 0 }
+  }, [games])
+
+  return (
+    <PageShell>
+      <div className="flex flex-col gap-8">
+        <SectionHeader
+          title="Analytics"
+          subtitle="Your performance at a glance."
+        />
+
+        {/* Season Averages */}
+        <section className="space-y-4">
+          <h2 className="text-sm font-semibold text-text-muted uppercase tracking-wider">
+            Season Averages
+          </h2>
+          <div className="grid grid-cols-2 gap-4">
+            <StatCard label="PPG" value={avgStats.ppg} icon={TrendingUp} />
+            <StatCard label="RPG" value={avgStats.rpg} icon={BarChart3} />
+            <StatCard label="APG" value={avgStats.apg} icon={Target} />
+            <StatCard label="FG%" value={`${avgStats.fgPct}%`} icon={Percent} />
+          </div>
+        </section>
+
+        {/* Record */}
+        {(record.w + record.l) > 0 && (
+          <Card className="space-y-3">
+            <h2 className="text-sm font-semibold text-text-muted uppercase tracking-wider">Record</h2>
+            <div className="flex items-center gap-6">
+              <div className="text-center">
+                <p className="text-2xl font-bold text-success">{record.w}</p>
+                <p className="text-[10px] text-text-muted uppercase">Wins</p>
+              </div>
+              <div className="text-center">
+                <p className="text-2xl font-bold text-danger">{record.l}</p>
+                <p className="text-[10px] text-text-muted uppercase">Losses</p>
+              </div>
+              <div className="flex-1 text-right">
+                <p className="text-2xl font-bold text-text-primary">{record.pct}%</p>
+                <p className="text-[10px] text-text-muted uppercase">Win Rate</p>
+              </div>
+            </div>
+          </Card>
+        )}
+
+        {/* Scoring Trend */}
+        {gameTrend.length >= 2 && (
+          <section className="space-y-4">
+            <h2 className="text-sm font-semibold text-text-muted uppercase tracking-wider">
+              Scoring Trend
+            </h2>
+            <Card className="pt-4 pr-2">
+              <ResponsiveContainer width="100%" height={200}>
+                <LineChart data={gameTrend}>
+                  <XAxis
+                    dataKey="label"
+                    tick={{ fontSize: 10, fill: '#5a5a6a' }}
+                    axisLine={false}
+                    tickLine={false}
+                  />
+                  <YAxis
+                    tick={{ fontSize: 10, fill: '#5a5a6a' }}
+                    axisLine={false}
+                    tickLine={false}
+                    width={30}
+                  />
+                  <Tooltip content={<CustomTooltip />} />
+                  <Line
+                    type="monotone"
+                    dataKey="PTS"
+                    stroke="#00A3FF"
+                    strokeWidth={2}
+                    dot={{ r: 3, fill: '#00A3FF' }}
+                  />
+                </LineChart>
+              </ResponsiveContainer>
+            </Card>
+          </section>
+        )}
+
+        {/* Shot Zone Breakdown */}
+        {zoneBreakdown.length > 0 && (
+          <section className="space-y-4">
+            <h2 className="text-sm font-semibold text-text-muted uppercase tracking-wider">
+              Shooting by Zone
+            </h2>
+            <Card className="pt-4 pr-2">
+              <ResponsiveContainer width="100%" height={220}>
+                <BarChart data={zoneBreakdown} layout="vertical">
+                  <XAxis
+                    type="number"
+                    tick={{ fontSize: 10, fill: '#5a5a6a' }}
+                    axisLine={false}
+                    tickLine={false}
+                    domain={[0, 100]}
+                    tickFormatter={(v) => `${v}%`}
+                  />
+                  <YAxis
+                    dataKey="zone"
+                    type="category"
+                    tick={{ fontSize: 9, fill: '#8a8a9a' }}
+                    axisLine={false}
+                    tickLine={false}
+                    width={70}
+                  />
+                  <Tooltip content={<CustomTooltip />} />
+                  <Bar dataKey="FG%" fill="#00A3FF" radius={[0, 4, 4, 0]} barSize={16} />
+                </BarChart>
+              </ResponsiveContainer>
+            </Card>
+          </section>
+        )}
+
+        {/* Overall Shooting */}
+        <section className="space-y-4">
+          <h2 className="text-sm font-semibold text-text-muted uppercase tracking-wider">
+            Shot Tracking
+          </h2>
+          <div className="grid grid-cols-3 gap-3">
+            <StatCard label="Total" value={shotStats.total} className="p-4" />
+            <StatCard label="Made" value={shotStats.made} className="p-4" />
+            <StatCard label="FG%" value={`${shotStats.percentage}%`} className="p-4" />
+          </div>
+        </section>
+
+        {/* No data state */}
+        {games.length === 0 && shots.length === 0 && (
+          <Card>
+            <div className="flex flex-col items-center py-8 text-center space-y-3">
+              <div className="w-12 h-12 rounded-xl bg-bg-section border border-border flex items-center justify-center">
+                <BarChart3 size={22} className="text-text-muted" />
+              </div>
+              <div className="space-y-1">
+                <p className="text-sm font-medium text-text-primary">No data yet</p>
+                <p className="text-xs text-text-muted">Log games and track shots to see analytics.</p>
+              </div>
+            </div>
+          </Card>
+        )}
+      </div>
+    </PageShell>
+  )
+}

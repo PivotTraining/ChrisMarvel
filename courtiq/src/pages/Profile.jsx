@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom'
-import { User, Trophy, Star, ChevronRight, LogOut } from 'lucide-react'
+import { User, Trophy, Star, ChevronRight, LogOut, BookOpen, BarChart3 } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
 import PageShell from '../components/ui/PageShell'
 import SectionHeader from '../components/ui/SectionHeader'
@@ -20,6 +20,12 @@ export default function Profile() {
     await signOut()
     navigate('/login', { replace: true })
   }
+
+  const menuItems = [
+    { label: 'Journal', icon: BookOpen, path: '/journal' },
+    { label: 'Achievements', icon: Trophy, path: '/badges' },
+    { label: 'Analytics', icon: BarChart3, path: '/analytics' },
+  ]
 
   return (
     <PageShell>
@@ -49,11 +55,33 @@ export default function Profile() {
           </h2>
           <div className="grid grid-cols-2 gap-4">
             <StatCard label="Streak" value={profile?.current_streak ?? 0} icon={Trophy} />
-            <StatCard label="Badges" value="0" icon={Star} />
+            <StatCard label="Level" value={level} icon={Star} />
           </div>
         </section>
 
-        {/* Menu */}
+        {/* Quick Links */}
+        <section className="space-y-4">
+          <h2 className="text-sm font-semibold text-text-muted uppercase tracking-wider">
+            Features
+          </h2>
+          <div className="space-y-3">
+            {menuItems.map(({ label, icon: Icon, path }) => (
+              <Card
+                key={label}
+                onClick={() => navigate(path)}
+                className="flex items-center justify-between cursor-pointer card-hover"
+              >
+                <div className="flex items-center gap-3">
+                  <Icon size={18} className="text-text-secondary" />
+                  <span className="text-sm font-medium text-text-primary">{label}</span>
+                </div>
+                <ChevronRight size={16} className="text-text-muted" />
+              </Card>
+            ))}
+          </div>
+        </section>
+
+        {/* Settings */}
         <section className="space-y-4">
           <h2 className="text-sm font-semibold text-text-muted uppercase tracking-wider">
             Settings

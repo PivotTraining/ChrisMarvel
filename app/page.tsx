@@ -13,8 +13,8 @@ export default function Home() {
       const nav = document.getElementById('navbar')
       if (nav) {
         nav.style.background = window.scrollY > 50
-          ? 'rgba(17, 29, 53, 0.98)'
-          : 'rgba(17, 29, 53, 0.95)'
+          ? 'rgba(11, 21, 39, 0.98)'
+          : 'rgba(11, 21, 39, 0.92)'
       }
     }
     window.addEventListener('scroll', handleScroll)
@@ -66,7 +66,7 @@ export default function Home() {
   return (
     <>
       {/* ===== NAVIGATION ===== */}
-      <nav id="navbar" className={menuOpen ? 'open' : ''} aria-label="Main navigation">
+      <nav id="navbar" aria-label="Main navigation">
         <div className="container">
           <a href="#" className="nav-logo" onClick={(e) => { e.preventDefault(); window.scrollTo({ top: 0, behavior: 'smooth' }) }} aria-label="Chris Marvel — Keynote Speaker homepage">
             Chris<img src="/images/chris-marvel-logo.png" alt="Chris Marvel keynote speaker logo" className="nav-logo-icon" width={28} height={28} /><span>Marvel</span>
@@ -88,13 +88,13 @@ export default function Home() {
       {/* ===== HERO ===== */}
       <header className="hero" id="home">
         <div className="container">
-          <div className="hero-content">
-            <span className="badge badge-gold">Mental Health Performance Coach &amp; Keynote Speaker</span>
+          <div className="hero-copy">
+            <span className="section-badge badge-gold">Mental Health Performance Coach &amp; Keynote Speaker</span>
             <h1>Keynote Speaker Turning Pressure<br />Into <span className="accent">Power</span></h1>
             <p className="hero-tagline">
               From NFL locker rooms to Fortune 500 boardrooms — keynote speaker Chris Marvel transforms how organizations think about mental health, resilience, and peak performance.
             </p>
-            <p className="hero-description">
+            <p className="hero-desc">
               With over a decade of experience and a Master&rsquo;s in Psychology, Chris Marvel helps
               high-performers and organizations move from crisis response to performance strategy.
               His keynotes, workshops, and training programs are direct, evidence-based, and built for real results.
@@ -105,7 +105,7 @@ export default function Home() {
               <a href="#reel" className="btn btn-outline-white" onClick={(e) => { e.preventDefault(); scrollTo('reel') }}>Watch the Speaker Reel</a>
             </div>
           </div>
-          <div className="hero-image-container">
+          <div className="hero-image-wrapper">
             <img
               src="/images/hero-headshot.jpg"
               alt="Chris Marvel — keynote speaker and mental health performance coach available for corporate events, conferences, and workshops"
@@ -120,7 +120,7 @@ export default function Home() {
       {/* ===== TRUSTED BY BAR ===== */}
       <section className="trusted-bar" aria-label="Organizations that trust Chris Marvel">
         <div className="container">
-          <div className="trusted-bar-label">Trusted By Leading Organizations</div>
+          <div className="trusted-label">Trusted By Leading Organizations</div>
           <div className="trusted-logos">
             <span>Johnson &amp; Johnson</span>
             <span>Cleveland Metro Schools</span>
@@ -132,11 +132,11 @@ export default function Home() {
       </section>
 
       {/* ===== ABOUT ===== */}
-      <section className="mission" id="about" aria-label="About keynote speaker Chris Marvel">
+      <section className="about" id="about" aria-label="About keynote speaker Chris Marvel">
         <div className="container">
-          <div className="mission-content">
-            <span className="badge badge-gold">About the Speaker</span>
-            <h2>The Coach Behind<br />The <span className="accent">Movement</span></h2>
+          <div className="about-copy">
+            <span className="section-badge badge-gold">About the Speaker</span>
+            <h2 className="section-title">The Coach Behind<br />The <span className="accent">Movement</span></h2>
             <p>
               Christopher &ldquo;Chris Marvel&rdquo; Davis is a <strong>Mental Health Performance Coach</strong>, <strong>professional keynote speaker</strong>,
               and published author with over a decade of experience optimizing human performance through the lens of psychology.
@@ -154,39 +154,39 @@ export default function Home() {
               a <strong>mental health professional development company</strong> headquartered in Cleveland, Ohio and Atlanta, Georgia
               that is reshaping how organizations approach employee wellbeing, leadership development, and workplace culture.
             </p>
-            <div className="credentials-row">
-              <span className="credential-tag">M.S. Psychology</span>
-              <span className="credential-tag">Certified Life Coach</span>
-              <span className="credential-tag">Published Author</span>
-              <span className="credential-tag">10+ Years Experience</span>
-              <span className="credential-tag">NFL/NBA Coach</span>
+            <div className="credentials">
+              <span className="cred-tag">M.S. Psychology</span>
+              <span className="cred-tag">Certified Life Coach</span>
+              <span className="cred-tag">Published Author</span>
+              <span className="cred-tag">10+ Years Experience</span>
+              <span className="cred-tag">NFL/NBA Coach</span>
             </div>
             <a href="#contact" className="btn btn-navy" onClick={(e) => { e.preventDefault(); scrollTo('contact') }} style={{ marginTop: '32px' }}>Get In Touch</a>
           </div>
-          <div className="mission-image">
+          <div className="about-image">
             <img src="/images/about-presenting.jpg" alt="Keynote speaker Chris Marvel presenting mental health workshop to corporate audience" loading="lazy" width={600} height={400} />
           </div>
         </div>
       </section>
 
       {/* ===== FULL-WIDTH STAGE PHOTO ===== */}
-      <div className="stage-photo" role="img" aria-label="Chris Marvel delivering keynote speech on stage at major conference">
+      <div className="stage-divider" role="img" aria-label="Chris Marvel delivering keynote speech on stage at major conference">
         <img src="/images/gallery-stage.jpg" alt="Chris Marvel delivering mental health keynote on stage at corporate conference event" loading="lazy" />
       </div>
 
       {/* ===== KEYNOTES ===== */}
       <section className="keynotes" id="keynotes" aria-label="Keynote speaking topics and programs">
         <div className="container">
-          <span className="badge badge-gold">Signature Keynotes &amp; Workshops</span>
-          <h2>Keynote Talks That <span className="accent">Transform</span></h2>
-          <p className="keynotes-subtitle">
+          <span className="section-badge badge-gold">Signature Keynotes &amp; Workshops</span>
+          <h2 className="section-title">Keynote Talks That <span className="accent">Transform</span></h2>
+          <p className="keynotes-sub">
             Each keynote is customizable for corporate, education, and nonprofit audiences.
             Available as 60-minute keynotes, half-day workshops, or full-day immersive training programs.
             Chris Marvel tailors every presentation to your organization&rsquo;s specific goals and challenges.
           </p>
           <div className="keynote-grid">
             <article className="keynote-card fade-in">
-              <div className="keynote-card-icon">&#9889;</div>
+              <div className="keynote-icon">&#9889;</div>
               <h3>Pressure Is a Privilege</h3>
               <p>
                 A powerful keynote exploring how high performers can reframe stress as fuel rather than a barrier.
@@ -195,7 +195,7 @@ export default function Home() {
               </p>
             </article>
             <article className="keynote-card fade-in">
-              <div className="keynote-card-icon">&#128065;</div>
+              <div className="keynote-icon">&#128065;</div>
               <h3>The Invisible Injury</h3>
               <p>
                 Unveiling the hidden <strong>mental health challenges</strong> that silently erode performance, culture, and retention.
@@ -204,7 +204,7 @@ export default function Home() {
               </p>
             </article>
             <article className="keynote-card fade-in">
-              <div className="keynote-card-icon">&#128161;</div>
+              <div className="keynote-icon">&#128161;</div>
               <h3>The What If Effect</h3>
               <p>
                 Based on Chris Marvel&rsquo;s bestselling book — a framework for breaking through the mental barriers that keep us stuck.
@@ -213,7 +213,7 @@ export default function Home() {
               </p>
             </article>
             <article className="keynote-card fade-in">
-              <div className="keynote-card-icon">&#127919;</div>
+              <div className="keynote-icon">&#127919;</div>
               <h3>Custom Programs &amp; Workshops</h3>
               <p>
                 Multi-session <strong>professional development training</strong> designed for your organization&rsquo;s specific needs.
@@ -226,8 +226,8 @@ export default function Home() {
       </section>
 
       {/* ===== PHOTO GALLERY STRIP ===== */}
-      <section className="photo-gallery" aria-label="Chris Marvel keynote speaker photo gallery">
-        <div className="gallery-strip">
+      <section className="gallery" aria-label="Chris Marvel keynote speaker photo gallery">
+        <div className="gallery-grid">
           <img src="/images/gallery-workshop.jpg" alt="Chris Marvel leading interactive mental health workshop for corporate team" loading="lazy" width={400} height={300} />
           <img src="/images/gallery-ballroom.jpg" alt="Chris Marvel delivering keynote speech to packed ballroom at national conference" loading="lazy" width={400} height={300} />
           <img src="/images/gallery-education.jpg" alt="Chris Marvel presenting emotional intelligence keynote for educators and school administrators" loading="lazy" width={400} height={300} />
@@ -236,12 +236,12 @@ export default function Home() {
       </section>
 
       {/* ===== SPEAKER REEL ===== */}
-      <section className="reel-section" id="reel" aria-label="Chris Marvel keynote speaker demo reel">
+      <section className="reel" id="reel" aria-label="Chris Marvel keynote speaker demo reel">
         <div className="container">
-          <span className="badge badge-navy">See Chris Marvel In Action</span>
-          <h2>Keynote Speaker <span className="accent">Reel</span></h2>
-          <p className="reel-subtitle">Watch what happens when psychology meets the stage. See why event planners and speaker bureaus book Chris Marvel for their most important events.</p>
-          <a href="https://youtu.be/AAAURVaEE48?si=4LKNwd9qRLYzhkNp" target="_blank" rel="noopener noreferrer" className="reel-container" aria-label="Watch Chris Marvel keynote speaker demo reel on YouTube">
+          <span className="section-badge badge-navy">See Chris Marvel In Action</span>
+          <h2 className="section-title">Keynote Speaker <span className="accent">Reel</span></h2>
+          <p className="reel-sub">Watch what happens when psychology meets the stage. See why event planners and speaker bureaus book Chris Marvel for their most important events.</p>
+          <a href="https://youtu.be/AAAURVaEE48?si=4LKNwd9qRLYzhkNp" target="_blank" rel="noopener noreferrer" className="reel-video" aria-label="Watch Chris Marvel keynote speaker demo reel on YouTube">
             <img src="/images/gallery-stage.jpg" alt="Chris Marvel keynote speaker demo reel — watch highlights from corporate events, conferences, and workshops" loading="lazy" />
             <div className="play-btn" role="button" aria-label="Play speaker demo reel video"></div>
           </a>
@@ -254,9 +254,9 @@ export default function Home() {
           <div className="book-cover">
             <img src="/images/book-cover.jpg" alt="The What If Effect: Flip Doubt Into Direction — bestselling book by keynote speaker Chris Marvel Davis on mental performance and resilience" loading="lazy" width={350} height={500} />
           </div>
-          <div className="book-content">
-            <span className="badge badge-gold">The Book</span>
-            <h2>The What If <span className="accent">Effect</span></h2>
+          <div className="book-copy">
+            <span className="section-badge badge-gold">The Book</span>
+            <h2 className="section-title">The What If <span className="accent">Effect</span></h2>
             <p>
               What if the only thing standing between you and your breakthrough is the story you keep telling yourself?
               In &ldquo;<strong>The What If Effect: Flip Doubt Into Direction</strong>,&rdquo; keynote speaker Chris Marvel draws on a decade of coaching elite athletes
@@ -269,7 +269,7 @@ export default function Home() {
             </p>
             <div className="book-buttons">
               <a href="#" className="btn btn-navy">Get the Book</a>
-              <a href="#contact" className="btn btn-outline-white" style={{ color: 'var(--navy)', borderColor: 'var(--navy)' }} onClick={(e) => { e.preventDefault(); scrollTo('contact') }}>Bulk Orders for Events</a>
+              <a href="#contact" className="btn btn-outline-navy" onClick={(e) => { e.preventDefault(); scrollTo('contact') }}>Bulk Orders for Events</a>
             </div>
           </div>
         </div>
@@ -278,40 +278,44 @@ export default function Home() {
       {/* ===== TESTIMONIALS ===== */}
       <section className="testimonials" id="testimonials" aria-label="Client testimonials and reviews for keynote speaker Chris Marvel">
         <div className="container">
-          <span className="badge badge-gold">What Clients Say</span>
-          <h2>Keynote Speaker <span className="accent">Testimonials</span></h2>
+          <span className="section-badge badge-gold">What Clients Say</span>
+          <h2 className="section-title">Keynote Speaker <span className="accent">Testimonials</span></h2>
           <div className="testimonial-grid">
             <article className="testimonial-card fade-in">
+              <div className="testimonial-quote-mark">&ldquo;</div>
               <p className="testimonial-text">
                 Chris has a rare ability to connect complex psychology concepts to real-world workplace challenges.
                 Our leadership team walked away with actionable strategies they started implementing the same week.
               </p>
-              <div className="testimonial-author">Johnson &amp; Johnson</div>
-              <div className="testimonial-title">Corporate Keynote &amp; Workshop Client</div>
+              <div className="testimonial-source">Johnson &amp; Johnson</div>
+              <div className="testimonial-role">Corporate Keynote &amp; Workshop Client</div>
             </article>
             <article className="testimonial-card fade-in">
+              <div className="testimonial-quote-mark">&ldquo;</div>
               <p className="testimonial-text">
                 The way Chris broke down mental health for our educators was a game-changer. Our teachers finally
                 felt seen and equipped. Absenteeism dropped and morale went up within one semester.
               </p>
-              <div className="testimonial-author">Cleveland Metropolitan School District</div>
-              <div className="testimonial-title">Education Keynote Partner</div>
+              <div className="testimonial-source">Cleveland Metropolitan School District</div>
+              <div className="testimonial-role">Education Keynote Partner</div>
             </article>
             <article className="testimonial-card fade-in">
+              <div className="testimonial-quote-mark">&ldquo;</div>
               <p className="testimonial-text">
                 Working with Chris changed how I approach the mental side of competition. He doesn&rsquo;t just talk
                 about mental health — he gives you a system that actually works under pressure.
               </p>
-              <div className="testimonial-author">Professional Athlete Client</div>
-              <div className="testimonial-title">NFL / NBA Performance Coaching</div>
+              <div className="testimonial-source">Professional Athlete Client</div>
+              <div className="testimonial-role">NFL / NBA Performance Coaching</div>
             </article>
             <article className="testimonial-card fade-in">
+              <div className="testimonial-quote-mark">&ldquo;</div>
               <p className="testimonial-text">
                 We brought Chris in for our annual staff development day and the feedback was overwhelming.
                 Staff rated his session the highest of any professional development we&rsquo;ve offered in five years.
               </p>
-              <div className="testimonial-author">Clark County School District</div>
-              <div className="testimonial-title">Education Keynote Partner</div>
+              <div className="testimonial-source">Clark County School District</div>
+              <div className="testimonial-role">Education Keynote Partner</div>
             </article>
           </div>
         </div>
@@ -323,18 +327,18 @@ export default function Home() {
           <img src="/images/gallery-ballroom.jpg" alt="Chris Marvel speaking to large audience at corporate conference event" loading="lazy" />
         </div>
         <div className="container">
-          <div className="cta-banner-sub">Ready to Transform Your Organization?</div>
-          <h2>Book Keynote Speaker Chris Marvel<br />For Your Next Event</h2>
+          <div className="cta-eyebrow">Ready to Transform Your Organization?</div>
+          <h2 className="section-title">Book Keynote Speaker Chris Marvel<br />For Your Next Event</h2>
           <p>Whether it&rsquo;s a corporate keynote, leadership workshop, or multi-session training program — Chris Marvel delivers measurable results that last.</p>
           <a href="#contact" className="btn btn-gold" onClick={(e) => { e.preventDefault(); scrollTo('contact') }}>Book Chris Marvel Now</a>
         </div>
       </section>
 
       {/* ===== FAQ ===== */}
-      <section className="faq-section" id="faq" aria-label="Frequently asked questions about booking keynote speaker Chris Marvel">
+      <section className="faq" id="faq" aria-label="Frequently asked questions about booking keynote speaker Chris Marvel">
         <div className="container">
-          <span className="badge badge-gold">FAQ</span>
-          <h2>Frequently Asked <span className="accent">Questions</span></h2>
+          <span className="section-badge badge-gold">FAQ</span>
+          <h2 className="section-title">Frequently Asked <span className="accent">Questions</span></h2>
           <div className="faq-grid">
             <details className="faq-item" open>
               <summary>What topics does Chris Marvel speak about?</summary>
@@ -376,41 +380,33 @@ export default function Home() {
       <section className="contact" id="contact" aria-label="Book keynote speaker Chris Marvel — contact and inquiry form">
         <div className="container">
           <div className="contact-info">
-            <span className="badge badge-gold">Book Keynote Speaker Chris Marvel</span>
-            <h2>Let&rsquo;s Build Something <span className="accent">Together</span></h2>
-            <p className="contact-description">
+            <span className="section-badge badge-gold">Book Keynote Speaker Chris Marvel</span>
+            <h2 className="section-title">Let&rsquo;s Build Something <span className="accent">Together</span></h2>
+            <p className="contact-desc">
               Whether you need a <strong>keynote speaker</strong> that moves the room, a <strong>workshop facilitator</strong> that transforms your team,
               or a <strong>multi-session training program</strong> that shifts your organizational culture — Chris Marvel delivers.
               Event planners, HR directors, conference organizers, and school administrators: let&rsquo;s talk.
             </p>
-            <ul className="contact-details">
+            <ul className="contact-list">
               <li>
-                <div>
-                  <span className="label">Booking Inquiries</span>
-                  <a href="mailto:Jazmine@pivottraining.us">Jazmine@pivottraining.us</a>
-                </div>
+                <span className="contact-label">Booking Inquiries</span>
+                <span className="contact-value"><a href="mailto:Jazmine@pivottraining.us">Jazmine@pivottraining.us</a></span>
               </li>
               <li>
-                <div>
-                  <span className="label">Phone</span>
-                  <a href="tel:+17703131232">(770) 313-1232</a>
-                </div>
+                <span className="contact-label">Phone</span>
+                <span className="contact-value"><a href="tel:+17703131232">(770) 313-1232</a></span>
               </li>
               <li>
-                <div>
-                  <span className="label">Headquarters</span>
-                  Cleveland, OH &bull; Atlanta, GA
-                </div>
+                <span className="contact-label">Headquarters</span>
+                <span className="contact-value">Cleveland, OH &bull; Atlanta, GA</span>
               </li>
               <li>
-                <div>
-                  <span className="label">Availability</span>
-                  Now booking 2026–2027 | Corporate, Education &amp; Nonprofit
-                </div>
+                <span className="contact-label">Availability</span>
+                <span className="contact-value">Now booking 2026–2027 | Corporate, Education &amp; Nonprofit</span>
               </li>
             </ul>
           </div>
-          <div className="contact-form">
+          <div className="contact-form-card">
             {formSubmitted ? (
               <div className="form-success">
                 <h3>Thank You!</h3>
@@ -502,9 +498,9 @@ export default function Home() {
       <footer aria-label="Chris Marvel keynote speaker site footer">
         <div className="container">
           <div className="footer-grid">
-            <div className="footer-col">
-              <div className="footer-brand-name">Chris <span>Marvel</span></div>
-              <p className="footer-brand-tagline">
+            <div>
+              <div className="footer-brand">Chris <span>Marvel</span></div>
+              <p className="footer-tagline">
                 Keynote speaker, mental health performance coach, and author transforming how organizations approach wellbeing, resilience, and peak performance.
                 Available for corporate keynotes, workshops, and training programs nationwide.
               </p>
@@ -538,16 +534,16 @@ export default function Home() {
 
             <div className="footer-col">
               <h4>Contact</h4>
-              <div className="footer-contact-item">
-                <span className="footer-contact-icon">&#9993;</span>
+              <div className="footer-contact-row">
+                <span className="fc-icon">&#9993;</span>
                 <a href="mailto:Jazmine@pivottraining.us">Jazmine@pivottraining.us</a>
               </div>
-              <div className="footer-contact-item">
-                <span className="footer-contact-icon">&#9742;</span>
+              <div className="footer-contact-row">
+                <span className="fc-icon">&#9742;</span>
                 <a href="tel:+17703131232">(770) 313-1232</a>
               </div>
-              <div className="footer-contact-item">
-                <span className="footer-contact-icon">&#9679;</span>
+              <div className="footer-contact-row">
+                <span className="fc-icon">&#9679;</span>
                 <span>Cleveland, OH &bull; Atlanta, GA</span>
               </div>
             </div>

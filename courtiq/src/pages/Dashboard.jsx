@@ -1,4 +1,5 @@
 import { Activity, Flame, Target, TrendingUp } from 'lucide-react'
+import { useAuth } from '../contexts/AuthContext'
 import PageShell from '../components/ui/PageShell'
 import SectionHeader from '../components/ui/SectionHeader'
 import StatCard from '../components/ui/StatCard'
@@ -6,12 +7,16 @@ import Card from '../components/ui/Card'
 import Button from '../components/ui/Button'
 
 export default function Dashboard() {
+  const { profile } = useAuth()
+
+  const firstName = profile?.full_name?.split(' ')[0] || 'Player'
+
   return (
     <PageShell>
       <div className="flex flex-col gap-8">
         {/* Header */}
         <SectionHeader
-          title="Dashboard"
+          title={`Hey, ${firstName}`}
           subtitle="Track your progress and daily work."
         />
 
@@ -21,8 +26,8 @@ export default function Dashboard() {
             Today's Stats
           </h2>
           <div className="grid grid-cols-2 gap-4">
-            <StatCard label="Streak" value="0" icon={Flame} />
-            <StatCard label="XP" value="0" icon={TrendingUp} />
+            <StatCard label="Streak" value={profile?.current_streak ?? 0} icon={Flame} />
+            <StatCard label="XP" value={profile?.xp ?? 0} icon={TrendingUp} />
             <StatCard label="Sessions" value="0" icon={Target} />
             <StatCard label="Shots" value="0" icon={Activity} />
           </div>

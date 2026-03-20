@@ -119,7 +119,7 @@ export default function Dashboard() {
                 const date = new Date(item.date + 'T12:00:00')
                 const formatted = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
                 return (
-                  <Card key={item.id} className="flex items-center gap-4">
+                  <Card key={item.id} onClick={() => navigate(item.type === 'game' ? `/log/${item.id}` : '/train')} className="flex items-center gap-4 cursor-pointer card-hover">
                     <div className="w-10 h-10 rounded-xl bg-bg-section border border-border flex items-center justify-center shrink-0">
                       <Icon size={18} className="text-text-muted" />
                     </div>

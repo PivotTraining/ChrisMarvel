@@ -27,7 +27,9 @@ const NotificationSettings = lazy(() => import('./pages/NotificationSettings'))
 const About = lazy(() => import('./pages/About'))
 const SavedContent = lazy(() => import('./pages/SavedContent'))
 const JournalDetail = lazy(() => import('./pages/JournalDetail'))
+const GameDetail = lazy(() => import('./pages/GameDetail'))
 const NotFound = lazy(() => import('./pages/NotFound'))
+const Landing = lazy(() => import('./pages/Landing'))
 const Onboarding = lazy(() => import('./pages/Onboarding'))
 
 const basename = import.meta.env.BASE_URL
@@ -47,6 +49,7 @@ export default function App() {
         <Suspense fallback={<PageLoader />}>
           <Routes>
             {/* Public routes */}
+            <Route path="/welcome" element={<Landing />} />
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
             <Route path="/onboarding" element={<Onboarding />} />
@@ -62,6 +65,7 @@ export default function App() {
               <Route index element={<Dashboard />} />
               <Route path="log" element={<Log />} />
               <Route path="log/new" element={<LogGame />} />
+              <Route path="log/:id" element={<GameDetail />} />
               <Route path="train" element={<Train />} />
               <Route path="train/new" element={<LogDrill />} />
               <Route path="shots" element={<ShotTracker />} />

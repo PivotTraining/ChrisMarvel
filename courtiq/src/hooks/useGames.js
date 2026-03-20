@@ -36,6 +36,20 @@ export function useGames() {
     return { data, error }
   }
 
+  async function updateGame(id, updates) {
+    const { data, error } = await supabase
+      .from('games')
+      .update({ ...updates, updated_at: new Date().toISOString() })
+      .eq('id', id)
+      .select()
+      .single()
+
+    if (!error && data) {
+      setGames(prev => prev.map(g => g.id === id ? data : g))
+    }
+    return { data, error }
+  }
+
   async function deleteGame(id) {
     const { error } = await supabase
       .from('games')
@@ -48,5 +62,5 @@ export function useGames() {
     return { error }
   }
 
-  return { games, loading, addGame, deleteGame, refetch: fetchGames }
+  return { games, loading, addGame, updateGame, deleteGame, refetch: fetchGames }
 }

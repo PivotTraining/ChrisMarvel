@@ -8,7 +8,7 @@ import EmptyState from '../components/ui/EmptyState'
 import Card from '../components/ui/Card'
 import Button from '../components/ui/Button'
 
-function GameCard({ game, onDelete }) {
+function GameCard({ game, onDelete, onNavigate }) {
   const [confirming, setConfirming] = useState(false)
   const date = new Date(game.game_date + 'T12:00:00')
   const formatted = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
@@ -17,7 +17,7 @@ function GameCard({ game, onDelete }) {
     : null
 
   return (
-    <Card className="space-y-4">
+    <Card className="space-y-4 cursor-pointer card-hover" onClick={() => onNavigate(game.id)}>
       {/* Top row: date, opponent, result */}
       <div className="flex items-start justify-between">
         <div className="space-y-1">
@@ -83,11 +83,11 @@ function GameCard({ game, onDelete }) {
         </div>
         {confirming ? (
           <div className="flex items-center gap-2">
-            <button onClick={() => setConfirming(false)} className="text-[10px] text-text-muted">Cancel</button>
-            <button onClick={() => onDelete(game.id)} className="text-[10px] font-semibold text-danger">Delete</button>
+            <button onClick={(e) => { e.stopPropagation(); setConfirming(false) }} className="text-[10px] text-text-muted">Cancel</button>
+            <button onClick={(e) => { e.stopPropagation(); onDelete(game.id) }} className="text-[10px] font-semibold text-danger">Delete</button>
           </div>
         ) : (
-          <button onClick={() => setConfirming(true)} className="p-1 rounded-lg hover:bg-bg-section transition-colors">
+          <button onClick={(e) => { e.stopPropagation(); setConfirming(true) }} className="p-1 rounded-lg hover:bg-bg-section transition-colors">
             <Trash2 size={13} className="text-text-muted" />
           </button>
         )}
@@ -140,7 +140,7 @@ export default function Log() {
             </div>
             <div className="space-y-3">
               {games.map(game => (
-                <GameCard key={game.id} game={game} onDelete={deleteGame} />
+                <GameCard key={game.id} game={game} onDelete={deleteGame} onNavigate={(id) => navigate(`/log/${id}`)} />
               ))}
             </div>
           </section>

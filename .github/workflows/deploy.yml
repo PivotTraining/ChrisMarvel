@@ -1,4 +1,4 @@
-name: Deploy to GitHub Pages
+name: Deploy CourtIQ to GitHub Pages
 
 on:
   push:
@@ -23,17 +23,20 @@ jobs:
         with:
           node-version: 20
           cache: npm
+          cache-dependency-path: courtiq/package-lock.json
 
       - name: Install dependencies
+        working-directory: courtiq
         run: npm ci
 
       - name: Build
+        working-directory: courtiq
         run: npm run build
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: out
+          path: courtiq/dist
 
   deploy:
     needs: build

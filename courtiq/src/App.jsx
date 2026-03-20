@@ -441,8 +441,9 @@ function HowItWorks() {
       <div className="max-w-[1280px] mx-auto px-6 lg:px-10">
         <Reveal>
           <div className="text-center mb-14">
-            <h2 className="font-sans text-3xl md:text-4xl lg:text-5xl font-extrabold text-white leading-[0.95] tracking-tight mb-4">
-              HOW IT <span className="gradient-text-blue">WORKS.</span>
+            <h2 className="font-sans text-4xl md:text-5xl lg:text-6xl font-extrabold text-white leading-[1] tracking-tight mb-4">
+              HOW IT<br />
+              <span className="gradient-text-blue">WORKS.</span>
             </h2>
             <p className="text-text-secondary text-base lg:text-lg max-w-md mx-auto">
               Simple to start. Powerful over time.
@@ -482,8 +483,9 @@ function Premium() {
               <Award className="w-4 h-4 text-gold" />
               <span className="text-gold text-sm font-semibold">CourtIQ+</span>
             </div>
-            <h2 className="font-sans text-3xl md:text-4xl lg:text-5xl font-extrabold text-white leading-[0.95] tracking-tight mb-4">
-              TAKE YOUR GAME <span className="gradient-text-gold">FURTHER.</span>
+            <h2 className="font-sans text-4xl md:text-5xl lg:text-6xl font-extrabold text-white leading-[1] tracking-tight mb-4">
+              TAKE YOUR GAME<br />
+              <span className="gradient-text-gold">FURTHER.</span>
             </h2>
             <p className="text-text-secondary text-base lg:text-lg max-w-md mx-auto">
               Unlock advanced analytics, personalized training programs, and exclusive content.
@@ -629,8 +631,9 @@ function Waitlist() {
             <div className="absolute inset-0 bg-gradient-to-br from-blue-glow/60 via-transparent to-transparent pointer-events-none" />
 
             <div className="relative px-8 py-16 md:px-14 lg:px-20 lg:py-20 text-center">
-              <h2 className="font-sans text-3xl md:text-4xl lg:text-5xl font-extrabold text-white leading-[0.95] tracking-tight mb-4">
-                READY TO <span className="gradient-text-blue">LEVEL UP?</span>
+              <h2 className="font-sans text-4xl md:text-5xl lg:text-6xl font-extrabold text-white leading-[1] tracking-tight mb-4">
+                READY TO<br />
+                <span className="gradient-text-blue">LEVEL UP?</span>
               </h2>
               <p className="text-text-secondary text-base lg:text-lg max-w-md mx-auto mb-10">
                 Join the waitlist to get early access when CourtIQ launches.

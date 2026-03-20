@@ -437,11 +437,12 @@ function HowItWorks() {
   ];
 
   return (
-    <section id="how-it-works" className="py-24 bg-bg-section">
-      <div className="max-w-[1280px] mx-auto px-6 lg:px-10">
+    <section id="how-it-works" className="min-h-screen flex items-center bg-bg-section relative">
+      <div className="absolute inset-0 bg-gradient-to-b from-bg-primary via-transparent to-bg-primary pointer-events-none" />
+      <div className="relative max-w-[1280px] mx-auto px-6 lg:px-10 w-full py-32 lg:py-40">
         <Reveal>
-          <div className="text-center mb-14">
-            <h2 className="font-sans text-4xl md:text-5xl lg:text-6xl font-extrabold text-white leading-[1] tracking-tight mb-4">
+          <div className="text-center mb-20">
+            <h2 className="font-sans text-5xl md:text-6xl lg:text-7xl font-extrabold text-white leading-[1] tracking-tight mb-5">
               HOW IT<br />
               <span className="gradient-text-blue">WORKS.</span>
             </h2>
@@ -475,15 +476,18 @@ function HowItWorks() {
    ───────────────────────────────────────────── */
 function Premium() {
   return (
-    <section id="premium" className="py-24">
-      <div className="max-w-[1280px] mx-auto px-6 lg:px-10">
+    <section id="premium" className="min-h-screen flex items-center relative overflow-hidden">
+      <div className="absolute inset-0">
+        <div className="absolute top-1/3 left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-gold-glow rounded-full blur-[180px]" />
+      </div>
+      <div className="relative max-w-[1280px] mx-auto px-6 lg:px-10 w-full py-32 lg:py-40">
         <Reveal>
-          <div className="text-center mb-14">
+          <div className="text-center mb-20">
             <div className="inline-flex items-center gap-2 bg-gold-glow border border-gold/20 rounded-full px-4 py-1.5 mb-6">
               <Award className="w-4 h-4 text-gold" />
               <span className="text-gold text-sm font-semibold">CourtIQ+</span>
             </div>
-            <h2 className="font-sans text-4xl md:text-5xl lg:text-6xl font-extrabold text-white leading-[1] tracking-tight mb-4">
+            <h2 className="font-sans text-5xl md:text-6xl lg:text-7xl font-extrabold text-white leading-[1] tracking-tight mb-5">
               TAKE YOUR GAME<br />
               <span className="gradient-text-gold">FURTHER.</span>
             </h2>
@@ -557,7 +561,7 @@ function FAQ() {
   ];
 
   return (
-    <section id="faq" className="py-24 bg-bg-section">
+    <section id="faq" className="py-32 lg:py-40">
       <div className="max-w-3xl mx-auto px-6 lg:px-10">
         <Reveal>
           <div className="text-center mb-12">
@@ -596,7 +600,7 @@ function FAQ() {
    ───────────────────────────────────────────── */
 function StatsBar() {
   return (
-    <section className="py-20 border-y border-border">
+    <section className="py-28 lg:py-32 border-y border-border bg-bg-section">
       <div className="max-w-[1280px] mx-auto px-6 lg:px-10">
         <Reveal>
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-10">
@@ -623,53 +627,49 @@ function StatsBar() {
    ───────────────────────────────────────────── */
 function Waitlist() {
   return (
-    <section id="waitlist" className="py-24">
-      <div className="max-w-[1280px] mx-auto px-6 lg:px-10">
+    <section id="waitlist" className="min-h-screen flex items-center relative overflow-hidden bg-bg-section">
+      <div className="absolute inset-0">
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-blue-glow rounded-full blur-[200px]" />
+      </div>
+      <div className="relative max-w-[800px] mx-auto px-6 lg:px-10 w-full py-32 lg:py-40 text-center">
         <Reveal>
-          <div className="relative bg-bg-card border border-border rounded-2xl overflow-hidden">
-            {/* Single subtle gradient */}
-            <div className="absolute inset-0 bg-gradient-to-br from-blue-glow/60 via-transparent to-transparent pointer-events-none" />
+          <h2 className="font-sans text-5xl md:text-6xl lg:text-7xl font-extrabold text-white leading-[1] tracking-tight mb-6">
+            READY TO<br />
+            <span className="gradient-text-blue">LEVEL UP?</span>
+          </h2>
+          <p className="text-text-secondary text-base lg:text-lg max-w-md mx-auto mb-12">
+            Join the waitlist to get early access when CourtIQ launches.
+            Be the first to start tracking your game.
+          </p>
 
-            <div className="relative px-8 py-16 md:px-14 lg:px-20 lg:py-20 text-center">
-              <h2 className="font-sans text-4xl md:text-5xl lg:text-6xl font-extrabold text-white leading-[1] tracking-tight mb-4">
-                READY TO<br />
-                <span className="gradient-text-blue">LEVEL UP?</span>
-              </h2>
-              <p className="text-text-secondary text-base lg:text-lg max-w-md mx-auto mb-10">
-                Join the waitlist to get early access when CourtIQ launches.
-                Be the first to start tracking your game.
-              </p>
+          <form
+            className="flex flex-col sm:flex-row gap-3 max-w-lg mx-auto"
+            onSubmit={(e) => {
+              e.preventDefault();
+              const email = e.target.elements.email.value;
+              if (email) {
+                alert('Thanks for signing up! We\'ll be in touch.');
+                e.target.reset();
+              }
+            }}
+          >
+            <input
+              name="email"
+              type="email"
+              required
+              placeholder="Enter your email address"
+              className="flex-1 bg-bg-primary/80 border border-border rounded-full px-6 py-3.5 text-white placeholder:text-text-muted text-sm focus:outline-none focus:border-blue transition-colors"
+            />
+            <button
+              type="submit"
+              className="btn-glow bg-blue hover:bg-blue-dark text-white px-8 py-3.5 rounded-full text-sm font-bold whitespace-nowrap flex items-center justify-center gap-2"
+            >
+              Join Waitlist
+              <ArrowRight className="w-4 h-4" />
+            </button>
+          </form>
 
-              <form
-                className="flex flex-col sm:flex-row gap-3 max-w-lg mx-auto"
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  const email = e.target.elements.email.value;
-                  if (email) {
-                    alert('Thanks for signing up! We\'ll be in touch.');
-                    e.target.reset();
-                  }
-                }}
-              >
-                <input
-                  name="email"
-                  type="email"
-                  required
-                  placeholder="Enter your email address"
-                  className="flex-1 bg-bg-primary/80 border border-border rounded-full px-6 py-3.5 text-white placeholder:text-text-muted text-sm focus:outline-none focus:border-blue transition-colors"
-                />
-                <button
-                  type="submit"
-                  className="btn-glow bg-blue hover:bg-blue-dark text-white px-8 py-3.5 rounded-full text-sm font-bold whitespace-nowrap flex items-center justify-center gap-2"
-                >
-                  Join Waitlist
-                  <ArrowRight className="w-4 h-4" />
-                </button>
-              </form>
-
-              <p className="text-text-muted text-xs mt-5">Free to join. No spam. Unsubscribe anytime.</p>
-            </div>
-          </div>
+          <p className="text-text-muted text-xs mt-5">Free to join. No spam. Unsubscribe anytime.</p>
         </Reveal>
       </div>
     </section>

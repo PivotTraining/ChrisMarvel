@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom'
-import { User, Trophy, Star, ChevronRight, LogOut, BookOpen, BarChart3 } from 'lucide-react'
+import { User, Trophy, Star, ChevronRight, LogOut, BookOpen, BarChart3, Pencil, Bell, Info, Bookmark } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
 import PageShell from '../components/ui/PageShell'
 import SectionHeader from '../components/ui/SectionHeader'
@@ -25,6 +25,7 @@ export default function Profile() {
     { label: 'Journal', icon: BookOpen, path: '/journal' },
     { label: 'Achievements', icon: Trophy, path: '/badges' },
     { label: 'Analytics', icon: BarChart3, path: '/analytics' },
+    { label: 'Saved Content', icon: Bookmark, path: '/saved' },
   ]
 
   return (
@@ -87,9 +88,20 @@ export default function Profile() {
             Settings
           </h2>
           <div className="space-y-3">
-            {['Edit Profile', 'Notifications', 'About CourtIQ'].map((item) => (
-              <Card key={item} className="flex items-center justify-between cursor-pointer card-hover">
-                <span className="text-sm font-medium text-text-primary">{item}</span>
+            {[
+              { label: 'Edit Profile', icon: Pencil, path: '/profile/edit' },
+              { label: 'Notifications', icon: Bell, path: '/profile/notifications' },
+              { label: 'About CourtIQ', icon: Info, path: '/about' },
+            ].map(({ label, icon: Icon, path }) => (
+              <Card
+                key={label}
+                onClick={() => navigate(path)}
+                className="flex items-center justify-between cursor-pointer card-hover"
+              >
+                <div className="flex items-center gap-3">
+                  <Icon size={18} className="text-text-secondary" />
+                  <span className="text-sm font-medium text-text-primary">{label}</span>
+                </div>
                 <ChevronRight size={16} className="text-text-muted" />
               </Card>
             ))}

@@ -22,6 +22,10 @@ const Badges = lazy(() => import('./pages/Badges'))
 const Library = lazy(() => import('./pages/Library'))
 const ContentDetail = lazy(() => import('./pages/ContentDetail'))
 const Profile = lazy(() => import('./pages/Profile'))
+const EditProfile = lazy(() => import('./pages/EditProfile'))
+const NotificationSettings = lazy(() => import('./pages/NotificationSettings'))
+const About = lazy(() => import('./pages/About'))
+const SavedContent = lazy(() => import('./pages/SavedContent'))
 const Onboarding = lazy(() => import('./pages/Onboarding'))
 
 const basename = import.meta.env.BASE_URL
@@ -66,6 +70,10 @@ export default function App() {
               <Route path="library" element={<Library />} />
               <Route path="library/:id" element={<ContentDetail />} />
               <Route path="profile" element={<Profile />} />
+              <Route path="profile/edit" element={<EditProfile />} />
+              <Route path="profile/notifications" element={<NotificationSettings />} />
+              <Route path="saved" element={<SavedContent />} />
+              <Route path="about" element={<About />} />
             </Route>
           </Routes>
         </Suspense>

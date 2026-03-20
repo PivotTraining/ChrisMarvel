@@ -66,7 +66,7 @@ function Navbar() {
         </div>
 
         {/* Desktop CTA */}
-        <a href="#waitlist" className="hidden lg:flex btn-glow bg-blue hover:bg-blue-dark text-white px-6 py-2.5 rounded-full text-sm font-semibold items-center gap-2">
+        <a href="/signup" className="hidden lg:flex btn-glow bg-blue hover:bg-blue-dark text-white px-6 py-2.5 rounded-full text-sm font-semibold items-center gap-2">
           Get Early Access
           <ArrowRight className="w-4 h-4" />
         </a>
@@ -84,7 +84,7 @@ function Navbar() {
           <a href="#how-it-works" onClick={() => setOpen(false)} className="block text-text-secondary hover:text-white text-lg">How It Works</a>
           <a href="#premium" onClick={() => setOpen(false)} className="block text-text-secondary hover:text-white text-lg">Premium</a>
           <a href="#faq" onClick={() => setOpen(false)} className="block text-text-secondary hover:text-white text-lg">FAQ</a>
-          <a href="#waitlist" onClick={() => setOpen(false)} className="block bg-blue text-white text-center px-6 py-3 rounded-full font-semibold mt-4">Get Early Access</a>
+          <a href="/signup" onClick={() => setOpen(false)} className="block bg-blue text-white text-center px-6 py-3 rounded-full font-semibold mt-4">Get Early Access</a>
         </div>
       )}
     </nav>
@@ -125,7 +125,7 @@ function Hero() {
             </p>
 
             <div className="flex flex-col sm:flex-row items-center lg:items-start gap-4 anim-delay-3">
-              <a href="#waitlist" className="btn-glow bg-blue hover:bg-blue-dark text-white px-8 py-3.5 rounded-full text-base font-bold flex items-center gap-2">
+              <a href="/signup" className="btn-glow bg-blue hover:bg-blue-dark text-white px-8 py-3.5 rounded-full text-base font-bold flex items-center gap-2">
                 Get Early Access
                 <ChevronRight className="w-4 h-4" />
               </a>

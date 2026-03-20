@@ -1,35 +1,31 @@
-@import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;500;600;700;800;900&family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
 @import "tailwindcss";
 
 @theme {
-  --font-display: 'Barlow Condensed', sans-serif;
-  --font-body: 'DM Sans', sans-serif;
+  --font-sans: 'Inter', sans-serif;
 
-  --color-bg-primary: #0A0A0F;
-  --color-bg-surface: #13131A;
-  --color-bg-surface-hover: #1A1A25;
-  --color-bg-surface-elevated: #1E1E2A;
-  --color-bg-light: #FFFFFF;
-  --color-bg-light-subtle: #F8FAFC;
+  --color-blue: #00A3FF;
+  --color-blue-dark: #0077CC;
+  --color-blue-glow: rgba(0,163,255,0.15);
+  --color-blue-border: rgba(0,163,255,0.2);
 
-  --color-accent-primary: #F97316;
-  --color-accent-primary-hover: #EA580C;
-  --color-accent-secondary: #3B82F6;
-  --color-accent-gold: #F59E0B;
+  --color-gold: #FFD700;
+  --color-gold-glow: rgba(255,215,0,0.12);
+
+  --color-bg-primary: #050508;
+  --color-bg-card: #0d0d12;
+  --color-bg-section: #0a0a0f;
+
+  --color-text-primary: #ffffff;
+  --color-text-secondary: #8a8a9a;
+  --color-text-muted: #5a5a6a;
+
+  --color-border: rgba(255,255,255,0.06);
+  --color-border-blue: rgba(0,163,255,0.2);
 
   --color-success: #22C55E;
   --color-danger: #EF4444;
   --color-warning: #EAB308;
-
-  --color-text-primary: #F1F5F9;
-  --color-text-secondary: #CBD5E1;
-  --color-text-muted: #94A3B8;
-  --color-text-dark: #0F172A;
-  --color-text-dark-secondary: #475569;
-
-  --color-border-subtle: rgba(255,255,255,0.08);
-  --color-border-active: rgba(249,115,22,0.3);
-  --color-border-light: #E2E8F0;
 }
 
 * {
@@ -43,9 +39,9 @@ html {
 }
 
 body {
-  font-family: 'DM Sans', sans-serif;
-  background-color: #0A0A0F;
-  color: #F1F5F9;
+  font-family: 'Inter', sans-serif;
+  background-color: #050508;
+  color: #ffffff;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   overflow-x: hidden;
@@ -68,57 +64,84 @@ input, select, textarea, button {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(255,255,255,0.15);
+  background: rgba(255,255,255,0.12);
   border-radius: 3px;
 }
 
-/* Smooth fade-in animation */
+/* ── Animations ── */
 @keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-14px); }
 }
 
 .animate-fade-in-up {
   animation: fadeInUp 0.8s ease-out forwards;
 }
+.anim-delay-1 { animation: fadeInUp 0.8s ease-out 0.15s forwards; opacity: 0; }
+.anim-delay-2 { animation: fadeInUp 0.8s ease-out 0.3s forwards; opacity: 0; }
+.anim-delay-3 { animation: fadeInUp 0.8s ease-out 0.45s forwards; opacity: 0; }
 
-.animate-fade-in-up-delay-1 {
-  animation: fadeInUp 0.8s ease-out 0.15s forwards;
-  opacity: 0;
+.animate-float {
+  animation: float 6s ease-in-out infinite;
 }
 
-.animate-fade-in-up-delay-2 {
-  animation: fadeInUp 0.8s ease-out 0.3s forwards;
-  opacity: 0;
-}
-
-.animate-fade-in-up-delay-3 {
-  animation: fadeInUp 0.8s ease-out 0.45s forwards;
-  opacity: 0;
-}
-
-/* Phone mockup styling */
+/* ── Phone Mockup ── */
 .phone-mockup {
-  background: #1A1A25;
-  border-radius: 40px;
-  border: 3px solid rgba(255,255,255,0.1);
+  background: #0d0d12;
+  border-radius: 44px;
+  border: 3px solid rgba(255,255,255,0.08);
   box-shadow:
-    0 0 0 1px rgba(255,255,255,0.05),
-    0 25px 50px -12px rgba(0,0,0,0.5),
-    0 0 80px rgba(249,115,22,0.08);
+    0 0 0 1px rgba(255,255,255,0.04),
+    0 30px 60px -15px rgba(0,0,0,0.6),
+    0 0 80px rgba(0,163,255,0.06);
   overflow: hidden;
 }
 
-/* Gradient text */
-.gradient-text {
-  background: linear-gradient(135deg, #F97316, #F59E0B);
+/* ── Gradient text ── */
+.gradient-text-blue {
+  background: linear-gradient(135deg, #00A3FF, #0077CC);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
+}
+
+.gradient-text-gold {
+  background: linear-gradient(135deg, #FFD700, #FFA500);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ── Glow button ── */
+.btn-glow {
+  box-shadow: 0 0 20px rgba(0,163,255,0.3), 0 0 60px rgba(0,163,255,0.1);
+  transition: all 0.3s ease;
+}
+.btn-glow:hover {
+  box-shadow: 0 0 30px rgba(0,163,255,0.4), 0 0 80px rgba(0,163,255,0.15);
+  transform: translateY(-2px);
+}
+
+/* ── Card hover ── */
+.card-hover {
+  transition: all 0.3s ease;
+}
+.card-hover:hover {
+  transform: translateY(-4px);
+  border-color: rgba(0,163,255,0.2);
+}
+
+/* ── FAQ accordion ── */
+.faq-content {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.4s ease, padding 0.4s ease;
+}
+.faq-content.open {
+  max-height: 500px;
 }

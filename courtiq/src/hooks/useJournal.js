@@ -36,6 +36,20 @@ export function useJournal() {
     return { data, error }
   }
 
+  async function updateEntry(id, updates) {
+    const { data, error } = await supabase
+      .from('journal_entries')
+      .update(updates)
+      .eq('id', id)
+      .select()
+      .single()
+
+    if (!error && data) {
+      setEntries(prev => prev.map(e => e.id === id ? data : e))
+    }
+    return { data, error }
+  }
+
   async function deleteEntry(id) {
     const { error } = await supabase
       .from('journal_entries')
@@ -48,5 +62,5 @@ export function useJournal() {
     return { error }
   }
 
-  return { entries, loading, addEntry, deleteEntry, refetch: fetchEntries }
+  return { entries, loading, addEntry, updateEntry, deleteEntry, refetch: fetchEntries }
 }

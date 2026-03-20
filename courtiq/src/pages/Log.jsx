@@ -1,5 +1,6 @@
 import { useNavigate } from 'react-router-dom'
-import { ClipboardList, Plus, Trophy, Calendar, MapPin } from 'lucide-react'
+import { useState } from 'react'
+import { ClipboardList, Plus, Trophy, Calendar, MapPin, Trash2 } from 'lucide-react'
 import { useGames } from '../hooks/useGames'
 import PageShell from '../components/ui/PageShell'
 import SectionHeader from '../components/ui/SectionHeader'
@@ -7,7 +8,8 @@ import EmptyState from '../components/ui/EmptyState'
 import Card from '../components/ui/Card'
 import Button from '../components/ui/Button'
 
-function GameCard({ game }) {
+function GameCard({ game, onDelete }) {
+  const [confirming, setConfirming] = useState(false)
   const date = new Date(game.game_date + 'T12:00:00')
   const formatted = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
   const fgPct = game.fg_attempted > 0
@@ -64,19 +66,31 @@ function GameCard({ game }) {
         ))}
       </div>
 
-      {/* Secondary stats */}
-      <div className="flex items-center gap-4 pt-1 border-t border-border">
-        {[
-          { label: 'STL', value: game.steals },
-          { label: 'BLK', value: game.blocks },
-          { label: 'TO', value: game.turnovers },
-          { label: 'FLS', value: game.fouls },
-        ].map(({ label, value }) => (
-          <div key={label} className="flex items-center gap-1.5">
-            <span className="text-[10px] text-text-muted">{label}</span>
-            <span className="text-xs font-semibold text-text-secondary">{value}</span>
+      {/* Secondary stats + delete */}
+      <div className="flex items-center justify-between pt-1 border-t border-border">
+        <div className="flex items-center gap-4">
+          {[
+            { label: 'STL', value: game.steals },
+            { label: 'BLK', value: game.blocks },
+            { label: 'TO', value: game.turnovers },
+            { label: 'FLS', value: game.fouls },
+          ].map(({ label, value }) => (
+            <div key={label} className="flex items-center gap-1.5">
+              <span className="text-[10px] text-text-muted">{label}</span>
+              <span className="text-xs font-semibold text-text-secondary">{value}</span>
+            </div>
+          ))}
+        </div>
+        {confirming ? (
+          <div className="flex items-center gap-2">
+            <button onClick={() => setConfirming(false)} className="text-[10px] text-text-muted">Cancel</button>
+            <button onClick={() => onDelete(game.id)} className="text-[10px] font-semibold text-danger">Delete</button>
           </div>
-        ))}
+        ) : (
+          <button onClick={() => setConfirming(true)} className="p-1 rounded-lg hover:bg-bg-section transition-colors">
+            <Trash2 size={13} className="text-text-muted" />
+          </button>
+        )}
       </div>
     </Card>
   )
@@ -84,7 +98,7 @@ function GameCard({ game }) {
 
 export default function Log() {
   const navigate = useNavigate()
-  const { games, loading } = useGames()
+  const { games, loading, deleteGame } = useGames()
 
   return (
     <PageShell>
@@ -126,7 +140,7 @@ export default function Log() {
             </div>
             <div className="space-y-3">
               {games.map(game => (
-                <GameCard key={game.id} game={game} />
+                <GameCard key={game.id} game={game} onDelete={deleteGame} />
               ))}
             </div>
           </section>

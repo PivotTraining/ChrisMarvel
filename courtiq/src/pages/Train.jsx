@@ -1,5 +1,6 @@
+import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Target, Dumbbell, Crosshair, ShieldCheck, Zap, Send, Plus, Star, Calendar, BookOpen } from 'lucide-react'
+import { Target, Dumbbell, Crosshair, ShieldCheck, Zap, Send, Plus, Star, Calendar, BookOpen, Trash2 } from 'lucide-react'
 import { useDrills } from '../hooks/useDrills'
 import PageShell from '../components/ui/PageShell'
 import SectionHeader from '../components/ui/SectionHeader'
@@ -28,7 +29,8 @@ const categoryColors = {
 
 export default function Train() {
   const navigate = useNavigate()
-  const { sessions, loading } = useDrills()
+  const { sessions, loading, deleteDrillSession } = useDrills()
+  const [confirmId, setConfirmId] = useState(null)
 
   return (
     <PageShell>
@@ -107,12 +109,24 @@ export default function Train() {
                         </div>
                       </div>
                     </div>
-                    {session.rating && (
-                      <div className="flex items-center gap-0.5 shrink-0">
-                        <Star size={12} className="text-gold fill-gold" />
-                        <span className="text-xs font-bold text-text-primary">{session.rating}</span>
-                      </div>
-                    )}
+                    <div className="flex items-center gap-2 shrink-0">
+                      {session.rating && (
+                        <div className="flex items-center gap-0.5">
+                          <Star size={12} className="text-gold fill-gold" />
+                          <span className="text-xs font-bold text-text-primary">{session.rating}</span>
+                        </div>
+                      )}
+                      {confirmId === session.id ? (
+                        <div className="flex items-center gap-2">
+                          <button onClick={() => setConfirmId(null)} className="text-[10px] text-text-muted">Cancel</button>
+                          <button onClick={() => { deleteDrillSession(session.id); setConfirmId(null) }} className="text-[10px] font-semibold text-danger">Delete</button>
+                        </div>
+                      ) : (
+                        <button onClick={() => setConfirmId(session.id)} className="p-1 rounded-lg hover:bg-bg-section transition-colors">
+                          <Trash2 size={13} className="text-text-muted" />
+                        </button>
+                      )}
+                    </div>
                   </Card>
                 )
               })}

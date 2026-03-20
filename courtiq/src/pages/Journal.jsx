@@ -74,7 +74,7 @@ export default function Journal() {
               })
 
               return (
-                <Card key={entry.id} className="space-y-3">
+                <Card key={entry.id} onClick={() => navigate(`/journal/${entry.id}`)} className="space-y-3 cursor-pointer card-hover">
                   {/* Top row */}
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">

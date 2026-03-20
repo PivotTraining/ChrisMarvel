@@ -26,6 +26,8 @@ const EditProfile = lazy(() => import('./pages/EditProfile'))
 const NotificationSettings = lazy(() => import('./pages/NotificationSettings'))
 const About = lazy(() => import('./pages/About'))
 const SavedContent = lazy(() => import('./pages/SavedContent'))
+const JournalDetail = lazy(() => import('./pages/JournalDetail'))
+const NotFound = lazy(() => import('./pages/NotFound'))
 const Onboarding = lazy(() => import('./pages/Onboarding'))
 
 const basename = import.meta.env.BASE_URL
@@ -66,6 +68,7 @@ export default function App() {
               <Route path="analytics" element={<Analytics />} />
               <Route path="journal" element={<Journal />} />
               <Route path="journal/new" element={<JournalEntry />} />
+              <Route path="journal/:id" element={<JournalDetail />} />
               <Route path="badges" element={<Badges />} />
               <Route path="library" element={<Library />} />
               <Route path="library/:id" element={<ContentDetail />} />
@@ -75,6 +78,9 @@ export default function App() {
               <Route path="saved" element={<SavedContent />} />
               <Route path="about" element={<About />} />
             </Route>
+
+            {/* 404 */}
+            <Route path="*" element={<NotFound />} />
           </Routes>
         </Suspense>
       </AuthProvider>

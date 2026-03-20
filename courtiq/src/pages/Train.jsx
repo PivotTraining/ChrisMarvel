@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom'
-import { Target, Dumbbell, Crosshair, ShieldCheck, Zap, Send, Plus, Star, Calendar } from 'lucide-react'
+import { Target, Dumbbell, Crosshair, ShieldCheck, Zap, Send, Plus, Star, Calendar, BookOpen } from 'lucide-react'
 import { useDrills } from '../hooks/useDrills'
 import PageShell from '../components/ui/PageShell'
 import SectionHeader from '../components/ui/SectionHeader'
@@ -45,14 +45,18 @@ export default function Train() {
         />
 
         {/* Quick Actions */}
-        <div className="flex gap-3">
-          <Button fullWidth onClick={() => navigate('/train/new')}>
-            <Dumbbell size={18} />
+        <div className="grid grid-cols-3 gap-3">
+          <Button fullWidth onClick={() => navigate('/train/new')} size="sm">
+            <Dumbbell size={16} />
             Log Drill
           </Button>
-          <Button variant="secondary" fullWidth onClick={() => navigate('/shots')}>
-            <Crosshair size={18} />
-            Track Shots
+          <Button variant="secondary" fullWidth onClick={() => navigate('/shots')} size="sm">
+            <Crosshair size={16} />
+            Shots
+          </Button>
+          <Button variant="secondary" fullWidth onClick={() => navigate('/library')} size="sm">
+            <BookOpen size={16} />
+            Library
           </Button>
         </div>
 

@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom'
-import { Activity, Flame, Target, TrendingUp, Crosshair, ClipboardList, Dumbbell, Calendar } from 'lucide-react'
+import { Activity, Flame, Target, TrendingUp, Crosshair, ClipboardList, Dumbbell, Calendar, BookOpen } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
 import { useGames } from '../hooks/useGames'
 import { useDrills } from '../hooks/useDrills'
@@ -85,11 +85,11 @@ export default function Dashboard() {
               </div>
               <span className="text-xs font-semibold text-text-primary">Log Drill</span>
             </Card>
-            <Card onClick={() => navigate('/profile')} className="flex flex-col items-center gap-3 py-6 cursor-pointer">
+            <Card onClick={() => navigate('/library')} className="flex flex-col items-center gap-3 py-6 cursor-pointer">
               <div className="w-11 h-11 rounded-xl bg-bg-section border border-border flex items-center justify-center">
-                <Activity size={20} className="text-text-secondary" />
+                <BookOpen size={20} className="text-text-secondary" />
               </div>
-              <span className="text-xs font-semibold text-text-primary">Profile</span>
+              <span className="text-xs font-semibold text-text-primary">Library</span>
             </Card>
           </div>
         </section>

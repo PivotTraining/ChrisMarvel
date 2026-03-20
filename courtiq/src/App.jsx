@@ -237,10 +237,10 @@ const featureSections = [
     ],
     reversed: false,
     mockupContent: (
-      <div className="space-y-4">
-        <div className="text-center mb-6">
+      <div className="space-y-5">
+        <div className="text-center mb-8">
           <p className="font-sans text-lg font-bold text-white">Shooting Heatmap</p>
-          <p className="text-text-muted text-xs">Last 7 days</p>
+          <p className="text-text-muted text-xs mt-1">Last 7 days</p>
         </div>
         {[
           { zone: 'Paint', pct: 78, color: 'bg-success' },
@@ -251,7 +251,7 @@ const featureSections = [
           { zone: 'Free Throw', pct: 85, color: 'bg-success' },
         ].map((z) => (
           <div key={z.zone}>
-            <div className="flex justify-between text-xs mb-1">
+            <div className="flex justify-between text-xs mb-1.5">
               <span className="text-text-secondary">{z.zone}</span>
               <span className="text-white font-semibold">{z.pct}%</span>
             </div>
@@ -278,9 +278,9 @@ const featureSections = [
     reversed: true,
     mockupContent: (
       <div>
-        <div className="text-center mb-6">
+        <div className="text-center mb-8">
           <p className="font-sans text-lg font-bold text-white">Game Recap</p>
-          <p className="text-text-muted text-xs">vs. Riverside Hawks</p>
+          <p className="text-text-muted text-xs mt-1">vs. Riverside Hawks</p>
         </div>
         <div className="grid grid-cols-3 gap-3 mb-5">
           {[
@@ -322,10 +322,10 @@ const featureSections = [
     ],
     reversed: false,
     mockupContent: (
-      <div className="space-y-3">
-        <div className="text-center mb-4">
+      <div className="space-y-4">
+        <div className="text-center mb-8">
           <p className="font-sans text-lg font-bold text-white">Today's Drills</p>
-          <p className="text-text-muted text-xs">Ball Handling Focus</p>
+          <p className="text-text-muted text-xs mt-1">Ball Handling Focus</p>
         </div>
         {[
           { name: 'Crossover Series', time: '8 min', level: 'INT', done: true },
@@ -333,13 +333,13 @@ const featureSections = [
           { name: 'Hesitation Moves', time: '10 min', level: 'ADV', done: false },
           { name: 'Full Court Combos', time: '12 min', level: 'ADV', done: false },
         ].map((d) => (
-          <div key={d.name} className={`flex items-center gap-3 p-3 rounded-xl ${d.done ? 'bg-success/10 border border-success/20' : 'bg-bg-primary/60'}`}>
+          <div key={d.name} className={`flex items-center gap-3 p-3.5 rounded-xl ${d.done ? 'bg-success/10 border border-success/20' : 'bg-bg-primary/60'}`}>
             <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${d.done ? 'bg-success' : 'bg-bg-section'}`}>
               {d.done ? <span className="text-white text-xs font-bold">&#10003;</span> : <Flame className="w-4 h-4 text-text-muted" />}
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-white text-sm font-medium truncate">{d.name}</p>
-              <p className="text-text-muted text-[10px]">{d.time} &middot; {d.level}</p>
+              <p className="text-text-muted text-[10px] mt-0.5">{d.time} &middot; {d.level}</p>
             </div>
           </div>
         ))}
@@ -385,11 +385,11 @@ function FeatureSection({ section }) {
 
           {/* Mockup side */}
           <div className="flex justify-center">
-            <div className="phone-mockup w-[260px] lg:w-[290px] aspect-[9/19.5]">
-              <div className="w-full h-full bg-bg-card p-5 flex flex-col">
+            <div className="phone-mockup w-[280px] lg:w-[320px] aspect-[9/19.5]">
+              <div className="w-full h-full bg-bg-card p-6 lg:p-7 flex flex-col">
                 {/* Notch */}
-                <div className="w-24 h-5 bg-bg-primary rounded-full mx-auto mb-5" />
-                <div className="flex-1 overflow-hidden">
+                <div className="w-24 h-5 bg-bg-primary rounded-full mx-auto mb-6" />
+                <div className="flex-1 overflow-hidden px-1">
                   {mockupContent}
                 </div>
               </div>

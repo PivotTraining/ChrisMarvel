@@ -1,6 +1,6 @@
 import { useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { User, Trophy, Star, ChevronRight, LogOut, BookOpen, BarChart3, Pencil, Bell, Info, Bookmark, Flame, ClipboardList, Dumbbell, Target, Crosshair } from 'lucide-react'
+import { User, Trophy, Star, ChevronRight, LogOut, BookOpen, BarChart3, Pencil, Bell, Info, Bookmark, Flame, ClipboardList, Dumbbell, Target, Crosshair, Layers, Award, Zap } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
 import { useGames } from '../hooks/useGames'
 import { useDrills } from '../hooks/useDrills'
@@ -34,6 +34,30 @@ export default function Profile() {
     }
   }, [games])
 
+  // Best game (highest points)
+  const bestGame = useMemo(() => {
+    if (games.length === 0) return null
+    return games.reduce((best, g) => g.points > best.points ? g : best, games[0])
+  }, [games])
+
+  // Longest win streak
+  const longestWinStreak = useMemo(() => {
+    if (games.length === 0) return 0
+    let max = 0
+    let current = 0
+    // games are sorted by date desc, reverse for chronological
+    const sorted = [...games].reverse()
+    for (const g of sorted) {
+      if (g.result === 'Win') {
+        current++
+        if (current > max) max = current
+      } else {
+        current = 0
+      }
+    }
+    return max
+  }, [games])
+
   async function handleSignOut() {
     await signOut()
     navigate('/login', { replace: true })
@@ -41,6 +65,7 @@ export default function Profile() {
 
   const menuItems = [
     { label: 'Goals', icon: Crosshair, path: '/goals' },
+    { label: 'Workouts', icon: Layers, path: '/workouts' },
     { label: 'Journal', icon: BookOpen, path: '/journal' },
     { label: 'Achievements', icon: Trophy, path: '/badges' },
     { label: 'Analytics', icon: BarChart3, path: '/analytics' },
@@ -91,6 +116,36 @@ export default function Profile() {
               <StatCard label="PPG" value={careerAvg.ppg} icon={Target} className="p-4" />
               <StatCard label="RPG" value={careerAvg.rpg} className="p-4" />
               <StatCard label="APG" value={careerAvg.apg} className="p-4" />
+            </div>
+          </section>
+        )}
+
+        {/* Best Game & Win Streak */}
+        {(bestGame || longestWinStreak > 0) && (
+          <section className="space-y-4">
+            <h2 className="text-sm font-semibold text-text-muted uppercase tracking-wider flex items-center gap-2">
+              <Award size={14} className="text-gold" />
+              Highlights
+            </h2>
+            <div className="grid grid-cols-2 gap-3">
+              {bestGame && (
+                <Card className="space-y-2 p-4">
+                  <p className="text-[10px] font-medium text-text-muted uppercase">Best Game</p>
+                  <p className="text-2xl font-bold text-gold">{bestGame.points} <span className="text-xs text-text-muted">PTS</span></p>
+                  <p className="text-[10px] text-text-muted">
+                    {bestGame.opponent ? `vs ${bestGame.opponent}` : ''}
+                    {bestGame.opponent && bestGame.game_date ? ' · ' : ''}
+                    {bestGame.game_date ? new Date(bestGame.game_date + 'T12:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : ''}
+                  </p>
+                </Card>
+              )}
+              {longestWinStreak > 0 && (
+                <Card className="space-y-2 p-4">
+                  <p className="text-[10px] font-medium text-text-muted uppercase">Best Streak</p>
+                  <p className="text-2xl font-bold text-success">{longestWinStreak} <span className="text-xs text-text-muted">Wins</span></p>
+                  <p className="text-[10px] text-text-muted">Longest win streak</p>
+                </Card>
+              )}
             </div>
           </section>
         )}

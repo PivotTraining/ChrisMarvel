@@ -5,6 +5,7 @@ import { useAuth } from '../contexts/AuthContext'
 import { useToast } from '../contexts/ToastContext'
 import { useGames } from '../hooks/useGames'
 import { useDrills } from '../hooks/useDrills'
+import ActivityCalendar from '../components/ActivityCalendar'
 import PageShell from '../components/ui/PageShell'
 import SectionHeader from '../components/ui/SectionHeader'
 import StatCard from '../components/ui/StatCard'
@@ -185,6 +186,11 @@ export default function Dashboard() {
           </div>
         </Card>
 
+        {/* Activity Calendar */}
+        <Card>
+          <ActivityCalendar games={games} drills={sessions} />
+        </Card>
+
         {/* Quick Log */}
         <Card className="space-y-3">
           <div className="flex items-center gap-2">
@@ -283,6 +289,9 @@ export default function Dashboard() {
                 <div className="space-y-1">
                   <p className="text-sm font-medium text-text-primary">No activity yet</p>
                   <p className="text-xs text-text-muted">Your recent sessions will appear here.</p>
+                </div>
+                <div className="bg-bg-section rounded-lg px-3 py-2 text-[10px] text-text-muted max-w-xs">
+                  <strong className="text-text-secondary">Tip:</strong> Start by logging a game or a quick drill from the actions above.
                 </div>
               </div>
             </Card>

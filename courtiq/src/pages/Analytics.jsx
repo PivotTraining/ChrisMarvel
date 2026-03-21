@@ -379,6 +379,9 @@ export default function Analytics() {
                 <p className="text-sm font-medium text-text-primary">No data yet</p>
                 <p className="text-xs text-text-muted">Log games and track shots to see analytics.</p>
               </div>
+              <div className="bg-bg-section rounded-lg px-3 py-2 text-[10px] text-text-muted max-w-xs">
+                <strong className="text-text-secondary">Tip:</strong> Log at least 2 games to unlock scoring trends, zone breakdowns, and game comparisons.
+              </div>
             </div>
           </Card>
         )}

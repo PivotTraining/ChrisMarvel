@@ -187,10 +187,15 @@ export default function Log() {
             title="No games logged"
             description="After you log a game, your stats and history will show up here."
             action={
-              <Button size="sm" onClick={() => navigate('/log/new')}>
-                <Plus size={16} />
-                Log Your First Game
-              </Button>
+              <div className="space-y-3 flex flex-col items-center">
+                <Button size="sm" onClick={() => navigate('/log/new')}>
+                  <Plus size={16} />
+                  Log Your First Game
+                </Button>
+                <p className="text-[10px] text-text-muted max-w-xs text-center">
+                  <strong className="text-text-secondary">Tip:</strong> Track points, rebounds, assists, shooting splits, and more for every game you play.
+                </p>
+              </div>
             }
           />
         ) : (

@@ -36,6 +36,7 @@ const NotFound = lazy(() => import('./pages/NotFound'))
 const Landing = lazy(() => import('./pages/Landing'))
 const Onboarding = lazy(() => import('./pages/Onboarding'))
 const Goals = lazy(() => import('./pages/Goals'))
+const Workouts = lazy(() => import('./pages/Workouts'))
 
 const basename = import.meta.env.BASE_URL
 
@@ -83,6 +84,7 @@ export default function App() {
                 <Route path="journal/new" element={<JournalEntry />} />
                 <Route path="journal/:id" element={<JournalDetail />} />
                 <Route path="goals" element={<Goals />} />
+                <Route path="workouts" element={<Workouts />} />
                 <Route path="badges" element={<Badges />} />
                 <Route path="library" element={<Library />} />
                 <Route path="library/:id" element={<ContentDetail />} />

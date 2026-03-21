@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Target, Dumbbell, Crosshair, ShieldCheck, Zap, Send, Plus, Star, Calendar, BookOpen, Trash2 } from 'lucide-react'
+import { Target, Dumbbell, Crosshair, ShieldCheck, Zap, Send, Plus, Star, Calendar, BookOpen, Trash2, Layers } from 'lucide-react'
 import { useDrills } from '../hooks/useDrills'
 import { usePullToRefresh } from '../hooks/usePullToRefresh'
 import { useToast } from '../contexts/ToastContext'
@@ -61,10 +61,14 @@ export default function Train() {
         />
 
         {/* Quick Actions */}
-        <div className="grid grid-cols-3 gap-3">
+        <div className="grid grid-cols-2 gap-3">
           <Button fullWidth onClick={() => navigate('/train/new')} size="sm">
             <Dumbbell size={16} />
             Log Drill
+          </Button>
+          <Button variant="secondary" fullWidth onClick={() => navigate('/workouts')} size="sm">
+            <Layers size={16} />
+            Workouts
           </Button>
           <Button variant="secondary" fullWidth onClick={() => navigate('/shots')} size="sm">
             <Crosshair size={16} />
@@ -113,6 +117,9 @@ export default function Train() {
                 <div className="space-y-1">
                   <p className="text-sm font-medium text-text-primary">No sessions yet</p>
                   <p className="text-xs text-text-muted">Log your first drill to see it here.</p>
+                </div>
+                <div className="bg-bg-section rounded-lg px-3 py-2 text-[10px] text-text-muted max-w-xs">
+                  <strong className="text-text-secondary">Tip:</strong> Log drills by category — shooting, ball handling, defense, and more. Build a workout template to log multiple drills at once.
                 </div>
               </div>
             </Card>

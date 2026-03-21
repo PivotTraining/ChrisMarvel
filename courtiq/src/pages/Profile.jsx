@@ -70,6 +70,7 @@ export default function Profile() {
     { label: 'Schedule', icon: Target, path: '/schedule' },
     { label: 'Goals', icon: Crosshair, path: '/goals' },
     { label: 'Workouts', icon: Layers, path: '/workouts' },
+    { label: 'Programs', icon: Dumbbell, path: '/programs' },
     { label: 'Journal', icon: BookOpen, path: '/journal' },
     { label: 'Achievements', icon: Trophy, path: '/badges' },
     { label: 'Analytics', icon: BarChart3, path: '/analytics' },

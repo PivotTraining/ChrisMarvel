@@ -44,6 +44,8 @@ const PricingPage = lazy(() => import('./pages/PricingPage'))
 const Team = lazy(() => import('./pages/Team'))
 const TeamDetail = lazy(() => import('./pages/TeamDetail'))
 const LiveGame = lazy(() => import('./pages/LiveGame'))
+const Programs = lazy(() => import('./pages/Programs'))
+const ProgramDetail = lazy(() => import('./pages/ProgramDetail'))
 
 const basename = import.meta.env.BASE_URL
 
@@ -104,6 +106,8 @@ export default function App() {
                 <Route path="backup" element={<DataBackup />} />
                 <Route path="pricing" element={<PricingPage />} />
                 <Route path="live" element={<LiveGame />} />
+                <Route path="programs" element={<Programs />} />
+                <Route path="programs/:id" element={<ProgramDetail />} />
                 <Route path="team" element={<Team />} />
                 <Route path="team/:id" element={<TeamDetail />} />
                 <Route path="about" element={<About />} />

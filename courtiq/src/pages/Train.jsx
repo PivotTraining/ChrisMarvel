@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Target, Dumbbell, Crosshair, ShieldCheck, Zap, Send, Plus, Star, Calendar, BookOpen, Trash2, Layers } from 'lucide-react'
+import { Target, Dumbbell, Crosshair, ShieldCheck, Zap, Send, Plus, Star, Calendar, BookOpen, Trash2, Layers, Sparkles } from 'lucide-react'
 import { useDrills } from '../hooks/useDrills'
 import { usePullToRefresh } from '../hooks/usePullToRefresh'
 import { useToast } from '../contexts/ToastContext'
@@ -70,6 +70,10 @@ export default function Train() {
           <Button variant="secondary" fullWidth onClick={() => navigate('/workouts')} size="sm">
             <Layers size={16} />
             Workouts
+          </Button>
+          <Button variant="secondary" fullWidth onClick={() => navigate('/programs')} size="sm">
+            <Sparkles size={16} />
+            Programs
           </Button>
           <Button variant="secondary" fullWidth onClick={() => navigate('/shots')} size="sm">
             <Crosshair size={16} />

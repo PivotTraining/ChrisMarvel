@@ -1,6 +1,6 @@
 import { useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { User, Trophy, Star, ChevronRight, LogOut, BookOpen, BarChart3, Pencil, Bell, Info, Bookmark, Flame, ClipboardList, Dumbbell, Target, Crosshair, Layers, Award, Zap, Sun, Moon, Database, Crown } from 'lucide-react'
+import { User, Trophy, Star, ChevronRight, LogOut, BookOpen, BarChart3, Pencil, Bell, Info, Bookmark, Flame, ClipboardList, Dumbbell, Target, Crosshair, Layers, Award, Zap, Sun, Moon, Database, Crown, Users } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
 import { useTheme } from '../contexts/ThemeContext'
 import { useGames } from '../hooks/useGames'
@@ -66,6 +66,7 @@ export default function Profile() {
   }
 
   const menuItems = [
+    { label: 'My Team', icon: Users, path: '/team' },
     { label: 'Schedule', icon: Target, path: '/schedule' },
     { label: 'Goals', icon: Crosshair, path: '/goals' },
     { label: 'Workouts', icon: Layers, path: '/workouts' },

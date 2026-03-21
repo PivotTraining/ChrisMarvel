@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Activity, Flame, Target, TrendingUp, Crosshair, ClipboardList, Dumbbell, Calendar, BookOpen, Search, X, Zap, Clock, Trash2 } from 'lucide-react'
+import { Activity, Flame, Target, TrendingUp, Crosshair, ClipboardList, Dumbbell, Calendar, BookOpen, Search, X, Zap, Clock, Trash2, Users } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
 import { useToast } from '../contexts/ToastContext'
 import { useGames } from '../hooks/useGames'
@@ -377,6 +377,12 @@ export default function Dashboard() {
                 <Calendar size={18} className="text-warning" />
               </div>
               <span className="text-[11px] font-semibold text-text-primary">Schedule</span>
+            </Card>
+            <Card onClick={() => navigate('/team')} className="flex flex-col items-center gap-3 py-5 cursor-pointer">
+              <div className="w-10 h-10 rounded-xl bg-success/10 border border-success/20 flex items-center justify-center">
+                <Users size={18} className="text-success" />
+              </div>
+              <span className="text-[11px] font-semibold text-text-primary">Team</span>
             </Card>
           </div>
         </section>

@@ -1,5 +1,6 @@
 import { useState, useRef, useCallback, useEffect } from 'react'
 import { Play, Pause, RotateCcw, Timer } from 'lucide-react'
+import { hapticImpact, hapticNotification } from '../lib/native'
 
 const PRESETS = [
   { label: '30s', seconds: 30 },
@@ -37,6 +38,7 @@ export default function DrillTimer() {
             intervalRef.current = null
             setRunning(false)
             setFinished(true)
+            hapticNotification('SUCCESS')
             return 0
           }
           return prev - 1
@@ -165,7 +167,7 @@ export default function DrillTimer() {
           <RotateCcw size={16} />
         </button>
         <button
-          onClick={running ? stop : start}
+          onClick={() => { hapticImpact('Medium'); running ? stop() : start() }}
           className={`w-14 h-14 rounded-2xl flex items-center justify-center transition-all active:scale-95 ${
             running
               ? 'bg-danger/10 border border-danger/20 text-danger'

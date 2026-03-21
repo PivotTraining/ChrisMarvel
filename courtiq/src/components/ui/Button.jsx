@@ -1,3 +1,5 @@
+import { hapticImpact } from '../../lib/native'
+
 const variants = {
   primary: 'bg-blue text-white hover:bg-blue-dark btn-glow',
   secondary: 'bg-bg-card border border-border text-text-primary hover:border-blue-border',
@@ -17,8 +19,14 @@ export default function Button({
   size = 'md',
   className = '',
   fullWidth = false,
+  onClick,
   ...props
 }) {
+  const handleClick = (e) => {
+    hapticImpact('Light')
+    onClick?.(e)
+  }
+
   return (
     <button
       className={`
@@ -32,6 +40,7 @@ export default function Button({
         ${fullWidth ? 'w-full' : ''}
         ${className}
       `}
+      onClick={handleClick}
       {...props}
     >
       {children}

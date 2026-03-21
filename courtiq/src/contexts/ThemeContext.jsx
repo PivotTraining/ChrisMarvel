@@ -1,4 +1,5 @@
 import { createContext, useContext, useState, useEffect, useCallback } from 'react'
+import { setStatusBarStyle } from '../lib/native'
 
 const ThemeContext = createContext()
 
@@ -13,6 +14,8 @@ export function ThemeProvider({ children }) {
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme)
+    // Sync iOS status bar style with theme
+    setStatusBarStyle(theme === 'dark' ? 'Dark' : 'Light')
     try {
       localStorage.setItem('courtiq-theme', theme)
     } catch {}

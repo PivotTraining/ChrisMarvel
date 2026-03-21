@@ -3,13 +3,19 @@ import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
 import { VitePWA } from 'vite-plugin-pwa'
 
+// Use '/' for native (Capacitor) builds, '/ChrisMarvel/' for web
+const isNative = process.env.CAPACITOR_BUILD === 'true'
+const base = isNative ? '/' : '/ChrisMarvel/'
+
 export default defineConfig({
-  base: '/ChrisMarvel/',
+  base,
   plugins: [
     react(),
     tailwindcss(),
     VitePWA({
       registerType: 'autoUpdate',
+      // Disable PWA service worker for native builds
+      disabled: isNative,
       includeAssets: ['favicon.svg', 'icons.svg'],
       manifest: {
         name: 'CourtIQ',
@@ -19,7 +25,7 @@ export default defineConfig({
         background_color: '#0A0A0F',
         display: 'standalone',
         orientation: 'portrait',
-        start_url: '/ChrisMarvel/',
+        start_url: base,
         icons: [
           {
             src: '/favicon.svg',

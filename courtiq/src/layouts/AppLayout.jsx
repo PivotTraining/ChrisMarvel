@@ -1,9 +1,30 @@
+import { useEffect } from 'react'
 import { Outlet } from 'react-router-dom'
 import BottomNav from '../components/BottomNav'
+import { setupAppListeners, setupBackButton } from '../lib/native'
 
 export default function AppLayout() {
+  // Native app lifecycle — refresh data on resume, handle back button
+  useEffect(() => {
+    let cleanupApp, cleanupBack
+
+    setupAppListeners(
+      () => { /* onResume — app came to foreground */ },
+      () => { /* onPause — app went to background */ }
+    ).then(fn => { cleanupApp = fn })
+
+    setupBackButton(({ canGoBack }) => {
+      if (canGoBack) window.history.back()
+    }).then(fn => { cleanupBack = fn })
+
+    return () => {
+      cleanupApp?.()
+      cleanupBack?.()
+    }
+  }, [])
+
   return (
-    <div className="min-h-screen bg-bg-primary pb-24">
+    <div className="min-h-screen min-h-[100dvh] bg-bg-primary pb-24 pb-[calc(5rem+env(safe-area-inset-bottom))]">
       <main>
         <Outlet />
       </main>

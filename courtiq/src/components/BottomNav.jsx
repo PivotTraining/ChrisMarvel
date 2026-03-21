@@ -1,5 +1,6 @@
 import { NavLink } from 'react-router-dom'
 import { Home, ClipboardList, Target, BarChart3, User } from 'lucide-react'
+import { hapticSelection } from '../lib/native'
 
 const navItems = [
   { label: 'Home', path: '/', icon: Home },
@@ -18,6 +19,7 @@ export default function BottomNav() {
             key={path}
             to={path}
             end={path === '/'}
+            onClick={() => hapticSelection()}
             className={({ isActive }) =>
               `flex flex-col items-center gap-1 px-3 py-2 rounded-xl transition-colors duration-200 ${
                 isActive

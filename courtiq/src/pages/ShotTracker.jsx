@@ -2,6 +2,7 @@ import { useState, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { ArrowLeft, Check, X, Target, Percent, ChevronLeft, ChevronRight } from 'lucide-react'
 import { useShots } from '../hooks/useShots'
+import { hapticNotification } from '../lib/native'
 import PageShell from '../components/ui/PageShell'
 import Card from '../components/ui/Card'
 import StatCard from '../components/ui/StatCard'
@@ -42,6 +43,7 @@ export default function ShotTracker() {
   async function logShot(made) {
     if (!selectedZone) return
     setLogging(true)
+    hapticNotification(made ? 'SUCCESS' : 'ERROR')
     await addShot({
       session_date: sessionDate,
       zone_id: selectedZone,

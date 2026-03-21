@@ -1,3 +1,5 @@
+import { hapticImpact } from '../lib/native'
+
 const ZONES = [
   { id: 'paint', label: 'Paint', x: 35, y: 65, w: 30, h: 25 },
   { id: 'left-block', label: 'L Block', x: 10, y: 65, w: 22, h: 20 },
@@ -42,7 +44,7 @@ export default function CourtMap({ selectedZone, onZoneSelect, zoneStats = {} })
           <button
             key={zone.id}
             type="button"
-            onClick={() => onZoneSelect(zone.id)}
+            onClick={() => { hapticImpact('Light'); onZoneSelect(zone.id) }}
             className={`absolute flex flex-col items-center justify-center rounded-lg transition-all duration-200 text-center ${
               isSelected
                 ? 'bg-blue/20 border-blue ring-1 ring-blue'

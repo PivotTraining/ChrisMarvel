@@ -47,6 +47,7 @@ const LiveGame = lazy(() => import('./pages/LiveGame'))
 const Programs = lazy(() => import('./pages/Programs'))
 const ProgramDetail = lazy(() => import('./pages/ProgramDetail'))
 const Notifications = lazy(() => import('./pages/Notifications'))
+const FilmRoom = lazy(() => import('./pages/FilmRoom'))
 
 const basename = import.meta.env.BASE_URL
 
@@ -112,6 +113,7 @@ export default function App() {
                 <Route path="team" element={<Team />} />
                 <Route path="team/:id" element={<TeamDetail />} />
                 <Route path="notifications" element={<Notifications />} />
+                <Route path="film" element={<FilmRoom />} />
                 <Route path="about" element={<About />} />
               </Route>
 

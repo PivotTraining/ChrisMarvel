@@ -1,6 +1,6 @@
 import { useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { User, Trophy, Star, ChevronRight, LogOut, BookOpen, BarChart3, Pencil, Bell, Info, Bookmark, Flame, ClipboardList, Dumbbell, Target, Crosshair, Layers, Award, Zap, Sun, Moon, Database, Crown, Users } from 'lucide-react'
+import { User, Trophy, Star, ChevronRight, LogOut, BookOpen, BarChart3, Pencil, Bell, Info, Bookmark, Flame, ClipboardList, Dumbbell, Target, Crosshair, Layers, Award, Zap, Sun, Moon, Database, Crown, Users, Film } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
 import { useTheme } from '../contexts/ThemeContext'
 import { useGames } from '../hooks/useGames'
@@ -71,6 +71,7 @@ export default function Profile() {
     { label: 'Goals', icon: Crosshair, path: '/goals' },
     { label: 'Workouts', icon: Layers, path: '/workouts' },
     { label: 'Programs', icon: Dumbbell, path: '/programs' },
+    { label: 'Film Room', icon: Film, path: '/film' },
     { label: 'Journal', icon: BookOpen, path: '/journal' },
     { label: 'Achievements', icon: Trophy, path: '/badges' },
     { label: 'Analytics', icon: BarChart3, path: '/analytics' },

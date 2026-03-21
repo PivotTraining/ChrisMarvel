@@ -43,6 +43,7 @@ const Schedule = lazy(() => import('./pages/Schedule'))
 const PricingPage = lazy(() => import('./pages/PricingPage'))
 const Team = lazy(() => import('./pages/Team'))
 const TeamDetail = lazy(() => import('./pages/TeamDetail'))
+const LiveGame = lazy(() => import('./pages/LiveGame'))
 
 const basename = import.meta.env.BASE_URL
 
@@ -102,6 +103,7 @@ export default function App() {
                 <Route path="saved" element={<SavedContent />} />
                 <Route path="backup" element={<DataBackup />} />
                 <Route path="pricing" element={<PricingPage />} />
+                <Route path="live" element={<LiveGame />} />
                 <Route path="team" element={<Team />} />
                 <Route path="team/:id" element={<TeamDetail />} />
                 <Route path="about" element={<About />} />

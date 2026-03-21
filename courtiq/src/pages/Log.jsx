@@ -1,7 +1,7 @@
 import { useNavigate } from 'react-router-dom'
 import { useState } from 'react'
 import { useMemo } from 'react'
-import { ClipboardList, Plus, Trophy, Calendar, MapPin, Trash2, Filter } from 'lucide-react'
+import { ClipboardList, Plus, Trophy, Calendar, MapPin, Trash2, Filter, Radio } from 'lucide-react'
 import { useGames } from '../hooks/useGames'
 import { usePullToRefresh } from '../hooks/usePullToRefresh'
 import { useToast } from '../contexts/ToastContext'
@@ -136,10 +136,16 @@ export default function Log() {
           title="Game Log"
           subtitle="Record and review your games."
           action={
-            <Button size="sm" onClick={() => navigate('/log/new')}>
-              <Plus size={16} />
-              Add
-            </Button>
+            <div className="flex gap-2">
+              <Button size="sm" variant="secondary" onClick={() => navigate('/live')}>
+                <Radio size={14} />
+                Live
+              </Button>
+              <Button size="sm" onClick={() => navigate('/log/new')}>
+                <Plus size={16} />
+                Add
+              </Button>
+            </div>
           }
         />
 

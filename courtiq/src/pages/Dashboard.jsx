@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Activity, Flame, Target, TrendingUp, Crosshair, ClipboardList, Dumbbell, Calendar, BookOpen, Search, X, Zap, Clock, Trash2, Users } from 'lucide-react'
+import { Activity, Flame, Target, TrendingUp, Crosshair, ClipboardList, Dumbbell, Calendar, BookOpen, Search, X, Zap, Clock, Trash2, Users, Radio } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
 import { useToast } from '../contexts/ToastContext'
 import { useGames } from '../hooks/useGames'
@@ -336,6 +336,12 @@ export default function Dashboard() {
             Quick Actions
           </h2>
           <div className="grid grid-cols-3 gap-3">
+            <Card onClick={() => navigate('/live')} className="flex flex-col items-center gap-3 py-5 cursor-pointer">
+              <div className="w-10 h-10 rounded-xl bg-danger/10 border border-danger/20 flex items-center justify-center">
+                <Radio size={18} className="text-danger" />
+              </div>
+              <span className="text-[11px] font-semibold text-text-primary">Live Game</span>
+            </Card>
             <Card onClick={() => navigate('/log/new')} className="flex flex-col items-center gap-3 py-5 cursor-pointer">
               <div className="w-10 h-10 rounded-xl bg-blue/10 border border-blue-border flex items-center justify-center">
                 <ClipboardList size={18} className="text-blue" />

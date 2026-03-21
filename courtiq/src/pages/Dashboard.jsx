@@ -179,7 +179,7 @@ export default function Dashboard() {
                 <button
                   key={i}
                   onMouseDown={e => { e.preventDefault(); setQuery(term); saveSearch(term) }}
-                  className="text-[10px] text-text-secondary bg-bg-card border border-border px-2.5 py-1 rounded-full hover:border-blue-border hover:text-blue transition-colors"
+                  className="text-[10px] text-text-secondary bg-bg-card border border-border px-2.5 py-1 rounded-lg hover:border-blue-border hover:text-blue transition-colors"
                 >
                   {term}
                 </button>

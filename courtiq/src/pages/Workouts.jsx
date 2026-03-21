@@ -230,7 +230,7 @@ export default function Workouts() {
                         <p className="text-xs text-text-muted truncate">{template.description}</p>
                       )}
                       <div className="flex items-center gap-3">
-                        <span className="text-[10px] font-medium text-text-muted bg-bg-section px-2 py-0.5 rounded-full">
+                        <span className="text-[10px] font-medium text-blue bg-blue/10 px-2 py-0.5 rounded">
                           {template.category}
                         </span>
                         <span className="text-[10px] text-text-muted flex items-center gap-1">
@@ -250,7 +250,7 @@ export default function Workouts() {
                   {/* Drill names */}
                   <div className="flex flex-wrap gap-1.5">
                     {drillList.map((d, i) => (
-                      <span key={i} className="text-[10px] text-text-secondary bg-bg-section px-2 py-1 rounded-md">
+                      <span key={i} className="text-[10px] text-text-secondary bg-bg-section px-2 py-1 rounded">
                         {d.name}{d.duration ? ` · ${d.duration}` : ''}
                       </span>
                     ))}

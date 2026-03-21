@@ -26,7 +26,7 @@ export default function AppLayout() {
 
   return (
     <AchievementProvider>
-      <div className="min-h-screen min-h-[100dvh] bg-bg-primary pb-24 pb-[calc(5rem+env(safe-area-inset-bottom))]">
+      <div className="min-h-screen min-h-[100dvh] bg-bg-primary pb-32 pb-[calc(7rem+env(safe-area-inset-bottom))]">
         <main>
           <Outlet />
         </main>

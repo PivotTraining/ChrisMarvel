@@ -151,7 +151,7 @@ export default function Train() {
                     <div className="flex-1 min-w-0 space-y-1">
                       <p className="text-sm font-semibold text-text-primary truncate">{session.drill_name}</p>
                       <div className="flex items-center gap-2">
-                        <span className="text-[10px] font-medium text-text-muted bg-bg-section px-2 py-0.5 rounded-full">
+                        <span className="text-[10px] font-medium text-blue bg-blue/10 px-2 py-0.5 rounded">
                           {session.category}
                         </span>
                         <div className="flex items-center gap-1">

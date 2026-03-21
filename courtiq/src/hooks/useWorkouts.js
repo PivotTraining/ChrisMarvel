@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../contexts/AuthContext'
+import { DEMO_MODE, demoWorkoutTemplates } from '../lib/demoData'
 
 export function useWorkouts() {
   const { user } = useAuth()
@@ -10,12 +11,24 @@ export function useWorkouts() {
   const fetchTemplates = useCallback(async () => {
     if (!user) return
     setLoading(true)
+
+    if (DEMO_MODE) {
+      // In demo mode, load preloaded workouts plus any user-created ones from local state
+      setTemplates(prev => {
+        // On first load, use demo templates; after that, preserve user additions
+        if (prev.length === 0) return demoWorkoutTemplates
+        return prev
+      })
+      setLoading(false)
+      return
+    }
+
     const { data, error } = await supabase
       .from('workout_templates')
       .select('*')
       .eq('user_id', user.id)
       .order('created_at', { ascending: false })
-      .limit(30)
+      .limit(50)
 
     if (!error) setTemplates(data || [])
     setLoading(false)
@@ -24,6 +37,18 @@ export function useWorkouts() {
   useEffect(() => { fetchTemplates() }, [fetchTemplates])
 
   async function addTemplate(template) {
+    if (DEMO_MODE) {
+      const newTemplate = {
+        ...template,
+        id: `wt-custom-${Date.now()}`,
+        user_id: 'demo-user-001',
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      }
+      setTemplates(prev => [newTemplate, ...prev])
+      return { data: newTemplate, error: null }
+    }
+
     const { data, error } = await supabase
       .from('workout_templates')
       .insert({ ...template, user_id: user.id })
@@ -37,6 +62,12 @@ export function useWorkouts() {
   }
 
   async function updateTemplate(id, updates) {
+    if (DEMO_MODE) {
+      const updated = { ...updates, id, updated_at: new Date().toISOString() }
+      setTemplates(prev => prev.map(t => t.id === id ? { ...t, ...updated } : t))
+      return { data: updated, error: null }
+    }
+
     const { data, error } = await supabase
       .from('workout_templates')
       .update({ ...updates, updated_at: new Date().toISOString() })
@@ -51,6 +82,11 @@ export function useWorkouts() {
   }
 
   async function deleteTemplate(id) {
+    if (DEMO_MODE) {
+      setTemplates(prev => prev.filter(t => t.id !== id))
+      return { error: null }
+    }
+
     const { error } = await supabase
       .from('workout_templates')
       .delete()

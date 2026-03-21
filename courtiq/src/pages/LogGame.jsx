@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { ArrowLeft, Save } from 'lucide-react'
 import { useGames } from '../hooks/useGames'
+import { useToast } from '../contexts/ToastContext'
 import PageShell from '../components/ui/PageShell'
 import Button from '../components/ui/Button'
 import Input from '../components/ui/Input'
@@ -72,6 +73,7 @@ function RatingSlider({ label, value, onChange }) {
 export default function LogGame() {
   const navigate = useNavigate()
   const { addGame } = useGames()
+  const toast = useToast()
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState('')
 
@@ -129,6 +131,7 @@ export default function LogGame() {
       setError(error.message)
       setSubmitting(false)
     } else {
+      toast('Game saved!')
       navigate('/log', { replace: true })
     }
   }

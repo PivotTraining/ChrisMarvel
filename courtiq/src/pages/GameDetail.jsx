@@ -6,10 +6,12 @@ import {
 } from 'lucide-react'
 import { supabase } from '../lib/supabase'
 import { useGames } from '../hooks/useGames'
+import { useToast } from '../contexts/ToastContext'
 import PageShell from '../components/ui/PageShell'
 import Card from '../components/ui/Card'
 import Button from '../components/ui/Button'
 import Input from '../components/ui/Input'
+import ConfirmDialog from '../components/ui/ConfirmDialog'
 
 const GAME_TYPES = ['League', 'Tournament', 'Pickup', 'Practice', 'Scrimmage']
 const RESULTS = ['Win', 'Loss', 'Draw']
@@ -22,6 +24,7 @@ export default function GameDetail() {
   const { id } = useParams()
   const navigate = useNavigate()
   const { updateGame, deleteGame } = useGames()
+  const toast = useToast()
   const [game, setGame] = useState(null)
   const [loading, setLoading] = useState(true)
   const [editing, setEditing] = useState(false)
@@ -66,11 +69,13 @@ export default function GameDetail() {
     if (!error && data) {
       setGame(data)
       setEditing(false)
+      toast('Game updated!')
     }
   }
 
   async function handleDelete() {
     await deleteGame(id)
+    toast('Game deleted', 'info')
     navigate('/log', { replace: true })
   }
 
@@ -231,17 +236,10 @@ export default function GameDetail() {
               className="w-10 h-10 rounded-xl bg-bg-card border border-border flex items-center justify-center text-text-secondary hover:text-blue transition-colors" aria-label="Edit">
               <Pencil size={16} />
             </button>
-            {confirmDelete ? (
-              <div className="flex items-center gap-2">
-                <button onClick={() => setConfirmDelete(false)} className="text-xs text-text-muted">Cancel</button>
-                <button onClick={handleDelete} className="text-xs font-semibold text-danger">Delete</button>
-              </div>
-            ) : (
-              <button onClick={() => setConfirmDelete(true)}
-                className="w-10 h-10 rounded-xl bg-bg-card border border-border flex items-center justify-center text-text-secondary hover:text-danger transition-colors" aria-label="Delete">
-                <Trash2 size={16} />
-              </button>
-            )}
+            <button onClick={() => setConfirmDelete(true)}
+              className="w-10 h-10 rounded-xl bg-bg-card border border-border flex items-center justify-center text-text-secondary hover:text-danger transition-colors" aria-label="Delete">
+              <Trash2 size={16} />
+            </button>
           </div>
         </div>
 
@@ -334,6 +332,14 @@ export default function GameDetail() {
           </Card>
         )}
       </div>
+
+      <ConfirmDialog
+        open={confirmDelete}
+        title="Delete Game?"
+        message="This game and all its stats will be permanently removed."
+        onConfirm={handleDelete}
+        onCancel={() => setConfirmDelete(false)}
+      />
     </PageShell>
   )
 }

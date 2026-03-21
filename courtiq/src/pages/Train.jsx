@@ -2,10 +2,12 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Target, Dumbbell, Crosshair, ShieldCheck, Zap, Send, Plus, Star, Calendar, BookOpen, Trash2 } from 'lucide-react'
 import { useDrills } from '../hooks/useDrills'
+import { useToast } from '../contexts/ToastContext'
 import PageShell from '../components/ui/PageShell'
 import SectionHeader from '../components/ui/SectionHeader'
 import Card from '../components/ui/Card'
 import Button from '../components/ui/Button'
+import Skeleton from '../components/ui/Skeleton'
 
 const categoryIcons = {
   'Ball Handling': Zap,
@@ -30,6 +32,7 @@ const categoryColors = {
 export default function Train() {
   const navigate = useNavigate()
   const { sessions, loading, deleteDrillSession } = useDrills()
+  const toast = useToast()
   const [confirmId, setConfirmId] = useState(null)
 
   return (
@@ -69,9 +72,7 @@ export default function Train() {
           </h2>
 
           {loading ? (
-            <div className="flex justify-center py-12">
-              <div className="w-8 h-8 border-2 border-blue border-t-transparent rounded-full animate-spin" />
-            </div>
+            <Skeleton count={3} />
           ) : sessions.length === 0 ? (
             <Card>
               <div className="flex flex-col items-center py-8 text-center space-y-3">
@@ -119,7 +120,7 @@ export default function Train() {
                       {confirmId === session.id ? (
                         <div className="flex items-center gap-2">
                           <button onClick={(e) => { e.stopPropagation(); setConfirmId(null) }} className="text-[10px] text-text-muted">Cancel</button>
-                          <button onClick={(e) => { e.stopPropagation(); deleteDrillSession(session.id); setConfirmId(null) }} className="text-[10px] font-semibold text-danger">Delete</button>
+                          <button onClick={(e) => { e.stopPropagation(); deleteDrillSession(session.id); setConfirmId(null); toast('Drill deleted', 'info') }} className="text-[10px] font-semibold text-danger">Delete</button>
                         </div>
                       ) : (
                         <button onClick={(e) => { e.stopPropagation(); setConfirmId(session.id) }} className="p-1 rounded-lg hover:bg-bg-section transition-colors" aria-label="Delete">

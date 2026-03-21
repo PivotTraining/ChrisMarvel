@@ -1,9 +1,10 @@
 import { useState, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { BarChart3, TrendingUp, Target, Percent } from 'lucide-react'
+import { BarChart3, TrendingUp, Target, Percent, Download } from 'lucide-react'
 import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Tooltip, LineChart, Line } from 'recharts'
 import { useGames } from '../hooks/useGames'
 import { useShots } from '../hooks/useShots'
+import { useToast } from '../contexts/ToastContext'
 import PageShell from '../components/ui/PageShell'
 import SectionHeader from '../components/ui/SectionHeader'
 import StatCard from '../components/ui/StatCard'
@@ -41,6 +42,7 @@ export default function Analytics() {
   const navigate = useNavigate()
   const { games: allGames } = useGames()
   const { shots: allShots, stats: allShotStats } = useShots()
+  const toast = useToast()
   const [range, setRange] = useState('all')
 
   const cutoff = daysAgo(RANGES.find(r => r.key === range)?.days)
@@ -114,12 +116,41 @@ export default function Analytics() {
     return { w, l, pct: (w + l) > 0 ? Math.round((w / (w + l)) * 100) : 0 }
   }, [games])
 
+  function exportCSV() {
+    if (games.length === 0) { toast('No game data to export', 'info'); return }
+    const headers = ['Date', 'Opponent', 'Result', 'PTS', 'REB', 'AST', 'STL', 'BLK', 'TO', 'FG Made', 'FG Att', '3P Made', '3P Att', 'FT Made', 'FT Att']
+    const rows = games.map(g => [
+      g.game_date, g.opponent || '', g.result || '',
+      g.points, g.rebounds, g.assists, g.steals, g.blocks, g.turnovers,
+      g.fg_made, g.fg_attempted, g.three_made, g.three_attempted, g.ft_made, g.ft_attempted,
+    ])
+    const csv = [headers.join(','), ...rows.map(r => r.join(','))].join('\n')
+    const blob = new Blob([csv], { type: 'text/csv' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `courtiq-games-${range}.csv`
+    a.click()
+    URL.revokeObjectURL(url)
+    toast('CSV exported!')
+  }
+
   return (
     <PageShell>
       <div className="flex flex-col gap-8">
         <SectionHeader
           title="Analytics"
           subtitle="Your performance at a glance."
+          action={
+            <button
+              onClick={exportCSV}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-bg-card border border-border text-xs font-medium text-text-secondary hover:text-text-primary transition-colors"
+              aria-label="Export CSV"
+            >
+              <Download size={14} />
+              Export
+            </button>
+          }
         />
 
         {/* Date Range Tabs */}

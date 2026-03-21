@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { ArrowLeft, User, Save } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
+import { useToast } from '../contexts/ToastContext'
 import PageShell from '../components/ui/PageShell'
 import SectionHeader from '../components/ui/SectionHeader'
 import Card from '../components/ui/Card'
@@ -14,6 +15,7 @@ const LEVELS = ['Beginner', 'Intermediate', 'Advanced']
 export default function EditProfile() {
   const navigate = useNavigate()
   const { profile, updateProfile } = useAuth()
+  const toast = useToast()
 
   const [form, setForm] = useState({
     full_name: profile?.full_name || '',
@@ -23,20 +25,19 @@ export default function EditProfile() {
     recruiting_profile_public: profile?.recruiting_profile_public ?? false,
   })
   const [saving, setSaving] = useState(false)
-  const [saved, setSaved] = useState(false)
 
   function update(key, value) {
     setForm(f => ({ ...f, [key]: value }))
-    setSaved(false)
   }
 
   async function handleSave() {
     setSaving(true)
     const { error } = await updateProfile(form)
     setSaving(false)
-    if (!error) {
-      setSaved(true)
-      setTimeout(() => setSaved(false), 2000)
+    if (error) {
+      toast(error.message, 'error')
+    } else {
+      toast('Profile updated!')
     }
   }
 
@@ -146,7 +147,7 @@ export default function EditProfile() {
         {/* Save */}
         <Button fullWidth onClick={handleSave} disabled={saving}>
           <Save size={16} />
-          {saving ? 'Saving...' : saved ? 'Saved!' : 'Save Changes'}
+          {saving ? 'Saving...' : 'Save Changes'}
         </Button>
       </div>
     </PageShell>

@@ -2,11 +2,13 @@ import { useNavigate } from 'react-router-dom'
 import { useState } from 'react'
 import { ClipboardList, Plus, Trophy, Calendar, MapPin, Trash2 } from 'lucide-react'
 import { useGames } from '../hooks/useGames'
+import { useToast } from '../contexts/ToastContext'
 import PageShell from '../components/ui/PageShell'
 import SectionHeader from '../components/ui/SectionHeader'
 import EmptyState from '../components/ui/EmptyState'
 import Card from '../components/ui/Card'
 import Button from '../components/ui/Button'
+import Skeleton from '../components/ui/Skeleton'
 
 function GameCard({ game, onDelete, onNavigate }) {
   const [confirming, setConfirming] = useState(false)
@@ -99,6 +101,12 @@ function GameCard({ game, onDelete, onNavigate }) {
 export default function Log() {
   const navigate = useNavigate()
   const { games, loading, deleteGame } = useGames()
+  const toast = useToast()
+
+  async function handleDelete(id) {
+    await deleteGame(id)
+    toast('Game deleted', 'info')
+  }
 
   return (
     <PageShell>
@@ -115,9 +123,7 @@ export default function Log() {
         />
 
         {loading ? (
-          <div className="flex justify-center py-16">
-            <div className="w-8 h-8 border-2 border-blue border-t-transparent rounded-full animate-spin" />
-          </div>
+          <Skeleton count={3} />
         ) : games.length === 0 ? (
           <EmptyState
             icon={ClipboardList}
@@ -140,7 +146,7 @@ export default function Log() {
             </div>
             <div className="space-y-3">
               {games.map(game => (
-                <GameCard key={game.id} game={game} onDelete={deleteGame} onNavigate={(id) => navigate(`/log/${id}`)} />
+                <GameCard key={game.id} game={game} onDelete={handleDelete} onNavigate={(id) => navigate(`/log/${id}`)} />
               ))}
             </div>
           </section>

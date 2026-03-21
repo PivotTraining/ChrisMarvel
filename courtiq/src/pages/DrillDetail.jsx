@@ -7,10 +7,12 @@ import {
 } from 'lucide-react'
 import { supabase } from '../lib/supabase'
 import { useDrills } from '../hooks/useDrills'
+import { useToast } from '../contexts/ToastContext'
 import PageShell from '../components/ui/PageShell'
 import Card from '../components/ui/Card'
 import Button from '../components/ui/Button'
 import Input from '../components/ui/Input'
+import ConfirmDialog from '../components/ui/ConfirmDialog'
 
 const CATEGORIES = ['Ball Handling', 'Shooting', 'Finishing', 'Defense', 'Passing', 'Conditioning', 'Custom']
 const INTENSITIES = ['Low', 'Medium', 'High']
@@ -30,6 +32,7 @@ export default function DrillDetail() {
   const { id } = useParams()
   const navigate = useNavigate()
   const { updateDrillSession, deleteDrillSession } = useDrills()
+  const toast = useToast()
   const [drill, setDrill] = useState(null)
   const [loading, setLoading] = useState(true)
   const [editing, setEditing] = useState(false)
@@ -74,11 +77,13 @@ export default function DrillDetail() {
     if (!error && data) {
       setDrill(data)
       setEditing(false)
+      toast('Session updated!')
     }
   }
 
   async function handleDelete() {
     await deleteDrillSession(id)
+    toast('Session deleted', 'info')
     navigate('/train', { replace: true })
   }
 
@@ -222,17 +227,10 @@ export default function DrillDetail() {
               className="w-10 h-10 rounded-xl bg-bg-card border border-border flex items-center justify-center text-text-secondary hover:text-blue transition-colors" aria-label="Edit">
               <Pencil size={16} />
             </button>
-            {confirmDelete ? (
-              <div className="flex items-center gap-2">
-                <button onClick={() => setConfirmDelete(false)} className="text-xs text-text-muted">Cancel</button>
-                <button onClick={handleDelete} className="text-xs font-semibold text-danger">Delete</button>
-              </div>
-            ) : (
-              <button onClick={() => setConfirmDelete(true)}
-                className="w-10 h-10 rounded-xl bg-bg-card border border-border flex items-center justify-center text-text-secondary hover:text-danger transition-colors" aria-label="Delete">
-                <Trash2 size={16} />
-              </button>
-            )}
+            <button onClick={() => setConfirmDelete(true)}
+              className="w-10 h-10 rounded-xl bg-bg-card border border-border flex items-center justify-center text-text-secondary hover:text-danger transition-colors" aria-label="Delete">
+              <Trash2 size={16} />
+            </button>
           </div>
         </div>
 
@@ -294,6 +292,14 @@ export default function DrillDetail() {
           </Card>
         )}
       </div>
+
+      <ConfirmDialog
+        open={confirmDelete}
+        title="Delete Session?"
+        message="This drill session will be permanently removed."
+        onConfirm={handleDelete}
+        onCancel={() => setConfirmDelete(false)}
+      />
     </PageShell>
   )
 }

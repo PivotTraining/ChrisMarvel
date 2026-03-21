@@ -6,6 +6,7 @@ import SectionHeader from '../components/ui/SectionHeader'
 import EmptyState from '../components/ui/EmptyState'
 import Card from '../components/ui/Card'
 import Button from '../components/ui/Button'
+import Skeleton from '../components/ui/Skeleton'
 
 const moodConfig = {
   Great: { icon: ThumbsUp, color: 'text-success', bg: 'bg-success/10' },
@@ -46,9 +47,7 @@ export default function Journal() {
         />
 
         {loading ? (
-          <div className="flex justify-center py-16">
-            <div className="w-8 h-8 border-2 border-blue border-t-transparent rounded-full animate-spin" />
-          </div>
+          <Skeleton count={3} />
         ) : entries.length === 0 ? (
           <EmptyState
             icon={BookOpen}

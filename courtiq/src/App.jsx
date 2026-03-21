@@ -1,6 +1,7 @@
 import { lazy, Suspense } from 'react'
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { AuthProvider } from './contexts/AuthContext'
+import { ToastProvider } from './contexts/ToastContext'
 import ProtectedRoute from './components/ProtectedRoute'
 import ErrorBoundary from './components/ErrorBoundary'
 import AppLayout from './layouts/AppLayout'
@@ -49,6 +50,7 @@ export default function App() {
     <ErrorBoundary>
       <BrowserRouter basename={basename}>
         <AuthProvider>
+          <ToastProvider>
           <Suspense fallback={<PageLoader />}>
             <Routes>
               {/* Public routes */}
@@ -91,6 +93,7 @@ export default function App() {
               <Route path="*" element={<NotFound />} />
             </Routes>
           </Suspense>
+          </ToastProvider>
         </AuthProvider>
       </BrowserRouter>
     </ErrorBoundary>

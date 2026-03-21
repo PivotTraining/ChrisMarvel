@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { ArrowLeft, Save, Star } from 'lucide-react'
 import { useDrills } from '../hooks/useDrills'
+import { useToast } from '../contexts/ToastContext'
 import PageShell from '../components/ui/PageShell'
 import Button from '../components/ui/Button'
 import Input from '../components/ui/Input'
@@ -15,6 +16,7 @@ export default function LogDrill() {
   const location = useLocation()
   const prefill = location.state || {}
   const { addDrillSession } = useDrills()
+  const toast = useToast()
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState('')
 
@@ -62,6 +64,7 @@ export default function LogDrill() {
       setError(error.message)
       setSubmitting(false)
     } else {
+      toast('Drill saved!')
       navigate('/train', { replace: true })
     }
   }

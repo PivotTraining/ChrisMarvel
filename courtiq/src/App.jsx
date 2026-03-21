@@ -2,6 +2,7 @@ import { lazy, Suspense } from 'react'
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { AuthProvider } from './contexts/AuthContext'
 import { ToastProvider } from './contexts/ToastContext'
+import { ThemeProvider } from './contexts/ThemeContext'
 import ProtectedRoute from './components/ProtectedRoute'
 import ErrorBoundary from './components/ErrorBoundary'
 import OfflineBanner from './components/OfflineBanner'
@@ -37,6 +38,7 @@ const Landing = lazy(() => import('./pages/Landing'))
 const Onboarding = lazy(() => import('./pages/Onboarding'))
 const Goals = lazy(() => import('./pages/Goals'))
 const Workouts = lazy(() => import('./pages/Workouts'))
+const DataBackup = lazy(() => import('./pages/DataBackup'))
 
 const basename = import.meta.env.BASE_URL
 
@@ -51,6 +53,7 @@ function PageLoader() {
 export default function App() {
   return (
     <ErrorBoundary>
+      <ThemeProvider>
       <OfflineBanner />
       <BrowserRouter basename={basename}>
         <AuthProvider>
@@ -92,6 +95,7 @@ export default function App() {
                 <Route path="profile/edit" element={<EditProfile />} />
                 <Route path="profile/notifications" element={<NotificationSettings />} />
                 <Route path="saved" element={<SavedContent />} />
+                <Route path="backup" element={<DataBackup />} />
                 <Route path="about" element={<About />} />
               </Route>
 
@@ -102,6 +106,7 @@ export default function App() {
           </ToastProvider>
         </AuthProvider>
       </BrowserRouter>
+      </ThemeProvider>
     </ErrorBoundary>
   )
 }

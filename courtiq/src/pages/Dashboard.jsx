@@ -6,6 +6,7 @@ import { useToast } from '../contexts/ToastContext'
 import { useGames } from '../hooks/useGames'
 import { useDrills } from '../hooks/useDrills'
 import ActivityCalendar from '../components/ActivityCalendar'
+import OnboardingTour from '../components/OnboardingTour'
 import PageShell from '../components/ui/PageShell'
 import SectionHeader from '../components/ui/SectionHeader'
 import StatCard from '../components/ui/StatCard'
@@ -62,6 +63,7 @@ export default function Dashboard() {
 
   return (
     <PageShell>
+      <OnboardingTour />
       <div className="flex flex-col gap-8">
         {/* Header */}
         <SectionHeader

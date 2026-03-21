@@ -1,7 +1,8 @@
 import { useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { User, Trophy, Star, ChevronRight, LogOut, BookOpen, BarChart3, Pencil, Bell, Info, Bookmark, Flame, ClipboardList, Dumbbell, Target, Crosshair, Layers, Award, Zap } from 'lucide-react'
+import { User, Trophy, Star, ChevronRight, LogOut, BookOpen, BarChart3, Pencil, Bell, Info, Bookmark, Flame, ClipboardList, Dumbbell, Target, Crosshair, Layers, Award, Zap, Sun, Moon, Database } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
+import { useTheme } from '../contexts/ThemeContext'
 import { useGames } from '../hooks/useGames'
 import { useDrills } from '../hooks/useDrills'
 import PageShell from '../components/ui/PageShell'
@@ -12,6 +13,7 @@ import Button from '../components/ui/Button'
 
 export default function Profile() {
   const { profile, signOut } = useAuth()
+  const { theme, toggleTheme } = useTheme()
   const navigate = useNavigate()
   const { games } = useGames()
   const { sessions } = useDrills()
@@ -178,9 +180,26 @@ export default function Profile() {
             Settings
           </h2>
           <div className="space-y-3">
+            {/* Theme Toggle */}
+            <Card
+              onClick={toggleTheme}
+              className="flex items-center justify-between cursor-pointer card-hover"
+            >
+              <div className="flex items-center gap-3">
+                {theme === 'dark' ? <Moon size={18} className="text-text-secondary" /> : <Sun size={18} className="text-warning" />}
+                <span className="text-sm font-medium text-text-primary">
+                  {theme === 'dark' ? 'Dark Mode' : 'Light Mode'}
+                </span>
+              </div>
+              <div className={`w-10 h-6 rounded-full flex items-center px-0.5 transition-colors ${theme === 'light' ? 'bg-blue' : 'bg-bg-section border border-border'}`}>
+                <div className={`w-5 h-5 rounded-full bg-white shadow transition-transform ${theme === 'light' ? 'translate-x-4' : 'translate-x-0'}`} />
+              </div>
+            </Card>
+
             {[
               { label: 'Edit Profile', icon: Pencil, path: '/profile/edit' },
               { label: 'Notifications', icon: Bell, path: '/profile/notifications' },
+              { label: 'Data Backup', icon: Database, path: '/backup' },
               { label: 'About CourtIQ', icon: Info, path: '/about' },
             ].map(({ label, icon: Icon, path }) => (
               <Card

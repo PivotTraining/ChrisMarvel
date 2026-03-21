@@ -5,6 +5,7 @@ import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Tooltip, LineChart, L
 import { useGames } from '../hooks/useGames'
 import { useShots } from '../hooks/useShots'
 import { useToast } from '../contexts/ToastContext'
+import ShotHeatmap from '../components/ShotHeatmap'
 import PageShell from '../components/ui/PageShell'
 import SectionHeader from '../components/ui/SectionHeader'
 import StatCard from '../components/ui/StatCard'
@@ -324,6 +325,18 @@ export default function Analytics() {
                   <Bar dataKey="FG%" fill="#00A3FF" radius={[0, 4, 4, 0]} barSize={16} />
                 </BarChart>
               </ResponsiveContainer>
+            </Card>
+          </section>
+        )}
+
+        {/* Shot Heatmap */}
+        {shots.length > 0 && (
+          <section className="space-y-4">
+            <h2 className="text-sm font-semibold text-text-muted uppercase tracking-wider">
+              Shot Heatmap
+            </h2>
+            <Card>
+              <ShotHeatmap shots={shots} />
             </Card>
           </section>
         )}

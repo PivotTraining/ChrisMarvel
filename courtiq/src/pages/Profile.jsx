@@ -220,15 +220,13 @@ export default function Profile() {
                 <ChevronRight size={16} className="text-text-muted" />
               </Card>
             ))}
-          </div>
-        </section>
 
-        {/* Sign Out */}
-        <section className="pt-4 pb-16">
-          <Button variant="danger" fullWidth onClick={handleSignOut}>
-            <LogOut size={18} />
-            Sign Out
-          </Button>
+            {/* Sign Out */}
+            <Button variant="danger" fullWidth onClick={handleSignOut} className="mt-2">
+              <LogOut size={18} />
+              Sign Out
+            </Button>
+          </div>
         </section>
       </div>
     </PageShell>

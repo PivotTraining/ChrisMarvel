@@ -224,7 +224,7 @@ export default function Profile() {
         </section>
 
         {/* Sign Out */}
-        <section className="pt-4 pb-8">
+        <section className="pt-4 pb-16">
           <Button variant="danger" fullWidth onClick={handleSignOut}>
             <LogOut size={18} />
             Sign Out

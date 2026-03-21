@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Activity, Flame, Target, TrendingUp, Crosshair, ClipboardList, Dumbbell, Calendar, BookOpen, Search, X, Zap, Clock, Trash2, Users, Radio } from 'lucide-react'
+import { Activity, Flame, Target, TrendingUp, Crosshair, ClipboardList, Dumbbell, Calendar, BookOpen, Search, X, Zap, Clock, Trash2, Users, Radio, Bell } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
 import { useToast } from '../contexts/ToastContext'
 import { useGames } from '../hooks/useGames'
@@ -10,6 +10,7 @@ import ActivityCalendar from '../components/ActivityCalendar'
 import OnboardingTour from '../components/OnboardingTour'
 import WeeklyReport from '../components/WeeklyReport'
 import SmartInsights from '../components/SmartInsights'
+import { useNotifications } from '../hooks/useNotifications'
 import SkillRadar from '../components/SkillRadar'
 import PageShell from '../components/ui/PageShell'
 import SectionHeader from '../components/ui/SectionHeader'
@@ -23,6 +24,7 @@ export default function Dashboard() {
   const { games } = useGames()
   const { sessions, addDrillSession } = useDrills()
   const { shots } = useShots()
+  const { unreadCount } = useNotifications()
   const toast = useToast()
 
   const [query, setQuery] = useState('')
@@ -88,10 +90,24 @@ export default function Dashboard() {
       <OnboardingTour />
       <div className="flex flex-col gap-8">
         {/* Header */}
-        <SectionHeader
-          title={`Hey, ${firstName}`}
-          subtitle="Track your progress and daily work."
-        />
+        <div className="flex items-start justify-between">
+          <SectionHeader
+            title={`Hey, ${firstName}`}
+            subtitle="Track your progress and daily work."
+          />
+          <button
+            onClick={() => navigate('/notifications')}
+            className="relative w-10 h-10 rounded-xl bg-bg-card border border-border flex items-center justify-center text-text-secondary hover:text-text-primary transition-colors shrink-0"
+            aria-label="Notifications"
+          >
+            <Bell size={18} />
+            {unreadCount > 0 && (
+              <span className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-danger text-white text-[10px] font-bold flex items-center justify-center">
+                {unreadCount > 9 ? '9+' : unreadCount}
+              </span>
+            )}
+          </button>
+        </div>
 
         {/* Streak Banner */}
         {(() => {

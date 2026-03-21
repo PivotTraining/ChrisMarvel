@@ -1,6 +1,7 @@
 import { useEffect } from 'react'
 import { Outlet } from 'react-router-dom'
 import BottomNav from '../components/BottomNav'
+import { AchievementProvider } from '../contexts/AchievementContext'
 import { setupAppListeners, setupBackButton } from '../lib/native'
 
 export default function AppLayout() {
@@ -24,11 +25,13 @@ export default function AppLayout() {
   }, [])
 
   return (
-    <div className="min-h-screen min-h-[100dvh] bg-bg-primary pb-24 pb-[calc(5rem+env(safe-area-inset-bottom))]">
-      <main>
-        <Outlet />
-      </main>
-      <BottomNav />
-    </div>
+    <AchievementProvider>
+      <div className="min-h-screen min-h-[100dvh] bg-bg-primary pb-24 pb-[calc(5rem+env(safe-area-inset-bottom))]">
+        <main>
+          <Outlet />
+        </main>
+        <BottomNav />
+      </div>
+    </AchievementProvider>
   )
 }

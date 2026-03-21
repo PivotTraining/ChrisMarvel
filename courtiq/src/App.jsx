@@ -39,6 +39,7 @@ const Onboarding = lazy(() => import('./pages/Onboarding'))
 const Goals = lazy(() => import('./pages/Goals'))
 const Workouts = lazy(() => import('./pages/Workouts'))
 const DataBackup = lazy(() => import('./pages/DataBackup'))
+const Schedule = lazy(() => import('./pages/Schedule'))
 
 const basename = import.meta.env.BASE_URL
 
@@ -88,6 +89,7 @@ export default function App() {
                 <Route path="journal/:id" element={<JournalDetail />} />
                 <Route path="goals" element={<Goals />} />
                 <Route path="workouts" element={<Workouts />} />
+                <Route path="schedule" element={<Schedule />} />
                 <Route path="badges" element={<Badges />} />
                 <Route path="library" element={<Library />} />
                 <Route path="library/:id" element={<ContentDetail />} />

@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { BarChart3, TrendingUp, Target, Percent, Download, ArrowUp, ArrowDown, Minus, Award, Trophy, Flame } from 'lucide-react'
+import { BarChart3, TrendingUp, Target, Percent, Download, ArrowUp, ArrowDown, Minus, Award, Trophy, Flame, GitCompareArrows } from 'lucide-react'
 import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Tooltip, LineChart, Line } from 'recharts'
 import { useGames } from '../hooks/useGames'
 import { useShots } from '../hooks/useShots'
@@ -147,6 +147,37 @@ export default function Analytics() {
     const best = games.reduce((b, g) => g.points > b.points ? g : b, games[0])
     return { totalPts, totalReb, totalAst, wins, gamesPlayed: games.length, maxStreak, bestPts: best.points }
   }, [games])
+
+  // Period comparison
+  const [compareMode, setCompareMode] = useState(false)
+  const periodComparison = useMemo(() => {
+    if (allGames.length < 2) return null
+    const now = new Date()
+
+    // Last 30 days vs previous 30 days
+    const d30 = new Date(now)
+    d30.setDate(d30.getDate() - 30)
+    const d60 = new Date(now)
+    d60.setDate(d60.getDate() - 60)
+    const d30Str = d30.toISOString().split('T')[0]
+    const d60Str = d60.toISOString().split('T')[0]
+
+    const recent = allGames.filter(g => g.game_date >= d30Str)
+    const previous = allGames.filter(g => g.game_date >= d60Str && g.game_date < d30Str)
+
+    if (recent.length === 0 && previous.length === 0) return null
+
+    const calcAvg = (arr, key) => arr.length > 0 ? (arr.reduce((s, g) => s + g[key], 0) / arr.length) : 0
+
+    const stats = ['points', 'rebounds', 'assists', 'steals', 'blocks'].map(key => {
+      const labels = { points: 'PPG', rebounds: 'RPG', assists: 'APG', steals: 'SPG', blocks: 'BPG' }
+      const r = calcAvg(recent, key)
+      const p = calcAvg(previous, key)
+      return { label: labels[key], recent: r.toFixed(1), previous: p.toFixed(1), diff: r - p }
+    })
+
+    return { stats, recentCount: recent.length, previousCount: previous.length }
+  }, [allGames])
 
   function exportCSV() {
     if (games.length === 0) { toast('No game data to export', 'info'); return }
@@ -444,6 +475,52 @@ export default function Analytics() {
                 </div>
               </div>
             </Card>
+          </section>
+        )}
+
+        {/* Period Comparison */}
+        {periodComparison && (
+          <section className="space-y-4">
+            <button
+              onClick={() => setCompareMode(!compareMode)}
+              className="flex items-center gap-2 text-sm font-semibold text-text-muted uppercase tracking-wider hover:text-text-secondary transition-colors"
+            >
+              <GitCompareArrows size={14} className="text-blue" />
+              30-Day Comparison
+              <span className="text-[10px] font-normal normal-case text-text-muted ml-1">
+                {compareMode ? '▲' : '▼'}
+              </span>
+            </button>
+            {compareMode && (
+              <Card className="space-y-4">
+                <div className="flex items-center justify-between text-xs text-text-muted">
+                  <span>Previous 30d ({periodComparison.previousCount} games)</span>
+                  <span>vs</span>
+                  <span>Last 30d ({periodComparison.recentCount} games)</span>
+                </div>
+                <div className="space-y-3">
+                  {periodComparison.stats.map(({ label, recent, previous, diff }) => {
+                    const TrendIcon = diff > 0.05 ? ArrowUp : diff < -0.05 ? ArrowDown : Minus
+                    const color = diff > 0.05 ? 'text-success' : diff < -0.05 ? 'text-danger' : 'text-text-muted'
+                    return (
+                      <div key={label} className="flex items-center justify-between">
+                        <span className="text-xs text-text-muted w-10">{label}</span>
+                        <div className="flex items-center gap-4 flex-1 justify-end">
+                          <span className="text-sm text-text-secondary w-12 text-right">{previous}</span>
+                          <div className="flex items-center gap-1 w-16 justify-center">
+                            <TrendIcon size={12} className={color} />
+                            <span className={`text-xs font-semibold ${color}`}>
+                              {diff > 0 ? '+' : ''}{diff.toFixed(1)}
+                            </span>
+                          </div>
+                          <span className="text-sm font-bold text-text-primary w-12 text-right">{recent}</span>
+                        </div>
+                      </div>
+                    )
+                  })}
+                </div>
+              </Card>
+            )}
           </section>
         )}
 

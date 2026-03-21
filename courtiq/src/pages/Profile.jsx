@@ -66,6 +66,7 @@ export default function Profile() {
   }
 
   const menuItems = [
+    { label: 'Schedule', icon: Target, path: '/schedule' },
     { label: 'Goals', icon: Crosshair, path: '/goals' },
     { label: 'Workouts', icon: Layers, path: '/workouts' },
     { label: 'Journal', icon: BookOpen, path: '/journal' },

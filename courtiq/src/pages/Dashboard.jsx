@@ -1,12 +1,13 @@
 import { useState, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Activity, Flame, Target, TrendingUp, Crosshair, ClipboardList, Dumbbell, Calendar, BookOpen, Search, X, Zap } from 'lucide-react'
+import { Activity, Flame, Target, TrendingUp, Crosshair, ClipboardList, Dumbbell, Calendar, BookOpen, Search, X, Zap, Clock, Trash2 } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
 import { useToast } from '../contexts/ToastContext'
 import { useGames } from '../hooks/useGames'
 import { useDrills } from '../hooks/useDrills'
 import ActivityCalendar from '../components/ActivityCalendar'
 import OnboardingTour from '../components/OnboardingTour'
+import WeeklyReport from '../components/WeeklyReport'
 import PageShell from '../components/ui/PageShell'
 import SectionHeader from '../components/ui/SectionHeader'
 import StatCard from '../components/ui/StatCard'
@@ -21,9 +22,26 @@ export default function Dashboard() {
   const toast = useToast()
 
   const [query, setQuery] = useState('')
+  const [searchFocused, setSearchFocused] = useState(false)
+  const [recentSearches, setRecentSearches] = useState(() => {
+    try { return JSON.parse(localStorage.getItem('courtiq-recent-searches') || '[]') }
+    catch { return [] }
+  })
   const [quickDrill, setQuickDrill] = useState('')
   const [quickLogging, setQuickLogging] = useState(false)
   const firstName = profile?.full_name?.split(' ')[0] || 'Player'
+
+  function saveSearch(term) {
+    if (!term.trim()) return
+    const updated = [term.trim(), ...recentSearches.filter(s => s !== term.trim())].slice(0, 5)
+    setRecentSearches(updated)
+    try { localStorage.setItem('courtiq-recent-searches', JSON.stringify(updated)) } catch {}
+  }
+
+  function clearRecentSearches() {
+    setRecentSearches([])
+    try { localStorage.removeItem('courtiq-recent-searches') } catch {}
+  }
 
   // Weekly activity (last 7 days)
   const weeklyStats = useMemo(() => {
@@ -112,6 +130,9 @@ export default function Dashboard() {
             type="text"
             value={query}
             onChange={e => setQuery(e.target.value)}
+            onFocus={() => setSearchFocused(true)}
+            onBlur={() => setTimeout(() => setSearchFocused(false), 200)}
+            onKeyDown={e => { if (e.key === 'Enter' && query.trim()) saveSearch(query) }}
             placeholder="Search games, drills, sessions..."
             className="w-full rounded-xl bg-bg-card border border-border pl-10 pr-10 py-3 text-sm text-text-primary placeholder:text-text-muted focus:outline-none focus:border-blue-border transition-colors"
           />
@@ -121,6 +142,31 @@ export default function Dashboard() {
             </button>
           )}
         </div>
+
+        {/* Recent Searches */}
+        {searchFocused && !query && recentSearches.length > 0 && (
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <p className="text-[10px] text-text-muted uppercase font-medium flex items-center gap-1">
+                <Clock size={10} /> Recent
+              </p>
+              <button onClick={clearRecentSearches} className="text-[10px] text-text-muted hover:text-text-secondary flex items-center gap-1">
+                <Trash2 size={10} /> Clear
+              </button>
+            </div>
+            <div className="flex flex-wrap gap-1.5">
+              {recentSearches.map((term, i) => (
+                <button
+                  key={i}
+                  onMouseDown={e => { e.preventDefault(); setQuery(term); saveSearch(term) }}
+                  className="text-[10px] text-text-secondary bg-bg-card border border-border px-2.5 py-1 rounded-full hover:border-blue-border hover:text-blue transition-colors"
+                >
+                  {term}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Search Results */}
         {query.trim().length > 0 && (() => {
@@ -227,6 +273,11 @@ export default function Dashboard() {
           <ActivityCalendar games={games} drills={sessions} />
         </Card>
 
+        {/* Weekly Report */}
+        <Card>
+          <WeeklyReport games={games} drills={sessions} />
+        </Card>
+
         {/* Quick Log */}
         <Card className="space-y-3">
           <div className="flex items-center gap-2">
@@ -306,6 +357,12 @@ export default function Dashboard() {
                 <BookOpen size={18} className="text-blue" />
               </div>
               <span className="text-[11px] font-semibold text-text-primary">Journal</span>
+            </Card>
+            <Card onClick={() => navigate('/schedule')} className="flex flex-col items-center gap-3 py-5 cursor-pointer">
+              <div className="w-10 h-10 rounded-xl bg-warning/10 border border-warning/20 flex items-center justify-center">
+                <Calendar size={18} className="text-warning" />
+              </div>
+              <span className="text-[11px] font-semibold text-text-primary">Schedule</span>
             </Card>
           </div>
         </section>

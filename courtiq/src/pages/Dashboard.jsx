@@ -69,6 +69,40 @@ export default function Dashboard() {
           subtitle="Track your progress and daily work."
         />
 
+        {/* Streak Banner */}
+        {(() => {
+          const streak = profile?.current_streak ?? 0
+          if (streak === 0) return (
+            <Card className="flex items-center gap-3 border-blue-border/20 bg-blue/5">
+              <div className="w-10 h-10 rounded-xl bg-blue/10 flex items-center justify-center shrink-0">
+                <Flame size={20} className="text-blue" />
+              </div>
+              <div className="min-w-0">
+                <p className="text-sm font-semibold text-text-primary">Start your streak today</p>
+                <p className="text-[10px] text-text-muted">Log a game or drill to get going.</p>
+              </div>
+            </Card>
+          )
+          const messages = streak >= 14
+            ? { title: `${streak}-day streak! Unstoppable!`, sub: "You're on a legendary run. Keep dominating." }
+            : streak >= 7
+              ? { title: `${streak}-day streak! On fire!`, sub: "A full week of work. Elite mentality." }
+              : streak >= 3
+                ? { title: `${streak}-day streak! Building momentum`, sub: "Consistency is the key to greatness." }
+                : { title: `${streak}-day streak!`, sub: "Keep showing up every day." }
+          return (
+            <Card className="flex items-center gap-3 border-gold/30 bg-gold/5">
+              <div className="w-10 h-10 rounded-xl bg-gold/10 flex items-center justify-center shrink-0">
+                <Flame size={20} className="text-gold" />
+              </div>
+              <div className="min-w-0">
+                <p className="text-sm font-semibold text-text-primary">{messages.title}</p>
+                <p className="text-[10px] text-text-muted">{messages.sub}</p>
+              </div>
+            </Card>
+          )
+        })()}
+
         {/* Search */}
         <div className="relative">
           <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-text-muted" />

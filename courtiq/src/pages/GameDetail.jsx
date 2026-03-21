@@ -16,6 +16,7 @@ import ShareStatCard from '../components/ShareStatCard'
 
 const GAME_TYPES = ['League', 'Tournament', 'Pickup', 'Practice', 'Scrimmage']
 const RESULTS = ['Win', 'Loss', 'Draw']
+const HIGHLIGHT_TAGS = ['Clutch Play', 'Double-Double', 'Career High', 'Great Defense', 'Hot Shooting', 'Team Win', 'Comeback', 'Tough Loss']
 
 function pct(made, att) {
   return att > 0 ? Math.round((made / att) * 100) : null
@@ -200,9 +201,38 @@ export default function GameDetail() {
           </Card>
 
           <Card className="space-y-4">
+            <h2 className="text-sm font-semibold text-text-muted uppercase tracking-wider">Notes & Highlights</h2>
             <textarea value={form.notes || ''} onChange={e => set('notes')(e.target.value)}
               placeholder="Game notes..." rows={3}
               className="w-full rounded-xl bg-bg-section border border-border px-4 py-3 text-sm text-text-primary placeholder:text-text-muted focus:outline-none focus:border-blue-border resize-none transition-colors" />
+            <div className="space-y-2">
+              <p className="text-[10px] font-medium text-text-muted uppercase">Quick Tags</p>
+              <div className="flex flex-wrap gap-1.5">
+                {HIGHLIGHT_TAGS.map(tag => {
+                  const isActive = (form.notes || '').includes(`#${tag}`)
+                  return (
+                    <button
+                      key={tag}
+                      type="button"
+                      onClick={() => {
+                        if (isActive) {
+                          set('notes')((form.notes || '').replace(`#${tag}`, '').trim())
+                        } else {
+                          set('notes')(((form.notes || '') + ` #${tag}`).trim())
+                        }
+                      }}
+                      className={`text-[10px] font-medium px-2 py-1 rounded-full transition-all ${
+                        isActive
+                          ? 'bg-blue/10 text-blue border border-blue-border/30'
+                          : 'bg-bg-section border border-border text-text-muted'
+                      }`}
+                    >
+                      #{tag}
+                    </button>
+                  )
+                })}
+              </div>
+            </div>
           </Card>
 
           <Button fullWidth onClick={handleSave} disabled={saving}>
@@ -325,13 +355,36 @@ export default function GameDetail() {
           </div>
         )}
 
-        {/* Notes */}
-        {game.notes && (
-          <Card className="space-y-2">
-            <h2 className="text-xs font-semibold text-text-muted uppercase tracking-wider">Notes</h2>
-            <p className="text-sm text-text-secondary leading-relaxed">{game.notes}</p>
-          </Card>
-        )}
+        {/* Notes & Highlights */}
+        {game.notes && (() => {
+          const tagPattern = /#([\w\s-]+?)(?=#|$)/g
+          const tags = []
+          let match
+          let cleanNotes = game.notes
+          while ((match = tagPattern.exec(game.notes)) !== null) {
+            tags.push(match[1].trim())
+          }
+          if (tags.length > 0) {
+            cleanNotes = game.notes.replace(tagPattern, '').trim()
+          }
+          return (
+            <Card className="space-y-3">
+              <h2 className="text-xs font-semibold text-text-muted uppercase tracking-wider">Notes</h2>
+              {cleanNotes && (
+                <p className="text-sm text-text-secondary leading-relaxed">{cleanNotes}</p>
+              )}
+              {tags.length > 0 && (
+                <div className="flex flex-wrap gap-1.5 pt-1">
+                  {tags.map((tag, i) => (
+                    <span key={i} className="text-[10px] font-medium text-blue bg-blue/10 border border-blue-border/30 px-2 py-0.5 rounded-full">
+                      #{tag}
+                    </span>
+                  ))}
+                </div>
+              )}
+            </Card>
+          )
+        })()}
         {/* Share */}
         <div className="flex justify-center pt-2">
           <ShareStatCard game={game} />

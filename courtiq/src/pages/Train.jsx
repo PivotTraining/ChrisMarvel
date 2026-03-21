@@ -4,6 +4,7 @@ import { Target, Dumbbell, Crosshair, ShieldCheck, Zap, Send, Plus, Star, Calend
 import { useDrills } from '../hooks/useDrills'
 import { usePullToRefresh } from '../hooks/usePullToRefresh'
 import { useToast } from '../contexts/ToastContext'
+import DrillTimer from '../components/DrillTimer'
 import PageShell from '../components/ui/PageShell'
 import SectionHeader from '../components/ui/SectionHeader'
 import Card from '../components/ui/Card'
@@ -79,6 +80,11 @@ export default function Train() {
             Library
           </Button>
         </div>
+
+        {/* Drill Timer */}
+        <Card>
+          <DrillTimer />
+        </Card>
 
         {/* Category Filter */}
         {sessions.length > 0 && (

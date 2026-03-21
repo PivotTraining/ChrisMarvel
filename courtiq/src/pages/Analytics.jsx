@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { BarChart3, TrendingUp, Target, Percent, Download, ArrowUp, ArrowDown, Minus, Award } from 'lucide-react'
+import { BarChart3, TrendingUp, Target, Percent, Download, ArrowUp, ArrowDown, Minus, Award, Trophy, Flame } from 'lucide-react'
 import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Tooltip, LineChart, Line } from 'recharts'
 import { useGames } from '../hooks/useGames'
 import { useShots } from '../hooks/useShots'
@@ -126,6 +126,25 @@ export default function Analytics() {
       stl: Math.max(...games.map(g => g.steals)),
       blk: Math.max(...games.map(g => g.blocks)),
     }
+  }, [games])
+
+  // Season summary
+  const seasonSummary = useMemo(() => {
+    if (games.length < 3) return null
+    const totalPts = games.reduce((s, g) => s + g.points, 0)
+    const totalReb = games.reduce((s, g) => s + g.rebounds, 0)
+    const totalAst = games.reduce((s, g) => s + g.assists, 0)
+    const wins = games.filter(g => g.result === 'Win').length
+    // Longest win streak
+    let maxStreak = 0, streak = 0
+    const sorted = [...games].reverse()
+    for (const g of sorted) {
+      if (g.result === 'Win') { streak++; if (streak > maxStreak) maxStreak = streak }
+      else streak = 0
+    }
+    // Best game
+    const best = games.reduce((b, g) => g.points > b.points ? g : b, games[0])
+    return { totalPts, totalReb, totalAst, wins, gamesPlayed: games.length, maxStreak, bestPts: best.points }
   }, [games])
 
   function exportCSV() {
@@ -367,6 +386,53 @@ export default function Analytics() {
             <StatCard label="FG%" value={`${shotStats.percentage}%`} className="p-4" />
           </div>
         </section>
+
+        {/* Season Summary */}
+        {seasonSummary && (
+          <section className="space-y-4">
+            <h2 className="text-sm font-semibold text-text-muted uppercase tracking-wider flex items-center gap-2">
+              <Trophy size={14} className="text-gold" />
+              Season Summary
+            </h2>
+            <Card className="space-y-4">
+              <div className="grid grid-cols-3 gap-4">
+                <div className="text-center space-y-1">
+                  <p className="text-xl font-bold text-text-primary">{seasonSummary.gamesPlayed}</p>
+                  <p className="text-[10px] text-text-muted uppercase">Games</p>
+                </div>
+                <div className="text-center space-y-1">
+                  <p className="text-xl font-bold text-success">{seasonSummary.wins}</p>
+                  <p className="text-[10px] text-text-muted uppercase">Wins</p>
+                </div>
+                <div className="text-center space-y-1">
+                  <p className="text-xl font-bold text-gold">{seasonSummary.bestPts}</p>
+                  <p className="text-[10px] text-text-muted uppercase">Best Game</p>
+                </div>
+              </div>
+              <div className="border-t border-border pt-3 grid grid-cols-4 gap-2">
+                <div className="text-center">
+                  <p className="text-sm font-bold text-text-primary">{seasonSummary.totalPts}</p>
+                  <p className="text-[9px] text-text-muted uppercase">Total PTS</p>
+                </div>
+                <div className="text-center">
+                  <p className="text-sm font-bold text-text-primary">{seasonSummary.totalReb}</p>
+                  <p className="text-[9px] text-text-muted uppercase">Total REB</p>
+                </div>
+                <div className="text-center">
+                  <p className="text-sm font-bold text-text-primary">{seasonSummary.totalAst}</p>
+                  <p className="text-[9px] text-text-muted uppercase">Total AST</p>
+                </div>
+                <div className="text-center">
+                  <p className="text-sm font-bold text-text-primary flex items-center justify-center gap-1">
+                    {seasonSummary.maxStreak}
+                    <Flame size={12} className="text-gold" />
+                  </p>
+                  <p className="text-[9px] text-text-muted uppercase">Win Streak</p>
+                </div>
+              </div>
+            </Card>
+          </section>
+        )}
 
         {/* No data state */}
         {games.length === 0 && shots.length === 0 && (

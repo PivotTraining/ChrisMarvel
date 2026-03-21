@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import { useState, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { BarChart3, TrendingUp, Target, Percent } from 'lucide-react'
 import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Tooltip, LineChart, Line } from 'recharts'
@@ -23,10 +23,34 @@ const CustomTooltip = ({ active, payload, label }) => {
   )
 }
 
+const RANGES = [
+  { key: '7d', label: '7D', days: 7 },
+  { key: '30d', label: '30D', days: 30 },
+  { key: '90d', label: '90D', days: 90 },
+  { key: 'all', label: 'All', days: null },
+]
+
+function daysAgo(days) {
+  if (!days) return null
+  const d = new Date()
+  d.setDate(d.getDate() - days)
+  return d.toISOString().split('T')[0]
+}
+
 export default function Analytics() {
   const navigate = useNavigate()
-  const { games } = useGames()
-  const { shots, stats: shotStats } = useShots()
+  const { games: allGames } = useGames()
+  const { shots: allShots, stats: allShotStats } = useShots()
+  const [range, setRange] = useState('all')
+
+  const cutoff = daysAgo(RANGES.find(r => r.key === range)?.days)
+  const games = useMemo(() => cutoff ? allGames.filter(g => g.game_date >= cutoff) : allGames, [allGames, cutoff])
+  const shots = useMemo(() => cutoff ? allShots.filter(s => s.session_date >= cutoff) : allShots, [allShots, cutoff])
+  const shotStats = useMemo(() => {
+    const made = shots.filter(s => s.made).length
+    const total = shots.length
+    return { total, made, percentage: total > 0 ? Math.round((made / total) * 100) : 0 }
+  }, [shots])
 
   // Game averages
   const avgStats = useMemo(() => {
@@ -97,6 +121,24 @@ export default function Analytics() {
           title="Analytics"
           subtitle="Your performance at a glance."
         />
+
+        {/* Date Range Tabs */}
+        <div className="flex gap-2 bg-bg-card border border-border rounded-xl p-1">
+          {RANGES.map(r => (
+            <button
+              key={r.key}
+              type="button"
+              onClick={() => setRange(r.key)}
+              className={`flex-1 px-3 py-2 rounded-lg text-xs font-semibold transition-all duration-200 ${
+                range === r.key
+                  ? 'bg-blue text-white'
+                  : 'text-text-secondary hover:text-text-primary'
+              }`}
+            >
+              {r.label}
+            </button>
+          ))}
+        </div>
 
         {/* Season Averages */}
         <section className="space-y-4">

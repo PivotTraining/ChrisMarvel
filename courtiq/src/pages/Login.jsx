@@ -7,11 +7,13 @@ import Button from '../components/ui/Button'
 import Input from '../components/ui/Input'
 
 export default function Login() {
-  const { session, signIn, loading } = useAuth()
+  const { session, signIn, resetPassword, loading } = useAuth()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [submitting, setSubmitting] = useState(false)
+  const [resetSent, setResetSent] = useState(false)
+  const [resetting, setResetting] = useState(false)
 
   if (loading) {
     return (
@@ -76,6 +78,31 @@ export default function Login() {
                 autoComplete="current-password"
               />
             </div>
+
+            <div className="flex justify-end">
+              <button
+                type="button"
+                disabled={resetting}
+                onClick={async () => {
+                  if (!email) { setError('Enter your email first.'); return }
+                  setError('')
+                  setResetting(true)
+                  const { error } = await resetPassword(email)
+                  setResetting(false)
+                  if (error) { setError(error.message); return }
+                  setResetSent(true)
+                }}
+                className="text-xs text-blue hover:underline font-medium"
+              >
+                {resetting ? 'Sending…' : 'Forgot password?'}
+              </button>
+            </div>
+
+            {resetSent && (
+              <div className="rounded-xl bg-success/10 border border-success/20 px-4 py-3">
+                <p className="text-sm text-success">Reset link sent! Check your email.</p>
+              </div>
+            )}
 
             {error && (
               <div className="rounded-xl bg-danger/10 border border-danger/20 px-4 py-3">

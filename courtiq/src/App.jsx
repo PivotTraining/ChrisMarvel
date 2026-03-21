@@ -2,6 +2,7 @@ import { lazy, Suspense } from 'react'
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { AuthProvider } from './contexts/AuthContext'
 import ProtectedRoute from './components/ProtectedRoute'
+import ErrorBoundary from './components/ErrorBoundary'
 import AppLayout from './layouts/AppLayout'
 
 // Eagerly loaded (core navigation)
@@ -45,51 +46,53 @@ function PageLoader() {
 
 export default function App() {
   return (
-    <BrowserRouter basename={basename}>
-      <AuthProvider>
-        <Suspense fallback={<PageLoader />}>
-          <Routes>
-            {/* Public routes */}
-            <Route path="/welcome" element={<Landing />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/signup" element={<Signup />} />
-            <Route path="/onboarding" element={<Onboarding />} />
+    <ErrorBoundary>
+      <BrowserRouter basename={basename}>
+        <AuthProvider>
+          <Suspense fallback={<PageLoader />}>
+            <Routes>
+              {/* Public routes */}
+              <Route path="/welcome" element={<Landing />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/signup" element={<Signup />} />
+              <Route path="/onboarding" element={<Onboarding />} />
 
-            {/* Protected app routes */}
-            <Route
-              element={
-                <ProtectedRoute>
-                  <AppLayout />
-                </ProtectedRoute>
-              }
-            >
-              <Route index element={<Dashboard />} />
-              <Route path="log" element={<Log />} />
-              <Route path="log/new" element={<LogGame />} />
-              <Route path="log/:id" element={<GameDetail />} />
-              <Route path="train" element={<Train />} />
-              <Route path="train/new" element={<LogDrill />} />
-              <Route path="train/:id" element={<DrillDetail />} />
-              <Route path="shots" element={<ShotTracker />} />
-              <Route path="analytics" element={<Analytics />} />
-              <Route path="journal" element={<Journal />} />
-              <Route path="journal/new" element={<JournalEntry />} />
-              <Route path="journal/:id" element={<JournalDetail />} />
-              <Route path="badges" element={<Badges />} />
-              <Route path="library" element={<Library />} />
-              <Route path="library/:id" element={<ContentDetail />} />
-              <Route path="profile" element={<Profile />} />
-              <Route path="profile/edit" element={<EditProfile />} />
-              <Route path="profile/notifications" element={<NotificationSettings />} />
-              <Route path="saved" element={<SavedContent />} />
-              <Route path="about" element={<About />} />
-            </Route>
+              {/* Protected app routes */}
+              <Route
+                element={
+                  <ProtectedRoute>
+                    <AppLayout />
+                  </ProtectedRoute>
+                }
+              >
+                <Route index element={<Dashboard />} />
+                <Route path="log" element={<Log />} />
+                <Route path="log/new" element={<LogGame />} />
+                <Route path="log/:id" element={<GameDetail />} />
+                <Route path="train" element={<Train />} />
+                <Route path="train/new" element={<LogDrill />} />
+                <Route path="train/:id" element={<DrillDetail />} />
+                <Route path="shots" element={<ShotTracker />} />
+                <Route path="analytics" element={<Analytics />} />
+                <Route path="journal" element={<Journal />} />
+                <Route path="journal/new" element={<JournalEntry />} />
+                <Route path="journal/:id" element={<JournalDetail />} />
+                <Route path="badges" element={<Badges />} />
+                <Route path="library" element={<Library />} />
+                <Route path="library/:id" element={<ContentDetail />} />
+                <Route path="profile" element={<Profile />} />
+                <Route path="profile/edit" element={<EditProfile />} />
+                <Route path="profile/notifications" element={<NotificationSettings />} />
+                <Route path="saved" element={<SavedContent />} />
+                <Route path="about" element={<About />} />
+              </Route>
 
-            {/* 404 */}
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </Suspense>
-      </AuthProvider>
-    </BrowserRouter>
+              {/* 404 */}
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </Suspense>
+        </AuthProvider>
+      </BrowserRouter>
+    </ErrorBoundary>
   )
 }

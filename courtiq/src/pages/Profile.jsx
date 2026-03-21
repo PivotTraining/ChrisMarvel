@@ -1,6 +1,6 @@
 import { useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { User, Trophy, Star, ChevronRight, LogOut, BookOpen, BarChart3, Pencil, Bell, Info, Bookmark, Flame, ClipboardList, Dumbbell, Target, Crosshair, Layers, Award, Zap, Sun, Moon, Database } from 'lucide-react'
+import { User, Trophy, Star, ChevronRight, LogOut, BookOpen, BarChart3, Pencil, Bell, Info, Bookmark, Flame, ClipboardList, Dumbbell, Target, Crosshair, Layers, Award, Zap, Sun, Moon, Database, Crown } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
 import { useTheme } from '../contexts/ThemeContext'
 import { useGames } from '../hooks/useGames'
@@ -201,6 +201,7 @@ export default function Profile() {
               { label: 'Edit Profile', icon: Pencil, path: '/profile/edit' },
               { label: 'Notifications', icon: Bell, path: '/profile/notifications' },
               { label: 'Data Backup', icon: Database, path: '/backup' },
+              { label: 'Upgrade Plan', icon: Crown, path: '/pricing' },
               { label: 'About CourtIQ', icon: Info, path: '/about' },
             ].map(({ label, icon: Icon, path }) => (
               <Card

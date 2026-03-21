@@ -40,6 +40,7 @@ const Goals = lazy(() => import('./pages/Goals'))
 const Workouts = lazy(() => import('./pages/Workouts'))
 const DataBackup = lazy(() => import('./pages/DataBackup'))
 const Schedule = lazy(() => import('./pages/Schedule'))
+const PricingPage = lazy(() => import('./pages/PricingPage'))
 
 const basename = import.meta.env.BASE_URL
 
@@ -98,6 +99,7 @@ export default function App() {
                 <Route path="profile/notifications" element={<NotificationSettings />} />
                 <Route path="saved" element={<SavedContent />} />
                 <Route path="backup" element={<DataBackup />} />
+                <Route path="pricing" element={<PricingPage />} />
                 <Route path="about" element={<About />} />
               </Route>
 

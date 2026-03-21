@@ -3,7 +3,7 @@ import {
   Target, Trophy, TrendingUp, Zap, BarChart3, Users,
   ChevronRight, Star, Activity, Menu, X, ArrowRight,
   Crosshair, Flame, BookOpen, Award, Smartphone,
-  ChevronDown, Shield, Brain
+  ChevronDown, Shield, Brain, Check, Crown
 } from 'lucide-react';
 
 /* ─────────────────────────────────────────────
@@ -61,7 +61,7 @@ function Navbar() {
         <div className="hidden lg:flex items-center gap-10">
           <a href="#features" className="text-text-secondary hover:text-white transition-colors text-[15px] font-medium">Features</a>
           <a href="#how-it-works" className="text-text-secondary hover:text-white transition-colors text-[15px] font-medium">How It Works</a>
-          <a href="#premium" className="text-text-secondary hover:text-white transition-colors text-[15px] font-medium">Premium</a>
+          <a href="#pricing" className="text-text-secondary hover:text-white transition-colors text-[15px] font-medium">Pricing</a>
           <a href="#faq" className="text-text-secondary hover:text-white transition-colors text-[15px] font-medium">FAQ</a>
         </div>
 
@@ -85,7 +85,7 @@ function Navbar() {
         <div className="lg:hidden bg-bg-card border-t border-border px-6 py-6 space-y-4">
           <a href="#features" onClick={() => setOpen(false)} className="block text-text-secondary hover:text-white text-lg">Features</a>
           <a href="#how-it-works" onClick={() => setOpen(false)} className="block text-text-secondary hover:text-white text-lg">How It Works</a>
-          <a href="#premium" onClick={() => setOpen(false)} className="block text-text-secondary hover:text-white text-lg">Premium</a>
+          <a href="#pricing" onClick={() => setOpen(false)} className="block text-text-secondary hover:text-white text-lg">Pricing</a>
           <a href="#faq" onClick={() => setOpen(false)} className="block text-text-secondary hover:text-white text-lg">FAQ</a>
           <a href="/login" onClick={() => setOpen(false)} className="block text-text-secondary hover:text-white text-lg">Log In</a>
           <a href="/signup" onClick={() => setOpen(false)} className="block bg-blue text-white text-center px-6 py-3 rounded-full font-semibold mt-4">Get Early Access</a>
@@ -476,60 +476,194 @@ function HowItWorks() {
 }
 
 /* ─────────────────────────────────────────────
-   PREMIUM SECTION
+   PRICING SECTION
    ───────────────────────────────────────────── */
-function Premium() {
+const PLANS = [
+  {
+    name: 'Free',
+    price: '$0',
+    period: 'forever',
+    description: 'Everything you need to start tracking your game.',
+    cta: 'Get Started',
+    ctaStyle: 'bg-bg-section border border-border text-white hover:border-blue-border',
+    highlight: false,
+    features: [
+      'Game logging with full box score',
+      'Shot tracking (11 court zones)',
+      'Up to 50 drill sessions',
+      'Basic analytics & averages',
+      'Journal & goal tracking',
+      'Drill library access',
+      'Dark & light theme',
+      'Offline mode (PWA)',
+    ],
+  },
+  {
+    name: 'Pro',
+    price: '$7.99',
+    period: '/month',
+    description: 'Unlock the full toolkit to elevate your training.',
+    cta: 'Start Free Trial',
+    ctaStyle: 'btn-glow bg-blue hover:bg-blue-dark text-white',
+    highlight: true,
+    badge: 'Most Popular',
+    features: [
+      'Everything in Free, plus:',
+      'Unlimited drill sessions',
+      'Advanced analytics & trends',
+      'Shot heatmap & zone breakdowns',
+      'AI-powered game insights',
+      'Workout templates (unlimited)',
+      'Data export (CSV & JSON)',
+      'Shareable stat cards',
+      'Priority support',
+    ],
+  },
+  {
+    name: 'Team',
+    price: '$19.99',
+    period: '/month',
+    description: 'Built for coaches, trainers, and organized teams.',
+    cta: 'Contact Sales',
+    ctaStyle: 'bg-gold/10 border border-gold/20 text-gold hover:bg-gold/20',
+    highlight: false,
+    features: [
+      'Everything in Pro, plus:',
+      'Up to 25 player profiles',
+      'Team dashboard & roster',
+      'Coach view & permissions',
+      'Player comparison tools',
+      'Team leaderboards',
+      'Recruiting profile pages',
+      'Custom branding',
+      'Dedicated account manager',
+    ],
+  },
+]
+
+function Pricing() {
+  const [annual, setAnnual] = useState(false);
+
+  function displayPrice(plan) {
+    if (plan.price === '$0') return '$0'
+    if (!annual) return plan.price
+    const monthly = parseFloat(plan.price.replace('$', ''))
+    const yearlyMonthly = (monthly * 10 / 12).toFixed(2)
+    return `$${yearlyMonthly}`
+  }
+
   return (
-    <section id="premium" className="min-h-screen flex items-center relative overflow-hidden">
+    <section id="pricing" className="min-h-screen flex items-center relative overflow-hidden">
       <div className="absolute inset-0">
-        <div className="absolute top-1/3 left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-gold-glow rounded-full blur-[180px]" />
+        <div className="absolute top-1/3 left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-blue-glow rounded-full blur-[180px] opacity-50" />
       </div>
       <div className="relative max-w-[1280px] mx-auto px-6 lg:px-10 w-full py-32 lg:py-40">
         <Reveal>
-          <div className="text-center mb-20">
-            <div className="inline-flex items-center gap-2 bg-gold-glow border border-gold/20 rounded-full px-4 py-1.5 mb-6">
-              <Award className="w-4 h-4 text-gold" />
-              <span className="text-gold text-sm font-semibold">CourtIQ+</span>
+          <div className="text-center mb-16">
+            <div className="inline-flex items-center gap-2 bg-bg-card/80 border border-border rounded-full px-4 py-1.5 mb-6">
+              <Crown className="w-4 h-4 text-gold" />
+              <span className="text-text-secondary text-sm font-semibold">Simple Pricing</span>
             </div>
             <h2 className="font-sans text-5xl md:text-6xl lg:text-7xl font-extrabold text-white leading-[1] tracking-tight mb-5">
-              TAKE YOUR GAME<br />
-              <span className="gradient-text-gold">FURTHER.</span>
+              CHOOSE YOUR<br />
+              <span className="gradient-text-blue">PLAN.</span>
             </h2>
-            <p className="text-text-secondary text-base lg:text-lg max-w-md mx-auto">
-              Unlock advanced analytics, personalized training programs, and exclusive content.
+            <p className="text-text-secondary text-base lg:text-lg max-w-lg mx-auto mb-8">
+              Start free. Upgrade when you're ready to unlock advanced tools and team features.
             </p>
+
+            {/* Billing toggle */}
+            <div className="inline-flex items-center gap-3 bg-bg-card border border-border rounded-full px-2 py-1.5">
+              <button
+                onClick={() => setAnnual(false)}
+                className={`px-4 py-2 rounded-full text-sm font-semibold transition-all ${
+                  !annual ? 'bg-blue text-white' : 'text-text-secondary'
+                }`}
+              >
+                Monthly
+              </button>
+              <button
+                onClick={() => setAnnual(true)}
+                className={`px-4 py-2 rounded-full text-sm font-semibold transition-all ${
+                  annual ? 'bg-blue text-white' : 'text-text-secondary'
+                }`}
+              >
+                Annual
+                <span className="ml-1.5 text-[10px] text-success font-bold">-17%</span>
+              </button>
+            </div>
           </div>
         </Reveal>
 
-        <div className="grid md:grid-cols-3 gap-5 lg:gap-6">
-          {[
-            {
-              icon: BarChart3,
-              title: 'Advanced Analytics',
-              description: 'Deep-dive into your shooting trends, game-over-game comparisons, and predictive insights powered by AI.',
-            },
-            {
-              icon: BookOpen,
-              title: 'Training Programs',
-              description: 'Follow structured multi-week programs designed by coaches. Progressively harder drills that adapt to your level.',
-            },
-            {
-              icon: Users,
-              title: 'Team Features',
-              description: 'Share stats with coaches, compare with teammates, and compete on team leaderboards.',
-            },
-          ].map((f, i) => (
-            <Reveal key={f.title} delay={i * 100}>
-              <div className="card-hover bg-bg-card border border-border rounded-2xl p-6 lg:p-8 h-full">
-                <div className="w-12 h-12 rounded-xl bg-gold-glow flex items-center justify-center mb-5">
-                  <f.icon className="w-6 h-6 text-gold" />
+        {/* Plan Cards */}
+        <div className="grid md:grid-cols-3 gap-5 lg:gap-6 items-start">
+          {PLANS.map((plan, i) => (
+            <Reveal key={plan.name} delay={i * 100}>
+              <div className={`relative rounded-2xl p-6 lg:p-8 h-full ${
+                plan.highlight
+                  ? 'bg-bg-card border-2 border-blue ring-1 ring-blue/20 shadow-lg shadow-blue/10'
+                  : 'bg-bg-card border border-border'
+              }`}>
+                {plan.badge && (
+                  <div className="absolute -top-3 left-1/2 -translate-x-1/2">
+                    <span className="bg-blue text-white text-[11px] font-bold px-4 py-1 rounded-full shadow-lg">
+                      {plan.badge}
+                    </span>
+                  </div>
+                )}
+
+                <div className="mb-6">
+                  <h3 className="font-sans text-xl font-bold text-white mb-1">{plan.name}</h3>
+                  <p className="text-text-muted text-sm mb-4">{plan.description}</p>
+                  <div className="flex items-baseline gap-1">
+                    <span className="font-sans text-4xl lg:text-5xl font-extrabold text-white">
+                      {displayPrice(plan)}
+                    </span>
+                    <span className="text-text-muted text-sm">{plan.period}</span>
+                  </div>
+                  {annual && plan.price !== '$0' && (
+                    <p className="text-[11px] text-success mt-1 font-medium">
+                      Billed annually (save 2 months)
+                    </p>
+                  )}
                 </div>
-                <h3 className="font-sans text-xl lg:text-2xl font-bold text-white mb-2">{f.title}</h3>
-                <p className="text-text-muted text-sm lg:text-base leading-relaxed">{f.description}</p>
+
+                <a
+                  href="/signup"
+                  className={`block w-full py-3 rounded-xl text-center text-sm font-semibold transition-all mb-6 ${plan.ctaStyle}`}
+                >
+                  {plan.cta}
+                </a>
+
+                <ul className="space-y-3">
+                  {plan.features.map((feature, j) => (
+                    <li key={j} className="flex items-start gap-2.5">
+                      <Check className={`w-4 h-4 shrink-0 mt-0.5 ${
+                        j === 0 && plan.name !== 'Free' ? 'text-blue' : 'text-success'
+                      }`} />
+                      <span className={`text-sm ${
+                        j === 0 && plan.name !== 'Free'
+                          ? 'font-semibold text-text-primary'
+                          : 'text-text-secondary'
+                      }`}>
+                        {feature}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
               </div>
             </Reveal>
           ))}
         </div>
+
+        {/* Bottom note */}
+        <Reveal>
+          <div className="text-center mt-12">
+            <p className="text-text-muted text-sm">
+              All plans include a <span className="text-white font-medium">14-day free trial</span> of Pro features. No credit card required.
+            </p>
+          </div>
+        </Reveal>
       </div>
     </section>
   );
@@ -544,7 +678,7 @@ function FAQ() {
   const faqs = [
     {
       q: 'Is CourtIQ free to use?',
-      a: 'Yes! CourtIQ is free to start with core features including shot tracking, game logging, and access to the drill library. CourtIQ+ unlocks advanced analytics, training programs, and team features.',
+      a: 'Yes! CourtIQ is free forever with core features including shot tracking, game logging, analytics, and the drill library. Pro ($7.99/mo) unlocks unlimited drills, AI insights, and advanced analytics. Team ($19.99/mo) adds roster management and coach tools.',
     },
     {
       q: 'What devices does CourtIQ support?',
@@ -757,7 +891,7 @@ export default function App() {
       <SocialProof />
       <Features />
       <HowItWorks />
-      <Premium />
+      <Pricing />
       <StatsBar />
       <FAQ />
       <Waitlist />

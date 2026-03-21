@@ -1,5 +1,6 @@
 import { createContext, useContext, useEffect, useState } from 'react'
 import { supabase } from '../lib/supabase'
+import { DEMO_MODE, demoProfile } from '../lib/demoData'
 
 const AuthContext = createContext(null)
 
@@ -9,6 +10,13 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
+    if (DEMO_MODE) {
+      setSession({ user: { id: demoProfile.id, email: demoProfile.email } })
+      setProfile(demoProfile)
+      setLoading(false)
+      return
+    }
+
     if (!supabase) {
       setLoading(false)
       return

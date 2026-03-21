@@ -1,14 +1,15 @@
 import { useState, useEffect, useCallback } from 'react'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../contexts/AuthContext'
+import { DEMO_MODE, demoNotifications } from '../lib/demoData'
 
 export function useNotifications() {
   const { user } = useAuth()
-  const [notifications, setNotifications] = useState([])
-  const [loading, setLoading] = useState(true)
+  const [notifications, setNotifications] = useState(DEMO_MODE ? demoNotifications : [])
+  const [loading, setLoading] = useState(!DEMO_MODE)
 
   const fetchNotifications = useCallback(async () => {
-    if (!user) return
+    if (DEMO_MODE || !user) return
     setLoading(true)
     const { data, error } = await supabase
       .from('notifications')
@@ -21,7 +22,7 @@ export function useNotifications() {
     setLoading(false)
   }, [user])
 
-  useEffect(() => { fetchNotifications() }, [fetchNotifications])
+  useEffect(() => { if (!DEMO_MODE) fetchNotifications() }, [fetchNotifications])
 
   const unreadCount = notifications.filter(n => !n.read).length
 

@@ -2,14 +2,15 @@ import { useState, useEffect, useCallback } from 'react'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../contexts/AuthContext'
 import { updateStreak } from '../lib/streaks'
+import { DEMO_MODE, demoDrills } from '../lib/demoData'
 
 export function useDrills() {
   const { user, refreshProfile } = useAuth()
-  const [sessions, setSessions] = useState([])
-  const [loading, setLoading] = useState(true)
+  const [sessions, setSessions] = useState(DEMO_MODE ? demoDrills : [])
+  const [loading, setLoading] = useState(!DEMO_MODE)
 
   const fetchSessions = useCallback(async () => {
-    if (!user) return
+    if (DEMO_MODE || !user) return
     setLoading(true)
     const { data, error } = await supabase
       .from('drill_sessions')
@@ -22,7 +23,7 @@ export function useDrills() {
     setLoading(false)
   }, [user])
 
-  useEffect(() => { fetchSessions() }, [fetchSessions])
+  useEffect(() => { if (!DEMO_MODE) fetchSessions() }, [fetchSessions])
 
   async function addDrillSession(session) {
     const { data, error } = await supabase

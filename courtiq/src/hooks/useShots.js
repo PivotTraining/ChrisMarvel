@@ -1,14 +1,15 @@
 import { useState, useEffect, useCallback } from 'react'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../contexts/AuthContext'
+import { DEMO_MODE, demoShots } from '../lib/demoData'
 
 export function useShots(sessionDate) {
   const { user } = useAuth()
-  const [shots, setShots] = useState([])
-  const [loading, setLoading] = useState(true)
+  const [shots, setShots] = useState(DEMO_MODE ? demoShots : [])
+  const [loading, setLoading] = useState(!DEMO_MODE)
 
   const fetchShots = useCallback(async () => {
-    if (!user) return
+    if (DEMO_MODE || !user) return
     setLoading(true)
 
     let query = supabase
@@ -28,7 +29,7 @@ export function useShots(sessionDate) {
     setLoading(false)
   }, [user, sessionDate])
 
-  useEffect(() => { fetchShots() }, [fetchShots])
+  useEffect(() => { if (!DEMO_MODE) fetchShots() }, [fetchShots])
 
   async function addShot(shot) {
     const { data, error } = await supabase

@@ -2,14 +2,15 @@ import { useState, useEffect, useCallback } from 'react'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../contexts/AuthContext'
 import { updateStreak } from '../lib/streaks'
+import { DEMO_MODE, demoGames } from '../lib/demoData'
 
 export function useGames() {
   const { user, refreshProfile } = useAuth()
-  const [games, setGames] = useState([])
-  const [loading, setLoading] = useState(true)
+  const [games, setGames] = useState(DEMO_MODE ? demoGames : [])
+  const [loading, setLoading] = useState(!DEMO_MODE)
 
   const fetchGames = useCallback(async () => {
-    if (!user) return
+    if (DEMO_MODE || !user) return
     setLoading(true)
     const { data, error } = await supabase
       .from('games')
@@ -22,7 +23,7 @@ export function useGames() {
     setLoading(false)
   }, [user])
 
-  useEffect(() => { fetchGames() }, [fetchGames])
+  useEffect(() => { if (!DEMO_MODE) fetchGames() }, [fetchGames])
 
   async function addGame(game) {
     const { data, error } = await supabase

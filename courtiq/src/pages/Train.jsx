@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Target, Dumbbell, Crosshair, ShieldCheck, Zap, Send, Plus, Star, Calendar, BookOpen, Trash2 } from 'lucide-react'
 import { useDrills } from '../hooks/useDrills'
+import { usePullToRefresh } from '../hooks/usePullToRefresh'
 import { useToast } from '../contexts/ToastContext'
 import PageShell from '../components/ui/PageShell'
 import SectionHeader from '../components/ui/SectionHeader'
@@ -31,12 +32,15 @@ const categoryColors = {
 
 export default function Train() {
   const navigate = useNavigate()
-  const { sessions, loading, deleteDrillSession } = useDrills()
+  const { sessions, loading, deleteDrillSession, refetch } = useDrills()
   const toast = useToast()
+  const { pullProps, indicator } = usePullToRefresh(refetch)
   const [confirmId, setConfirmId] = useState(null)
 
   return (
     <PageShell>
+      <div {...pullProps}>
+      {indicator}
       <div className="flex flex-col gap-8">
         <SectionHeader
           title="Training"
@@ -134,6 +138,7 @@ export default function Train() {
             </div>
           )}
         </section>
+      </div>
       </div>
     </PageShell>
   )

@@ -118,7 +118,12 @@ export default function Dashboard() {
             Overview
           </h2>
           <div className="grid grid-cols-2 gap-4">
-            <StatCard label="Streak" value={profile?.current_streak ?? 0} icon={Flame} />
+            <StatCard
+              label="Streak"
+              value={`${profile?.current_streak ?? 0} 🔥`}
+              icon={Flame}
+              className={profile?.current_streak > 0 ? 'border-gold/30 bg-gold/5' : ''}
+            />
             <StatCard label="XP" value={profile?.xp ?? 0} icon={TrendingUp} />
             <StatCard label="Games" value={games.length} icon={ClipboardList} />
             <StatCard label="Drills" value={sessions.length} icon={Target} />

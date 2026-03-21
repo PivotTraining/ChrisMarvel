@@ -25,6 +25,7 @@ export default function Button({
         inline-flex items-center justify-center gap-2
         rounded-xl font-semibold
         transition-all duration-200
+        active:scale-[0.97]
         disabled:opacity-50 disabled:pointer-events-none
         ${variants[variant]}
         ${sizes[size]}

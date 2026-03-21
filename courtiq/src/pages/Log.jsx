@@ -2,6 +2,7 @@ import { useNavigate } from 'react-router-dom'
 import { useState } from 'react'
 import { ClipboardList, Plus, Trophy, Calendar, MapPin, Trash2 } from 'lucide-react'
 import { useGames } from '../hooks/useGames'
+import { usePullToRefresh } from '../hooks/usePullToRefresh'
 import { useToast } from '../contexts/ToastContext'
 import PageShell from '../components/ui/PageShell'
 import SectionHeader from '../components/ui/SectionHeader'
@@ -100,8 +101,9 @@ function GameCard({ game, onDelete, onNavigate }) {
 
 export default function Log() {
   const navigate = useNavigate()
-  const { games, loading, deleteGame } = useGames()
+  const { games, loading, deleteGame, refetch } = useGames()
   const toast = useToast()
+  const { pullProps, indicator } = usePullToRefresh(refetch)
 
   async function handleDelete(id) {
     await deleteGame(id)
@@ -110,6 +112,8 @@ export default function Log() {
 
   return (
     <PageShell>
+      <div {...pullProps}>
+      {indicator}
       <div className="flex flex-col gap-8">
         <SectionHeader
           title="Game Log"
@@ -151,6 +155,7 @@ export default function Log() {
             </div>
           </section>
         )}
+      </div>
       </div>
     </PageShell>
   )

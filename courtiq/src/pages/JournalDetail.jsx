@@ -7,9 +7,11 @@ import {
 } from 'lucide-react'
 import { supabase } from '../lib/supabase'
 import { useJournal } from '../hooks/useJournal'
+import { useToast } from '../contexts/ToastContext'
 import PageShell from '../components/ui/PageShell'
 import Card from '../components/ui/Card'
 import Button from '../components/ui/Button'
+import ConfirmDialog from '../components/ui/ConfirmDialog'
 
 const moodConfig = {
   Great: { icon: ThumbsUp, color: 'text-success', bg: 'bg-success/10' },
@@ -41,6 +43,7 @@ export default function JournalDetail() {
   const { id } = useParams()
   const navigate = useNavigate()
   const { updateEntry, deleteEntry } = useJournal()
+  const toast = useToast()
   const [entry, setEntry] = useState(null)
   const [loading, setLoading] = useState(true)
   const [editing, setEditing] = useState(false)
@@ -89,11 +92,13 @@ export default function JournalDetail() {
     if (!error && data) {
       setEntry(data)
       setEditing(false)
+      toast('Entry updated!')
     }
   }
 
   async function handleDelete() {
     await deleteEntry(id)
+    toast('Entry deleted', 'info')
     navigate('/journal', { replace: true })
   }
 
@@ -215,17 +220,10 @@ export default function JournalDetail() {
               className="w-10 h-10 rounded-xl bg-bg-card border border-border flex items-center justify-center text-text-secondary hover:text-blue transition-colors" aria-label="Edit">
               <Pencil size={16} />
             </button>
-            {confirmDelete ? (
-              <div className="flex items-center gap-2">
-                <button onClick={() => setConfirmDelete(false)} className="text-xs text-text-muted">Cancel</button>
-                <button onClick={handleDelete} className="text-xs font-semibold text-danger">Delete</button>
-              </div>
-            ) : (
-              <button onClick={() => setConfirmDelete(true)}
-                className="w-10 h-10 rounded-xl bg-bg-card border border-border flex items-center justify-center text-text-secondary hover:text-danger transition-colors" aria-label="Delete">
-                <Trash2 size={16} />
-              </button>
-            )}
+            <button onClick={() => setConfirmDelete(true)}
+              className="w-10 h-10 rounded-xl bg-bg-card border border-border flex items-center justify-center text-text-secondary hover:text-danger transition-colors" aria-label="Delete">
+              <Trash2 size={16} />
+            </button>
           </div>
         </div>
 
@@ -275,6 +273,14 @@ export default function JournalDetail() {
           </Card>
         ))}
       </div>
+
+      <ConfirmDialog
+        open={confirmDelete}
+        title="Delete Entry?"
+        message="This journal entry will be permanently removed."
+        onConfirm={handleDelete}
+        onCancel={() => setConfirmDelete(false)}
+      />
     </PageShell>
   )
 }

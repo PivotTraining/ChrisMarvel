@@ -1,6 +1,7 @@
 import { useNavigate } from 'react-router-dom'
 import { BookOpen, Plus, Smile, Frown, Meh, ThumbsUp, ThumbsDown, Calendar } from 'lucide-react'
 import { useJournal } from '../hooks/useJournal'
+import { usePullToRefresh } from '../hooks/usePullToRefresh'
 import PageShell from '../components/ui/PageShell'
 import SectionHeader from '../components/ui/SectionHeader'
 import EmptyState from '../components/ui/EmptyState'
@@ -30,10 +31,13 @@ function MentalScoreBadge({ score }) {
 
 export default function Journal() {
   const navigate = useNavigate()
-  const { entries, loading } = useJournal()
+  const { entries, loading, refetch } = useJournal()
+  const { pullProps, indicator } = usePullToRefresh(refetch)
 
   return (
     <PageShell>
+      <div {...pullProps}>
+      {indicator}
       <div className="flex flex-col gap-8">
         <SectionHeader
           title="Journal"
@@ -122,6 +126,7 @@ export default function Journal() {
             })}
           </section>
         )}
+      </div>
       </div>
     </PageShell>
   )

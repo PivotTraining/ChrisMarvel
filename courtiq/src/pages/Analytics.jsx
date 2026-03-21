@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { BarChart3, TrendingUp, Target, Percent, Download } from 'lucide-react'
+import { BarChart3, TrendingUp, Target, Percent, Download, ArrowUp, ArrowDown, Minus } from 'lucide-react'
 import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Tooltip, LineChart, Line } from 'recharts'
 import { useGames } from '../hooks/useGames'
 import { useShots } from '../hooks/useShots'
@@ -272,6 +272,53 @@ export default function Analytics() {
             </Card>
           </section>
         )}
+
+        {/* Game Comparison */}
+        {games.length >= 2 && (() => {
+          const latest = games[0]
+          const prev = games[1]
+          const stats = ['points', 'rebounds', 'assists'].map(key => {
+            const labels = { points: 'PTS', rebounds: 'REB', assists: 'AST' }
+            const diff = latest[key] - prev[key]
+            return { label: labels[key], latest: latest[key], prev: prev[key], diff }
+          })
+          const latestDate = new Date(latest.game_date + 'T12:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+          const prevDate = new Date(prev.game_date + 'T12:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+
+          return (
+            <section className="space-y-4">
+              <h2 className="text-sm font-semibold text-text-muted uppercase tracking-wider">
+                Last 2 Games
+              </h2>
+              <Card className="space-y-4">
+                <div className="flex items-center justify-between text-xs text-text-muted">
+                  <span>{prevDate}</span>
+                  <span className="font-semibold text-text-primary">vs</span>
+                  <span>{latestDate}</span>
+                </div>
+                <div className="grid grid-cols-3 gap-3">
+                  {stats.map(({ label, latest: l, prev: p, diff }) => {
+                    const TrendIcon = diff > 0 ? ArrowUp : diff < 0 ? ArrowDown : Minus
+                    const color = diff > 0 ? 'text-success' : diff < 0 ? 'text-danger' : 'text-text-muted'
+                    return (
+                      <div key={label} className="text-center space-y-1">
+                        <p className="text-[10px] text-text-muted uppercase">{label}</p>
+                        <div className="flex items-center justify-center gap-2">
+                          <span className="text-sm text-text-secondary">{p}</span>
+                          <TrendIcon size={12} className={color} />
+                          <span className="text-sm font-bold text-text-primary">{l}</span>
+                        </div>
+                        <p className={`text-[10px] font-semibold ${color}`}>
+                          {diff > 0 ? '+' : ''}{diff}
+                        </p>
+                      </div>
+                    )
+                  })}
+                </div>
+              </Card>
+            </section>
+          )
+        })()}
 
         {/* Overall Shooting */}
         <section className="space-y-4">

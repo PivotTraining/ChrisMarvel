@@ -186,30 +186,42 @@ export default function Dashboard() {
           <h2 className="text-sm font-semibold text-text-muted uppercase tracking-wider">
             Quick Actions
           </h2>
-          <div className="grid grid-cols-2 gap-3">
-            <Card onClick={() => navigate('/log/new')} className="flex flex-col items-center gap-3 py-6 cursor-pointer">
-              <div className="w-11 h-11 rounded-xl bg-blue/10 border border-blue-border flex items-center justify-center">
-                <ClipboardList size={20} className="text-blue" />
+          <div className="grid grid-cols-3 gap-3">
+            <Card onClick={() => navigate('/log/new')} className="flex flex-col items-center gap-3 py-5 cursor-pointer">
+              <div className="w-10 h-10 rounded-xl bg-blue/10 border border-blue-border flex items-center justify-center">
+                <ClipboardList size={18} className="text-blue" />
               </div>
-              <span className="text-xs font-semibold text-text-primary">Log Game</span>
+              <span className="text-[11px] font-semibold text-text-primary">Log Game</span>
             </Card>
-            <Card onClick={() => navigate('/shots')} className="flex flex-col items-center gap-3 py-6 cursor-pointer">
-              <div className="w-11 h-11 rounded-xl bg-success/10 border border-success/20 flex items-center justify-center">
-                <Crosshair size={20} className="text-success" />
+            <Card onClick={() => navigate('/shots')} className="flex flex-col items-center gap-3 py-5 cursor-pointer">
+              <div className="w-10 h-10 rounded-xl bg-success/10 border border-success/20 flex items-center justify-center">
+                <Crosshair size={18} className="text-success" />
               </div>
-              <span className="text-xs font-semibold text-text-primary">Track Shots</span>
+              <span className="text-[11px] font-semibold text-text-primary">Shots</span>
             </Card>
-            <Card onClick={() => navigate('/train/new')} className="flex flex-col items-center gap-3 py-6 cursor-pointer">
-              <div className="w-11 h-11 rounded-xl bg-gold/10 border border-gold/20 flex items-center justify-center">
-                <Dumbbell size={20} className="text-gold" />
+            <Card onClick={() => navigate('/train/new')} className="flex flex-col items-center gap-3 py-5 cursor-pointer">
+              <div className="w-10 h-10 rounded-xl bg-gold/10 border border-gold/20 flex items-center justify-center">
+                <Dumbbell size={18} className="text-gold" />
               </div>
-              <span className="text-xs font-semibold text-text-primary">Log Drill</span>
+              <span className="text-[11px] font-semibold text-text-primary">Log Drill</span>
             </Card>
-            <Card onClick={() => navigate('/library')} className="flex flex-col items-center gap-3 py-6 cursor-pointer">
-              <div className="w-11 h-11 rounded-xl bg-bg-section border border-border flex items-center justify-center">
-                <BookOpen size={20} className="text-text-secondary" />
+            <Card onClick={() => navigate('/goals')} className="flex flex-col items-center gap-3 py-5 cursor-pointer">
+              <div className="w-10 h-10 rounded-xl bg-danger/10 border border-danger/20 flex items-center justify-center">
+                <Target size={18} className="text-danger" />
               </div>
-              <span className="text-xs font-semibold text-text-primary">Library</span>
+              <span className="text-[11px] font-semibold text-text-primary">Goals</span>
+            </Card>
+            <Card onClick={() => navigate('/library')} className="flex flex-col items-center gap-3 py-5 cursor-pointer">
+              <div className="w-10 h-10 rounded-xl bg-bg-section border border-border flex items-center justify-center">
+                <BookOpen size={18} className="text-text-secondary" />
+              </div>
+              <span className="text-[11px] font-semibold text-text-primary">Library</span>
+            </Card>
+            <Card onClick={() => navigate('/journal/new')} className="flex flex-col items-center gap-3 py-5 cursor-pointer">
+              <div className="w-10 h-10 rounded-xl bg-blue/5 border border-blue-border/30 flex items-center justify-center">
+                <BookOpen size={18} className="text-blue" />
+              </div>
+              <span className="text-[11px] font-semibold text-text-primary">Journal</span>
             </Card>
           </div>
         </section>

@@ -12,6 +12,7 @@ import Card from '../components/ui/Card'
 import Button from '../components/ui/Button'
 import Input from '../components/ui/Input'
 import ConfirmDialog from '../components/ui/ConfirmDialog'
+import ShareStatCard from '../components/ShareStatCard'
 
 const GAME_TYPES = ['League', 'Tournament', 'Pickup', 'Practice', 'Scrimmage']
 const RESULTS = ['Win', 'Loss', 'Draw']
@@ -331,6 +332,10 @@ export default function GameDetail() {
             <p className="text-sm text-text-secondary leading-relaxed">{game.notes}</p>
           </Card>
         )}
+        {/* Share */}
+        <div className="flex justify-center pt-2">
+          <ShareStatCard game={game} />
+        </div>
       </div>
 
       <ConfirmDialog

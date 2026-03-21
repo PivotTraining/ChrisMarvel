@@ -1,6 +1,7 @@
 import { useNavigate } from 'react-router-dom'
 import { useState } from 'react'
-import { ClipboardList, Plus, Trophy, Calendar, MapPin, Trash2 } from 'lucide-react'
+import { useMemo } from 'react'
+import { ClipboardList, Plus, Trophy, Calendar, MapPin, Trash2, Filter } from 'lucide-react'
 import { useGames } from '../hooks/useGames'
 import { usePullToRefresh } from '../hooks/usePullToRefresh'
 import { useToast } from '../contexts/ToastContext'
@@ -104,6 +105,22 @@ export default function Log() {
   const { games, loading, deleteGame, refetch } = useGames()
   const toast = useToast()
   const { pullProps, indicator } = usePullToRefresh(refetch)
+  const [filter, setFilter] = useState('All')
+  const [sortBy, setSortBy] = useState('date')
+
+  const FILTERS = ['All', 'Win', 'Loss', 'Draw']
+  const SORTS = [
+    { key: 'date', label: 'Recent' },
+    { key: 'points', label: 'Points' },
+  ]
+
+  const filteredGames = useMemo(() => {
+    let list = filter === 'All' ? games : games.filter(g => g.result === filter)
+    if (sortBy === 'points') {
+      list = [...list].sort((a, b) => b.points - a.points)
+    }
+    return list
+  }, [games, filter, sortBy])
 
   async function handleDelete(id) {
     await deleteGame(id)
@@ -126,6 +143,42 @@ export default function Log() {
           }
         />
 
+        {/* Filters */}
+        {games.length > 0 && (
+          <div className="flex items-center gap-3">
+            <div className="flex gap-1.5 flex-1">
+              {FILTERS.map(f => (
+                <button
+                  key={f}
+                  onClick={() => setFilter(f)}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-200 ${
+                    filter === f
+                      ? 'bg-blue text-white'
+                      : 'bg-bg-card border border-border text-text-secondary'
+                  }`}
+                >
+                  {f}
+                </button>
+              ))}
+            </div>
+            <div className="flex gap-1.5">
+              {SORTS.map(s => (
+                <button
+                  key={s.key}
+                  onClick={() => setSortBy(s.key)}
+                  className={`px-2.5 py-1.5 rounded-lg text-[10px] font-medium transition-all duration-200 ${
+                    sortBy === s.key
+                      ? 'bg-bg-section text-text-primary border border-border'
+                      : 'text-text-muted'
+                  }`}
+                >
+                  {s.label}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
         {loading ? (
           <Skeleton count={3} />
         ) : games.length === 0 ? (
@@ -144,15 +197,20 @@ export default function Log() {
           <section className="space-y-4">
             <div className="flex items-center justify-between">
               <h2 className="text-sm font-semibold text-text-muted uppercase tracking-wider">
-                {games.length} Game{games.length !== 1 ? 's' : ''}
+                {filteredGames.length} Game{filteredGames.length !== 1 ? 's' : ''}
+                {filter !== 'All' && ` · ${filter}`}
               </h2>
               <Trophy size={16} className="text-text-muted" />
             </div>
-            <div className="space-y-3">
-              {games.map(game => (
-                <GameCard key={game.id} game={game} onDelete={handleDelete} onNavigate={(id) => navigate(`/log/${id}`)} />
-              ))}
-            </div>
+            {filteredGames.length === 0 ? (
+              <p className="text-xs text-text-muted text-center py-6">No {filter.toLowerCase()} games found.</p>
+            ) : (
+              <div className="space-y-3">
+                {filteredGames.map(game => (
+                  <GameCard key={game.id} game={game} onDelete={handleDelete} onNavigate={(id) => navigate(`/log/${id}`)} />
+                ))}
+              </div>
+            )}
           </section>
         )}
       </div>

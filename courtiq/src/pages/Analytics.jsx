@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { BarChart3, TrendingUp, Target, Percent, Download, ArrowUp, ArrowDown, Minus } from 'lucide-react'
+import { BarChart3, TrendingUp, Target, Percent, Download, ArrowUp, ArrowDown, Minus, Award } from 'lucide-react'
 import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Tooltip, LineChart, Line } from 'recharts'
 import { useGames } from '../hooks/useGames'
 import { useShots } from '../hooks/useShots'
@@ -116,6 +116,18 @@ export default function Analytics() {
     return { w, l, pct: (w + l) > 0 ? Math.round((w / (w + l)) * 100) : 0 }
   }, [games])
 
+  // Personal records
+  const personalRecords = useMemo(() => {
+    if (games.length === 0) return null
+    return {
+      pts: Math.max(...games.map(g => g.points)),
+      reb: Math.max(...games.map(g => g.rebounds)),
+      ast: Math.max(...games.map(g => g.assists)),
+      stl: Math.max(...games.map(g => g.steals)),
+      blk: Math.max(...games.map(g => g.blocks)),
+    }
+  }, [games])
+
   function exportCSV() {
     if (games.length === 0) { toast('No game data to export', 'info'); return }
     const headers = ['Date', 'Opponent', 'Result', 'PTS', 'REB', 'AST', 'STL', 'BLK', 'TO', 'FG Made', 'FG Att', '3P Made', '3P Att', 'FT Made', 'FT Att']
@@ -183,6 +195,30 @@ export default function Analytics() {
             <StatCard label="FG%" value={`${avgStats.fgPct}%`} icon={Percent} />
           </div>
         </section>
+
+        {/* Personal Records */}
+        {personalRecords && (
+          <section className="space-y-4">
+            <h2 className="text-sm font-semibold text-text-muted uppercase tracking-wider flex items-center gap-2">
+              <Award size={14} className="text-gold" />
+              Personal Records
+            </h2>
+            <div className="grid grid-cols-5 gap-2">
+              {[
+                { label: 'PTS', value: personalRecords.pts },
+                { label: 'REB', value: personalRecords.reb },
+                { label: 'AST', value: personalRecords.ast },
+                { label: 'STL', value: personalRecords.stl },
+                { label: 'BLK', value: personalRecords.blk },
+              ].map(({ label, value }) => (
+                <Card key={label} className="flex flex-col items-center py-3 space-y-1 p-2">
+                  <p className="text-lg font-bold text-gold">{value}</p>
+                  <p className="text-[9px] text-text-muted uppercase font-semibold">{label}</p>
+                </Card>
+              ))}
+            </div>
+          </section>
+        )}
 
         {/* Record */}
         {(record.w + record.l) > 0 && (

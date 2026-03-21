@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Target, Dumbbell, Crosshair, ShieldCheck, Zap, Send, Plus, Star, Calendar, BookOpen, Trash2 } from 'lucide-react'
 import { useDrills } from '../hooks/useDrills'
@@ -36,6 +36,13 @@ export default function Train() {
   const toast = useToast()
   const { pullProps, indicator } = usePullToRefresh(refetch)
   const [confirmId, setConfirmId] = useState(null)
+  const [catFilter, setCatFilter] = useState('All')
+
+  const CATS = ['All', 'Shooting', 'Ball Handling', 'Finishing', 'Defense', 'Passing', 'Conditioning']
+
+  const filteredSessions = useMemo(() => {
+    return catFilter === 'All' ? sessions : sessions.filter(s => s.category === catFilter)
+  }, [sessions, catFilter])
 
   return (
     <PageShell>
@@ -69,10 +76,30 @@ export default function Train() {
           </Button>
         </div>
 
-        {/* Recent Sessions */}
+        {/* Category Filter */}
+        {sessions.length > 0 && (
+          <div className="flex gap-1.5 overflow-x-auto pb-1 -mx-1 px-1 scrollbar-hide">
+            {CATS.map(cat => (
+              <button
+                key={cat}
+                onClick={() => setCatFilter(cat)}
+                className={`px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition-all duration-200 ${
+                  catFilter === cat
+                    ? 'bg-blue text-white'
+                    : 'bg-bg-card border border-border text-text-secondary'
+                }`}
+              >
+                {cat}
+              </button>
+            ))}
+          </div>
+        )}
+
+        {/* Sessions */}
         <section className="space-y-4">
           <h2 className="text-sm font-semibold text-text-muted uppercase tracking-wider">
-            Recent Sessions
+            {catFilter === 'All' ? 'Recent Sessions' : catFilter}
+            {filteredSessions.length > 0 && ` (${filteredSessions.length})`}
           </h2>
 
           {loading ? (
@@ -89,9 +116,11 @@ export default function Train() {
                 </div>
               </div>
             </Card>
+          ) : filteredSessions.length === 0 ? (
+            <p className="text-xs text-text-muted text-center py-6">No {catFilter.toLowerCase()} sessions found.</p>
           ) : (
             <div className="space-y-3">
-              {sessions.map(session => {
+              {filteredSessions.map(session => {
                 const Icon = categoryIcons[session.category] || Dumbbell
                 const color = categoryColors[session.category] || 'text-text-secondary'
                 const date = new Date(session.session_date + 'T12:00:00')

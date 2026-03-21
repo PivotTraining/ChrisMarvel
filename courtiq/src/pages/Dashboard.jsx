@@ -1,7 +1,8 @@
 import { useState, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Activity, Flame, Target, TrendingUp, Crosshair, ClipboardList, Dumbbell, Calendar, BookOpen, Search, X } from 'lucide-react'
+import { Activity, Flame, Target, TrendingUp, Crosshair, ClipboardList, Dumbbell, Calendar, BookOpen, Search, X, Zap } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
+import { useToast } from '../contexts/ToastContext'
 import { useGames } from '../hooks/useGames'
 import { useDrills } from '../hooks/useDrills'
 import PageShell from '../components/ui/PageShell'
@@ -14,9 +15,12 @@ export default function Dashboard() {
   const navigate = useNavigate()
   const { profile } = useAuth()
   const { games } = useGames()
-  const { sessions } = useDrills()
+  const { sessions, addDrillSession } = useDrills()
+  const toast = useToast()
 
   const [query, setQuery] = useState('')
+  const [quickDrill, setQuickDrill] = useState('')
+  const [quickLogging, setQuickLogging] = useState(false)
   const firstName = profile?.full_name?.split(' ')[0] || 'Player'
 
   // Weekly activity (last 7 days)
@@ -179,6 +183,44 @@ export default function Dashboard() {
               })}
             </div>
           </div>
+        </Card>
+
+        {/* Quick Log */}
+        <Card className="space-y-3">
+          <div className="flex items-center gap-2">
+            <Zap size={14} className="text-blue" />
+            <h2 className="text-sm font-semibold text-text-muted uppercase tracking-wider">Quick Log</h2>
+          </div>
+          <form
+            onSubmit={async (e) => {
+              e.preventDefault()
+              if (!quickDrill.trim()) return
+              setQuickLogging(true)
+              const { error } = await addDrillSession({
+                session_date: new Date().toISOString().split('T')[0],
+                drill_name: quickDrill.trim(),
+                category: 'Custom',
+                intensity: 'Medium',
+              })
+              setQuickLogging(false)
+              if (!error) {
+                toast('Drill logged!')
+                setQuickDrill('')
+              }
+            }}
+            className="flex gap-2"
+          >
+            <input
+              type="text"
+              value={quickDrill}
+              onChange={e => setQuickDrill(e.target.value)}
+              placeholder="Drill name (e.g. Ball handling)"
+              className="flex-1 rounded-lg bg-bg-section border border-border px-3 py-2 text-sm text-text-primary placeholder:text-text-muted focus:outline-none focus:border-blue-border transition-colors"
+            />
+            <Button type="submit" size="sm" disabled={quickLogging || !quickDrill.trim()}>
+              {quickLogging ? '...' : 'Log'}
+            </Button>
+          </form>
         </Card>
 
         {/* Quick Actions */}

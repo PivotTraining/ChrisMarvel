@@ -28,6 +28,7 @@ const About = lazy(() => import('./pages/About'))
 const SavedContent = lazy(() => import('./pages/SavedContent'))
 const JournalDetail = lazy(() => import('./pages/JournalDetail'))
 const GameDetail = lazy(() => import('./pages/GameDetail'))
+const DrillDetail = lazy(() => import('./pages/DrillDetail'))
 const NotFound = lazy(() => import('./pages/NotFound'))
 const Landing = lazy(() => import('./pages/Landing'))
 const Onboarding = lazy(() => import('./pages/Onboarding'))
@@ -68,6 +69,7 @@ export default function App() {
               <Route path="log/:id" element={<GameDetail />} />
               <Route path="train" element={<Train />} />
               <Route path="train/new" element={<LogDrill />} />
+              <Route path="train/:id" element={<DrillDetail />} />
               <Route path="shots" element={<ShotTracker />} />
               <Route path="analytics" element={<Analytics />} />
               <Route path="journal" element={<Journal />} />

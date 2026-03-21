@@ -1,5 +1,6 @@
+import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Activity, Flame, Target, TrendingUp, Crosshair, ClipboardList, Dumbbell, Calendar, BookOpen } from 'lucide-react'
+import { Activity, Flame, Target, TrendingUp, Crosshair, ClipboardList, Dumbbell, Calendar, BookOpen, Search, X } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
 import { useGames } from '../hooks/useGames'
 import { useDrills } from '../hooks/useDrills'
@@ -15,6 +16,7 @@ export default function Dashboard() {
   const { games } = useGames()
   const { sessions } = useDrills()
 
+  const [query, setQuery] = useState('')
   const firstName = profile?.full_name?.split(' ')[0] || 'Player'
 
   // Combine recent activity
@@ -47,6 +49,68 @@ export default function Dashboard() {
           title={`Hey, ${firstName}`}
           subtitle="Track your progress and daily work."
         />
+
+        {/* Search */}
+        <div className="relative">
+          <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-text-muted" />
+          <input
+            type="text"
+            value={query}
+            onChange={e => setQuery(e.target.value)}
+            placeholder="Search games, drills, sessions..."
+            className="w-full rounded-xl bg-bg-card border border-border pl-10 pr-10 py-3 text-sm text-text-primary placeholder:text-text-muted focus:outline-none focus:border-blue-border transition-colors"
+          />
+          {query && (
+            <button onClick={() => setQuery('')} className="absolute right-3.5 top-1/2 -translate-y-1/2 text-text-muted hover:text-text-primary" aria-label="Clear search">
+              <X size={14} />
+            </button>
+          )}
+        </div>
+
+        {/* Search Results */}
+        {query.trim().length > 0 && (() => {
+          const q = query.toLowerCase()
+          const matchedGames = games.filter(g =>
+            (g.opponent || '').toLowerCase().includes(q) ||
+            (g.location || '').toLowerCase().includes(q) ||
+            (g.game_type || '').toLowerCase().includes(q) ||
+            (g.notes || '').toLowerCase().includes(q)
+          )
+          const matchedDrills = sessions.filter(s =>
+            (s.drill_name || '').toLowerCase().includes(q) ||
+            (s.category || '').toLowerCase().includes(q) ||
+            (s.notes || '').toLowerCase().includes(q)
+          )
+          const total = matchedGames.length + matchedDrills.length
+
+          return (
+            <section className="space-y-3">
+              <p className="text-xs text-text-muted">{total} result{total !== 1 ? 's' : ''} for "{query}"</p>
+              {matchedGames.map(g => (
+                <Card key={g.id} onClick={() => navigate(`/log/${g.id}`)} className="flex items-center gap-3 cursor-pointer card-hover">
+                  <ClipboardList size={16} className="text-text-muted shrink-0" />
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium text-text-primary truncate">{g.opponent ? `vs ${g.opponent}` : 'Game'}</p>
+                    <p className="text-[10px] text-text-muted">{g.points} PTS · {new Date(g.game_date + 'T12:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</p>
+                  </div>
+                  {g.result && <span className={`text-[10px] font-bold ${g.result === 'Win' ? 'text-success' : g.result === 'Loss' ? 'text-danger' : 'text-warning'}`}>{g.result}</span>}
+                </Card>
+              ))}
+              {matchedDrills.map(s => (
+                <Card key={s.id} onClick={() => navigate(`/train/${s.id}`)} className="flex items-center gap-3 cursor-pointer card-hover">
+                  <Dumbbell size={16} className="text-text-muted shrink-0" />
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium text-text-primary truncate">{s.drill_name}</p>
+                    <p className="text-[10px] text-text-muted">{s.category} · {new Date(s.session_date + 'T12:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</p>
+                  </div>
+                </Card>
+              ))}
+              {total === 0 && (
+                <p className="text-xs text-text-muted text-center py-4">No matches found.</p>
+              )}
+            </section>
+          )
+        })()}
 
         {/* Quick Stats */}
         <section className="space-y-4">
@@ -119,7 +183,7 @@ export default function Dashboard() {
                 const date = new Date(item.date + 'T12:00:00')
                 const formatted = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
                 return (
-                  <Card key={item.id} onClick={() => navigate(item.type === 'game' ? `/log/${item.id}` : '/train')} className="flex items-center gap-4 cursor-pointer card-hover">
+                  <Card key={item.id} onClick={() => navigate(item.type === 'game' ? `/log/${item.id}` : `/train/${item.id}`)} className="flex items-center gap-4 cursor-pointer card-hover">
                     <div className="w-10 h-10 rounded-xl bg-bg-section border border-border flex items-center justify-center shrink-0">
                       <Icon size={18} className="text-text-muted" />
                     </div>

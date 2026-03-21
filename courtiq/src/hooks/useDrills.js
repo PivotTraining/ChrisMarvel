@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../contexts/AuthContext'
+import { updateStreak } from '../lib/streaks'
 
 export function useDrills() {
   const { user } = useAuth()
@@ -32,6 +33,21 @@ export function useDrills() {
 
     if (!error && data) {
       setSessions(prev => [data, ...prev])
+      updateStreak(user.id)
+    }
+    return { data, error }
+  }
+
+  async function updateDrillSession(id, updates) {
+    const { data, error } = await supabase
+      .from('drill_sessions')
+      .update({ ...updates, updated_at: new Date().toISOString() })
+      .eq('id', id)
+      .select()
+      .single()
+
+    if (!error && data) {
+      setSessions(prev => prev.map(s => s.id === id ? data : s))
     }
     return { data, error }
   }
@@ -48,5 +64,5 @@ export function useDrills() {
     return { error }
   }
 
-  return { sessions, loading, addDrillSession, deleteDrillSession, refetch: fetchSessions }
+  return { sessions, loading, addDrillSession, updateDrillSession, deleteDrillSession, refetch: fetchSessions }
 }

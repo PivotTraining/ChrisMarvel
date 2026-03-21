@@ -93,7 +93,7 @@ export default function Train() {
                 const formatted = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
 
                 return (
-                  <Card key={session.id} className="flex items-center gap-4">
+                  <Card key={session.id} onClick={() => navigate(`/train/${session.id}`)} className="flex items-center gap-4 cursor-pointer card-hover">
                     <div className={`w-11 h-11 rounded-xl bg-bg-section border border-border flex items-center justify-center shrink-0 ${color}`}>
                       <Icon size={20} />
                     </div>
@@ -118,11 +118,11 @@ export default function Train() {
                       )}
                       {confirmId === session.id ? (
                         <div className="flex items-center gap-2">
-                          <button onClick={() => setConfirmId(null)} className="text-[10px] text-text-muted">Cancel</button>
-                          <button onClick={() => { deleteDrillSession(session.id); setConfirmId(null) }} className="text-[10px] font-semibold text-danger">Delete</button>
+                          <button onClick={(e) => { e.stopPropagation(); setConfirmId(null) }} className="text-[10px] text-text-muted">Cancel</button>
+                          <button onClick={(e) => { e.stopPropagation(); deleteDrillSession(session.id); setConfirmId(null) }} className="text-[10px] font-semibold text-danger">Delete</button>
                         </div>
                       ) : (
-                        <button onClick={() => setConfirmId(session.id)} className="p-1 rounded-lg hover:bg-bg-section transition-colors" aria-label="Delete">
+                        <button onClick={(e) => { e.stopPropagation(); setConfirmId(session.id) }} className="p-1 rounded-lg hover:bg-bg-section transition-colors" aria-label="Delete">
                           <Trash2 size={13} className="text-text-muted" />
                         </button>
                       )}

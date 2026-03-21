@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../contexts/AuthContext'
+import { updateStreak } from '../lib/streaks'
 
 export function useGames() {
   const { user } = useAuth()
@@ -32,6 +33,7 @@ export function useGames() {
 
     if (!error && data) {
       setGames(prev => [data, ...prev])
+      updateStreak(user.id)
     }
     return { data, error }
   }

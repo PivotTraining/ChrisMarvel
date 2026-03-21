@@ -1,6 +1,6 @@
-import { useMemo } from 'react'
+import { useMemo, useState, useRef, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { User, Trophy, Star, ChevronRight, LogOut, BookOpen, BarChart3, Pencil, Bell, Info, Bookmark, Flame, ClipboardList, Dumbbell, Target, Crosshair, Layers, Award, Zap, Sun, Moon, Database, Crown, Users, Film, GraduationCap } from 'lucide-react'
+import { User, Trophy, Star, ChevronRight, LogOut, BookOpen, BarChart3, Pencil, Bell, Info, Bookmark, Flame, ClipboardList, Dumbbell, Target, Crosshair, Layers, Award, Zap, Sun, Moon, Database, Crown, Users, Film, GraduationCap, MoreVertical } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
 import { useTheme } from '../contexts/ThemeContext'
 import { useGames } from '../hooks/useGames'
@@ -9,7 +9,7 @@ import PageShell from '../components/ui/PageShell'
 import SectionHeader from '../components/ui/SectionHeader'
 import Card from '../components/ui/Card'
 import StatCard from '../components/ui/StatCard'
-import Button from '../components/ui/Button'
+
 
 export default function Profile() {
   const { profile, signOut } = useAuth()
@@ -60,6 +60,17 @@ export default function Profile() {
     return max
   }, [games])
 
+  const [menuOpen, setMenuOpen] = useState(false)
+  const menuRef = useRef(null)
+
+  useEffect(() => {
+    function handleClickOutside(e) {
+      if (menuRef.current && !menuRef.current.contains(e.target)) setMenuOpen(false)
+    }
+    if (menuOpen) document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [menuOpen])
+
   async function handleSignOut() {
     await signOut()
     navigate('/login', { replace: true })
@@ -88,15 +99,41 @@ export default function Profile() {
         />
 
         {/* Avatar & Name */}
-        <Card className="flex items-center gap-5">
+        <Card className="flex items-center gap-5 relative">
           <div className="w-16 h-16 rounded-2xl bg-blue/10 border border-blue-border flex items-center justify-center shrink-0">
             <User size={28} className="text-blue" />
           </div>
-          <div className="space-y-1 min-w-0">
+          <div className="space-y-1 min-w-0 flex-1">
             <p className="text-lg font-bold text-text-primary">{displayName}</p>
             <p className="text-sm text-text-secondary">
               {position ? `${position} · ` : ''}Level {level} — {xp} XP
             </p>
+          </div>
+          <div ref={menuRef} className="relative">
+            <button
+              onClick={() => setMenuOpen(prev => !prev)}
+              className="p-2 rounded-xl hover:bg-bg-section transition-colors"
+            >
+              <MoreVertical size={20} className="text-text-muted" />
+            </button>
+            {menuOpen && (
+              <div className="absolute right-0 top-full mt-2 w-44 bg-bg-card border border-border rounded-xl shadow-lg z-50 overflow-hidden">
+                <button
+                  onClick={() => { setMenuOpen(false); navigate('/profile/edit') }}
+                  className="flex items-center gap-3 w-full px-4 py-3 text-sm text-text-primary hover:bg-bg-section transition-colors"
+                >
+                  <Pencil size={16} className="text-text-secondary" />
+                  Edit Profile
+                </button>
+                <button
+                  onClick={() => { setMenuOpen(false); handleSignOut() }}
+                  className="flex items-center gap-3 w-full px-4 py-3 text-sm text-danger hover:bg-danger/10 transition-colors border-t border-border"
+                >
+                  <LogOut size={16} />
+                  Sign Out
+                </button>
+              </div>
+            )}
           </div>
         </Card>
 
@@ -221,14 +258,6 @@ export default function Profile() {
               </Card>
             ))}
           </div>
-        </section>
-
-        {/* Sign Out */}
-        <section className="pt-4 pb-16">
-          <Button variant="danger" fullWidth onClick={handleSignOut}>
-            <LogOut size={18} />
-            Sign Out
-          </Button>
         </section>
       </div>
     </PageShell>

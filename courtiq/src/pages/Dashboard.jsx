@@ -5,9 +5,12 @@ import { useAuth } from '../contexts/AuthContext'
 import { useToast } from '../contexts/ToastContext'
 import { useGames } from '../hooks/useGames'
 import { useDrills } from '../hooks/useDrills'
+import { useShots } from '../hooks/useShots'
 import ActivityCalendar from '../components/ActivityCalendar'
 import OnboardingTour from '../components/OnboardingTour'
 import WeeklyReport from '../components/WeeklyReport'
+import SmartInsights from '../components/SmartInsights'
+import SkillRadar from '../components/SkillRadar'
 import PageShell from '../components/ui/PageShell'
 import SectionHeader from '../components/ui/SectionHeader'
 import StatCard from '../components/ui/StatCard'
@@ -19,6 +22,7 @@ export default function Dashboard() {
   const { profile } = useAuth()
   const { games } = useGames()
   const { sessions, addDrillSession } = useDrills()
+  const { shots } = useShots()
   const toast = useToast()
 
   const [query, setQuery] = useState('')
@@ -276,6 +280,16 @@ export default function Dashboard() {
         {/* Weekly Report */}
         <Card>
           <WeeklyReport games={games} drills={sessions} />
+        </Card>
+
+        {/* Smart Insights */}
+        <Card>
+          <SmartInsights games={games} drills={sessions} shots={shots} />
+        </Card>
+
+        {/* Skill Radar */}
+        <Card>
+          <SkillRadar games={games} drills={sessions} shots={shots} />
         </Card>
 
         {/* Quick Log */}

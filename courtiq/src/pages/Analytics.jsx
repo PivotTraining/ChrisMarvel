@@ -2,10 +2,13 @@ import { useState, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { BarChart3, TrendingUp, Target, Percent, Download, ArrowUp, ArrowDown, Minus, Award, Trophy, Flame, GitCompareArrows } from 'lucide-react'
 import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Tooltip, LineChart, Line } from 'recharts'
+import { useAuth } from '../contexts/AuthContext'
 import { useGames } from '../hooks/useGames'
 import { useShots } from '../hooks/useShots'
 import { useToast } from '../contexts/ToastContext'
 import ShotHeatmap from '../components/ShotHeatmap'
+import ShareableStatCard from '../components/ShareableStatCard'
+import { useTheme } from '../contexts/ThemeContext'
 import PageShell from '../components/ui/PageShell'
 import SectionHeader from '../components/ui/SectionHeader'
 import StatCard from '../components/ui/StatCard'
@@ -41,9 +44,11 @@ function daysAgo(days) {
 
 export default function Analytics() {
   const navigate = useNavigate()
+  const { profile } = useAuth()
   const { games: allGames } = useGames()
   const { shots: allShots, stats: allShotStats } = useShots()
   const toast = useToast()
+  const { theme } = useTheme()
   const [range, setRange] = useState('all')
 
   const cutoff = daysAgo(RANGES.find(r => r.key === range)?.days)
@@ -522,6 +527,25 @@ export default function Analytics() {
               </Card>
             )}
           </section>
+        )}
+
+        {/* Shareable Stat Card */}
+        {games.length > 0 && (
+          <Card>
+            <ShareableStatCard
+              playerName={profile?.full_name || 'My Stats'}
+              subtitle={`${games.length} Games · ${range === 'all' ? 'All Time' : RANGES.find(r => r.key === range)?.label}`}
+              stats={[
+                { label: 'PPG', value: avgStats.ppg },
+                { label: 'RPG', value: avgStats.rpg },
+                { label: 'APG', value: avgStats.apg },
+                { label: 'FG%', value: `${avgStats.fgPct}%` },
+                { label: 'Games', value: String(games.length) },
+                { label: 'Shot %', value: `${shotStats.percentage}%` },
+              ]}
+              theme={theme}
+            />
+          </Card>
         )}
 
         {/* No data state */}

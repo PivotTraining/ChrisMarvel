@@ -2,12 +2,13 @@ import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import {
   ArrowLeft, Clock, Dumbbell, Heart, Apple, Star,
-  Bookmark, BookmarkCheck, MessageCircle, Tag,
+  Bookmark, BookmarkCheck, MessageCircle, Tag, Play,
 } from 'lucide-react'
 import { supabase } from '../lib/supabase'
 import { useTrainingContent } from '../hooks/useTrainingContent'
 import PageShell from '../components/ui/PageShell'
 import Card from '../components/ui/Card'
+import Button from '../components/ui/Button'
 
 const DIFFICULTY_COLORS = {
   Beginner: 'text-success bg-success/10',
@@ -172,6 +173,24 @@ export default function ContentDetail() {
               ))}
             </div>
           </div>
+        )}
+
+        {/* Start Drill CTA */}
+        {item.content_type === 'drill' && (
+          <Button
+            fullWidth
+            size="lg"
+            onClick={() => navigate('/train/new', {
+              state: {
+                drill_name: item.title,
+                category: item.category,
+                duration_minutes: item.duration_minutes,
+              },
+            })}
+          >
+            <Play size={18} />
+            Log This Drill
+          </Button>
         )}
       </div>
     </PageShell>

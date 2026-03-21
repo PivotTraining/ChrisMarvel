@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
 import { ArrowLeft, Save, Star } from 'lucide-react'
 import { useDrills } from '../hooks/useDrills'
 import PageShell from '../components/ui/PageShell'
@@ -12,6 +12,8 @@ const INTENSITIES = ['Low', 'Medium', 'High']
 
 export default function LogDrill() {
   const navigate = useNavigate()
+  const location = useLocation()
+  const prefill = location.state || {}
   const { addDrillSession } = useDrills()
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState('')
@@ -20,11 +22,11 @@ export default function LogDrill() {
 
   const [form, setForm] = useState({
     session_date: today,
-    category: 'Shooting',
-    drill_name: '',
+    category: prefill.category || 'Shooting',
+    drill_name: prefill.drill_name || '',
     sets: '',
     reps: '',
-    duration_minutes: '',
+    duration_minutes: prefill.duration_minutes || '',
     intensity: 'Medium',
     rating: 0,
     notes: '',

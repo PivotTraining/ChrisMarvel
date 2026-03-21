@@ -4,7 +4,7 @@ import { useAuth } from '../contexts/AuthContext'
 import { updateStreak } from '../lib/streaks'
 
 export function useGames() {
-  const { user } = useAuth()
+  const { user, refreshProfile } = useAuth()
   const [games, setGames] = useState([])
   const [loading, setLoading] = useState(true)
 
@@ -33,7 +33,7 @@ export function useGames() {
 
     if (!error && data) {
       setGames(prev => [data, ...prev])
-      updateStreak(user.id)
+      updateStreak(user.id).then(() => refreshProfile())
     }
     return { data, error }
   }

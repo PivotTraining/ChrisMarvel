@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { ArrowLeft, Check, X, Target, Percent } from 'lucide-react'
+import { ArrowLeft, Check, X, Target, Percent, ChevronLeft, ChevronRight } from 'lucide-react'
 import { useShots } from '../hooks/useShots'
 import PageShell from '../components/ui/PageShell'
 import Card from '../components/ui/Card'
@@ -12,13 +12,22 @@ const CONTEXTS = ['Practice', 'Game', 'Warmup']
 
 export default function ShotTracker() {
   const navigate = useNavigate()
-  const today = new Date().toISOString().split('T')[0]
-  const { shots, stats, addShot } = useShots(today)
+  const todayStr = new Date().toISOString().split('T')[0]
+  const [sessionDate, setSessionDate] = useState(todayStr)
+  const { shots, stats, addShot } = useShots(sessionDate)
+  const isToday = sessionDate === todayStr
 
   const [selectedZone, setSelectedZone] = useState('')
   const [shotType, setShotType] = useState('Catch & Shoot')
   const [context, setContext] = useState('Practice')
   const [logging, setLogging] = useState(false)
+
+  function shiftDate(days) {
+    const d = new Date(sessionDate + 'T12:00:00')
+    d.setDate(d.getDate() + days)
+    const iso = d.toISOString().split('T')[0]
+    if (iso <= todayStr) setSessionDate(iso)
+  }
 
   const zoneStats = useMemo(() => {
     const map = {}
@@ -34,7 +43,7 @@ export default function ShotTracker() {
     if (!selectedZone) return
     setLogging(true)
     await addShot({
-      session_date: today,
+      session_date: sessionDate,
       zone_id: selectedZone,
       shot_type: shotType,
       made,
@@ -62,7 +71,23 @@ export default function ShotTracker() {
           </div>
         </div>
 
-        {/* Today's Stats */}
+        {/* Date Navigator */}
+        <div className="flex items-center justify-between bg-bg-card border border-border rounded-xl px-4 py-2.5">
+          <button onClick={() => shiftDate(-1)} className="p-1 text-text-muted hover:text-text-primary transition-colors" aria-label="Previous day">
+            <ChevronLeft size={18} />
+          </button>
+          <div className="text-center">
+            <p className="text-sm font-semibold text-text-primary">
+              {isToday ? 'Today' : new Date(sessionDate + 'T12:00:00').toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}
+            </p>
+            {!isToday && <p className="text-[10px] text-text-muted">{sessionDate}</p>}
+          </div>
+          <button onClick={() => shiftDate(1)} disabled={isToday} className="p-1 text-text-muted hover:text-text-primary transition-colors disabled:opacity-30" aria-label="Next day">
+            <ChevronRight size={18} />
+          </button>
+        </div>
+
+        {/* Stats */}
         <div className="grid grid-cols-3 gap-3">
           <StatCard label="Shots" value={stats.total} icon={Target} className="p-4" />
           <StatCard label="Made" value={stats.made} icon={Check} className="p-4" />

@@ -29,7 +29,7 @@ function GameCard({ game, onDelete, onNavigate }) {
             <Calendar size={14} className="text-text-muted" />
             <span className="text-xs text-text-muted">{formatted}</span>
             {game.game_type && (
-              <span className="text-[10px] font-medium text-text-muted bg-bg-section px-2 py-0.5 rounded-full">
+              <span className="text-[10px] font-medium text-blue bg-blue/10 px-2 py-0.5 rounded">
                 {game.game_type}
               </span>
             )}

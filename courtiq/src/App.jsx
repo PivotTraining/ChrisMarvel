@@ -4,6 +4,7 @@ import { AuthProvider } from './contexts/AuthContext'
 import { ToastProvider } from './contexts/ToastContext'
 import ProtectedRoute from './components/ProtectedRoute'
 import ErrorBoundary from './components/ErrorBoundary'
+import OfflineBanner from './components/OfflineBanner'
 import AppLayout from './layouts/AppLayout'
 
 // Eagerly loaded (core navigation)
@@ -48,6 +49,7 @@ function PageLoader() {
 export default function App() {
   return (
     <ErrorBoundary>
+      <OfflineBanner />
       <BrowserRouter basename={basename}>
         <AuthProvider>
           <ToastProvider>

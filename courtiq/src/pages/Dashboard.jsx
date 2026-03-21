@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Activity, Flame, Target, TrendingUp, Crosshair, ClipboardList, Dumbbell, Calendar, BookOpen, Search, X } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
@@ -18,6 +18,20 @@ export default function Dashboard() {
 
   const [query, setQuery] = useState('')
   const firstName = profile?.full_name?.split(' ')[0] || 'Player'
+
+  // Weekly activity (last 7 days)
+  const weeklyStats = useMemo(() => {
+    const cutoff = new Date()
+    cutoff.setDate(cutoff.getDate() - 7)
+    const cutoffStr = cutoff.toISOString().split('T')[0]
+    const weekGames = games.filter(g => g.game_date >= cutoffStr)
+    const weekDrills = sessions.filter(s => s.session_date >= cutoffStr)
+    const activeDays = new Set([
+      ...weekGames.map(g => g.game_date),
+      ...weekDrills.map(s => s.session_date),
+    ]).size
+    return { games: weekGames.length, drills: weekDrills.length, activeDays }
+  }, [games, sessions])
 
   // Combine recent activity
   const recentActivity = [
@@ -129,6 +143,43 @@ export default function Dashboard() {
             <StatCard label="Drills" value={sessions.length} icon={Target} />
           </div>
         </section>
+
+        {/* This Week */}
+        <Card className="space-y-3">
+          <h2 className="text-sm font-semibold text-text-muted uppercase tracking-wider">This Week</h2>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-6">
+              <div className="text-center">
+                <p className="text-xl font-bold text-text-primary">{weeklyStats.activeDays}</p>
+                <p className="text-[10px] text-text-muted uppercase">Active Days</p>
+              </div>
+              <div className="text-center">
+                <p className="text-xl font-bold text-text-primary">{weeklyStats.games}</p>
+                <p className="text-[10px] text-text-muted uppercase">Games</p>
+              </div>
+              <div className="text-center">
+                <p className="text-xl font-bold text-text-primary">{weeklyStats.drills}</p>
+                <p className="text-[10px] text-text-muted uppercase">Drills</p>
+              </div>
+            </div>
+            {/* 7-day dots */}
+            <div className="flex gap-1">
+              {Array.from({ length: 7 }, (_, i) => {
+                const d = new Date()
+                d.setDate(d.getDate() - (6 - i))
+                const dateStr = d.toISOString().split('T')[0]
+                const hasActivity = games.some(g => g.game_date === dateStr) || sessions.some(s => s.session_date === dateStr)
+                return (
+                  <div
+                    key={i}
+                    className={`w-3 h-3 rounded-full ${hasActivity ? 'bg-blue' : 'bg-bg-section border border-border'}`}
+                    title={d.toLocaleDateString('en-US', { weekday: 'short' })}
+                  />
+                )
+              })}
+            </div>
+          </div>
+        </Card>
 
         {/* Quick Actions */}
         <section className="space-y-4">

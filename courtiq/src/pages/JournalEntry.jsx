@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { ArrowLeft, Save, Smile, Frown, Meh, ThumbsUp, ThumbsDown } from 'lucide-react'
 import { useJournal } from '../hooks/useJournal'
+import { useToast } from '../contexts/ToastContext'
 import PageShell from '../components/ui/PageShell'
 import Button from '../components/ui/Button'
 import Input from '../components/ui/Input'
@@ -37,6 +38,7 @@ function SliderField({ label, value, onChange, max = 10 }) {
 export default function JournalEntry() {
   const navigate = useNavigate()
   const { addEntry } = useJournal()
+  const toast = useToast()
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState('')
 
@@ -94,6 +96,7 @@ export default function JournalEntry() {
       setError(error.message)
       setSubmitting(false)
     } else {
+      toast('Entry saved!')
       navigate('/journal', { replace: true })
     }
   }

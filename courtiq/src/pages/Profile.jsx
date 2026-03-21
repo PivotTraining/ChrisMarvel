@@ -1,6 +1,9 @@
+import { useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { User, Trophy, Star, ChevronRight, LogOut, BookOpen, BarChart3, Pencil, Bell, Info, Bookmark } from 'lucide-react'
+import { User, Trophy, Star, ChevronRight, LogOut, BookOpen, BarChart3, Pencil, Bell, Info, Bookmark, Flame, ClipboardList, Dumbbell, Target } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
+import { useGames } from '../hooks/useGames'
+import { useDrills } from '../hooks/useDrills'
 import PageShell from '../components/ui/PageShell'
 import SectionHeader from '../components/ui/SectionHeader'
 import Card from '../components/ui/Card'
@@ -10,11 +13,26 @@ import Button from '../components/ui/Button'
 export default function Profile() {
   const { profile, signOut } = useAuth()
   const navigate = useNavigate()
+  const { games } = useGames()
+  const { sessions } = useDrills()
 
   const displayName = profile?.full_name || 'Player'
   const position = profile?.position || ''
   const level = profile?.level ?? 1
   const xp = profile?.xp ?? 0
+
+  const careerAvg = useMemo(() => {
+    if (games.length === 0) return null
+    const t = games.reduce((a, g) => ({
+      pts: a.pts + g.points, reb: a.reb + g.rebounds, ast: a.ast + g.assists,
+    }), { pts: 0, reb: 0, ast: 0 })
+    const n = games.length
+    return {
+      ppg: (t.pts / n).toFixed(1),
+      rpg: (t.reb / n).toFixed(1),
+      apg: (t.ast / n).toFixed(1),
+    }
+  }, [games])
 
   async function handleSignOut() {
     await signOut()
@@ -52,13 +70,29 @@ export default function Profile() {
         {/* Stats */}
         <section className="space-y-4">
           <h2 className="text-sm font-semibold text-text-muted uppercase tracking-wider">
-            Totals
+            Overview
           </h2>
           <div className="grid grid-cols-2 gap-4">
-            <StatCard label="Streak" value={profile?.current_streak ?? 0} icon={Trophy} />
+            <StatCard label="Streak" value={profile?.current_streak ?? 0} icon={Flame} />
             <StatCard label="Level" value={level} icon={Star} />
+            <StatCard label="Games" value={games.length} icon={ClipboardList} />
+            <StatCard label="Drills" value={sessions.length} icon={Dumbbell} />
           </div>
         </section>
+
+        {/* Career Averages */}
+        {careerAvg && (
+          <section className="space-y-4">
+            <h2 className="text-sm font-semibold text-text-muted uppercase tracking-wider">
+              Career Averages
+            </h2>
+            <div className="grid grid-cols-3 gap-3">
+              <StatCard label="PPG" value={careerAvg.ppg} icon={Target} className="p-4" />
+              <StatCard label="RPG" value={careerAvg.rpg} className="p-4" />
+              <StatCard label="APG" value={careerAvg.apg} className="p-4" />
+            </div>
+          </section>
+        )}
 
         {/* Quick Links */}
         <section className="space-y-4">

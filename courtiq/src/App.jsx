@@ -48,6 +48,8 @@ const Programs = lazy(() => import('./pages/Programs'))
 const ProgramDetail = lazy(() => import('./pages/ProgramDetail'))
 const Notifications = lazy(() => import('./pages/Notifications'))
 const FilmRoom = lazy(() => import('./pages/FilmRoom'))
+const RecruitingProfile = lazy(() => import('./pages/RecruitingProfile'))
+const PublicRecruit = lazy(() => import('./pages/PublicRecruit'))
 
 const basename = import.meta.env.BASE_URL
 
@@ -114,8 +116,12 @@ export default function App() {
                 <Route path="team/:id" element={<TeamDetail />} />
                 <Route path="notifications" element={<Notifications />} />
                 <Route path="film" element={<FilmRoom />} />
+                <Route path="recruiting" element={<RecruitingProfile />} />
                 <Route path="about" element={<About />} />
               </Route>
+
+              {/* Public recruiting profile */}
+              <Route path="/recruit/:slug" element={<PublicRecruit />} />
 
               {/* 404 */}
               <Route path="*" element={<NotFound />} />

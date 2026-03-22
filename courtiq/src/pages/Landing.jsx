@@ -47,7 +47,7 @@ function Navbar() {
   const [open, setOpen] = useState(false);
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 bg-bg-primary/70 backdrop-blur-2xl border-b border-border">
+    <nav aria-label="Site navigation" className="fixed top-0 left-0 right-0 z-50 bg-bg-primary/70 backdrop-blur-2xl border-b border-border">
       <div className="max-w-[1280px] mx-auto px-6 lg:px-10 h-20 flex items-center justify-between">
         {/* Logo */}
         <a href="#" className="flex items-center gap-3">

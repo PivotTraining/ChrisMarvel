@@ -144,7 +144,7 @@ export default function Dashboard() {
         })()}
 
         {/* Search */}
-        <div className="relative">
+        <div className="relative" role="search">
           <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-text-muted" />
           <input
             type="text"
@@ -339,6 +339,7 @@ export default function Dashboard() {
               value={quickDrill}
               onChange={e => setQuickDrill(e.target.value)}
               placeholder="Drill name (e.g. Ball handling)"
+              aria-label="Quick log drill name"
               className="flex-1 rounded-lg bg-bg-section border border-border px-3 py-2 text-sm text-text-primary placeholder:text-text-muted focus:outline-none focus:border-blue-border transition-colors"
             />
             <Button type="submit" size="sm" disabled={quickLogging || !quickDrill.trim()}>

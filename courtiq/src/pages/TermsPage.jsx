@@ -1,4 +1,4 @@
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, Link } from 'react-router-dom'
 import { ArrowLeft, FileText } from 'lucide-react'
 import PageShell from '../components/ui/PageShell'
 import SectionHeader from '../components/ui/SectionHeader'
@@ -148,7 +148,7 @@ export default function TermsPage() {
               <h2 className="text-base font-bold text-text-primary mb-3">7. Privacy</h2>
               <p>
                 Your privacy is important to us. Our collection, use, and protection of your personal information is governed by our{' '}
-                <a href="/privacy" className="text-blue hover:underline font-medium">Privacy Policy</a>,
+                <Link to="/privacy" className="text-blue hover:underline font-medium">Privacy Policy</Link>,
                 which is incorporated into these Terms by reference. By using the Service, you consent to the practices described in the Privacy Policy.
               </p>
             </section>

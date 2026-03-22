@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import { Link } from 'react-router-dom';
 import {
   Target, Trophy, TrendingUp, Zap, BarChart3, Users,
   ChevronRight, Star, Activity, Menu, X, ArrowRight,
@@ -50,12 +51,12 @@ function Navbar() {
     <nav aria-label="Site navigation" className="fixed top-0 left-0 right-0 z-50 bg-bg-primary/70 backdrop-blur-2xl border-b border-border">
       <div className="max-w-[1280px] mx-auto px-6 lg:px-10 h-20 flex items-center justify-between">
         {/* Logo */}
-        <a href="#" className="flex items-center gap-3">
+        <Link to="/welcome" className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-xl bg-blue flex items-center justify-center">
             <Activity className="w-6 h-6 text-white" />
           </div>
           <span className="font-sans text-2xl font-bold text-text-primary tracking-wider">COURTIQ</span>
-        </a>
+        </Link>
 
         {/* Desktop nav */}
         <div className="hidden lg:flex items-center gap-10">
@@ -67,11 +68,11 @@ function Navbar() {
 
         {/* Desktop CTA */}
         <div className="hidden lg:flex items-center gap-4">
-          <a href="/login" className="text-text-secondary hover:text-white transition-colors text-sm font-medium">Log In</a>
-          <a href="/signup" className="btn-glow bg-blue hover:bg-blue-dark text-white px-6 py-2.5 rounded-full text-sm font-semibold flex items-center gap-2">
+          <Link to="/login" className="text-text-secondary hover:text-white transition-colors text-sm font-medium">Log In</Link>
+          <Link to="/signup" className="btn-glow bg-blue hover:bg-blue-dark text-white px-6 py-2.5 rounded-full text-sm font-semibold flex items-center gap-2">
             Get Early Access
             <ArrowRight className="w-4 h-4" />
-          </a>
+          </Link>
         </div>
 
         {/* Mobile toggle */}
@@ -87,8 +88,8 @@ function Navbar() {
           <a href="#how-it-works" onClick={() => setOpen(false)} className="block text-text-secondary hover:text-white text-lg">How It Works</a>
           <a href="#pricing" onClick={() => setOpen(false)} className="block text-text-secondary hover:text-white text-lg">Pricing</a>
           <a href="#faq" onClick={() => setOpen(false)} className="block text-text-secondary hover:text-white text-lg">FAQ</a>
-          <a href="/login" onClick={() => setOpen(false)} className="block text-text-secondary hover:text-white text-lg">Log In</a>
-          <a href="/signup" onClick={() => setOpen(false)} className="block bg-blue text-white text-center px-6 py-3 rounded-full font-semibold mt-4">Get Early Access</a>
+          <Link to="/login" onClick={() => setOpen(false)} className="block text-text-secondary hover:text-white text-lg">Log In</Link>
+          <Link to="/signup" onClick={() => setOpen(false)} className="block bg-blue text-white text-center px-6 py-3 rounded-full font-semibold mt-4">Get Early Access</Link>
         </div>
       )}
     </nav>
@@ -129,10 +130,10 @@ function Hero() {
             </p>
 
             <div className="flex flex-col sm:flex-row items-center lg:items-start gap-4 anim-delay-3">
-              <a href="/signup" className="btn-glow bg-blue hover:bg-blue-dark text-white px-8 py-3.5 rounded-full text-base font-bold flex items-center gap-2">
+              <Link to="/signup" className="btn-glow bg-blue hover:bg-blue-dark text-white px-8 py-3.5 rounded-full text-base font-bold flex items-center gap-2">
                 Get Early Access
                 <ChevronRight className="w-4 h-4" />
-              </a>
+              </Link>
               <a href="#features" className="text-text-secondary hover:text-white px-6 py-3.5 text-base font-medium transition-colors flex items-center gap-2">
                 Learn More
                 <ArrowRight className="w-4 h-4" />
@@ -628,12 +629,12 @@ function Pricing() {
                   )}
                 </div>
 
-                <a
-                  href="/signup"
+                <Link
+                  to="/signup"
                   className={`block w-full py-3 rounded-xl text-center text-sm font-semibold transition-all mb-6 ${plan.ctaStyle}`}
                 >
                   {plan.cta}
-                </a>
+                </Link>
 
                 <ul className="space-y-3">
                   {plan.features.map((feature, j) => (
@@ -693,8 +694,8 @@ function FAQ() {
       a: 'With CourtIQ+ Team Features, you can share your profile and stats with coaches, trainers, and teammates. You control exactly what\'s visible.',
     },
     {
-      q: 'When does CourtIQ launch?',
-      a: 'We\'re currently in closed beta. Join the waitlist to get early access and be among the first to try CourtIQ when we launch.',
+      q: 'Is CourtIQ free?',
+      a: 'Yes! CourtIQ has a free starter plan with core features including shot tracking, game logging, and basic analytics. Upgrade to Pro or Team for advanced features.',
     },
   ];
 
@@ -763,7 +764,7 @@ function StatsBar() {
 /* ─────────────────────────────────────────────
    CTA / WAITLIST
    ───────────────────────────────────────────── */
-function Waitlist() {
+function CTA() {
   return (
     <section id="waitlist" className="min-h-screen flex items-center relative overflow-hidden bg-bg-section">
       <div className="absolute inset-0">
@@ -776,38 +777,27 @@ function Waitlist() {
             <span className="gradient-text-blue">LEVEL UP?</span>
           </h2>
           <p className="text-text-secondary text-base lg:text-lg max-w-md mx-auto mb-12">
-            Join the waitlist to get early access when CourtIQ launches.
-            Be the first to start tracking your game.
+            Create your free account today and start tracking your game.
+            No credit card required.
           </p>
 
-          <form
-            className="flex flex-col sm:flex-row gap-3 max-w-lg mx-auto"
-            onSubmit={(e) => {
-              e.preventDefault();
-              const email = e.target.elements.email.value;
-              if (email) {
-                alert('Thanks for signing up! We\'ll be in touch.');
-                e.target.reset();
-              }
-            }}
-          >
-            <input
-              name="email"
-              type="email"
-              required
-              placeholder="Enter your email address"
-              className="flex-1 bg-bg-primary/80 border border-border rounded-full px-6 py-3.5 text-white placeholder:text-text-muted text-sm focus:outline-none focus:border-blue transition-colors"
-            />
-            <button
-              type="submit"
-              className="btn-glow bg-blue hover:bg-blue-dark text-white px-8 py-3.5 rounded-full text-sm font-bold whitespace-nowrap flex items-center justify-center gap-2"
+          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center max-w-lg mx-auto">
+            <Link
+              to="/signup"
+              className="btn-glow bg-blue hover:bg-blue-dark text-white px-10 py-4 rounded-full text-base font-bold flex items-center gap-2"
             >
-              Join Waitlist
-              <ArrowRight className="w-4 h-4" />
-            </button>
-          </form>
+              Get Started Free
+              <ArrowRight className="w-5 h-5" />
+            </Link>
+            <Link
+              to="/login"
+              className="text-text-secondary hover:text-white px-6 py-4 text-base font-medium transition-colors"
+            >
+              Already have an account? Log in
+            </Link>
+          </div>
 
-          <p className="text-text-muted text-xs mt-5">Free to join. No spam. Unsubscribe anytime.</p>
+          <p className="text-text-muted text-xs mt-8">Free forever on the starter plan. Upgrade anytime.</p>
         </Reveal>
       </div>
     </section>
@@ -849,9 +839,8 @@ function Footer() {
           <div>
             <h4 className="font-sans text-sm font-bold text-white uppercase tracking-widest mb-5">Company</h4>
             <ul className="space-y-3">
-              {['About', 'Blog', 'Careers', 'Press', 'Contact'].map((item) => (
-                <li key={item}><a href="#" className="text-text-muted hover:text-white text-sm transition-colors">{item}</a></li>
-              ))}
+              <li><Link to="/about" className="text-text-muted hover:text-white text-sm transition-colors">About</Link></li>
+              <li><a href="mailto:support@courtiq.app" className="text-text-muted hover:text-white text-sm transition-colors">Contact</a></li>
             </ul>
           </div>
 
@@ -861,8 +850,8 @@ function Footer() {
             <ul className="space-y-3">
               <li><a href="#faq" className="text-text-muted hover:text-white text-sm transition-colors">Help Center</a></li>
               <li><a href="#faq" className="text-text-muted hover:text-white text-sm transition-colors">FAQ</a></li>
-              <li><a href="/privacy" className="text-text-muted hover:text-white text-sm transition-colors">Privacy Policy</a></li>
-              <li><a href="/terms" className="text-text-muted hover:text-white text-sm transition-colors">Terms of Service</a></li>
+              <li><Link to="/privacy" className="text-text-muted hover:text-white text-sm transition-colors">Privacy Policy</Link></li>
+              <li><Link to="/terms" className="text-text-muted hover:text-white text-sm transition-colors">Terms of Service</Link></li>
             </ul>
           </div>
         </div>
@@ -871,9 +860,7 @@ function Footer() {
         <div className="pt-8 border-t border-border flex flex-col md:flex-row items-center justify-between gap-4">
           <p className="text-text-muted text-sm">&copy; {new Date().getFullYear()} CourtIQ. All rights reserved.</p>
           <div className="flex items-center gap-6">
-            {['Twitter', 'Instagram', 'TikTok'].map((social) => (
-              <a key={social} href="#" className="text-text-muted hover:text-white text-sm transition-colors">{social}</a>
-            ))}
+            <span className="text-text-muted text-sm">Follow us soon on Twitter, Instagram & TikTok</span>
           </div>
         </div>
       </div>
@@ -895,7 +882,7 @@ export default function App() {
       <Pricing />
       <StatsBar />
       <FAQ />
-      <Waitlist />
+      <CTA />
       <Footer />
     </div>
   );

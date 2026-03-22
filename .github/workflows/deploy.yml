@@ -33,8 +33,8 @@ jobs:
       - name: Build
         working-directory: courtiq
         env:
-          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
-          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
+          VITE_SUPABASE_URL: https://gqppfxcshihvtjrepiij.supabase.co
+          VITE_SUPABASE_ANON_KEY: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdxcHBmeGNzaGlodnRqcmVwaWlqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQwNjUxNjMsImV4cCI6MjA4OTY0MTE2M30.JUP6a_AHzxOkMWkMSXdByPoYEd4qzlWTwTWLi_jBoM8
         run: npm run build
 
       - name: Upload artifact

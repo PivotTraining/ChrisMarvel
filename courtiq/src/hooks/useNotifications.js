@@ -9,7 +9,7 @@ export function useNotifications() {
   const [loading, setLoading] = useState(!DEMO_MODE)
 
   const fetchNotifications = useCallback(async () => {
-    if (DEMO_MODE || !user) return
+    if (DEMO_MODE || !user || !supabase) { setLoading(false); return }
     setLoading(true)
     const { data, error } = await supabase
       .from('notifications')
@@ -27,6 +27,10 @@ export function useNotifications() {
   const unreadCount = notifications.filter(n => !n.read).length
 
   async function markRead(id) {
+    if (DEMO_MODE) {
+      setNotifications(prev => prev.map(n => n.id === id ? { ...n, read: true } : n))
+      return
+    }
     const { error } = await supabase
       .from('notifications')
       .update({ read: true })
@@ -38,6 +42,10 @@ export function useNotifications() {
   }
 
   async function markAllRead() {
+    if (DEMO_MODE) {
+      setNotifications(prev => prev.map(n => ({ ...n, read: true })))
+      return
+    }
     const unreadIds = notifications.filter(n => !n.read).map(n => n.id)
     if (unreadIds.length === 0) return
 
@@ -53,7 +61,7 @@ export function useNotifications() {
   }
 
   async function addNotification({ type, title, body, icon, action_url, metadata }) {
-    if (!user) return
+    if (DEMO_MODE || !user) return { data: null, error: null }
     const { data, error } = await supabase
       .from('notifications')
       .insert({ user_id: user.id, type, title, body, icon, action_url, metadata })
@@ -67,6 +75,10 @@ export function useNotifications() {
   }
 
   async function deleteNotification(id) {
+    if (DEMO_MODE) {
+      setNotifications(prev => prev.filter(n => n.id !== id))
+      return
+    }
     const { error } = await supabase
       .from('notifications')
       .delete()
@@ -78,6 +90,10 @@ export function useNotifications() {
   }
 
   async function clearAll() {
+    if (DEMO_MODE) {
+      setNotifications([])
+      return
+    }
     const { error } = await supabase
       .from('notifications')
       .delete()

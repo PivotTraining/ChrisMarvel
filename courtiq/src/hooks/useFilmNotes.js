@@ -1,15 +1,18 @@
 import { useState, useEffect, useCallback } from 'react'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../contexts/AuthContext'
+import { DEMO_MODE } from '../lib/demoData'
 
 export function useFilmNotes(gameId) {
   const { user } = useAuth()
   const [notes, setNotes] = useState([])
-  const [loading, setLoading] = useState(true)
+  const [loading, setLoading] = useState(!DEMO_MODE)
+  const [error, setError] = useState(null)
 
   const fetchNotes = useCallback(async () => {
-    if (!user) return
+    if (DEMO_MODE || !user || !supabase) { setLoading(false); return }
     setLoading(true)
+    setError(null)
 
     let query = supabase
       .from('film_notes')
@@ -23,14 +26,24 @@ export function useFilmNotes(gameId) {
       query = query.limit(100)
     }
 
-    const { data, error } = await query
-    if (!error) setNotes(data || [])
+    const { data, error: fetchError } = await query
+    if (fetchError) {
+      console.error('Failed to fetch film notes:', fetchError.message)
+      setError(fetchError.message)
+    } else {
+      setNotes(data || [])
+    }
     setLoading(false)
   }, [user, gameId])
 
   useEffect(() => { fetchNotes() }, [fetchNotes])
 
   async function addNote(note) {
+    if (DEMO_MODE) {
+      const newNote = { ...note, id: `demo-note-${Date.now()}`, user_id: 'demo-user-001', created_at: new Date().toISOString() }
+      setNotes(prev => [newNote, ...prev])
+      return { data: newNote, error: null }
+    }
     const { data, error } = await supabase
       .from('film_notes')
       .insert({ ...note, user_id: user.id })
@@ -44,6 +57,10 @@ export function useFilmNotes(gameId) {
   }
 
   async function updateNote(id, updates) {
+    if (DEMO_MODE) {
+      setNotes(prev => prev.map(n => n.id === id ? { ...n, ...updates } : n))
+      return { data: { id, ...updates }, error: null }
+    }
     const { data, error } = await supabase
       .from('film_notes')
       .update({ ...updates, updated_at: new Date().toISOString() })
@@ -58,6 +75,10 @@ export function useFilmNotes(gameId) {
   }
 
   async function deleteNote(id) {
+    if (DEMO_MODE) {
+      setNotes(prev => prev.filter(n => n.id !== id))
+      return { error: null }
+    }
     const { error } = await supabase
       .from('film_notes')
       .delete()
@@ -69,8 +90,7 @@ export function useFilmNotes(gameId) {
     return { error }
   }
 
-  // Get all unique tags across notes
   const allTags = [...new Set(notes.flatMap(n => n.tags || []))]
 
-  return { notes, loading, allTags, addNote, updateNote, deleteNote, refetch: fetchNotes }
+  return { notes, loading, error, allTags, addNote, updateNote, deleteNote, refetch: fetchNotes }
 }

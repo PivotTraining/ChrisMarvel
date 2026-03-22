@@ -603,10 +603,20 @@ CREATE TABLE team_members (
 ALTER TABLE teams ENABLE ROW LEVEL SECURITY;
 ALTER TABLE team_members ENABLE ROW LEVEL SECURITY;
 
+-- Helper function to avoid RLS infinite recursion on team_members
+CREATE OR REPLACE FUNCTION public.get_user_team_ids(uid UUID)
+RETURNS SETOF UUID
+LANGUAGE sql
+SECURITY DEFINER
+STABLE
+AS $$
+  SELECT team_id FROM team_members WHERE user_id = uid;
+$$;
+
 -- Teams: members can view their teams
 CREATE POLICY "Members can view their teams"
   ON teams FOR SELECT
-  USING (id IN (SELECT team_id FROM team_members WHERE user_id = auth.uid()));
+  USING (id IN (SELECT public.get_user_team_ids(auth.uid())));
 
 -- Teams: anyone can create a team
 CREATE POLICY "Users can create teams"
@@ -626,7 +636,7 @@ CREATE POLICY "Owner can delete team"
 -- Team members: members can view their teammates
 CREATE POLICY "Members can view teammates"
   ON team_members FOR SELECT
-  USING (team_id IN (SELECT team_id FROM team_members WHERE user_id = auth.uid()));
+  USING (team_id IN (SELECT public.get_user_team_ids(auth.uid())));
 
 -- Team members: users can join (insert themselves)
 CREATE POLICY "Users can join teams"
@@ -648,9 +658,8 @@ CREATE POLICY "Teammates can view profiles"
   ON profiles FOR SELECT
   USING (
     id IN (
-      SELECT tm2.user_id FROM team_members tm1
-      JOIN team_members tm2 ON tm1.team_id = tm2.team_id
-      WHERE tm1.user_id = auth.uid()
+      SELECT tm.user_id FROM team_members tm
+      WHERE tm.team_id IN (SELECT public.get_user_team_ids(auth.uid()))
     )
   );
 
@@ -659,9 +668,8 @@ CREATE POLICY "Teammates can view games"
   ON games FOR SELECT
   USING (
     user_id IN (
-      SELECT tm2.user_id FROM team_members tm1
-      JOIN team_members tm2 ON tm1.team_id = tm2.team_id
-      WHERE tm1.user_id = auth.uid()
+      SELECT tm.user_id FROM team_members tm
+      WHERE tm.team_id IN (SELECT public.get_user_team_ids(auth.uid()))
     )
   );
 -- Training programs (multi-week structured plans)

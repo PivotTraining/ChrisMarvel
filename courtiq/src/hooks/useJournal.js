@@ -1,29 +1,42 @@
 import { useState, useEffect, useCallback } from 'react'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../contexts/AuthContext'
+import { DEMO_MODE } from '../lib/demoData'
 
 export function useJournal() {
   const { user } = useAuth()
   const [entries, setEntries] = useState([])
-  const [loading, setLoading] = useState(true)
+  const [loading, setLoading] = useState(!DEMO_MODE)
+  const [error, setError] = useState(null)
 
   const fetchEntries = useCallback(async () => {
-    if (!user) return
+    if (DEMO_MODE || !user || !supabase) { setLoading(false); return }
     setLoading(true)
-    const { data, error } = await supabase
+    setError(null)
+    const { data, error: fetchError } = await supabase
       .from('journal_entries')
       .select('*')
       .eq('user_id', user.id)
       .order('entry_date', { ascending: false })
       .limit(50)
 
-    if (!error) setEntries(data || [])
+    if (fetchError) {
+      console.error('Failed to fetch journal:', fetchError.message)
+      setError(fetchError.message)
+    } else {
+      setEntries(data || [])
+    }
     setLoading(false)
   }, [user])
 
   useEffect(() => { fetchEntries() }, [fetchEntries])
 
   async function addEntry(entry) {
+    if (DEMO_MODE) {
+      const newEntry = { ...entry, id: `demo-journal-${Date.now()}`, user_id: 'demo-user-001', created_at: new Date().toISOString() }
+      setEntries(prev => [newEntry, ...prev])
+      return { data: newEntry, error: null }
+    }
     const { data, error } = await supabase
       .from('journal_entries')
       .insert({ ...entry, user_id: user.id })
@@ -37,6 +50,10 @@ export function useJournal() {
   }
 
   async function updateEntry(id, updates) {
+    if (DEMO_MODE) {
+      setEntries(prev => prev.map(e => e.id === id ? { ...e, ...updates } : e))
+      return { data: { id, ...updates }, error: null }
+    }
     const { data, error } = await supabase
       .from('journal_entries')
       .update(updates)
@@ -51,6 +68,10 @@ export function useJournal() {
   }
 
   async function deleteEntry(id) {
+    if (DEMO_MODE) {
+      setEntries(prev => prev.filter(e => e.id !== id))
+      return { error: null }
+    }
     const { error } = await supabase
       .from('journal_entries')
       .delete()
@@ -62,5 +83,5 @@ export function useJournal() {
     return { error }
   }
 
-  return { entries, loading, addEntry, updateEntry, deleteEntry, refetch: fetchEntries }
+  return { entries, loading, error, addEntry, updateEntry, deleteEntry, refetch: fetchEntries }
 }

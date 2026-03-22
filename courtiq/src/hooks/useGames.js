@@ -8,24 +8,36 @@ export function useGames() {
   const { user, refreshProfile } = useAuth()
   const [games, setGames] = useState(DEMO_MODE ? demoGames : [])
   const [loading, setLoading] = useState(!DEMO_MODE)
+  const [error, setError] = useState(null)
 
   const fetchGames = useCallback(async () => {
-    if (DEMO_MODE || !user) return
+    if (DEMO_MODE || !user || !supabase) return
     setLoading(true)
-    const { data, error } = await supabase
+    setError(null)
+    const { data, error: fetchError } = await supabase
       .from('games')
       .select('*')
       .eq('user_id', user.id)
       .order('game_date', { ascending: false })
       .limit(50)
 
-    if (!error) setGames(data || [])
+    if (fetchError) {
+      console.error('Failed to fetch games:', fetchError.message)
+      setError(fetchError.message)
+    } else {
+      setGames(data || [])
+    }
     setLoading(false)
   }, [user])
 
   useEffect(() => { if (!DEMO_MODE) fetchGames() }, [fetchGames])
 
   async function addGame(game) {
+    if (DEMO_MODE) {
+      const newGame = { ...game, id: `demo-game-${Date.now()}`, user_id: 'demo-user-001', created_at: new Date().toISOString() }
+      setGames(prev => [newGame, ...prev])
+      return { data: newGame, error: null }
+    }
     const { data, error } = await supabase
       .from('games')
       .insert({ ...game, user_id: user.id })
@@ -40,6 +52,10 @@ export function useGames() {
   }
 
   async function updateGame(id, updates) {
+    if (DEMO_MODE) {
+      setGames(prev => prev.map(g => g.id === id ? { ...g, ...updates } : g))
+      return { data: { id, ...updates }, error: null }
+    }
     const { data, error } = await supabase
       .from('games')
       .update({ ...updates, updated_at: new Date().toISOString() })
@@ -54,6 +70,10 @@ export function useGames() {
   }
 
   async function deleteGame(id) {
+    if (DEMO_MODE) {
+      setGames(prev => prev.filter(g => g.id !== id))
+      return { error: null }
+    }
     const { error } = await supabase
       .from('games')
       .delete()
@@ -65,5 +85,5 @@ export function useGames() {
     return { error }
   }
 
-  return { games, loading, addGame, updateGame, deleteGame, refetch: fetchGames }
+  return { games, loading, error, addGame, updateGame, deleteGame, refetch: fetchGames }
 }

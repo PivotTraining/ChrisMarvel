@@ -1,21 +1,27 @@
 import { useState, useEffect, useCallback } from 'react'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../contexts/AuthContext'
+import { DEMO_MODE } from '../lib/demoData'
 
 export function useTeams() {
   const { user } = useAuth()
   const [teams, setTeams] = useState([])
-  const [loading, setLoading] = useState(true)
+  const [loading, setLoading] = useState(!DEMO_MODE)
+  const [error, setError] = useState(null)
 
   const fetchTeams = useCallback(async () => {
-    if (!user) return
+    if (DEMO_MODE || !user || !supabase) { setLoading(false); return }
     setLoading(true)
-    const { data: memberships } = await supabase
+    setError(null)
+    const { data: memberships, error: fetchError } = await supabase
       .from('team_members')
       .select('team_id, role, teams(id, name, code, description, created_by, created_at)')
       .eq('user_id', user.id)
 
-    if (memberships) {
+    if (fetchError) {
+      console.error('Failed to fetch teams:', fetchError.message)
+      setError(fetchError.message)
+    } else if (memberships) {
       setTeams(memberships.map(m => ({ ...m.teams, role: m.role })))
     }
     setLoading(false)
@@ -31,6 +37,7 @@ export function useTeams() {
   }
 
   async function createTeam(name, description) {
+    if (DEMO_MODE) return { error: { message: 'Teams are not available in demo mode.' } }
     const code = generateCode()
     const { data: team, error } = await supabase
       .from('teams')
@@ -40,7 +47,6 @@ export function useTeams() {
 
     if (error) return { error }
 
-    // Auto-join as owner
     const { error: joinError } = await supabase
       .from('team_members')
       .insert({ team_id: team.id, user_id: user.id, role: 'owner' })
@@ -52,7 +58,7 @@ export function useTeams() {
   }
 
   async function joinTeam(code) {
-    // Look up team by code
+    if (DEMO_MODE) return { error: { message: 'Teams are not available in demo mode.' } }
     const { data: team, error: lookupError } = await supabase
       .from('teams')
       .select('*')
@@ -61,7 +67,6 @@ export function useTeams() {
 
     if (lookupError || !team) return { error: { message: 'Team not found. Check the code and try again.' } }
 
-    // Check if already a member
     const existing = teams.find(t => t.id === team.id)
     if (existing) return { error: { message: 'You are already on this team.' } }
 
@@ -76,6 +81,7 @@ export function useTeams() {
   }
 
   async function leaveTeam(teamId) {
+    if (DEMO_MODE) return { error: null }
     const { error } = await supabase
       .from('team_members')
       .delete()
@@ -89,6 +95,7 @@ export function useTeams() {
   }
 
   async function deleteTeam(teamId) {
+    if (DEMO_MODE) return { error: null }
     const { error } = await supabase
       .from('teams')
       .delete()
@@ -100,15 +107,15 @@ export function useTeams() {
     return { error }
   }
 
-  return { teams, loading, createTeam, joinTeam, leaveTeam, deleteTeam, refetch: fetchTeams }
+  return { teams, loading, error, createTeam, joinTeam, leaveTeam, deleteTeam, refetch: fetchTeams }
 }
 
 export function useTeamMembers(teamId) {
   const [members, setMembers] = useState([])
-  const [loading, setLoading] = useState(true)
+  const [loading, setLoading] = useState(!DEMO_MODE)
 
   const fetchMembers = useCallback(async () => {
-    if (!teamId) return
+    if (DEMO_MODE || !teamId || !supabase) { setLoading(false); return }
     setLoading(true)
     const { data } = await supabase
       .from('team_members')
@@ -134,13 +141,12 @@ export function useTeamMembers(teamId) {
 
 export function useTeamLeaderboard(teamId) {
   const [leaderboard, setLeaderboard] = useState([])
-  const [loading, setLoading] = useState(true)
+  const [loading, setLoading] = useState(!DEMO_MODE)
 
   const fetchLeaderboard = useCallback(async () => {
-    if (!teamId) return
+    if (DEMO_MODE || !teamId || !supabase) { setLoading(false); return }
     setLoading(true)
 
-    // Get all member user IDs
     const { data: memberData } = await supabase
       .from('team_members')
       .select('user_id, profiles(id, full_name, position)')
@@ -150,7 +156,6 @@ export function useTeamLeaderboard(teamId) {
 
     const userIds = memberData.map(m => m.user_id)
 
-    // Get games for all members
     const { data: games } = await supabase
       .from('games')
       .select('user_id, points, rebounds, assists, result')
@@ -158,7 +163,6 @@ export function useTeamLeaderboard(teamId) {
 
     if (!games) { setLoading(false); return }
 
-    // Aggregate stats per player
     const statsMap = {}
     userIds.forEach(uid => {
       statsMap[uid] = { games: 0, pts: 0, reb: 0, ast: 0, wins: 0 }

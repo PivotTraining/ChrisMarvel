@@ -1,6 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { useAuth } from '../contexts/AuthContext';
+import { Link } from 'react-router-dom';
 import {
   Target, Trophy, TrendingUp, Zap, BarChart3, Users,
   ChevronRight, Star, Activity, Menu, X, ArrowRight,
@@ -71,7 +70,7 @@ function Navbar() {
         <div className="hidden lg:flex items-center gap-4">
           <Link to="/login" className="text-text-secondary hover:text-white transition-colors text-sm font-medium">Log In</Link>
           <Link to="/signup" className="btn-glow bg-blue hover:bg-blue-dark text-white px-6 py-2.5 rounded-full text-sm font-semibold flex items-center gap-2">
-            Get Early Access
+            Sign Up Free
             <ArrowRight className="w-4 h-4" />
           </Link>
         </div>
@@ -90,33 +89,10 @@ function Navbar() {
           <a href="#pricing" onClick={() => setOpen(false)} className="block text-text-secondary hover:text-white text-lg">Pricing</a>
           <a href="#faq" onClick={() => setOpen(false)} className="block text-text-secondary hover:text-white text-lg">FAQ</a>
           <Link to="/login" onClick={() => setOpen(false)} className="block text-text-secondary hover:text-white text-lg">Log In</Link>
-          <Link to="/signup" onClick={() => setOpen(false)} className="block bg-blue text-white text-center px-6 py-3 rounded-full font-semibold mt-4">Get Early Access</Link>
+          <Link to="/signup" onClick={() => setOpen(false)} className="block bg-blue text-white text-center px-6 py-3 rounded-full font-semibold mt-4">Sign Up Free</Link>
         </div>
       )}
     </nav>
-  );
-}
-
-/* ─────────────────────────────────────────────
-   DEMO BUTTON
-   ───────────────────────────────────────────── */
-function DemoButton() {
-  const navigate = useNavigate();
-  const { enterDemoMode } = useAuth();
-
-  function handleDemo() {
-    enterDemoMode();
-    navigate('/');
-  }
-
-  return (
-    <button
-      onClick={handleDemo}
-      className="bg-bg-card border border-border hover:border-blue-border text-white px-8 py-3.5 rounded-full text-base font-bold flex items-center gap-2 transition-all"
-    >
-      Try Demo
-      <ArrowRight className="w-4 h-4" />
-    </button>
   );
 }
 
@@ -155,10 +131,13 @@ function Hero() {
 
             <div className="flex flex-col sm:flex-row items-center lg:items-start gap-4 anim-delay-3">
               <Link to="/signup" className="btn-glow bg-blue hover:bg-blue-dark text-white px-8 py-3.5 rounded-full text-base font-bold flex items-center gap-2">
-                Get Early Access
+                Start Free
                 <ChevronRight className="w-4 h-4" />
               </Link>
-              <DemoButton />
+              <a href="#features" className="text-text-secondary hover:text-white px-6 py-3.5 text-base font-medium transition-colors flex items-center gap-2">
+                See Features
+                <ArrowRight className="w-4 h-4" />
+              </a>
             </div>
           </div>
 
@@ -685,7 +664,7 @@ function Pricing() {
         <Reveal>
           <div className="text-center mt-12">
             <p className="text-text-muted text-sm">
-              All plans include a <span className="text-white font-medium">14-day free trial</span> of Pro features. No credit card required.
+              Start free today. <span className="text-white font-medium">No credit card required.</span> Upgrade anytime.
             </p>
           </div>
         </Reveal>
@@ -718,8 +697,8 @@ function FAQ() {
       a: 'With CourtIQ+ Team Features, you can share your profile and stats with coaches, trainers, and teammates. You control exactly what\'s visible.',
     },
     {
-      q: 'Can I try CourtIQ before signing up?',
-      a: 'Absolutely! Click the "Try Demo" button on this page to explore the full app with sample data — no account needed. When you\'re ready, sign up free to start tracking your own stats.',
+      q: 'How do I get started?',
+      a: 'Just sign up for a free account — it takes less than 30 seconds. You\'ll get access to game logging, shot tracking, drill library, analytics, and more right away. No credit card needed.',
     },
   ];
 
@@ -810,16 +789,16 @@ function CTA() {
               to="/signup"
               className="btn-glow bg-blue hover:bg-blue-dark text-white px-10 py-4 rounded-full text-base font-bold flex items-center gap-2"
             >
-              Get Started Free
+              Sign Up Free
               <ArrowRight className="w-5 h-5" />
             </Link>
-            <DemoButton />
-          </div>
-          <p className="text-text-muted text-sm mt-4">
-            <Link to="/login" className="text-text-secondary hover:text-white transition-colors">
-              Already have an account? Log in
+            <Link
+              to="/login"
+              className="bg-bg-card border border-border hover:border-blue-border text-white px-8 py-4 rounded-full text-base font-bold transition-all"
+            >
+              Log In
             </Link>
-          </p>
+          </div>
 
           <p className="text-text-muted text-xs mt-8">Free forever on the starter plan. Upgrade anytime.</p>
         </Reveal>

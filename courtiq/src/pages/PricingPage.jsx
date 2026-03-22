@@ -322,7 +322,7 @@ export default function PricingPage() {
         <div className="text-center pb-8">
           {!stripeConfigured ? (
             <p className="text-text-muted text-xs">
-              Pro and Team plans are <span className="text-text-primary font-medium">coming soon</span>. All features are currently free during our beta.
+              Pro and Team plans are <span className="text-text-primary font-medium">coming soon</span>. All core features are free.
             </p>
           ) : (
             <p className="text-text-muted text-xs">
@@ -331,7 +331,7 @@ export default function PricingPage() {
           )}
           <div className="flex items-center justify-center gap-1.5 mt-2 text-text-muted text-[10px]">
             <Shield size={10} />
-            <span>{stripeConfigured ? 'Secure payments powered by Stripe.' : 'Free during beta. No credit card required.'}</span>
+            <span>{stripeConfigured ? 'Secure payments powered by Stripe.' : 'No credit card required.'}</span>
           </div>
         </div>
       </div>

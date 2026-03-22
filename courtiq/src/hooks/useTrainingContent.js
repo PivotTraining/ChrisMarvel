@@ -1,15 +1,19 @@
 import { useState, useEffect, useCallback } from 'react'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../contexts/AuthContext'
+import { DEMO_MODE } from '../lib/demoData'
 
 export function useTrainingContent(contentType) {
   const { user } = useAuth()
   const [content, setContent] = useState([])
   const [savedIds, setSavedIds] = useState(new Set())
-  const [loading, setLoading] = useState(true)
+  const [loading, setLoading] = useState(!DEMO_MODE)
+  const [error, setError] = useState(null)
 
   const fetchContent = useCallback(async () => {
+    if (DEMO_MODE || !supabase) { setLoading(false); return }
     setLoading(true)
+    setError(null)
 
     let query = supabase
       .from('training_content')
@@ -21,8 +25,13 @@ export function useTrainingContent(contentType) {
       query = query.eq('content_type', contentType)
     }
 
-    const { data, error } = await query
-    if (!error) setContent(data || [])
+    const { data, error: fetchError } = await query
+    if (fetchError) {
+      console.error('Failed to fetch training content:', fetchError.message)
+      setError(fetchError.message)
+    } else {
+      setContent(data || [])
+    }
 
     // Fetch saved content IDs
     if (user) {
@@ -42,7 +51,7 @@ export function useTrainingContent(contentType) {
   useEffect(() => { fetchContent() }, [fetchContent])
 
   async function toggleSave(contentId) {
-    if (!user) return
+    if (DEMO_MODE || !user || !supabase) return
 
     if (savedIds.has(contentId)) {
       await supabase
@@ -66,20 +75,15 @@ export function useTrainingContent(contentType) {
   }
 
   async function recordView(contentId) {
-    if (!user) return
+    if (DEMO_MODE || !user || !supabase) return
 
-    await supabase.rpc('upsert_content_view', {
-      p_user_id: user.id,
-      p_content_id: contentId,
-    }).catch(() => {
-      // Fallback: just insert/update directly
-      supabase
-        .from('user_content_history')
-        .upsert(
-          { user_id: user.id, content_id: contentId, last_viewed_at: new Date().toISOString(), view_count: 1 },
-          { onConflict: 'user_id,content_id' }
-        )
-    })
+    await supabase
+      .from('user_content_history')
+      .upsert(
+        { user_id: user.id, content_id: contentId, last_viewed_at: new Date().toISOString(), view_count: 1 },
+        { onConflict: 'user_id,content_id' }
+      )
+      .then(null, () => {}) // silently ignore view tracking errors
   }
 
   const featured = content.filter(c => c.is_featured)
@@ -91,6 +95,7 @@ export function useTrainingContent(contentType) {
     categories,
     savedIds,
     loading,
+    error,
     toggleSave,
     recordView,
     refetch: fetchContent,

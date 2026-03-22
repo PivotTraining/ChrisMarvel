@@ -1,17 +1,20 @@
 import { useState, useEffect, useCallback } from 'react'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../contexts/AuthContext'
+import { DEMO_MODE } from '../lib/demoData'
 
 export function useBadges() {
   const { user } = useAuth()
   const [badges, setBadges] = useState([])
   const [earnedBadges, setEarnedBadges] = useState([])
   const [challenges, setChallenges] = useState([])
-  const [loading, setLoading] = useState(true)
+  const [loading, setLoading] = useState(!DEMO_MODE)
+  const [error, setError] = useState(null)
 
   const fetchAll = useCallback(async () => {
-    if (!user) return
+    if (DEMO_MODE || !user || !supabase) { setLoading(false); return }
     setLoading(true)
+    setError(null)
 
     const [badgesRes, earnedRes, challengesRes] = await Promise.all([
       supabase.from('badges').select('*').order('name'),
@@ -28,7 +31,12 @@ export function useBadges() {
         .limit(10),
     ])
 
-    if (!badgesRes.error) setBadges(badgesRes.data || [])
+    if (badgesRes.error) {
+      console.error('Failed to fetch badges:', badgesRes.error.message)
+      setError(badgesRes.error.message)
+    } else {
+      setBadges(badgesRes.data || [])
+    }
     if (!earnedRes.error) setEarnedBadges(earnedRes.data || [])
     if (!challengesRes.error) setChallenges(challengesRes.data || [])
     setLoading(false)
@@ -44,6 +52,7 @@ export function useBadges() {
     earnedBadgeIds,
     challenges,
     loading,
+    error,
     refetch: fetchAll,
   }
 }

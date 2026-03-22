@@ -7,10 +7,12 @@ export function useShots(sessionDate) {
   const { user } = useAuth()
   const [shots, setShots] = useState(DEMO_MODE ? demoShots : [])
   const [loading, setLoading] = useState(!DEMO_MODE)
+  const [error, setError] = useState(null)
 
   const fetchShots = useCallback(async () => {
-    if (DEMO_MODE || !user) return
+    if (DEMO_MODE || !user || !supabase) return
     setLoading(true)
+    setError(null)
 
     let query = supabase
       .from('shot_logs')
@@ -24,14 +26,24 @@ export function useShots(sessionDate) {
       query = query.limit(200)
     }
 
-    const { data, error } = await query
-    if (!error) setShots(data || [])
+    const { data, error: fetchError } = await query
+    if (fetchError) {
+      console.error('Failed to fetch shots:', fetchError.message)
+      setError(fetchError.message)
+    } else {
+      setShots(data || [])
+    }
     setLoading(false)
   }, [user, sessionDate])
 
   useEffect(() => { if (!DEMO_MODE) fetchShots() }, [fetchShots])
 
   async function addShot(shot) {
+    if (DEMO_MODE) {
+      const newShot = { ...shot, id: `demo-shot-${Date.now()}`, user_id: 'demo-user-001', created_at: new Date().toISOString() }
+      setShots(prev => [newShot, ...prev])
+      return { data: newShot, error: null }
+    }
     const { data, error } = await supabase
       .from('shot_logs')
       .insert({ ...shot, user_id: user.id })
@@ -45,6 +57,10 @@ export function useShots(sessionDate) {
   }
 
   async function deleteShot(id) {
+    if (DEMO_MODE) {
+      setShots(prev => prev.filter(s => s.id !== id))
+      return { error: null }
+    }
     const { error } = await supabase
       .from('shot_logs')
       .delete()
@@ -65,5 +81,5 @@ export function useShots(sessionDate) {
       : 0,
   }
 
-  return { shots, stats, loading, addShot, deleteShot, refetch: fetchShots }
+  return { shots, stats, loading, error, addShot, deleteShot, refetch: fetchShots }
 }

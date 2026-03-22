@@ -28,7 +28,7 @@ export default defineConfig({
         start_url: base,
         icons: [
           {
-            src: '/favicon.svg',
+            src: `${base}favicon.svg`,
             sizes: 'any',
             type: 'image/svg+xml',
             purpose: 'any maskable',

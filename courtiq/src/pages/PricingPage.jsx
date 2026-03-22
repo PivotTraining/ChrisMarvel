@@ -17,7 +17,7 @@ const PLANS = [
     features: [
       'Game logging with full box score',
       'Shot tracking (11 court zones)',
-      'Up to 50 drill sessions',
+      'Drill session logging',
       'Basic analytics & averages',
       'Journal & goal tracking',
       'Drill library access',
@@ -30,16 +30,15 @@ const PLANS = [
     price: '$7.99',
     period: '/month',
     description: 'Unlock the full toolkit to elevate your training.',
-    cta: 'Upgrade to Pro',
-    ctaDisabled: false,
+    cta: 'Coming Soon',
+    ctaDisabled: true,
     highlight: true,
-    badge: 'Most Popular',
+    badge: 'Coming Soon',
     icon: Crown,
     iconColor: 'text-gold',
     iconBg: 'bg-gold/10 border-gold/20',
     features: [
       'Everything in Free, plus:',
-      'Unlimited drill sessions',
       'Advanced analytics & trends',
       'Shot heatmap & zone breakdowns',
       'AI-powered game insights',
@@ -54,8 +53,8 @@ const PLANS = [
     price: '$19.99',
     period: '/month',
     description: 'Built for coaches, trainers, and organized teams.',
-    cta: 'Contact Sales',
-    ctaDisabled: false,
+    cta: 'Coming Soon',
+    ctaDisabled: true,
     highlight: false,
     icon: Users,
     iconColor: 'text-success',
@@ -262,11 +261,11 @@ export default function PricingPage() {
         {/* Bottom note */}
         <div className="text-center pb-8">
           <p className="text-text-muted text-xs">
-            All plans include a <span className="text-text-primary font-medium">14-day free trial</span> of Pro features. No credit card required.
+            Pro and Team plans are <span className="text-text-primary font-medium">coming soon</span>. All features are currently free during our beta.
           </p>
           <div className="flex items-center justify-center gap-1.5 mt-2 text-text-muted text-[10px]">
             <Shield size={10} />
-            <span>Cancel anytime. No hidden fees.</span>
+            <span>Free during beta. No credit card required.</span>
           </div>
         </div>
       </div>

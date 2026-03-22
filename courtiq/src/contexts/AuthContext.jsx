@@ -74,6 +74,17 @@ export function AuthProvider({ children }) {
     return { data, error }
   }
 
+  async function signInWithGoogle() {
+    if (!supabase) return { error: { message: 'Auth not available in demo mode' } }
+    const { data, error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: window.location.origin + '/ChrisMarvel/',
+      },
+    })
+    return { data, error }
+  }
+
   async function signOut() {
     await supabase.auth.signOut()
     setSession(null)
@@ -96,6 +107,11 @@ export function AuthProvider({ children }) {
     return { data, error }
   }
 
+  // Subscription convenience fields derived from profile
+  const subscriptionTier = profile?.subscription_tier || 'free'
+  const subscriptionActive = subscriptionTier !== 'free' &&
+    (!profile?.subscription_expires_at || new Date(profile.subscription_expires_at) > new Date())
+
   const value = {
     session,
     user: session?.user ?? null,
@@ -103,10 +119,13 @@ export function AuthProvider({ children }) {
     loading,
     signUp,
     signIn,
+    signInWithGoogle,
     signOut,
     resetPassword,
     updateProfile,
     refreshProfile: () => session?.user && fetchProfile(session.user.id),
+    subscriptionTier,
+    subscriptionActive,
   }
 
   return (

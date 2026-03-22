@@ -25,6 +25,9 @@ export const demoProfile = {
   recruiting_bio: 'Two-way guard with a high motor. Team captain and 3-year starter. Looking to compete at the next level.',
   recruiting_slug: 'chris-marvel-x7k2',
   recruiting_profile_public: true,
+  subscription_tier: 'free',
+  stripe_customer_id: null,
+  subscription_expires_at: null,
   created_at: '2025-09-01T00:00:00Z',
   updated_at: new Date().toISOString(),
 }

@@ -1,15 +1,15 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { ArrowLeft, Check, Crown, Zap, Users, Shield } from 'lucide-react'
+import { ArrowLeft, Check, Crown, Zap, Users, Shield, Loader2 } from 'lucide-react'
+import { useSubscription } from '../hooks/useSubscription'
 
 const PLANS = [
   {
+    id: 'free',
     name: 'Free',
     price: '$0',
     period: 'forever',
     description: 'Everything you need to start tracking your game.',
-    cta: 'Current Plan',
-    ctaDisabled: true,
     highlight: false,
     icon: Zap,
     iconColor: 'text-blue',
@@ -26,14 +26,13 @@ const PLANS = [
     ],
   },
   {
+    id: 'pro',
     name: 'Pro',
     price: '$7.99',
     period: '/month',
     description: 'Unlock the full toolkit to elevate your training.',
-    cta: 'Coming Soon',
-    ctaDisabled: true,
     highlight: true,
-    badge: 'Coming Soon',
+    badge: 'Most Popular',
     icon: Crown,
     iconColor: 'text-gold',
     iconBg: 'bg-gold/10 border-gold/20',
@@ -49,12 +48,11 @@ const PLANS = [
     ],
   },
   {
+    id: 'team',
     name: 'Team',
     price: '$19.99',
     period: '/month',
     description: 'Built for coaches, trainers, and organized teams.',
-    cta: 'Coming Soon',
-    ctaDisabled: true,
     highlight: false,
     icon: Users,
     iconColor: 'text-success',
@@ -98,6 +96,7 @@ export default function PricingPage() {
   const navigate = useNavigate()
   const [annual, setAnnual] = useState(false)
   const [showComparison, setShowComparison] = useState(false)
+  const { tier, checkout, manageBilling, loading, error: subError, stripeConfigured } = useSubscription()
 
   function displayPrice(plan) {
     if (plan.price === '$0') return '$0'
@@ -110,6 +109,34 @@ export default function PricingPage() {
     if (val === true) return <Check size={16} className="text-success mx-auto" />
     if (val === false) return <span className="text-text-muted">—</span>
     return <span className="text-text-secondary text-xs">{val}</span>
+  }
+
+  function getCtaLabel(plan) {
+    if (plan.id === 'free') {
+      return tier === 'free' ? 'Current Plan' : 'Downgrade'
+    }
+    if (plan.id === tier) return 'Current Plan'
+    if (!stripeConfigured) return 'Coming Soon'
+    // Upgrade from lower tier
+    const tierRank = { free: 0, pro: 1, team: 2 }
+    if (tierRank[plan.id] > tierRank[tier]) return `Upgrade to ${plan.name}`
+    return 'Switch Plan'
+  }
+
+  function isCtaDisabled(plan) {
+    if (plan.id === tier) return true
+    if (plan.id === 'free' && tier === 'free') return true
+    if (!stripeConfigured) return true
+    return false
+  }
+
+  function handleCtaClick(plan) {
+    if (plan.id === 'free') {
+      // To downgrade, user should manage billing via Stripe portal
+      if (tier !== 'free') manageBilling()
+      return
+    }
+    checkout(plan.id, annual)
   }
 
   return (
@@ -129,6 +156,26 @@ export default function PricingPage() {
             <p className="text-sm text-text-muted">Choose the plan that fits your game.</p>
           </div>
         </div>
+
+        {/* Error message */}
+        {subError && (
+          <div className="mb-6 px-4 py-3 rounded-xl bg-danger/10 border border-danger/20 text-danger text-xs text-center">
+            {subError}
+          </div>
+        )}
+
+        {/* Manage billing link for subscribed users */}
+        {tier !== 'free' && stripeConfigured && (
+          <div className="text-center mb-6">
+            <button
+              onClick={manageBilling}
+              disabled={loading}
+              className="text-sm text-blue font-medium hover:text-blue-dark transition-colors"
+            >
+              Manage Billing & Invoices
+            </button>
+          </div>
+        )}
 
         {/* Billing toggle */}
         <div className="flex justify-center mb-8">
@@ -156,19 +203,30 @@ export default function PricingPage() {
         <div className="grid md:grid-cols-3 gap-4 mb-8">
           {PLANS.map(plan => {
             const Icon = plan.icon
+            const isCurrent = plan.id === tier
+            const disabled = isCtaDisabled(plan)
             return (
               <div
                 key={plan.name}
                 className={`relative rounded-2xl p-5 ${
                   plan.highlight
                     ? 'bg-bg-card border-2 border-blue ring-1 ring-blue/20'
-                    : 'bg-bg-card border border-border'
+                    : isCurrent
+                      ? 'bg-bg-card border-2 border-success ring-1 ring-success/20'
+                      : 'bg-bg-card border border-border'
                 }`}
               >
-                {plan.badge && (
+                {plan.badge && !isCurrent && (
                   <div className="absolute -top-2.5 left-1/2 -translate-x-1/2">
                     <span className="bg-blue text-white text-[10px] font-bold px-3 py-0.5 rounded-full">
                       {plan.badge}
+                    </span>
+                  </div>
+                )}
+                {isCurrent && (
+                  <div className="absolute -top-2.5 left-1/2 -translate-x-1/2">
+                    <span className="bg-success text-white text-[10px] font-bold px-3 py-0.5 rounded-full">
+                      Current Plan
                     </span>
                   </div>
                 )}
@@ -189,16 +247,18 @@ export default function PricingPage() {
                 )}
 
                 <button
-                  disabled={plan.ctaDisabled}
-                  className={`w-full py-2.5 rounded-xl text-xs font-semibold transition-all mb-4 ${
-                    plan.ctaDisabled
+                  disabled={disabled || loading}
+                  onClick={() => handleCtaClick(plan)}
+                  className={`w-full py-2.5 rounded-xl text-xs font-semibold transition-all mb-4 flex items-center justify-center gap-2 ${
+                    disabled
                       ? 'bg-bg-section border border-border text-text-muted cursor-default'
                       : plan.highlight
                         ? 'bg-blue hover:bg-blue-dark text-white'
                         : 'bg-bg-section border border-border text-text-primary hover:border-blue-border'
                   }`}
                 >
-                  {plan.cta}
+                  {loading && <Loader2 size={14} className="animate-spin" />}
+                  {getCtaLabel(plan)}
                 </button>
 
                 <ul className="space-y-2">
@@ -260,12 +320,18 @@ export default function PricingPage() {
 
         {/* Bottom note */}
         <div className="text-center pb-8">
-          <p className="text-text-muted text-xs">
-            Pro and Team plans are <span className="text-text-primary font-medium">coming soon</span>. All features are currently free during our beta.
-          </p>
+          {!stripeConfigured ? (
+            <p className="text-text-muted text-xs">
+              Pro and Team plans are <span className="text-text-primary font-medium">coming soon</span>. All features are currently free during our beta.
+            </p>
+          ) : (
+            <p className="text-text-muted text-xs">
+              Cancel anytime. All plans include a <span className="text-text-primary font-medium">7-day free trial</span>.
+            </p>
+          )}
           <div className="flex items-center justify-center gap-1.5 mt-2 text-text-muted text-[10px]">
             <Shield size={10} />
-            <span>Free during beta. No credit card required.</span>
+            <span>{stripeConfigured ? 'Secure payments powered by Stripe.' : 'Free during beta. No credit card required.'}</span>
           </div>
         </div>
       </div>

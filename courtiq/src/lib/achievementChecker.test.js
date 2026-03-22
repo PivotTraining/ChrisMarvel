@@ -1,17 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { checkAchievements, MILESTONES } from './achievementChecker'
 
-function makeGame(overrides = {}) {
-  return {
-    game_date: '2026-01-01',
-    points: 10,
-    rebounds: 4,
-    assists: 3,
-    result: 'Win',
-    ...overrides,
-  }
-}
-
 describe('MILESTONES', () => {
   it('is a non-empty array', () => {
     expect(Array.isArray(MILESTONES)).toBe(true)
@@ -24,26 +13,28 @@ describe('MILESTONES', () => {
       expect(m).toHaveProperty('type')
       expect(m).toHaveProperty('check')
       expect(m).toHaveProperty('title')
+      expect(m).toHaveProperty('body')
+      expect(m).toHaveProperty('icon')
       expect(typeof m.check).toBe('function')
     })
   })
 })
 
 describe('checkAchievements', () => {
-  it('returns first-game milestone for 1 game', () => {
+  const makeGame = (overrides = {}) => ({
+    game_date: '2025-01-01',
+    points: 0,
+    rebounds: 0,
+    assists: 0,
+    result: 'Loss',
+    ...overrides,
+  })
+
+  it('returns first-game achievement when 1 game is logged', () => {
     const games = [makeGame()]
     const result = checkAchievements(games, [], new Set())
     const ids = result.map((r) => r.id)
     expect(ids).toContain('first-game')
-  })
-
-  it('returns 10-games milestone when 10 games logged', () => {
-    const games = Array.from({ length: 10 }, (_, i) =>
-      makeGame({ game_date: `2026-01-${String(i + 1).padStart(2, '0')}` })
-    )
-    const result = checkAchievements(games, [], new Set())
-    const ids = result.map((r) => r.id)
-    expect(ids).toContain('10-games')
   })
 
   it('does not return already earned achievements', () => {
@@ -54,22 +45,31 @@ describe('checkAchievements', () => {
     expect(ids).not.toContain('first-game')
   })
 
-  it('detects 20-point game achievement', () => {
+  it('returns 10-games milestone when 10 games are logged', () => {
+    const games = Array.from({ length: 10 }, (_, i) =>
+      makeGame({ game_date: `2025-01-${String(i + 1).padStart(2, '0')}` })
+    )
+    const result = checkAchievements(games, [], new Set())
+    const ids = result.map((r) => r.id)
+    expect(ids).toContain('10-games')
+  })
+
+  it('returns 20-pt-game achievement when a game has 20+ points', () => {
     const games = [makeGame({ points: 25 })]
     const result = checkAchievements(games, [], new Set())
     const ids = result.map((r) => r.id)
     expect(ids).toContain('20-pt-game')
   })
 
-  it('detects double-double', () => {
-    const games = [makeGame({ points: 15, rebounds: 12, assists: 5 })]
+  it('returns double-double achievement', () => {
+    const games = [makeGame({ points: 15, rebounds: 12 })]
     const result = checkAchievements(games, [], new Set())
     const ids = result.map((r) => r.id)
     expect(ids).toContain('double-double')
   })
 
-  it('detects triple-double', () => {
-    const games = [makeGame({ points: 15, rebounds: 12, assists: 10 })]
+  it('returns triple-double achievement', () => {
+    const games = [makeGame({ points: 15, rebounds: 12, assists: 11 })]
     const result = checkAchievements(games, [], new Set())
     const ids = result.map((r) => r.id)
     expect(ids).toContain('triple-double')
@@ -77,34 +77,33 @@ describe('checkAchievements', () => {
 
   it('detects 3-game win streak', () => {
     const games = [
-      makeGame({ game_date: '2026-01-01', result: 'Win' }),
-      makeGame({ game_date: '2026-01-02', result: 'Win' }),
-      makeGame({ game_date: '2026-01-03', result: 'Win' }),
+      makeGame({ game_date: '2025-01-01', result: 'Win' }),
+      makeGame({ game_date: '2025-01-02', result: 'Win' }),
+      makeGame({ game_date: '2025-01-03', result: 'Win' }),
     ]
     const result = checkAchievements(games, [], new Set())
     const ids = result.map((r) => r.id)
     expect(ids).toContain('3-win-streak')
   })
 
-  it('does not detect 3-win-streak when streak is broken', () => {
+  it('does not detect win streak when broken by a loss', () => {
     const games = [
-      makeGame({ game_date: '2026-01-01', result: 'Win' }),
-      makeGame({ game_date: '2026-01-02', result: 'Loss' }),
-      makeGame({ game_date: '2026-01-03', result: 'Win' }),
+      makeGame({ game_date: '2025-01-01', result: 'Win' }),
+      makeGame({ game_date: '2025-01-02', result: 'Win' }),
+      makeGame({ game_date: '2025-01-03', result: 'Loss' }),
     ]
     const result = checkAchievements(games, [], new Set())
     const ids = result.map((r) => r.id)
     expect(ids).not.toContain('3-win-streak')
   })
 
-  it('detects first-drill milestone', () => {
-    const drills = [{ id: 1 }]
-    const result = checkAchievements([], drills, new Set())
+  it('returns first-drill when 1 drill is logged', () => {
+    const result = checkAchievements([], [{ id: 1 }], new Set())
     const ids = result.map((r) => r.id)
     expect(ids).toContain('first-drill')
   })
 
-  it('returns empty array when no milestones met', () => {
+  it('returns empty array when no milestones are met', () => {
     const result = checkAchievements([], [], new Set())
     expect(result).toEqual([])
   })

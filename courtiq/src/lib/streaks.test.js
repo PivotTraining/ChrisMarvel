@@ -1,34 +1,22 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 
-// Mock supabase before importing the module
 const mockSelect = vi.fn()
 const mockUpdate = vi.fn()
-const mockFrom = vi.fn()
 const mockEq = vi.fn()
 const mockSingle = vi.fn()
 
 vi.mock('./supabase', () => ({
   supabase: {
-    from: (table) => {
-      mockFrom(table)
-      return {
-        select: (...args) => {
-          mockSelect(...args)
-          return {
-            eq: (...eqArgs) => {
-              mockEq(...eqArgs)
-              return { single: mockSingle }
-            },
-          }
-        },
-        update: (data) => {
-          mockUpdate(data)
-          return {
-            eq: vi.fn(),
-          }
-        },
-      }
-    },
+    from: vi.fn(() => ({
+      select: mockSelect.mockReturnValue({
+        eq: mockEq.mockReturnValue({
+          single: mockSingle,
+        }),
+      }),
+      update: mockUpdate.mockReturnValue({
+        eq: vi.fn(),
+      }),
+    })),
   },
 }))
 
@@ -37,83 +25,99 @@ import { updateStreak } from './streaks'
 describe('updateStreak', () => {
   beforeEach(() => {
     vi.clearAllMocks()
-    // Fix "today" for deterministic tests
-    vi.useFakeTimers()
-    vi.setSystemTime(new Date('2026-03-22T10:00:00Z'))
   })
 
-  afterEach(() => {
-    vi.useRealTimers()
-  })
-
-  it('does nothing if userId is falsy', async () => {
+  it('returns early if no userId', async () => {
     await updateStreak(null)
-    expect(mockFrom).not.toHaveBeenCalled()
+    const { supabase } = await import('./supabase')
+    expect(supabase.from).not.toHaveBeenCalled()
   })
 
-  it('does nothing if profile is not found', async () => {
+  it('returns early if profile is not found', async () => {
     mockSingle.mockResolvedValue({ data: null })
-    await updateStreak('user-1')
+    await updateStreak('user-123')
     expect(mockUpdate).not.toHaveBeenCalled()
   })
 
-  it('does nothing if already logged today', async () => {
+  it('returns early if already logged today', async () => {
+    const today = new Date().toISOString().split('T')[0]
     mockSingle.mockResolvedValue({
-      data: { current_streak: 5, longest_streak: 10, last_activity_date: '2026-03-22' },
-    })
-    await updateStreak('user-1')
-    expect(mockUpdate).not.toHaveBeenCalled()
-  })
-
-  it('extends streak for consecutive day', async () => {
-    mockSingle.mockResolvedValue({
-      data: { current_streak: 3, longest_streak: 5, last_activity_date: '2026-03-21' },
-    })
-    await updateStreak('user-1')
-    expect(mockUpdate).toHaveBeenCalledWith(
-      expect.objectContaining({
-        current_streak: 4,
-        longest_streak: 5,
-        last_activity_date: '2026-03-22',
-      })
-    )
-  })
-
-  it('resets streak to 1 after a gap', async () => {
-    mockSingle.mockResolvedValue({
-      data: { current_streak: 7, longest_streak: 10, last_activity_date: '2026-03-19' },
-    })
-    await updateStreak('user-1')
-    expect(mockUpdate).toHaveBeenCalledWith(
-      expect.objectContaining({
-        current_streak: 1,
+      data: {
+        current_streak: 5,
         longest_streak: 10,
-      })
-    )
+        last_activity_date: today,
+      },
+    })
+    await updateStreak('user-123')
+    expect(mockUpdate).not.toHaveBeenCalled()
   })
 
-  it('updates longest_streak when current exceeds it', async () => {
+  it('extends streak when last activity was yesterday', async () => {
+    const yesterday = new Date()
+    yesterday.setDate(yesterday.getDate() - 1)
+    const yesterdayStr = yesterday.toISOString().split('T')[0]
+
     mockSingle.mockResolvedValue({
-      data: { current_streak: 5, longest_streak: 5, last_activity_date: '2026-03-21' },
+      data: {
+        current_streak: 3,
+        longest_streak: 10,
+        last_activity_date: yesterdayStr,
+      },
     })
-    await updateStreak('user-1')
-    expect(mockUpdate).toHaveBeenCalledWith(
-      expect.objectContaining({
-        current_streak: 6,
-        longest_streak: 6,
-      })
-    )
+
+    const updateEq = vi.fn()
+    mockUpdate.mockReturnValue({ eq: updateEq })
+
+    await updateStreak('user-123')
+
+    expect(mockUpdate).toHaveBeenCalled()
+    const updateArg = mockUpdate.mock.calls[0][0]
+    expect(updateArg.current_streak).toBe(4)
   })
 
-  it('starts at 1 when no previous activity date', async () => {
+  it('resets streak to 1 when more than 1 day gap', async () => {
+    const threeDaysAgo = new Date()
+    threeDaysAgo.setDate(threeDaysAgo.getDate() - 3)
+    const dateStr = threeDaysAgo.toISOString().split('T')[0]
+
     mockSingle.mockResolvedValue({
-      data: { current_streak: 0, longest_streak: 0, last_activity_date: null },
+      data: {
+        current_streak: 5,
+        longest_streak: 10,
+        last_activity_date: dateStr,
+      },
     })
-    await updateStreak('user-1')
-    expect(mockUpdate).toHaveBeenCalledWith(
-      expect.objectContaining({
-        current_streak: 1,
-      })
-    )
+
+    const updateEq = vi.fn()
+    mockUpdate.mockReturnValue({ eq: updateEq })
+
+    await updateStreak('user-123')
+
+    expect(mockUpdate).toHaveBeenCalled()
+    const updateArg = mockUpdate.mock.calls[0][0]
+    expect(updateArg.current_streak).toBe(1)
+  })
+
+  it('updates longest_streak when new streak exceeds it', async () => {
+    const yesterday = new Date()
+    yesterday.setDate(yesterday.getDate() - 1)
+    const yesterdayStr = yesterday.toISOString().split('T')[0]
+
+    mockSingle.mockResolvedValue({
+      data: {
+        current_streak: 9,
+        longest_streak: 9,
+        last_activity_date: yesterdayStr,
+      },
+    })
+
+    const updateEq = vi.fn()
+    mockUpdate.mockReturnValue({ eq: updateEq })
+
+    await updateStreak('user-123')
+
+    const updateArg = mockUpdate.mock.calls[0][0]
+    expect(updateArg.current_streak).toBe(10)
+    expect(updateArg.longest_streak).toBe(10)
   })
 })

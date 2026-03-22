@@ -1,28 +1,24 @@
-import { render, screen } from '@testing-library/react'
-import userEvent from '@testing-library/user-event'
+import { render, screen, fireEvent } from '@testing-library/react'
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import ErrorBoundary from './ErrorBoundary'
 
-// Mock monitoring module
 vi.mock('../lib/monitoring', () => ({
   trackError: vi.fn(),
 }))
 
-// Component that throws on demand
-function ThrowingChild({ shouldThrow }) {
+function ThrowingComponent({ shouldThrow }) {
   if (shouldThrow) {
     throw new Error('Test error')
   }
   return <div>Child content</div>
 }
 
-// Suppress React error boundary console noise
 beforeEach(() => {
   vi.spyOn(console, 'error').mockImplementation(() => {})
 })
 
 describe('ErrorBoundary', () => {
-  it('renders children when no error', () => {
+  it('renders children when there is no error', () => {
     render(
       <ErrorBoundary>
         <div>Normal content</div>
@@ -34,45 +30,57 @@ describe('ErrorBoundary', () => {
   it('shows fallback UI when a child throws', () => {
     render(
       <ErrorBoundary>
-        <ThrowingChild shouldThrow />
+        <ThrowingComponent shouldThrow />
       </ErrorBoundary>
     )
     expect(screen.getByText('Something went wrong')).toBeInTheDocument()
     expect(screen.getByText('Try Again')).toBeInTheDocument()
   })
 
-  it('shows network error message for network errors', () => {
-    function NetworkErrorChild() {
-      throw new Error('Failed to fetch')
+  it('Try Again button resets error state', () => {
+    // Use a flag to control throwing behavior
+    let shouldThrow = true
+
+    function ConditionalThrower() {
+      if (shouldThrow) {
+        throw new Error('Test error')
+      }
+      return <div>Child content</div>
     }
+
     render(
       <ErrorBoundary>
-        <NetworkErrorChild />
+        <ConditionalThrower />
+      </ErrorBoundary>
+    )
+    expect(screen.getByText('Something went wrong')).toBeInTheDocument()
+
+    // Stop throwing before clicking Try Again
+    shouldThrow = false
+    fireEvent.click(screen.getByText('Try Again'))
+
+    expect(screen.getByText('Child content')).toBeInTheDocument()
+  })
+
+  it('shows network error message for fetch errors', () => {
+    function NetworkErrorComponent() {
+      throw new TypeError('Failed to fetch')
+    }
+
+    render(
+      <ErrorBoundary>
+        <NetworkErrorComponent />
       </ErrorBoundary>
     )
     expect(screen.getByText('Connection problem')).toBeInTheDocument()
   })
 
-  it('recovers when Try Again is clicked', async () => {
-    const user = userEvent.setup()
-    let shouldThrow = true
-
-    function ConditionalThrow() {
-      if (shouldThrow) throw new Error('Boom')
-      return <div>Recovered</div>
-    }
-
-    const { rerender } = render(
+  it('shows Refresh page button', () => {
+    render(
       <ErrorBoundary>
-        <ConditionalThrow />
+        <ThrowingComponent shouldThrow />
       </ErrorBoundary>
     )
-
-    expect(screen.getByText('Something went wrong')).toBeInTheDocument()
-
-    shouldThrow = false
-    await user.click(screen.getByText('Try Again'))
-
-    expect(screen.getByText('Recovered')).toBeInTheDocument()
+    expect(screen.getByText('Refresh page')).toBeInTheDocument()
   })
 })

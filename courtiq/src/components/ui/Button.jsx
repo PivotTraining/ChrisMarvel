@@ -20,6 +20,9 @@ export default function Button({
   className = '',
   fullWidth = false,
   onClick,
+  disabled = false,
+  type = 'button',
+  'aria-label': ariaLabel,
   ...props
 }) {
   const handleClick = (e) => {
@@ -29,12 +32,17 @@ export default function Button({
 
   return (
     <button
+      type={type}
+      disabled={disabled}
+      aria-label={ariaLabel}
+      aria-disabled={disabled || undefined}
       className={`
         inline-flex items-center justify-center gap-2
         rounded-xl font-semibold
         transition-all duration-200
         active:scale-[0.97]
         disabled:opacity-50 disabled:pointer-events-none
+        focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue focus-visible:ring-offset-2 focus-visible:ring-offset-bg-primary
         ${variants[variant]}
         ${sizes[size]}
         ${fullWidth ? 'w-full' : ''}

@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../contexts/AuthContext'
-import { DEMO_MODE, demoWorkoutTemplates } from '../lib/demoData'
+import { isDemoMode, demoWorkoutTemplates } from '../lib/demoData'
 
 export function useWorkouts() {
   const { user } = useAuth()
@@ -12,7 +12,7 @@ export function useWorkouts() {
     if (!user) return
     setLoading(true)
 
-    if (DEMO_MODE) {
+    if (isDemoMode()) {
       // In demo mode, load preloaded workouts plus any user-created ones from local state
       setTemplates(prev => {
         // On first load, use demo templates; after that, preserve user additions
@@ -37,7 +37,7 @@ export function useWorkouts() {
   useEffect(() => { fetchTemplates() }, [fetchTemplates])
 
   async function addTemplate(template) {
-    if (DEMO_MODE) {
+    if (isDemoMode()) {
       const newTemplate = {
         ...template,
         id: `wt-custom-${Date.now()}`,
@@ -62,7 +62,7 @@ export function useWorkouts() {
   }
 
   async function updateTemplate(id, updates) {
-    if (DEMO_MODE) {
+    if (isDemoMode()) {
       const updated = { ...updates, id, updated_at: new Date().toISOString() }
       setTemplates(prev => prev.map(t => t.id === id ? { ...t, ...updated } : t))
       return { data: updated, error: null }
@@ -82,7 +82,7 @@ export function useWorkouts() {
   }
 
   async function deleteTemplate(id) {
-    if (DEMO_MODE) {
+    if (isDemoMode()) {
       setTemplates(prev => prev.filter(t => t.id !== id))
       return { error: null }
     }

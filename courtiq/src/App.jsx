@@ -1,5 +1,5 @@
-import { lazy, Suspense } from 'react'
-import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { lazy, Suspense, useEffect } from 'react'
+import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom'
 import { AuthProvider } from './contexts/AuthContext'
 import { ToastProvider } from './contexts/ToastContext'
 import { ThemeProvider } from './contexts/ThemeContext'
@@ -7,6 +7,7 @@ import ProtectedRoute from './components/ProtectedRoute'
 import ErrorBoundary from './components/ErrorBoundary'
 import OfflineBanner from './components/OfflineBanner'
 import AppLayout from './layouts/AppLayout'
+import { trackPageView } from './lib/monitoring'
 
 // Eagerly loaded (core navigation)
 import Dashboard from './pages/Dashboard'
@@ -50,8 +51,18 @@ const Notifications = lazy(() => import('./pages/Notifications'))
 const FilmRoom = lazy(() => import('./pages/FilmRoom'))
 const RecruitingProfile = lazy(() => import('./pages/RecruitingProfile'))
 const PublicRecruit = lazy(() => import('./pages/PublicRecruit'))
+const TermsPage = lazy(() => import('./pages/TermsPage'))
+const PrivacyPage = lazy(() => import('./pages/PrivacyPage'))
 
 const basename = import.meta.env.BASE_URL
+
+function PageViewTracker() {
+  const location = useLocation()
+  useEffect(() => {
+    trackPageView(location.pathname)
+  }, [location.pathname])
+  return null
+}
 
 function PageLoader() {
   return (
@@ -67,6 +78,7 @@ export default function App() {
       <ThemeProvider>
       <OfflineBanner />
       <BrowserRouter basename={basename}>
+        <PageViewTracker />
         <AuthProvider>
           <ToastProvider>
           <Suspense fallback={<PageLoader />}>
@@ -76,6 +88,8 @@ export default function App() {
               <Route path="/login" element={<Login />} />
               <Route path="/signup" element={<Signup />} />
               <Route path="/onboarding" element={<Onboarding />} />
+              <Route path="/terms" element={<TermsPage />} />
+              <Route path="/privacy" element={<PrivacyPage />} />
 
               {/* Protected app routes */}
               <Route

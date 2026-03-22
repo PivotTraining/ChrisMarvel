@@ -90,7 +90,7 @@ export default function Dashboard() {
       <OnboardingTour />
       <div className="flex flex-col gap-8">
         {/* Header */}
-        <div className="flex items-start justify-between">
+        <header className="flex items-start justify-between">
           <SectionHeader
             title={`Hey, ${firstName}`}
             subtitle="Track your progress and daily work."
@@ -100,14 +100,14 @@ export default function Dashboard() {
             className="relative w-10 h-10 rounded-xl bg-bg-card border border-border flex items-center justify-center text-text-secondary hover:text-text-primary transition-colors shrink-0"
             aria-label="Notifications"
           >
-            <Bell size={18} />
+            <Bell size={18} aria-hidden="true" />
             {unreadCount > 0 && (
-              <span className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-danger text-white text-[10px] font-bold flex items-center justify-center">
+              <span className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-danger text-white text-[10px] font-bold flex items-center justify-center" aria-label={`${unreadCount > 9 ? '9+' : unreadCount} unread notifications`}>
                 {unreadCount > 9 ? '9+' : unreadCount}
               </span>
             )}
           </button>
-        </div>
+        </header>
 
         {/* Streak Banner */}
         {(() => {
@@ -144,7 +144,7 @@ export default function Dashboard() {
         })()}
 
         {/* Search */}
-        <div className="relative">
+        <div className="relative" role="search">
           <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-text-muted" />
           <input
             type="text"
@@ -154,6 +154,7 @@ export default function Dashboard() {
             onBlur={() => setTimeout(() => setSearchFocused(false), 200)}
             onKeyDown={e => { if (e.key === 'Enter' && query.trim()) saveSearch(query) }}
             placeholder="Search games, drills, sessions..."
+            aria-label="Search games, drills, and sessions"
             className="w-full rounded-xl bg-bg-card border border-border pl-10 pr-10 py-3 text-sm text-text-primary placeholder:text-text-muted focus:outline-none focus:border-blue-border transition-colors"
           />
           {query && (
@@ -170,8 +171,8 @@ export default function Dashboard() {
               <p className="text-[10px] text-text-muted uppercase font-medium flex items-center gap-1">
                 <Clock size={10} /> Recent
               </p>
-              <button onClick={clearRecentSearches} className="text-[10px] text-text-muted hover:text-text-secondary flex items-center gap-1">
-                <Trash2 size={10} /> Clear
+              <button onClick={clearRecentSearches} aria-label="Clear recent searches" className="text-[10px] text-text-muted hover:text-text-secondary flex items-center gap-1">
+                <Trash2 size={10} aria-hidden="true" /> Clear
               </button>
             </div>
             <div className="flex flex-wrap gap-1.5">
@@ -338,6 +339,7 @@ export default function Dashboard() {
               value={quickDrill}
               onChange={e => setQuickDrill(e.target.value)}
               placeholder="Drill name (e.g. Ball handling)"
+              aria-label="Quick log drill name"
               className="flex-1 rounded-lg bg-bg-section border border-border px-3 py-2 text-sm text-text-primary placeholder:text-text-muted focus:outline-none focus:border-blue-border transition-colors"
             />
             <Button type="submit" size="sm" disabled={quickLogging || !quickDrill.trim()}>

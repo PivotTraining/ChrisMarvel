@@ -1,16 +1,16 @@
 import { useState, useEffect, useCallback } from 'react'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../contexts/AuthContext'
-import { DEMO_MODE } from '../lib/demoData'
+import { isDemoMode } from '../lib/demoData'
 
 export function useGoals() {
   const { user } = useAuth()
   const [goals, setGoals] = useState([])
-  const [loading, setLoading] = useState(!DEMO_MODE)
+  const [loading, setLoading] = useState(!isDemoMode())
   const [error, setError] = useState(null)
 
   const fetchGoals = useCallback(async () => {
-    if (DEMO_MODE || !user || !supabase) { setLoading(false); return }
+    if (isDemoMode() || !user || !supabase) { setLoading(false); return }
     setLoading(true)
     setError(null)
     const { data, error: fetchError } = await supabase
@@ -32,7 +32,7 @@ export function useGoals() {
   useEffect(() => { fetchGoals() }, [fetchGoals])
 
   async function addGoal(goal) {
-    if (DEMO_MODE) {
+    if (isDemoMode()) {
       const newGoal = { ...goal, id: `demo-goal-${Date.now()}`, user_id: 'demo-user-001', created_at: new Date().toISOString() }
       setGoals(prev => [newGoal, ...prev])
       return { data: newGoal, error: null }
@@ -50,7 +50,7 @@ export function useGoals() {
   }
 
   async function updateGoal(id, updates) {
-    if (DEMO_MODE) {
+    if (isDemoMode()) {
       setGoals(prev => prev.map(g => g.id === id ? { ...g, ...updates } : g))
       return { data: { id, ...updates }, error: null }
     }
@@ -68,7 +68,7 @@ export function useGoals() {
   }
 
   async function deleteGoal(id) {
-    if (DEMO_MODE) {
+    if (isDemoMode()) {
       setGoals(prev => prev.filter(g => g.id !== id))
       return { error: null }
     }

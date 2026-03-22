@@ -1,15 +1,15 @@
 import { useState, useEffect, useCallback } from 'react'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../contexts/AuthContext'
-import { DEMO_MODE, demoNotifications } from '../lib/demoData'
+import { isDemoMode, demoNotifications } from '../lib/demoData'
 
 export function useNotifications() {
   const { user } = useAuth()
-  const [notifications, setNotifications] = useState(DEMO_MODE ? demoNotifications : [])
-  const [loading, setLoading] = useState(!DEMO_MODE)
+  const [notifications, setNotifications] = useState(isDemoMode() ? demoNotifications : [])
+  const [loading, setLoading] = useState(!isDemoMode())
 
   const fetchNotifications = useCallback(async () => {
-    if (DEMO_MODE || !user || !supabase) { setLoading(false); return }
+    if (isDemoMode() || !user || !supabase) { setLoading(false); return }
     setLoading(true)
     const { data, error } = await supabase
       .from('notifications')
@@ -22,12 +22,12 @@ export function useNotifications() {
     setLoading(false)
   }, [user])
 
-  useEffect(() => { if (!DEMO_MODE) fetchNotifications() }, [fetchNotifications])
+  useEffect(() => { if (!isDemoMode()) fetchNotifications() }, [fetchNotifications])
 
   const unreadCount = notifications.filter(n => !n.read).length
 
   async function markRead(id) {
-    if (DEMO_MODE) {
+    if (isDemoMode()) {
       setNotifications(prev => prev.map(n => n.id === id ? { ...n, read: true } : n))
       return
     }
@@ -42,7 +42,7 @@ export function useNotifications() {
   }
 
   async function markAllRead() {
-    if (DEMO_MODE) {
+    if (isDemoMode()) {
       setNotifications(prev => prev.map(n => ({ ...n, read: true })))
       return
     }
@@ -61,7 +61,7 @@ export function useNotifications() {
   }
 
   async function addNotification({ type, title, body, icon, action_url, metadata }) {
-    if (DEMO_MODE || !user) return { data: null, error: null }
+    if (isDemoMode() || !user) return { data: null, error: null }
     const { data, error } = await supabase
       .from('notifications')
       .insert({ user_id: user.id, type, title, body, icon, action_url, metadata })
@@ -75,7 +75,7 @@ export function useNotifications() {
   }
 
   async function deleteNotification(id) {
-    if (DEMO_MODE) {
+    if (isDemoMode()) {
       setNotifications(prev => prev.filter(n => n.id !== id))
       return
     }
@@ -90,7 +90,7 @@ export function useNotifications() {
   }
 
   async function clearAll() {
-    if (DEMO_MODE) {
+    if (isDemoMode()) {
       setNotifications([])
       return
     }

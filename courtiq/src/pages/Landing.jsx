@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import { Link } from 'react-router-dom';
 import {
   Target, Trophy, TrendingUp, Zap, BarChart3, Users,
   ChevronRight, Star, Activity, Menu, X, ArrowRight,
@@ -47,15 +48,15 @@ function Navbar() {
   const [open, setOpen] = useState(false);
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 bg-bg-primary/70 backdrop-blur-2xl border-b border-border">
+    <nav aria-label="Site navigation" className="fixed top-0 left-0 right-0 z-50 bg-bg-primary/70 backdrop-blur-2xl border-b border-border">
       <div className="max-w-[1280px] mx-auto px-6 lg:px-10 h-20 flex items-center justify-between">
         {/* Logo */}
-        <a href="#" className="flex items-center gap-3">
+        <Link to="/welcome" className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-xl bg-blue flex items-center justify-center">
             <Activity className="w-6 h-6 text-white" />
           </div>
           <span className="font-sans text-2xl font-bold text-text-primary tracking-wider">COURTIQ</span>
-        </a>
+        </Link>
 
         {/* Desktop nav */}
         <div className="hidden lg:flex items-center gap-10">
@@ -67,11 +68,11 @@ function Navbar() {
 
         {/* Desktop CTA */}
         <div className="hidden lg:flex items-center gap-4">
-          <a href="/login" className="text-text-secondary hover:text-white transition-colors text-sm font-medium">Log In</a>
-          <a href="/signup" className="btn-glow bg-blue hover:bg-blue-dark text-white px-6 py-2.5 rounded-full text-sm font-semibold flex items-center gap-2">
-            Get Early Access
+          <Link to="/login" className="text-text-secondary hover:text-white transition-colors text-sm font-medium">Log In</Link>
+          <Link to="/signup" className="btn-glow bg-blue hover:bg-blue-dark text-white px-6 py-2.5 rounded-full text-sm font-semibold flex items-center gap-2">
+            Sign Up Free
             <ArrowRight className="w-4 h-4" />
-          </a>
+          </Link>
         </div>
 
         {/* Mobile toggle */}
@@ -87,8 +88,8 @@ function Navbar() {
           <a href="#how-it-works" onClick={() => setOpen(false)} className="block text-text-secondary hover:text-white text-lg">How It Works</a>
           <a href="#pricing" onClick={() => setOpen(false)} className="block text-text-secondary hover:text-white text-lg">Pricing</a>
           <a href="#faq" onClick={() => setOpen(false)} className="block text-text-secondary hover:text-white text-lg">FAQ</a>
-          <a href="/login" onClick={() => setOpen(false)} className="block text-text-secondary hover:text-white text-lg">Log In</a>
-          <a href="/signup" onClick={() => setOpen(false)} className="block bg-blue text-white text-center px-6 py-3 rounded-full font-semibold mt-4">Get Early Access</a>
+          <Link to="/login" onClick={() => setOpen(false)} className="block text-text-secondary hover:text-white text-lg">Log In</Link>
+          <Link to="/signup" onClick={() => setOpen(false)} className="block bg-blue text-white text-center px-6 py-3 rounded-full font-semibold mt-4">Sign Up Free</Link>
         </div>
       )}
     </nav>
@@ -129,12 +130,12 @@ function Hero() {
             </p>
 
             <div className="flex flex-col sm:flex-row items-center lg:items-start gap-4 anim-delay-3">
-              <a href="/signup" className="btn-glow bg-blue hover:bg-blue-dark text-white px-8 py-3.5 rounded-full text-base font-bold flex items-center gap-2">
-                Get Early Access
+              <Link to="/signup" className="btn-glow bg-blue hover:bg-blue-dark text-white px-8 py-3.5 rounded-full text-base font-bold flex items-center gap-2">
+                Start Free
                 <ChevronRight className="w-4 h-4" />
-              </a>
+              </Link>
               <a href="#features" className="text-text-secondary hover:text-white px-6 py-3.5 text-base font-medium transition-colors flex items-center gap-2">
-                Learn More
+                See Features
                 <ArrowRight className="w-4 h-4" />
               </a>
             </div>
@@ -202,20 +203,23 @@ function Hero() {
 }
 
 /* ─────────────────────────────────────────────
-   SOCIAL PROOF
+   SOCIAL PROOF (stats-based)
    ───────────────────────────────────────────── */
 function SocialProof() {
   return (
     <section className="py-12 border-y border-border bg-bg-section">
       <div className="max-w-[1280px] mx-auto px-6 lg:px-10">
-        <p className="text-center text-text-muted text-xs uppercase tracking-[0.25em] mb-8 font-medium">
-          As featured in
-        </p>
         <div className="flex flex-wrap items-center justify-center gap-x-12 lg:gap-x-16 gap-y-6">
-          {['TechCrunch', 'ESPN', 'WIRED', 'Fast Company', 'Bleacher Report'].map((name) => (
-            <span key={name} className="font-sans text-lg lg:text-xl font-bold text-text-muted/30 tracking-widest uppercase hover:text-text-muted/50 transition-colors">
-              {name}
-            </span>
+          {[
+            { value: 'Free', label: 'to get started' },
+            { value: '11', label: 'court zones' },
+            { value: '50+', label: 'curated drills' },
+            { value: '20+', label: 'stats per game' },
+          ].map((item) => (
+            <div key={item.label} className="text-center">
+              <span className="font-sans text-2xl font-bold text-white">{item.value}</span>
+              <span className="text-text-muted text-sm ml-2">{item.label}</span>
+            </div>
           ))}
         </div>
       </div>
@@ -628,12 +632,12 @@ function Pricing() {
                   )}
                 </div>
 
-                <a
-                  href="/signup"
+                <Link
+                  to="/signup"
                   className={`block w-full py-3 rounded-xl text-center text-sm font-semibold transition-all mb-6 ${plan.ctaStyle}`}
                 >
                   {plan.cta}
-                </a>
+                </Link>
 
                 <ul className="space-y-3">
                   {plan.features.map((feature, j) => (
@@ -660,7 +664,7 @@ function Pricing() {
         <Reveal>
           <div className="text-center mt-12">
             <p className="text-text-muted text-sm">
-              All plans include a <span className="text-white font-medium">14-day free trial</span> of Pro features. No credit card required.
+              Start free today. <span className="text-white font-medium">No credit card required.</span> Upgrade anytime.
             </p>
           </div>
         </Reveal>
@@ -682,7 +686,7 @@ function FAQ() {
     },
     {
       q: 'What devices does CourtIQ support?',
-      a: 'CourtIQ is designed as a mobile-first experience for iOS and Android. A web dashboard for deeper analytics is coming soon.',
+      a: 'CourtIQ works on any device with a web browser and is optimized for mobile. Install it as a PWA for an app-like experience, or use it on desktop for deeper analytics. A native iOS app is also available.',
     },
     {
       q: 'How does shot tracking work?',
@@ -693,8 +697,8 @@ function FAQ() {
       a: 'With CourtIQ+ Team Features, you can share your profile and stats with coaches, trainers, and teammates. You control exactly what\'s visible.',
     },
     {
-      q: 'When does CourtIQ launch?',
-      a: 'We\'re currently in closed beta. Join the waitlist to get early access and be among the first to try CourtIQ when we launch.',
+      q: 'How do I get started?',
+      a: 'Just sign up for a free account — it takes less than 30 seconds. You\'ll get access to game logging, shot tracking, drill library, analytics, and more right away. No credit card needed.',
     },
   ];
 
@@ -763,7 +767,7 @@ function StatsBar() {
 /* ─────────────────────────────────────────────
    CTA / WAITLIST
    ───────────────────────────────────────────── */
-function Waitlist() {
+function CTA() {
   return (
     <section id="waitlist" className="min-h-screen flex items-center relative overflow-hidden bg-bg-section">
       <div className="absolute inset-0">
@@ -776,38 +780,27 @@ function Waitlist() {
             <span className="gradient-text-blue">LEVEL UP?</span>
           </h2>
           <p className="text-text-secondary text-base lg:text-lg max-w-md mx-auto mb-12">
-            Join the waitlist to get early access when CourtIQ launches.
-            Be the first to start tracking your game.
+            Create your free account today and start tracking your game.
+            No credit card required.
           </p>
 
-          <form
-            className="flex flex-col sm:flex-row gap-3 max-w-lg mx-auto"
-            onSubmit={(e) => {
-              e.preventDefault();
-              const email = e.target.elements.email.value;
-              if (email) {
-                alert('Thanks for signing up! We\'ll be in touch.');
-                e.target.reset();
-              }
-            }}
-          >
-            <input
-              name="email"
-              type="email"
-              required
-              placeholder="Enter your email address"
-              className="flex-1 bg-bg-primary/80 border border-border rounded-full px-6 py-3.5 text-white placeholder:text-text-muted text-sm focus:outline-none focus:border-blue transition-colors"
-            />
-            <button
-              type="submit"
-              className="btn-glow bg-blue hover:bg-blue-dark text-white px-8 py-3.5 rounded-full text-sm font-bold whitespace-nowrap flex items-center justify-center gap-2"
+          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center max-w-lg mx-auto">
+            <Link
+              to="/signup"
+              className="btn-glow bg-blue hover:bg-blue-dark text-white px-10 py-4 rounded-full text-base font-bold flex items-center gap-2"
             >
-              Join Waitlist
-              <ArrowRight className="w-4 h-4" />
-            </button>
-          </form>
+              Sign Up Free
+              <ArrowRight className="w-5 h-5" />
+            </Link>
+            <Link
+              to="/login"
+              className="bg-bg-card border border-border hover:border-blue-border text-white px-8 py-4 rounded-full text-base font-bold transition-all"
+            >
+              Log In
+            </Link>
+          </div>
 
-          <p className="text-text-muted text-xs mt-5">Free to join. No spam. Unsubscribe anytime.</p>
+          <p className="text-text-muted text-xs mt-8">Free forever on the starter plan. Upgrade anytime.</p>
         </Reveal>
       </div>
     </section>
@@ -849,9 +842,8 @@ function Footer() {
           <div>
             <h4 className="font-sans text-sm font-bold text-white uppercase tracking-widest mb-5">Company</h4>
             <ul className="space-y-3">
-              {['About', 'Blog', 'Careers', 'Press', 'Contact'].map((item) => (
-                <li key={item}><a href="#" className="text-text-muted hover:text-white text-sm transition-colors">{item}</a></li>
-              ))}
+              <li><Link to="/about" className="text-text-muted hover:text-white text-sm transition-colors">About</Link></li>
+              <li><a href="mailto:support@courtiq.app" className="text-text-muted hover:text-white text-sm transition-colors">Contact</a></li>
             </ul>
           </div>
 
@@ -859,9 +851,10 @@ function Footer() {
           <div>
             <h4 className="font-sans text-sm font-bold text-white uppercase tracking-widest mb-5">Support</h4>
             <ul className="space-y-3">
-              {['Help Center', 'FAQ', 'Privacy Policy', 'Terms of Service'].map((item) => (
-                <li key={item}><a href="#" className="text-text-muted hover:text-white text-sm transition-colors">{item}</a></li>
-              ))}
+              <li><a href="#faq" className="text-text-muted hover:text-white text-sm transition-colors">Help Center</a></li>
+              <li><a href="#faq" className="text-text-muted hover:text-white text-sm transition-colors">FAQ</a></li>
+              <li><Link to="/privacy" className="text-text-muted hover:text-white text-sm transition-colors">Privacy Policy</Link></li>
+              <li><Link to="/terms" className="text-text-muted hover:text-white text-sm transition-colors">Terms of Service</Link></li>
             </ul>
           </div>
         </div>
@@ -870,9 +863,7 @@ function Footer() {
         <div className="pt-8 border-t border-border flex flex-col md:flex-row items-center justify-between gap-4">
           <p className="text-text-muted text-sm">&copy; {new Date().getFullYear()} CourtIQ. All rights reserved.</p>
           <div className="flex items-center gap-6">
-            {['Twitter', 'Instagram', 'TikTok'].map((social) => (
-              <a key={social} href="#" className="text-text-muted hover:text-white text-sm transition-colors">{social}</a>
-            ))}
+            <span className="text-text-muted text-sm">Follow us soon on Twitter, Instagram & TikTok</span>
           </div>
         </div>
       </div>
@@ -894,7 +885,7 @@ export default function App() {
       <Pricing />
       <StatsBar />
       <FAQ />
-      <Waitlist />
+      <CTA />
       <Footer />
     </div>
   );

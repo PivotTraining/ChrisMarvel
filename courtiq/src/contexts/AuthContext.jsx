@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useState } from 'react'
 import { supabase } from '../lib/supabase'
-import { DEMO_MODE, demoProfile } from '../lib/demoData'
+import { isDemoMode, setDemoMode, demoProfile } from '../lib/demoData'
+import { trackEvent } from '../lib/monitoring'
 
 const AuthContext = createContext(null)
 
@@ -10,7 +11,7 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    if (DEMO_MODE) {
+    if (isDemoMode()) {
       setSession({ user: { id: demoProfile.id, email: demoProfile.email } })
       setProfile(demoProfile)
       setLoading(false)
@@ -61,11 +62,13 @@ export function AuthProvider({ children }) {
 
   async function signUp(email, password) {
     const { data, error } = await supabase.auth.signUp({ email, password })
+    if (!error) trackEvent('user_signup')
     return { data, error }
   }
 
   async function signIn(email, password) {
     const { data, error } = await supabase.auth.signInWithPassword({ email, password })
+    if (!error) trackEvent('user_login')
     return { data, error }
   }
 
@@ -74,7 +77,32 @@ export function AuthProvider({ children }) {
     return { data, error }
   }
 
+  async function signInWithGoogle() {
+    if (!supabase) return { error: { message: 'Auth not available in demo mode' } }
+    const { data, error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: window.location.origin + import.meta.env.BASE_URL,
+      },
+    })
+    return { data, error }
+  }
+
+  function enterDemoMode() {
+    setDemoMode(true)
+    setSession({ user: { id: demoProfile.id, email: demoProfile.email } })
+    setProfile(demoProfile)
+    trackEvent('demo_mode_entered')
+  }
+
   async function signOut() {
+    trackEvent('user_logout')
+    if (isDemoMode() || session?.user?.id === demoProfile.id) {
+      setDemoMode(false)
+      setSession(null)
+      setProfile(null)
+      return
+    }
     await supabase.auth.signOut()
     setSession(null)
     setProfile(null)
@@ -96,6 +124,11 @@ export function AuthProvider({ children }) {
     return { data, error }
   }
 
+  // Subscription convenience fields derived from profile
+  const subscriptionTier = profile?.subscription_tier || 'free'
+  const subscriptionActive = subscriptionTier !== 'free' &&
+    (!profile?.subscription_expires_at || new Date(profile.subscription_expires_at) > new Date())
+
   const value = {
     session,
     user: session?.user ?? null,
@@ -103,10 +136,14 @@ export function AuthProvider({ children }) {
     loading,
     signUp,
     signIn,
+    signInWithGoogle,
     signOut,
+    enterDemoMode,
     resetPassword,
     updateProfile,
     refreshProfile: () => session?.user && fetchProfile(session.user.id),
+    subscriptionTier,
+    subscriptionActive,
   }
 
   return (

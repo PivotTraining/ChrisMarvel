@@ -1,16 +1,16 @@
 import { useState, useEffect, useCallback } from 'react'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../contexts/AuthContext'
-import { DEMO_MODE } from '../lib/demoData'
+import { isDemoMode } from '../lib/demoData'
 
 export function useFilmNotes(gameId) {
   const { user } = useAuth()
   const [notes, setNotes] = useState([])
-  const [loading, setLoading] = useState(!DEMO_MODE)
+  const [loading, setLoading] = useState(!isDemoMode())
   const [error, setError] = useState(null)
 
   const fetchNotes = useCallback(async () => {
-    if (DEMO_MODE || !user || !supabase) { setLoading(false); return }
+    if (isDemoMode() || !user || !supabase) { setLoading(false); return }
     setLoading(true)
     setError(null)
 
@@ -39,7 +39,7 @@ export function useFilmNotes(gameId) {
   useEffect(() => { fetchNotes() }, [fetchNotes])
 
   async function addNote(note) {
-    if (DEMO_MODE) {
+    if (isDemoMode()) {
       const newNote = { ...note, id: `demo-note-${Date.now()}`, user_id: 'demo-user-001', created_at: new Date().toISOString() }
       setNotes(prev => [newNote, ...prev])
       return { data: newNote, error: null }
@@ -57,7 +57,7 @@ export function useFilmNotes(gameId) {
   }
 
   async function updateNote(id, updates) {
-    if (DEMO_MODE) {
+    if (isDemoMode()) {
       setNotes(prev => prev.map(n => n.id === id ? { ...n, ...updates } : n))
       return { data: { id, ...updates }, error: null }
     }
@@ -75,7 +75,7 @@ export function useFilmNotes(gameId) {
   }
 
   async function deleteNote(id) {
-    if (DEMO_MODE) {
+    if (isDemoMode()) {
       setNotes(prev => prev.filter(n => n.id !== id))
       return { error: null }
     }

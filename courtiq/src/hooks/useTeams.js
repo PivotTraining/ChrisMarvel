@@ -1,16 +1,16 @@
 import { useState, useEffect, useCallback } from 'react'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../contexts/AuthContext'
-import { DEMO_MODE } from '../lib/demoData'
+import { isDemoMode } from '../lib/demoData'
 
 export function useTeams() {
   const { user } = useAuth()
   const [teams, setTeams] = useState([])
-  const [loading, setLoading] = useState(!DEMO_MODE)
+  const [loading, setLoading] = useState(!isDemoMode())
   const [error, setError] = useState(null)
 
   const fetchTeams = useCallback(async () => {
-    if (DEMO_MODE || !user || !supabase) { setLoading(false); return }
+    if (isDemoMode() || !user || !supabase) { setLoading(false); return }
     setLoading(true)
     setError(null)
     const { data: memberships, error: fetchError } = await supabase
@@ -37,7 +37,7 @@ export function useTeams() {
   }
 
   async function createTeam(name, description) {
-    if (DEMO_MODE) return { error: { message: 'Teams are not available in demo mode.' } }
+    if (isDemoMode()) return { error: { message: 'Teams are not available in demo mode.' } }
     const code = generateCode()
     const { data: team, error } = await supabase
       .from('teams')
@@ -58,7 +58,7 @@ export function useTeams() {
   }
 
   async function joinTeam(code) {
-    if (DEMO_MODE) return { error: { message: 'Teams are not available in demo mode.' } }
+    if (isDemoMode()) return { error: { message: 'Teams are not available in demo mode.' } }
     const { data: team, error: lookupError } = await supabase
       .from('teams')
       .select('*')
@@ -81,7 +81,7 @@ export function useTeams() {
   }
 
   async function leaveTeam(teamId) {
-    if (DEMO_MODE) return { error: null }
+    if (isDemoMode()) return { error: null }
     const { error } = await supabase
       .from('team_members')
       .delete()
@@ -95,7 +95,7 @@ export function useTeams() {
   }
 
   async function deleteTeam(teamId) {
-    if (DEMO_MODE) return { error: null }
+    if (isDemoMode()) return { error: null }
     const { error } = await supabase
       .from('teams')
       .delete()
@@ -112,10 +112,10 @@ export function useTeams() {
 
 export function useTeamMembers(teamId) {
   const [members, setMembers] = useState([])
-  const [loading, setLoading] = useState(!DEMO_MODE)
+  const [loading, setLoading] = useState(!isDemoMode())
 
   const fetchMembers = useCallback(async () => {
-    if (DEMO_MODE || !teamId || !supabase) { setLoading(false); return }
+    if (isDemoMode() || !teamId || !supabase) { setLoading(false); return }
     setLoading(true)
     const { data } = await supabase
       .from('team_members')
@@ -141,10 +141,10 @@ export function useTeamMembers(teamId) {
 
 export function useTeamLeaderboard(teamId) {
   const [leaderboard, setLeaderboard] = useState([])
-  const [loading, setLoading] = useState(!DEMO_MODE)
+  const [loading, setLoading] = useState(!isDemoMode())
 
   const fetchLeaderboard = useCallback(async () => {
-    if (DEMO_MODE || !teamId || !supabase) { setLoading(false); return }
+    if (isDemoMode() || !teamId || !supabase) { setLoading(false); return }
     setLoading(true)
 
     const { data: memberData } = await supabase

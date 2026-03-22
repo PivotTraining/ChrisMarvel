@@ -1,16 +1,16 @@
 import { useState, useEffect, useCallback } from 'react'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../contexts/AuthContext'
-import { DEMO_MODE } from '../lib/demoData'
+import { isDemoMode } from '../lib/demoData'
 
 export function usePrograms() {
   const { user } = useAuth()
   const [programs, setPrograms] = useState([])
-  const [loading, setLoading] = useState(!DEMO_MODE)
+  const [loading, setLoading] = useState(!isDemoMode())
   const [error, setError] = useState(null)
 
   const fetchPrograms = useCallback(async () => {
-    if (DEMO_MODE || !user || !supabase) { setLoading(false); return }
+    if (isDemoMode() || !user || !supabase) { setLoading(false); return }
     setLoading(true)
     setError(null)
     const { data, error: fetchError } = await supabase
@@ -31,7 +31,7 @@ export function usePrograms() {
   useEffect(() => { fetchPrograms() }, [fetchPrograms])
 
   async function createProgram(program) {
-    if (DEMO_MODE) {
+    if (isDemoMode()) {
       const newProgram = { ...program, id: `demo-program-${Date.now()}`, user_id: 'demo-user-001', created_at: new Date().toISOString() }
       setPrograms(prev => [newProgram, ...prev])
       return { data: newProgram, error: null }
@@ -49,7 +49,7 @@ export function usePrograms() {
   }
 
   async function updateProgram(id, updates) {
-    if (DEMO_MODE) {
+    if (isDemoMode()) {
       setPrograms(prev => prev.map(p => p.id === id ? { ...p, ...updates } : p))
       return { data: { id, ...updates }, error: null }
     }
@@ -67,7 +67,7 @@ export function usePrograms() {
   }
 
   async function deleteProgram(id) {
-    if (DEMO_MODE) {
+    if (isDemoMode()) {
       setPrograms(prev => prev.filter(p => p.id !== id))
       return { error: null }
     }
@@ -87,10 +87,10 @@ export function usePrograms() {
 
 export function useProgramDays(programId) {
   const [days, setDays] = useState([])
-  const [loading, setLoading] = useState(!DEMO_MODE)
+  const [loading, setLoading] = useState(!isDemoMode())
 
   const fetchDays = useCallback(async () => {
-    if (DEMO_MODE || !programId || !supabase) { setLoading(false); return }
+    if (isDemoMode() || !programId || !supabase) { setLoading(false); return }
     setLoading(true)
     const { data, error } = await supabase
       .from('program_days')
@@ -106,7 +106,7 @@ export function useProgramDays(programId) {
   useEffect(() => { fetchDays() }, [fetchDays])
 
   async function addDay(day) {
-    if (DEMO_MODE) return { data: null, error: null }
+    if (isDemoMode()) return { data: null, error: null }
     const { data, error } = await supabase
       .from('program_days')
       .insert({ ...day, program_id: programId })
@@ -120,7 +120,7 @@ export function useProgramDays(programId) {
   }
 
   async function toggleComplete(dayId) {
-    if (DEMO_MODE) {
+    if (isDemoMode()) {
       setDays(prev => prev.map(d => d.id === dayId ? { ...d, completed: !d.completed } : d))
       return { data: null, error: null }
     }
@@ -141,7 +141,7 @@ export function useProgramDays(programId) {
   }
 
   async function updateDay(dayId, updates) {
-    if (DEMO_MODE) return { data: null, error: null }
+    if (isDemoMode()) return { data: null, error: null }
     const { data, error } = await supabase
       .from('program_days')
       .update(updates)
@@ -156,7 +156,7 @@ export function useProgramDays(programId) {
   }
 
   async function bulkAddDays(daysArr) {
-    if (DEMO_MODE) return { data: null, error: null }
+    if (isDemoMode()) return { data: null, error: null }
     const withProgramId = daysArr.map(d => ({ ...d, program_id: programId }))
     const { data, error } = await supabase
       .from('program_days')

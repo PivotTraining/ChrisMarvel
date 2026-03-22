@@ -1,7 +1,21 @@
 // Demo mode mock data for previewing the app without a Supabase backend
 
-export const DEMO_MODE = import.meta.env.VITE_DEMO_MODE === 'true' ||
+// Demo mode can be activated at build time (env vars) or at runtime (Try Demo button)
+const _envDemo = import.meta.env.VITE_DEMO_MODE === 'true' ||
   (!import.meta.env.VITE_SUPABASE_URL || import.meta.env.VITE_SUPABASE_URL.includes('placeholder'))
+
+let _runtimeDemo = false
+
+export function isDemoMode() {
+  return _envDemo || _runtimeDemo
+}
+
+export function setDemoMode(value) {
+  _runtimeDemo = value
+}
+
+// Legacy export — kept for backwards compat but prefer isDemoMode()
+export const DEMO_MODE = _envDemo
 
 export const demoProfile = {
   id: 'demo-user-001',

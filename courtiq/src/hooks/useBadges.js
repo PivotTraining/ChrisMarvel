@@ -1,18 +1,18 @@
 import { useState, useEffect, useCallback } from 'react'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../contexts/AuthContext'
-import { DEMO_MODE } from '../lib/demoData'
+import { isDemoMode } from '../lib/demoData'
 
 export function useBadges() {
   const { user } = useAuth()
   const [badges, setBadges] = useState([])
   const [earnedBadges, setEarnedBadges] = useState([])
   const [challenges, setChallenges] = useState([])
-  const [loading, setLoading] = useState(!DEMO_MODE)
+  const [loading, setLoading] = useState(!isDemoMode())
   const [error, setError] = useState(null)
 
   const fetchAll = useCallback(async () => {
-    if (DEMO_MODE || !user || !supabase) { setLoading(false); return }
+    if (isDemoMode() || !user || !supabase) { setLoading(false); return }
     setLoading(true)
     setError(null)
 

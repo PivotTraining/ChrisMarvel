@@ -1,7 +1,7 @@
 import { useNavigate } from 'react-router-dom'
 import { Crown, Lock } from 'lucide-react'
 import { useSubscription } from '../hooks/useSubscription'
-import { DEMO_MODE } from '../lib/demoData'
+import { isDemoMode } from '../lib/demoData'
 
 /**
  * Wraps Pro-only (or Team-only) features.
@@ -22,7 +22,7 @@ export default function SubscriptionGate({
   const navigate = useNavigate()
 
   // In demo mode or if user has access, render children
-  if (DEMO_MODE || hasAccess(requiredTier)) {
+  if (isDemoMode() || hasAccess(requiredTier)) {
     return <>{children}</>
   }
 

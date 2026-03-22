@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
 import {
   Target, Trophy, TrendingUp, Zap, BarChart3, Users,
   ChevronRight, Star, Activity, Menu, X, ArrowRight,
@@ -97,6 +98,29 @@ function Navbar() {
 }
 
 /* ─────────────────────────────────────────────
+   DEMO BUTTON
+   ───────────────────────────────────────────── */
+function DemoButton() {
+  const navigate = useNavigate();
+  const { enterDemoMode } = useAuth();
+
+  function handleDemo() {
+    enterDemoMode();
+    navigate('/');
+  }
+
+  return (
+    <button
+      onClick={handleDemo}
+      className="bg-bg-card border border-border hover:border-blue-border text-white px-8 py-3.5 rounded-full text-base font-bold flex items-center gap-2 transition-all"
+    >
+      Try Demo
+      <ArrowRight className="w-4 h-4" />
+    </button>
+  );
+}
+
+/* ─────────────────────────────────────────────
    HERO
    ───────────────────────────────────────────── */
 function Hero() {
@@ -134,10 +158,7 @@ function Hero() {
                 Get Early Access
                 <ChevronRight className="w-4 h-4" />
               </Link>
-              <a href="#features" className="text-text-secondary hover:text-white px-6 py-3.5 text-base font-medium transition-colors flex items-center gap-2">
-                Learn More
-                <ArrowRight className="w-4 h-4" />
-              </a>
+              <DemoButton />
             </div>
           </div>
 
@@ -203,20 +224,23 @@ function Hero() {
 }
 
 /* ─────────────────────────────────────────────
-   SOCIAL PROOF
+   SOCIAL PROOF (stats-based)
    ───────────────────────────────────────────── */
 function SocialProof() {
   return (
     <section className="py-12 border-y border-border bg-bg-section">
       <div className="max-w-[1280px] mx-auto px-6 lg:px-10">
-        <p className="text-center text-text-muted text-xs uppercase tracking-[0.25em] mb-8 font-medium">
-          As featured in
-        </p>
         <div className="flex flex-wrap items-center justify-center gap-x-12 lg:gap-x-16 gap-y-6">
-          {['TechCrunch', 'ESPN', 'WIRED', 'Fast Company', 'Bleacher Report'].map((name) => (
-            <span key={name} className="font-sans text-lg lg:text-xl font-bold text-text-muted/30 tracking-widest uppercase hover:text-text-muted/50 transition-colors">
-              {name}
-            </span>
+          {[
+            { value: 'Free', label: 'to get started' },
+            { value: '11', label: 'court zones' },
+            { value: '50+', label: 'curated drills' },
+            { value: '20+', label: 'stats per game' },
+          ].map((item) => (
+            <div key={item.label} className="text-center">
+              <span className="font-sans text-2xl font-bold text-white">{item.value}</span>
+              <span className="text-text-muted text-sm ml-2">{item.label}</span>
+            </div>
           ))}
         </div>
       </div>
@@ -683,7 +707,7 @@ function FAQ() {
     },
     {
       q: 'What devices does CourtIQ support?',
-      a: 'CourtIQ is designed as a mobile-first experience for iOS and Android. A web dashboard for deeper analytics is coming soon.',
+      a: 'CourtIQ works on any device with a web browser and is optimized for mobile. Install it as a PWA for an app-like experience, or use it on desktop for deeper analytics. A native iOS app is also available.',
     },
     {
       q: 'How does shot tracking work?',
@@ -694,8 +718,8 @@ function FAQ() {
       a: 'With CourtIQ+ Team Features, you can share your profile and stats with coaches, trainers, and teammates. You control exactly what\'s visible.',
     },
     {
-      q: 'Is CourtIQ free?',
-      a: 'Yes! CourtIQ has a free starter plan with core features including shot tracking, game logging, and basic analytics. Upgrade to Pro or Team for advanced features.',
+      q: 'Can I try CourtIQ before signing up?',
+      a: 'Absolutely! Click the "Try Demo" button on this page to explore the full app with sample data — no account needed. When you\'re ready, sign up free to start tracking your own stats.',
     },
   ];
 
@@ -789,13 +813,13 @@ function CTA() {
               Get Started Free
               <ArrowRight className="w-5 h-5" />
             </Link>
-            <Link
-              to="/login"
-              className="text-text-secondary hover:text-white px-6 py-4 text-base font-medium transition-colors"
-            >
+            <DemoButton />
+          </div>
+          <p className="text-text-muted text-sm mt-4">
+            <Link to="/login" className="text-text-secondary hover:text-white transition-colors">
               Already have an account? Log in
             </Link>
-          </div>
+          </p>
 
           <p className="text-text-muted text-xs mt-8">Free forever on the starter plan. Upgrade anytime.</p>
         </Reveal>

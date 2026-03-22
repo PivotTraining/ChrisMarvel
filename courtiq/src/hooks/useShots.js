@@ -1,17 +1,17 @@
 import { useState, useEffect, useCallback } from 'react'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../contexts/AuthContext'
-import { DEMO_MODE, demoShots } from '../lib/demoData'
+import { isDemoMode, demoShots } from '../lib/demoData'
 import { trackEvent } from '../lib/monitoring'
 
 export function useShots(sessionDate) {
   const { user } = useAuth()
-  const [shots, setShots] = useState(DEMO_MODE ? demoShots : [])
-  const [loading, setLoading] = useState(!DEMO_MODE)
+  const [shots, setShots] = useState(isDemoMode() ? demoShots : [])
+  const [loading, setLoading] = useState(!isDemoMode())
   const [error, setError] = useState(null)
 
   const fetchShots = useCallback(async () => {
-    if (DEMO_MODE || !user || !supabase) return
+    if (isDemoMode() || !user || !supabase) return
     setLoading(true)
     setError(null)
 
@@ -37,10 +37,10 @@ export function useShots(sessionDate) {
     setLoading(false)
   }, [user, sessionDate])
 
-  useEffect(() => { if (!DEMO_MODE) fetchShots() }, [fetchShots])
+  useEffect(() => { if (!isDemoMode()) fetchShots() }, [fetchShots])
 
   async function addShot(shot) {
-    if (DEMO_MODE) {
+    if (isDemoMode()) {
       const newShot = { ...shot, id: `demo-shot-${Date.now()}`, user_id: 'demo-user-001', created_at: new Date().toISOString() }
       setShots(prev => [newShot, ...prev])
       return { data: newShot, error: null }
@@ -59,7 +59,7 @@ export function useShots(sessionDate) {
   }
 
   async function deleteShot(id) {
-    if (DEMO_MODE) {
+    if (isDemoMode()) {
       setShots(prev => prev.filter(s => s.id !== id))
       return { error: null }
     }

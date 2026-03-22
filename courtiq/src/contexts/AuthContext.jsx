@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect, useState } from 'react'
 import { supabase } from '../lib/supabase'
-import { DEMO_MODE, demoProfile } from '../lib/demoData'
+import { isDemoMode, setDemoMode, demoProfile } from '../lib/demoData'
 import { trackEvent } from '../lib/monitoring'
 
 const AuthContext = createContext(null)
@@ -11,7 +11,7 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    if (DEMO_MODE) {
+    if (isDemoMode()) {
       setSession({ user: { id: demoProfile.id, email: demoProfile.email } })
       setProfile(demoProfile)
       setLoading(false)
@@ -88,8 +88,21 @@ export function AuthProvider({ children }) {
     return { data, error }
   }
 
+  function enterDemoMode() {
+    setDemoMode(true)
+    setSession({ user: { id: demoProfile.id, email: demoProfile.email } })
+    setProfile(demoProfile)
+    trackEvent('demo_mode_entered')
+  }
+
   async function signOut() {
     trackEvent('user_logout')
+    if (isDemoMode() || session?.user?.id === demoProfile.id) {
+      setDemoMode(false)
+      setSession(null)
+      setProfile(null)
+      return
+    }
     await supabase.auth.signOut()
     setSession(null)
     setProfile(null)
@@ -125,6 +138,7 @@ export function AuthProvider({ children }) {
     signIn,
     signInWithGoogle,
     signOut,
+    enterDemoMode,
     resetPassword,
     updateProfile,
     refreshProfile: () => session?.user && fetchProfile(session.user.id),

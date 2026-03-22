@@ -2,17 +2,17 @@ import { useState, useEffect, useCallback } from 'react'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../contexts/AuthContext'
 import { updateStreak } from '../lib/streaks'
-import { DEMO_MODE, demoGames } from '../lib/demoData'
+import { isDemoMode, demoGames } from '../lib/demoData'
 import { trackEvent } from '../lib/monitoring'
 
 export function useGames() {
   const { user, refreshProfile } = useAuth()
-  const [games, setGames] = useState(DEMO_MODE ? demoGames : [])
-  const [loading, setLoading] = useState(!DEMO_MODE)
+  const [games, setGames] = useState(isDemoMode() ? demoGames : [])
+  const [loading, setLoading] = useState(!isDemoMode())
   const [error, setError] = useState(null)
 
   const fetchGames = useCallback(async () => {
-    if (DEMO_MODE || !user || !supabase) return
+    if (isDemoMode() || !user || !supabase) return
     setLoading(true)
     setError(null)
     const { data, error: fetchError } = await supabase
@@ -31,10 +31,10 @@ export function useGames() {
     setLoading(false)
   }, [user])
 
-  useEffect(() => { if (!DEMO_MODE) fetchGames() }, [fetchGames])
+  useEffect(() => { if (!isDemoMode()) fetchGames() }, [fetchGames])
 
   async function addGame(game) {
-    if (DEMO_MODE) {
+    if (isDemoMode()) {
       const newGame = { ...game, id: `demo-game-${Date.now()}`, user_id: 'demo-user-001', created_at: new Date().toISOString() }
       setGames(prev => [newGame, ...prev])
       return { data: newGame, error: null }
@@ -54,7 +54,7 @@ export function useGames() {
   }
 
   async function updateGame(id, updates) {
-    if (DEMO_MODE) {
+    if (isDemoMode()) {
       setGames(prev => prev.map(g => g.id === id ? { ...g, ...updates } : g))
       return { data: { id, ...updates }, error: null }
     }
@@ -72,7 +72,7 @@ export function useGames() {
   }
 
   async function deleteGame(id) {
-    if (DEMO_MODE) {
+    if (isDemoMode()) {
       setGames(prev => prev.filter(g => g.id !== id))
       return { error: null }
     }

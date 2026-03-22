@@ -1,17 +1,17 @@
 import { useState, useEffect, useCallback } from 'react'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../contexts/AuthContext'
-import { DEMO_MODE } from '../lib/demoData'
+import { isDemoMode } from '../lib/demoData'
 
 export function useTrainingContent(contentType) {
   const { user } = useAuth()
   const [content, setContent] = useState([])
   const [savedIds, setSavedIds] = useState(new Set())
-  const [loading, setLoading] = useState(!DEMO_MODE)
+  const [loading, setLoading] = useState(!isDemoMode())
   const [error, setError] = useState(null)
 
   const fetchContent = useCallback(async () => {
-    if (DEMO_MODE || !supabase) { setLoading(false); return }
+    if (isDemoMode() || !supabase) { setLoading(false); return }
     setLoading(true)
     setError(null)
 
@@ -51,7 +51,7 @@ export function useTrainingContent(contentType) {
   useEffect(() => { fetchContent() }, [fetchContent])
 
   async function toggleSave(contentId) {
-    if (DEMO_MODE || !user || !supabase) return
+    if (isDemoMode() || !user || !supabase) return
 
     if (savedIds.has(contentId)) {
       await supabase
@@ -75,7 +75,7 @@ export function useTrainingContent(contentType) {
   }
 
   async function recordView(contentId) {
-    if (DEMO_MODE || !user || !supabase) return
+    if (isDemoMode() || !user || !supabase) return
 
     await supabase
       .from('user_content_history')

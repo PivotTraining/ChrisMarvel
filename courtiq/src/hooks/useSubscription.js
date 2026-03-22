@@ -1,7 +1,7 @@
 import { useState, useCallback } from 'react'
 import { useAuth } from '../contexts/AuthContext'
 import { supabase } from '../lib/supabase'
-import { DEMO_MODE } from '../lib/demoData'
+import { isDemoMode } from '../lib/demoData'
 import { getStripe, STRIPE_CONFIGURED, PRICE_IDS } from '../lib/stripe'
 
 const TIER_HIERARCHY = { free: 0, pro: 1, team: 2 }
@@ -22,7 +22,7 @@ export function useSubscription() {
    * Check if the user has access to a given tier level
    */
   const hasAccess = useCallback((requiredTier) => {
-    if (DEMO_MODE) return true // In demo mode, everything is unlocked
+    if (isDemoMode()) return true // In demo mode, everything is unlocked
     const required = TIER_HIERARCHY[requiredTier] ?? 0
     const current = TIER_HIERARCHY[tier] ?? 0
     return current >= required && (tier === 'free' || isActive)
@@ -34,7 +34,7 @@ export function useSubscription() {
   const checkout = useCallback(async (plan, annual = false) => {
     setError(null)
 
-    if (DEMO_MODE || !STRIPE_CONFIGURED) {
+    if (isDemoMode() || !STRIPE_CONFIGURED) {
       setError('Payments are not available in demo mode. Configure Stripe to enable subscriptions.')
       return
     }
@@ -89,7 +89,7 @@ export function useSubscription() {
   const manageBilling = useCallback(async () => {
     setError(null)
 
-    if (DEMO_MODE || !STRIPE_CONFIGURED) {
+    if (isDemoMode() || !STRIPE_CONFIGURED) {
       setError('Billing management is not available in demo mode.')
       return
     }

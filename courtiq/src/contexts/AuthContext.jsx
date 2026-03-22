@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useState } from 'react'
 import { supabase } from '../lib/supabase'
 import { DEMO_MODE, demoProfile } from '../lib/demoData'
+import { trackEvent } from '../lib/monitoring'
 
 const AuthContext = createContext(null)
 
@@ -61,11 +62,13 @@ export function AuthProvider({ children }) {
 
   async function signUp(email, password) {
     const { data, error } = await supabase.auth.signUp({ email, password })
+    if (!error) trackEvent('user_signup')
     return { data, error }
   }
 
   async function signIn(email, password) {
     const { data, error } = await supabase.auth.signInWithPassword({ email, password })
+    if (!error) trackEvent('user_login')
     return { data, error }
   }
 
@@ -86,6 +89,7 @@ export function AuthProvider({ children }) {
   }
 
   async function signOut() {
+    trackEvent('user_logout')
     await supabase.auth.signOut()
     setSession(null)
     setProfile(null)

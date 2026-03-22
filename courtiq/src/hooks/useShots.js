@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../contexts/AuthContext'
 import { DEMO_MODE, demoShots } from '../lib/demoData'
+import { trackEvent } from '../lib/monitoring'
 
 export function useShots(sessionDate) {
   const { user } = useAuth()
@@ -52,6 +53,7 @@ export function useShots(sessionDate) {
 
     if (!error && data) {
       setShots(prev => [data, ...prev])
+      trackEvent('shot_session_logged')
     }
     return { data, error }
   }

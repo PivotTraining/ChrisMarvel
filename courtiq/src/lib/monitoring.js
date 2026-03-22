@@ -1,60 +1,105 @@
 /**
  * Lightweight monitoring / analytics module.
- * Logs to the console in development and exposes a simple API
- * that can be wired to any third-party service (Sentry, Amplitude, etc.)
- * without changing call-sites.
+ * - Development: logs to console
+ * - Production: batches errors and events, sends to a configurable endpoint
  */
 
-const isDev = import.meta.env.DEV
+const IS_PROD = import.meta.env.PROD
+const ANALYTICS_ENDPOINT = import.meta.env.VITE_ANALYTICS_ENDPOINT
 
-/**
- * Track a named event with optional properties.
- * @param {string} name  - Event name, e.g. "workout_completed"
- * @param {Record<string, any>} [properties] - Arbitrary metadata
- */
-export function trackEvent(name, properties = {}) {
-  if (isDev) {
-    console.log(
-      `%c[event] ${name}`,
-      'color: #60a5fa; font-weight: bold;',
-      properties
-    )
-  }
+// Error tracking with context
+const errorBuffer = []
+let errorFlushTimer = null
 
-  // TODO: wire to analytics provider
-  // e.g. posthog.capture(name, properties)
-}
-
-/**
- * Track an error with optional context.
- * @param {Error} error
- * @param {Record<string, any>} [context] - Extra info (component, userId, etc.)
- */
 export function trackError(error, context = {}) {
-  if (isDev) {
-    console.error(
-      `%c[error] ${error.message}`,
-      'color: #f87171; font-weight: bold;',
-      { error, ...context }
-    )
+  const entry = {
+    message: error?.message || String(error),
+    stack: error?.stack,
+    context,
+    url: window.location.href,
+    userAgent: navigator.userAgent,
+    timestamp: new Date().toISOString(),
   }
 
-  // TODO: wire to error-tracking provider
-  // e.g. Sentry.captureException(error, { extra: context })
+  if (!IS_PROD) {
+    console.error('[CourtIQ Error]', entry)
+    return
+  }
+
+  errorBuffer.push(entry)
+  if (!errorFlushTimer) {
+    errorFlushTimer = setTimeout(flushErrors, 5000)
+  }
 }
 
-/**
- * Track a page view.
- * @param {string} path - The route path, e.g. "/analytics"
- */
-export function trackPageView(path) {
-  if (isDev) {
-    console.log(
-      `%c[pageview] ${path}`,
-      'color: #a78bfa; font-weight: bold;'
-    )
+function flushErrors() {
+  if (errorBuffer.length === 0) return
+  const batch = errorBuffer.splice(0)
+  errorFlushTimer = null
+
+  if (ANALYTICS_ENDPOINT) {
+    navigator.sendBeacon?.(
+      `${ANALYTICS_ENDPOINT}/errors`,
+      JSON.stringify({ errors: batch })
+    ) || fetch(`${ANALYTICS_ENDPOINT}/errors`, {
+      method: 'POST',
+      body: JSON.stringify({ errors: batch }),
+      keepalive: true,
+    }).catch(() => {})
+  }
+}
+
+// Analytics event tracking with batching
+const eventBuffer = []
+let eventFlushTimer = null
+
+export function trackEvent(name, properties = {}) {
+  const entry = {
+    event: name,
+    properties,
+    timestamp: new Date().toISOString(),
+    url: window.location.pathname,
   }
 
-  // TODO: wire to analytics provider
-  // e.g. posthog.capture('$pageview', { path })
+  if (!IS_PROD) {
+    console.log('[CourtIQ Event]', name, properties)
+    return
+  }
+
+  eventBuffer.push(entry)
+  if (!eventFlushTimer) {
+    eventFlushTimer = setTimeout(flushEvents, 10000)
+  }
+}
+
+function flushEvents() {
+  if (eventBuffer.length === 0) return
+  const batch = eventBuffer.splice(0)
+  eventFlushTimer = null
+
+  if (ANALYTICS_ENDPOINT) {
+    navigator.sendBeacon?.(
+      `${ANALYTICS_ENDPOINT}/events`,
+      JSON.stringify({ events: batch })
+    ) || fetch(`${ANALYTICS_ENDPOINT}/events`, {
+      method: 'POST',
+      body: JSON.stringify({ events: batch }),
+      keepalive: true,
+    }).catch(() => {})
+  }
+}
+
+// Page view tracking
+export function trackPageView(path) {
+  trackEvent('page_view', { path })
+}
+
+// Flush on page unload
+if (typeof window !== 'undefined') {
+  window.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'hidden') {
+      flushErrors()
+      flushEvents()
+    }
+  })
 }

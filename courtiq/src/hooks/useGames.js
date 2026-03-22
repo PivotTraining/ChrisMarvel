@@ -3,6 +3,7 @@ import { supabase } from '../lib/supabase'
 import { useAuth } from '../contexts/AuthContext'
 import { updateStreak } from '../lib/streaks'
 import { DEMO_MODE, demoGames } from '../lib/demoData'
+import { trackEvent } from '../lib/monitoring'
 
 export function useGames() {
   const { user, refreshProfile } = useAuth()
@@ -47,6 +48,7 @@ export function useGames() {
     if (!error && data) {
       setGames(prev => [data, ...prev])
       updateStreak(user.id).then(() => refreshProfile())
+      trackEvent('game_logged')
     }
     return { data, error }
   }

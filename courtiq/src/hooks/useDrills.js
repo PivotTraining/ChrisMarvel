@@ -3,6 +3,7 @@ import { supabase } from '../lib/supabase'
 import { useAuth } from '../contexts/AuthContext'
 import { updateStreak } from '../lib/streaks'
 import { DEMO_MODE, demoDrills } from '../lib/demoData'
+import { trackEvent } from '../lib/monitoring'
 
 export function useDrills() {
   const { user, refreshProfile } = useAuth()
@@ -47,6 +48,7 @@ export function useDrills() {
     if (!error && data) {
       setSessions(prev => [data, ...prev])
       updateStreak(user.id).then(() => refreshProfile())
+      trackEvent('drill_logged')
     }
     return { data, error }
   }

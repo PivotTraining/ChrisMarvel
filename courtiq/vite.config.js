@@ -9,6 +9,12 @@ const base = isNative ? '/' : '/ChrisMarvel/'
 
 export default defineConfig({
   base,
+  test: {
+    globals: true,
+    environment: 'jsdom',
+    setupFiles: './src/test/setup.js',
+    css: true,
+  },
   plugins: [
     react(),
     tailwindcss(),

@@ -57,8 +57,6 @@ export function useSubscription() {
         {
           body: {
             priceId,
-            userId: user.id,
-            customerEmail: user.email,
             successUrl: `${window.location.origin}/profile?subscription=success`,
             cancelUrl: `${window.location.origin}/pricing`,
           },
@@ -108,7 +106,6 @@ export function useSubscription() {
         'create-portal-session',
         {
           body: {
-            userId: user.id,
             returnUrl: `${window.location.origin}/profile`,
           },
         }

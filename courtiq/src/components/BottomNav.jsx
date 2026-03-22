@@ -12,14 +12,16 @@ const navItems = [
 
 export default function BottomNav() {
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 border-t border-border bg-bg-primary/90 backdrop-blur-xl pb-[env(safe-area-inset-bottom)]">
-      <div className="mx-auto flex max-w-md items-center justify-around px-1 py-2">
+    <nav aria-label="Main navigation" role="navigation" className="fixed bottom-0 left-0 right-0 z-50 border-t border-border bg-bg-primary/90 backdrop-blur-xl pb-[env(safe-area-inset-bottom)]">
+      <div className="mx-auto flex max-w-md items-center justify-around px-1 py-2" role="list">
         {navItems.map(({ label, path, icon: Icon }) => (
           <NavLink
             key={path}
             to={path}
             end={path === '/'}
             onClick={() => hapticSelection()}
+            aria-label={label}
+            role="listitem"
             className={({ isActive }) =>
               `flex flex-col items-center gap-1 px-3 py-2 rounded-xl transition-colors duration-200 ${
                 isActive
@@ -28,7 +30,7 @@ export default function BottomNav() {
               }`
             }
           >
-            <Icon size={21} />
+            <Icon size={21} aria-hidden="true" />
             <span className="text-[10px] font-medium">{label}</span>
           </NavLink>
         ))}

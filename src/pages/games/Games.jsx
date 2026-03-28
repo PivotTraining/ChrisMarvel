@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react'
-import { Trophy, ArrowLeft, ChevronRight, TrendingUp, TrendingDown, Target, Shield, Zap } from 'lucide-react'
+import { Trophy, ArrowLeft, ChevronRight, TrendingUp, TrendingDown, Target, Shield, Zap, Pencil, Share2 } from 'lucide-react'
 import PageWrapper from '../../components/layout/PageWrapper'
 import Button from '../../components/ui/Button'
 import Card from '../../components/ui/Card'
@@ -62,9 +62,9 @@ function SeasonAverages({ avg }) {
   )
 }
 
-function GameCard({ game, onEdit }) {
+function GameCard({ game, onReview }) {
   return (
-    <Card padding="sm" hover onClick={() => onEdit(game)}>
+    <Card padding="sm" hover onClick={() => onReview(game)}>
       <div className="flex items-center justify-between mb-2">
         <span className="text-xs" style={{ ...body, color: 'var(--text-muted)' }}>{fmtDate(game.game_date)}</span>
         <Badge variant={resultBadge(game.result)}>{game.result}</Badge>
@@ -284,8 +284,40 @@ const toneColors = {
   work: '#EF4444',
 }
 
-function GameResult({ game, seasonAvg, onDone }) {
+function buildShareText(game, feedback) {
+  const venue = game.is_home_game === true || game.is_home_game === 'true' ? 'vs' : '@'
+  const header = `${game.result} — ${venue} ${game.opponent || 'Unknown'} (${fmtDate(game.game_date)})`
+  const stats = `${game.points || 0} PTS / ${game.rebounds || 0} REB / ${game.assists || 0} AST`
+
+  const splits = []
+  if (game.field_goals_attempted > 0) splits.push(`FG: ${game.field_goals_made}/${game.field_goals_attempted}`)
+  if (game.three_pointers_attempted > 0) splits.push(`3PT: ${game.three_pointers_made}/${game.three_pointers_attempted}`)
+  if (game.free_throws_attempted > 0) splits.push(`FT: ${game.free_throws_made}/${game.free_throws_attempted}`)
+
+  const extras = []
+  if (game.steals > 0) extras.push(`${game.steals} STL`)
+  if (game.blocks > 0) extras.push(`${game.blocks} BLK`)
+  if (game.turnovers > 0) extras.push(`${game.turnovers} TO`)
+
+  let text = `${header}\n${stats}`
+  if (splits.length) text += `\n${splits.join(' | ')}`
+  if (extras.length) text += `\n${extras.join(' / ')}`
+
+  if (feedback.length) {
+    text += `\n\nBreakdown:`
+    feedback.forEach((f) => {
+      const marker = f.tone === 'hot' || f.tone === 'good' ? '+' : f.tone === 'work' ? '-' : ' '
+      text += `\n${marker} ${f.text}`
+    })
+  }
+
+  text += `\n\n— CourtIQ`
+  return text
+}
+
+function GameResult({ game, seasonAvg, onDone, onEdit }) {
   const feedback = useMemo(() => generateFeedback(game, seasonAvg), [game, seasonAvg])
+  const [shared, setShared] = useState(false)
   const pts = game.points || 0
   const reb = game.rebounds || 0
   const ast = game.assists || 0
@@ -293,8 +325,65 @@ function GameResult({ game, seasonAvg, onDone }) {
   const resultColor = game.result === 'Win' ? '#22C55E' : game.result === 'Loss' ? '#EF4444' : 'var(--text-secondary)'
   const resultText = game.result === 'Win' ? 'Victory' : game.result === 'Loss' ? 'Tough Loss' : 'Draw'
 
+  const handleShare = async () => {
+    const text = buildShareText(game, feedback)
+    if (navigator.share) {
+      try {
+        await navigator.share({ title: `Game Review — ${game.opponent || 'Game'}`, text })
+        return
+      } catch {
+        // user cancelled or share failed, fall through to clipboard
+      }
+    }
+    try {
+      await navigator.clipboard.writeText(text)
+      setShared(true)
+      setTimeout(() => setShared(false), 2000)
+    } catch {
+      // clipboard not available
+    }
+  }
+
   return (
     <PageWrapper>
+      {/* Back + actions row */}
+      <div className="flex items-center justify-between mb-4">
+        <button
+          type="button"
+          onClick={onDone}
+          className="flex items-center gap-1 text-sm bg-transparent border-0 cursor-pointer"
+          style={{ color: 'var(--text-secondary)', ...body }}
+        >
+          <ArrowLeft className="w-4 h-4" /> Back
+        </button>
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={handleShare}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-transparent border cursor-pointer transition-all duration-200"
+            style={{
+              color: shared ? 'var(--success)' : 'var(--text-secondary)',
+              borderColor: shared ? 'var(--success)' : 'var(--border-subtle)',
+              ...body,
+            }}
+          >
+            <Share2 className="w-3.5 h-3.5" />
+            {shared ? 'Copied!' : 'Share'}
+          </button>
+          {onEdit && (
+            <button
+              type="button"
+              onClick={() => onEdit(game)}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-transparent border cursor-pointer transition-all duration-200"
+              style={{ color: 'var(--text-secondary)', borderColor: 'var(--border-subtle)', ...body }}
+            >
+              <Pencil className="w-3.5 h-3.5" />
+              Edit
+            </button>
+          )}
+        </div>
+      </div>
+
       <div className="flex flex-col items-center text-center mb-6">
         {/* Result header */}
         <div
@@ -407,15 +496,22 @@ export default function Games() {
   const [saving, setSaving] = useState(false)
 
   const openForm = (game = null) => { setEditGame(game); setView('form') }
+  const openReview = (game) => { setSavedGame(game); setView('result') }
   const backToList = () => { setEditGame(null); setSavedGame(null); setView('list') }
+
+  // From the review screen, tap Edit → go to edit form, then back to review after save
+  const editFromReview = (game) => { setEditGame(game); setView('form') }
 
   const handleSave = async (data) => {
     setSaving(true)
     try {
       if (editGame?.id) {
-        await updateGame(editGame.id, data)
+        const updated = await updateGame(editGame.id, data)
         showToast('Game updated', 'success')
-        backToList()
+        // Return to the review screen with the updated data
+        setSavedGame(updated || { ...editGame, ...data })
+        setEditGame(null)
+        setView('result')
       } else {
         const created = await addGame(data)
         setSavedGame(created || data)
@@ -442,13 +538,19 @@ export default function Games() {
   }
 
   if (view === 'result' && savedGame) {
-    return <GameResult game={savedGame} seasonAvg={seasonAverages} onDone={backToList} />
+    return <GameResult game={savedGame} seasonAvg={seasonAverages} onDone={backToList} onEdit={editFromReview} />
   }
 
   if (view === 'form') {
     return (
       <PageWrapper>
-        <GameForm initial={editGame} onSave={handleSave} onDelete={handleDelete} onBack={backToList} saving={saving} />
+        <GameForm
+          initial={editGame}
+          onSave={handleSave}
+          onDelete={handleDelete}
+          onBack={savedGame ? () => { setView('result') } : backToList}
+          saving={saving}
+        />
       </PageWrapper>
     )
   }
@@ -472,7 +574,7 @@ export default function Games() {
           <SeasonAverages avg={seasonAverages} />
           <Button variant="primary" onClick={() => openForm()} fullWidth>Log Game</Button>
           <div className="flex flex-col gap-3">
-            {games.map((g) => <GameCard key={g.id} game={g} onEdit={openForm} />)}
+            {games.map((g) => <GameCard key={g.id} game={g} onReview={openReview} />)}
           </div>
           {hasMore && (
             <Button variant="outline" onClick={loadMore} fullWidth>Load More</Button>

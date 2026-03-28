@@ -1,5 +1,5 @@
-import { useState } from 'react'
-import { Trophy, ArrowLeft, ChevronRight } from 'lucide-react'
+import { useState, useMemo } from 'react'
+import { Trophy, ArrowLeft, ChevronRight, TrendingUp, TrendingDown, Target, Shield, Zap } from 'lucide-react'
 import PageWrapper from '../../components/layout/PageWrapper'
 import Button from '../../components/ui/Button'
 import Card from '../../components/ui/Card'
@@ -182,27 +182,245 @@ function GameForm({ initial, onSave, onDelete, onBack, saving }) {
   )
 }
 
+function pct(made, att) {
+  if (!att || att === 0) return null
+  return +((made / att) * 100).toFixed(1)
+}
+
+function generateFeedback(game, seasonAvg) {
+  const lines = []
+  const pts = game.points || 0
+  const reb = game.rebounds || 0
+  const ast = game.assists || 0
+  const stl = game.steals || 0
+  const blk = game.blocks || 0
+  const tov = game.turnovers || 0
+  const fouls = game.fouls || 0
+  const min = game.minutes_played || 0
+
+  const fgPct = pct(game.field_goals_made, game.field_goals_attempted)
+  const ftPct = pct(game.free_throws_made, game.free_throws_attempted)
+  const threePct = pct(game.three_pointers_made, game.three_pointers_attempted)
+
+  // Scoring feedback based on actual numbers
+  if (pts >= 30) lines.push({ icon: Zap, text: `${pts} points — dominant scoring output`, tone: 'hot' })
+  else if (pts >= 20) lines.push({ icon: TrendingUp, text: `${pts} points — strong scoring game`, tone: 'good' })
+  else if (pts >= 10) lines.push({ icon: Target, text: `${pts} points — solid contribution`, tone: 'neutral' })
+  else if (pts > 0) lines.push({ icon: Target, text: `${pts} points — look for more shot opportunities`, tone: 'work' })
+  else lines.push({ icon: TrendingDown, text: `0 points — find ways to attack the basket`, tone: 'work' })
+
+  // FG% feedback — only if they actually shot
+  if (fgPct !== null) {
+    if (fgPct >= 55) lines.push({ icon: Target, text: `${fgPct}% FG (${game.field_goals_made}/${game.field_goals_attempted}) — very efficient from the field`, tone: 'hot' })
+    else if (fgPct >= 45) lines.push({ icon: Target, text: `${fgPct}% FG (${game.field_goals_made}/${game.field_goals_attempted}) — solid shooting efficiency`, tone: 'good' })
+    else if (fgPct >= 35) lines.push({ icon: Target, text: `${fgPct}% FG (${game.field_goals_made}/${game.field_goals_attempted}) — work on shot selection`, tone: 'work' })
+    else lines.push({ icon: TrendingDown, text: `${fgPct}% FG (${game.field_goals_made}/${game.field_goals_attempted}) — focus on higher percentage shots`, tone: 'work' })
+  }
+
+  // 3PT feedback — only if they shot threes
+  if (threePct !== null && game.three_pointers_attempted > 0) {
+    if (threePct >= 40) lines.push({ icon: Zap, text: `${threePct}% from 3 (${game.three_pointers_made}/${game.three_pointers_attempted}) — lights out from deep`, tone: 'hot' })
+    else if (threePct >= 33) lines.push({ icon: Target, text: `${threePct}% from 3 (${game.three_pointers_made}/${game.three_pointers_attempted}) — respectable from range`, tone: 'good' })
+    else lines.push({ icon: TrendingDown, text: `${threePct}% from 3 (${game.three_pointers_made}/${game.three_pointers_attempted}) — be more selective with threes`, tone: 'work' })
+  }
+
+  // FT feedback — only if they shot free throws
+  if (ftPct !== null && game.free_throws_attempted > 0) {
+    if (ftPct >= 80) lines.push({ icon: Target, text: `${ftPct}% FT (${game.free_throws_made}/${game.free_throws_attempted}) — reliable at the line`, tone: 'good' })
+    else if (ftPct >= 65) lines.push({ icon: Target, text: `${ftPct}% FT (${game.free_throws_made}/${game.free_throws_attempted}) — room to improve at the line`, tone: 'neutral' })
+    else lines.push({ icon: TrendingDown, text: `${ftPct}% FT (${game.free_throws_made}/${game.free_throws_attempted}) — free throws need work`, tone: 'work' })
+  }
+
+  // Rebounds
+  if (reb >= 12) lines.push({ icon: Shield, text: `${reb} rebounds — beast on the boards`, tone: 'hot' })
+  else if (reb >= 8) lines.push({ icon: Shield, text: `${reb} rebounds — strong presence on the glass`, tone: 'good' })
+  else if (reb >= 4) lines.push({ icon: Shield, text: `${reb} rebounds — decent effort on the boards`, tone: 'neutral' })
+
+  // Assists
+  if (ast >= 10) lines.push({ icon: Zap, text: `${ast} assists — elite playmaking`, tone: 'hot' })
+  else if (ast >= 6) lines.push({ icon: TrendingUp, text: `${ast} assists — great court vision`, tone: 'good' })
+  else if (ast >= 3) lines.push({ icon: TrendingUp, text: `${ast} assists — good ball movement`, tone: 'neutral' })
+
+  // Defensive stats — only mention if they recorded any
+  if (stl + blk >= 5) lines.push({ icon: Shield, text: `${stl} steals, ${blk} blocks — game-changing defense`, tone: 'hot' })
+  else if (stl + blk >= 3) lines.push({ icon: Shield, text: `${stl} steals, ${blk} blocks — active on defense`, tone: 'good' })
+  else if (stl + blk > 0) lines.push({ icon: Shield, text: `${stl} steals, ${blk} blocks — some defensive impact`, tone: 'neutral' })
+
+  // Turnovers — always relevant
+  if (tov === 0 && min > 0) lines.push({ icon: Shield, text: `0 turnovers — took care of the ball perfectly`, tone: 'hot' })
+  else if (tov >= 5) lines.push({ icon: TrendingDown, text: `${tov} turnovers — need to protect the ball better`, tone: 'work' })
+  else if (tov >= 3) lines.push({ icon: TrendingDown, text: `${tov} turnovers — limit careless passes`, tone: 'work' })
+
+  // Assist-to-turnover ratio if both exist
+  if (ast > 0 && tov > 0) {
+    const atr = +(ast / tov).toFixed(1)
+    if (atr >= 3) lines.push({ icon: Zap, text: `${atr} AST/TO ratio — exceptional decision-making`, tone: 'hot' })
+    else if (atr >= 2) lines.push({ icon: TrendingUp, text: `${atr} AST/TO ratio — smart with the ball`, tone: 'good' })
+    else if (atr < 1) lines.push({ icon: TrendingDown, text: `${atr} AST/TO ratio — too many turnovers relative to assists`, tone: 'work' })
+  }
+
+  // Foul trouble
+  if (fouls >= 5) lines.push({ icon: TrendingDown, text: `${fouls} fouls — foul trouble limited your impact`, tone: 'work' })
+
+  // Double-double / triple-double detection
+  const ddCats = [pts >= 10, reb >= 10, ast >= 10, stl >= 10, blk >= 10].filter(Boolean).length
+  if (ddCats >= 3) lines.push({ icon: Zap, text: `Triple-double! A complete all-around game`, tone: 'hot' })
+  else if (ddCats >= 2) lines.push({ icon: Zap, text: `Double-double — impactful in multiple areas`, tone: 'hot' })
+
+  // Compare to season averages if they have prior games
+  if (seasonAvg && seasonAvg.gamesPlayed > 1) {
+    const ppgDiff = +(pts - seasonAvg.ppg).toFixed(1)
+    if (ppgDiff > 5) lines.push({ icon: TrendingUp, text: `+${ppgDiff} points above your season average (${seasonAvg.ppg} PPG)`, tone: 'good' })
+    else if (ppgDiff < -5) lines.push({ icon: TrendingDown, text: `${ppgDiff} points below your season average (${seasonAvg.ppg} PPG)`, tone: 'work' })
+  }
+
+  return lines
+}
+
+const toneColors = {
+  hot: '#F59E0B',
+  good: '#22C55E',
+  neutral: 'var(--text-secondary)',
+  work: '#EF4444',
+}
+
+function GameResult({ game, seasonAvg, onDone }) {
+  const feedback = useMemo(() => generateFeedback(game, seasonAvg), [game, seasonAvg])
+  const pts = game.points || 0
+  const reb = game.rebounds || 0
+  const ast = game.assists || 0
+
+  const resultColor = game.result === 'Win' ? '#22C55E' : game.result === 'Loss' ? '#EF4444' : 'var(--text-secondary)'
+  const resultText = game.result === 'Win' ? 'Victory' : game.result === 'Loss' ? 'Tough Loss' : 'Draw'
+
+  return (
+    <PageWrapper>
+      <div className="flex flex-col items-center text-center mb-6">
+        {/* Result header */}
+        <div
+          className="w-16 h-16 rounded-full flex items-center justify-center mb-4"
+          style={{ backgroundColor: `${resultColor}15` }}
+        >
+          <Trophy className="w-8 h-8" style={{ color: resultColor }} />
+        </div>
+        <h1 className="text-3xl mb-1" style={{ ...heading, color: resultColor }}>
+          {resultText}
+        </h1>
+        <p className="text-sm" style={{ ...body, color: 'var(--text-muted)' }}>
+          {game.is_home_game === true || game.is_home_game === 'true' ? 'vs' : '@'}{' '}
+          {game.opponent || 'Unknown'} — {fmtDate(game.game_date)}
+        </p>
+      </div>
+
+      {/* Big stat line */}
+      <Card padding="md" className="mb-4">
+        <div className="grid grid-cols-3 gap-4">
+          <StatBox value={pts} label="PTS" />
+          <StatBox value={reb} label="REB" />
+          <StatBox value={ast} label="AST" />
+        </div>
+      </Card>
+
+      {/* Shooting splits - only if they tracked any */}
+      {(game.field_goals_attempted > 0 || game.free_throws_attempted > 0 || game.three_pointers_attempted > 0) && (
+        <Card padding="sm" className="mb-4">
+          <h3 className="text-xs font-semibold mb-2" style={{ ...body, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+            Shooting Splits
+          </h3>
+          <div className="grid grid-cols-3 gap-3">
+            {game.field_goals_attempted > 0 && (
+              <div className="text-center">
+                <div style={{ ...heading, fontSize: '1.25rem', color: 'var(--text-primary)' }}>
+                  {game.field_goals_made}/{game.field_goals_attempted}
+                </div>
+                <div style={statLabel}>FG</div>
+              </div>
+            )}
+            {game.three_pointers_attempted > 0 && (
+              <div className="text-center">
+                <div style={{ ...heading, fontSize: '1.25rem', color: 'var(--text-primary)' }}>
+                  {game.three_pointers_made}/{game.three_pointers_attempted}
+                </div>
+                <div style={statLabel}>3PT</div>
+              </div>
+            )}
+            {game.free_throws_attempted > 0 && (
+              <div className="text-center">
+                <div style={{ ...heading, fontSize: '1.25rem', color: 'var(--text-primary)' }}>
+                  {game.free_throws_made}/{game.free_throws_attempted}
+                </div>
+                <div style={statLabel}>FT</div>
+              </div>
+            )}
+          </div>
+        </Card>
+      )}
+
+      {/* Extra stats row */}
+      {(game.steals > 0 || game.blocks > 0 || game.turnovers > 0 || game.fouls > 0) && (
+        <Card padding="sm" className="mb-4">
+          <div className="flex justify-around">
+            {game.steals > 0 && <StatBox value={game.steals} label="STL" />}
+            {game.blocks > 0 && <StatBox value={game.blocks} label="BLK" />}
+            {game.turnovers > 0 && <StatBox value={game.turnovers} label="TO" />}
+            {game.fouls > 0 && <StatBox value={game.fouls} label="PF" />}
+            {game.minutes_played > 0 && <StatBox value={game.minutes_played} label="MIN" />}
+          </div>
+        </Card>
+      )}
+
+      {/* Feedback */}
+      {feedback.length > 0 && (
+        <Card padding="md" className="mb-4">
+          <h3 className="text-xs font-semibold mb-3" style={{ ...body, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+            Game Breakdown
+          </h3>
+          <div className="flex flex-col gap-2.5">
+            {feedback.map((item, i) => {
+              const Icon = item.icon
+              return (
+                <div key={i} className="flex items-start gap-2.5">
+                  <Icon className="w-4 h-4 mt-0.5 flex-shrink-0" style={{ color: toneColors[item.tone] }} />
+                  <p className="text-sm" style={{ ...body, color: 'var(--text-primary)', lineHeight: '1.4' }}>
+                    {item.text}
+                  </p>
+                </div>
+              )
+            })}
+          </div>
+        </Card>
+      )}
+
+      <Button variant="primary" fullWidth onClick={onDone}>
+        Done
+      </Button>
+    </PageWrapper>
+  )
+}
+
 export default function Games() {
   const { games, loading, addGame, updateGame, deleteGame, seasonAverages, loadMore, hasMore } = useGames()
   const { showToast } = useToast()
   const [view, setView] = useState('list')
   const [editGame, setEditGame] = useState(null)
+  const [savedGame, setSavedGame] = useState(null)
   const [saving, setSaving] = useState(false)
 
   const openForm = (game = null) => { setEditGame(game); setView('form') }
-  const backToList = () => { setEditGame(null); setView('list') }
+  const backToList = () => { setEditGame(null); setSavedGame(null); setView('list') }
 
   const handleSave = async (data) => {
     setSaving(true)
     try {
       if (editGame?.id) {
         await updateGame(editGame.id, data)
-        showToast('Game updated successfully', 'success')
+        showToast('Game updated', 'success')
+        backToList()
       } else {
-        await addGame(data)
-        showToast('Game logged successfully', 'success')
+        const created = await addGame(data)
+        setSavedGame(created || data)
+        setView('result')
       }
-      backToList()
     } catch {
       showToast('Failed to save game', 'error')
     } finally {
@@ -221,6 +439,10 @@ export default function Games() {
     } finally {
       setSaving(false)
     }
+  }
+
+  if (view === 'result' && savedGame) {
+    return <GameResult game={savedGame} seasonAvg={seasonAverages} onDone={backToList} />
   }
 
   if (view === 'form') {

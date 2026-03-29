@@ -63,8 +63,25 @@ function SeasonAverages({ avg }) {
 }
 
 function GameCard({ game, onReview }) {
+  const handleClick = () => {
+    if (onReview && game) onReview(game)
+  }
+
   return (
-    <Card padding="sm" hover onClick={() => onReview(game)}>
+    <div
+      role="button"
+      tabIndex={0}
+      onClick={handleClick}
+      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleClick() } }}
+      className="rounded-xl p-3 cursor-pointer transition-all duration-200 active:scale-[0.98]"
+      style={{
+        backgroundColor: 'var(--bg-surface)',
+        border: '1px solid var(--border-subtle)',
+        WebkitTapHighlightColor: 'transparent',
+        touchAction: 'manipulation',
+        userSelect: 'none',
+      }}
+    >
       <div className="flex items-center justify-between mb-2">
         <span className="text-xs" style={{ ...body, color: 'var(--text-muted)' }}>{fmtDate(game.game_date)}</span>
         <Badge variant={resultBadge(game.result)}>{game.result}</Badge>
@@ -81,7 +98,7 @@ function GameCard({ game, onReview }) {
         <span style={{ ...heading, color: 'var(--text-primary)', fontSize: '0.875rem' }}>{game.assists ?? 0} <span style={{ ...statLabel }}>AST</span></span>
         <ChevronRight className="ml-auto w-4 h-4" style={{ color: 'var(--text-muted)' }} />
       </div>
-    </Card>
+    </div>
   )
 }
 
@@ -384,8 +401,8 @@ function GameResult({ game, seasonAvg, onDone, onEdit }) {
         </div>
       </div>
 
+      {/* ===== TEAM RESULT ===== */}
       <div className="flex flex-col items-center text-center mb-6">
-        {/* Result header */}
         <div
           className="w-16 h-16 rounded-full flex items-center justify-center mb-4"
           style={{ backgroundColor: `${resultColor}15` }}
@@ -401,7 +418,33 @@ function GameResult({ game, seasonAvg, onDone, onEdit }) {
         </p>
       </div>
 
-      {/* Big stat line */}
+      <Card padding="sm" className="mb-4">
+        <h3 className="text-xs font-semibold mb-2" style={{ ...body, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+          Game Info
+        </h3>
+        <div className="grid grid-cols-3 gap-3">
+          <div className="text-center">
+            <div style={{ ...heading, fontSize: '1rem', color: resultColor }}>{game.result || '—'}</div>
+            <div style={statLabel}>Result</div>
+          </div>
+          <div className="text-center">
+            <div style={{ ...heading, fontSize: '1rem', color: 'var(--text-primary)' }}>{game.game_type || '—'}</div>
+            <div style={statLabel}>Type</div>
+          </div>
+          <div className="text-center">
+            <div style={{ ...heading, fontSize: '1rem', color: 'var(--text-primary)' }}>
+              {game.is_home_game === true || game.is_home_game === 'true' ? 'Home' : 'Away'}
+            </div>
+            <div style={statLabel}>Venue</div>
+          </div>
+        </div>
+      </Card>
+
+      {/* ===== PLAYER STATS ===== */}
+      <h3 className="text-xs font-semibold mb-2 mt-2" style={{ ...body, color: 'var(--accent-primary)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+        Player Stats
+      </h3>
+
       <Card padding="md" className="mb-4">
         <div className="grid grid-cols-3 gap-4">
           <StatBox value={pts} label="PTS" />
@@ -410,7 +453,7 @@ function GameResult({ game, seasonAvg, onDone, onEdit }) {
         </div>
       </Card>
 
-      {/* Shooting splits - only if they tracked any */}
+      {/* Shooting splits */}
       {(game.field_goals_attempted > 0 || game.free_throws_attempted > 0 || game.three_pointers_attempted > 0) && (
         <Card padding="sm" className="mb-4">
           <h3 className="text-xs font-semibold mb-2" style={{ ...body, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
@@ -445,9 +488,12 @@ function GameResult({ game, seasonAvg, onDone, onEdit }) {
         </Card>
       )}
 
-      {/* Extra stats row */}
-      {(game.steals > 0 || game.blocks > 0 || game.turnovers > 0 || game.fouls > 0) && (
+      {/* Defensive & extra stats */}
+      {(game.steals > 0 || game.blocks > 0 || game.turnovers > 0 || game.fouls > 0 || game.minutes_played > 0) && (
         <Card padding="sm" className="mb-4">
+          <h3 className="text-xs font-semibold mb-2" style={{ ...body, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+            Defense & Other
+          </h3>
           <div className="flex justify-around">
             {game.steals > 0 && <StatBox value={game.steals} label="STL" />}
             {game.blocks > 0 && <StatBox value={game.blocks} label="BLK" />}

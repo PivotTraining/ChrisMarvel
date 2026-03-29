@@ -332,7 +332,7 @@ function buildShareText(game, feedback) {
   return text
 }
 
-function GameResult({ game, seasonAvg, onDone, onEdit }) {
+function GameResult({ game, seasonAvg, onDone, onEdit, showToast }) {
   const feedback = useMemo(() => generateFeedback(game, seasonAvg), [game, seasonAvg])
   const [shared, setShared] = useState(false)
   const pts = game.points || 0
@@ -344,20 +344,40 @@ function GameResult({ game, seasonAvg, onDone, onEdit }) {
 
   const handleShare = async () => {
     const text = buildShareText(game, feedback)
+    // Try native share first (mobile)
     if (navigator.share) {
       try {
         await navigator.share({ title: `Game Review — ${game.opponent || 'Game'}`, text })
+        showToast?.('Shared successfully', 'success')
         return
       } catch {
-        // user cancelled or share failed, fall through to clipboard
+        // user cancelled or not supported, fall through
       }
     }
+    // Try clipboard
     try {
       await navigator.clipboard.writeText(text)
       setShared(true)
+      showToast?.('Stats copied to clipboard', 'success')
       setTimeout(() => setShared(false), 2000)
+      return
     } catch {
       // clipboard not available
+    }
+    // Final fallback: select text in a temporary textarea
+    try {
+      const ta = document.createElement('textarea')
+      ta.value = text
+      ta.style.cssText = 'position:fixed;left:-9999px;top:-9999px'
+      document.body.appendChild(ta)
+      ta.select()
+      document.execCommand('copy')
+      document.body.removeChild(ta)
+      setShared(true)
+      showToast?.('Stats copied to clipboard', 'success')
+      setTimeout(() => setShared(false), 2000)
+    } catch {
+      showToast?.('Could not copy — long press to select text manually', 'info')
     }
   }
 
@@ -542,7 +562,11 @@ export default function Games() {
   const [saving, setSaving] = useState(false)
 
   const openForm = (game = null) => { setEditGame(game); setView('form') }
-  const openReview = (game) => { setSavedGame(game); setView('result') }
+  const openReview = (game) => {
+    if (!game) return
+    setSavedGame({ ...game })
+    setView('result')
+  }
   const backToList = () => { setEditGame(null); setSavedGame(null); setView('list') }
 
   // From the review screen, tap Edit → go to edit form, then back to review after save
@@ -584,7 +608,7 @@ export default function Games() {
   }
 
   if (view === 'result' && savedGame) {
-    return <GameResult game={savedGame} seasonAvg={seasonAverages} onDone={backToList} onEdit={editFromReview} />
+    return <GameResult game={savedGame} seasonAvg={seasonAverages} onDone={backToList} onEdit={editFromReview} showToast={showToast} />
   }
 
   if (view === 'form') {

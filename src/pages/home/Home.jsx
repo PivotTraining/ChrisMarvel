@@ -31,11 +31,12 @@ function QuickAction({ icon: Icon, label, onClick }) {
   return (
     <button
       onClick={onClick}
-      className="flex flex-col items-center gap-2 p-4 rounded-xl transition-all duration-200 active:scale-[0.97] cursor-pointer"
+      className="flex flex-col items-center gap-2 rounded-xl transition-all duration-200 active:scale-[0.97] cursor-pointer"
       style={{
         backgroundColor: 'var(--bg-surface)',
-        border: '1px solid var(--border-subtle)',
+        border: '1px solid rgba(255, 255, 255, 0.06)',
         minWidth: 0,
+        padding: '1rem 0.5rem',
       }}
     >
       <div

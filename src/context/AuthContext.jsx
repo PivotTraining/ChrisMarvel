@@ -22,10 +22,10 @@ const DEMO_PROFILE = {
 }
 
 export function AuthProvider({ children }) {
-  const [user, setUser] = useState(BYPASS_AUTH ? DEMO_USER : null)
-  const [session, setSession] = useState(BYPASS_AUTH ? { user: DEMO_USER } : null)
+  const [user, setUser] = useState(null)
+  const [session, setSession] = useState(null)
   const [loading, setLoading] = useState(!BYPASS_AUTH)
-  const [profile, setProfile] = useState(BYPASS_AUTH ? DEMO_PROFILE : null)
+  const [profile, setProfile] = useState(null)
 
   async function fetchProfile(userId) {
     if (BYPASS_AUTH) return DEMO_PROFILE
@@ -45,7 +45,10 @@ export function AuthProvider({ children }) {
   }
 
   useEffect(() => {
-    if (BYPASS_AUTH) return
+    if (BYPASS_AUTH) {
+      setLoading(false)
+      return
+    }
 
     supabase.auth.getSession().then(({ data: { session: currentSession } }) => {
       setSession(currentSession)
@@ -101,10 +104,18 @@ export function AuthProvider({ children }) {
     return data
   }
 
+  function demoSignIn() {
+    setUser(DEMO_USER)
+    setSession({ user: DEMO_USER })
+    setProfile(DEMO_PROFILE)
+    return { user: DEMO_USER }
+  }
+
   async function signOut() {
     if (BYPASS_AUTH) {
-      setUser(DEMO_USER)
-      setProfile(DEMO_PROFILE)
+      setUser(null)
+      setSession(null)
+      setProfile(null)
       return
     }
     const { error } = await supabase.auth.signOut()
@@ -139,6 +150,7 @@ export function AuthProvider({ children }) {
     signUp,
     signIn,
     signOut,
+    demoSignIn,
     updateProfile,
   }
 

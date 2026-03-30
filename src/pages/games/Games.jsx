@@ -73,10 +73,11 @@ function GameCard({ game, onReview }) {
       tabIndex={0}
       onClick={handleClick}
       onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleClick() } }}
-      className="rounded-xl p-3 cursor-pointer transition-all duration-200 active:scale-[0.98]"
+      className="rounded-xl cursor-pointer transition-all duration-200 active:scale-[0.98]"
       style={{
         backgroundColor: 'var(--bg-surface)',
-        border: '1px solid var(--border-subtle)',
+        border: '1px solid rgba(255, 255, 255, 0.06)',
+        padding: '0.875rem 1rem',
         WebkitTapHighlightColor: 'transparent',
         touchAction: 'manipulation',
         userSelect: 'none',

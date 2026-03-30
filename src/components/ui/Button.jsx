@@ -14,17 +14,17 @@ export default function Button({
   const base = [
     'inline-flex items-center justify-center gap-2',
     'px-5 py-2.5 rounded-lg',
-    'font-medium text-sm',
+    'font-semibold text-sm',
     'transition-all duration-200 ease-out',
     'active:scale-[0.97]',
     'cursor-pointer select-none',
-    'font-[\'DM_Sans\',sans-serif]',
+    "font-['DM_Sans',sans-serif]",
     fullWidth ? 'w-full' : '',
     disabled || loading ? 'opacity-50 pointer-events-none' : '',
   ].join(' ');
 
   const variants = {
-    primary: 'text-white shadow-lg shadow-orange-500/20 hover:shadow-orange-500/30',
+    primary: 'text-white',
     ghost: 'bg-transparent hover:bg-white/5 border',
     outline: 'bg-transparent hover:bg-white/5 border',
   };
@@ -32,7 +32,7 @@ export default function Button({
   const variantStyles = {
     primary: {
       backgroundColor: 'var(--accent-primary)',
-      '--hover-bg': 'var(--accent-primary-hover)',
+      boxShadow: '0 4px 14px rgba(249, 115, 22, 0.2)',
     },
     ghost: {
       color: 'var(--text-secondary)',
@@ -40,7 +40,7 @@ export default function Button({
     },
     outline: {
       color: 'var(--text-primary)',
-      borderColor: 'var(--border-subtle)',
+      borderColor: 'rgba(255, 255, 255, 0.1)',
     },
   };
 
@@ -54,11 +54,13 @@ export default function Button({
       onMouseEnter={(e) => {
         if (variant === 'primary') {
           e.currentTarget.style.backgroundColor = 'var(--accent-primary-hover)';
+          e.currentTarget.style.boxShadow = '0 6px 18px rgba(249, 115, 22, 0.3)';
         }
       }}
       onMouseLeave={(e) => {
         if (variant === 'primary') {
           e.currentTarget.style.backgroundColor = 'var(--accent-primary)';
+          e.currentTarget.style.boxShadow = '0 4px 14px rgba(249, 115, 22, 0.2)';
         }
       }}
       {...props}

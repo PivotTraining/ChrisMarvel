@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
 import { useToast } from '../../context/ToastContext'
-import Button from '../../components/ui/Button'
+import { Play, Mail, Lock, Calendar, ShieldCheck } from 'lucide-react'
 
 function calculateAge(dob) {
   const today = new Date()
@@ -24,7 +24,7 @@ export default function Signup() {
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
 
-  const { signUp } = useAuth()
+  const { signUp, demoSignIn } = useAuth()
   const { showToast } = useToast()
   const navigate = useNavigate()
 
@@ -81,10 +81,16 @@ export default function Signup() {
     }
   }
 
+  function handleDemoLogin() {
+    demoSignIn()
+    showToast('Welcome to CourtIQ!', 'success')
+    navigate('/')
+  }
+
   const inputStyle = {
     width: '100%',
-    padding: '0.625rem 0.75rem',
-    borderRadius: '0.5rem',
+    padding: '0.75rem 0.875rem 0.75rem 2.5rem',
+    borderRadius: '0.625rem',
     border: '1px solid var(--border-subtle)',
     backgroundColor: 'var(--bg-surface)',
     color: 'var(--text-primary)',
@@ -92,128 +98,154 @@ export default function Signup() {
     fontFamily: "'DM Sans', sans-serif",
     outline: 'none',
     boxSizing: 'border-box',
+    transition: 'border-color 0.2s, box-shadow 0.2s',
   }
 
   const labelStyle = {
     display: 'block',
-    fontSize: '0.875rem',
+    fontSize: '0.8125rem',
+    fontWeight: 500,
     color: 'var(--text-secondary)',
-    marginBottom: '0.375rem',
+    marginBottom: '0.5rem',
+  }
+
+  function handleFocus(e) {
+    e.target.style.borderColor = 'var(--accent-primary)'
+    e.target.style.boxShadow = '0 0 0 3px rgba(249, 115, 22, 0.12)'
+  }
+
+  function handleBlur(e) {
+    e.target.style.borderColor = 'var(--border-subtle)'
+    e.target.style.boxShadow = 'none'
   }
 
   return (
     <div
       style={{
-        minHeight: '100vh',
+        minHeight: '100dvh',
         display: 'flex',
+        flexDirection: 'column',
         alignItems: 'center',
         justifyContent: 'center',
         backgroundColor: 'var(--bg-primary)',
-        padding: '1rem',
+        padding: '1.5rem',
         fontFamily: "'DM Sans', sans-serif",
       }}
     >
-      <div className="glass-card" style={{ width: '100%', maxWidth: '420px', padding: '2.5rem 2rem' }}>
+      <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
         <h1
           style={{
             fontFamily: "'Barlow Condensed', sans-serif",
             fontWeight: 700,
             fontSize: '2rem',
-            textAlign: 'center',
             color: 'var(--text-primary)',
-            marginBottom: '2rem',
+            letterSpacing: '0.02em',
           }}
         >
-          Court<span style={{ color: 'var(--accent-primary)' }}>IQ</span>
+          Join Court<span style={{ color: 'var(--accent-primary)' }}>IQ</span>
         </h1>
+        <p style={{ color: 'var(--text-muted)', fontSize: '0.875rem', marginTop: '0.375rem' }}>
+          Create your player profile
+        </p>
+      </div>
+
+      <div className="glass-card" style={{ width: '100%', maxWidth: '400px', padding: '2rem 1.75rem' }}>
+        {/* Demo button */}
+        <button
+          onClick={handleDemoLogin}
+          style={{
+            width: '100%',
+            padding: '0.875rem',
+            borderRadius: '0.75rem',
+            border: '1px solid rgba(249, 115, 22, 0.3)',
+            backgroundColor: 'rgba(249, 115, 22, 0.08)',
+            color: 'var(--accent-primary)',
+            fontSize: '0.9375rem',
+            fontWeight: 600,
+            fontFamily: "'DM Sans', sans-serif",
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '0.5rem',
+            transition: 'all 0.2s ease',
+            marginBottom: '1.75rem',
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.backgroundColor = 'rgba(249, 115, 22, 0.15)'
+            e.currentTarget.style.borderColor = 'rgba(249, 115, 22, 0.5)'
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.backgroundColor = 'rgba(249, 115, 22, 0.08)'
+            e.currentTarget.style.borderColor = 'rgba(249, 115, 22, 0.3)'
+          }}
+        >
+          <Play size={18} fill="currentColor" />
+          Try Demo Instead
+        </button>
+
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1.75rem' }}>
+          <div style={{ flex: 1, height: '1px', backgroundColor: 'var(--border-subtle)' }} />
+          <span style={{ color: 'var(--text-muted)', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+            or create account
+          </span>
+          <div style={{ flex: 1, height: '1px', backgroundColor: 'var(--border-subtle)' }} />
+        </div>
 
         <form onSubmit={handleSubmit}>
-          <div style={{ marginBottom: '1.25rem' }}>
+          <div style={{ marginBottom: '1rem' }}>
             <label htmlFor="email" style={labelStyle}>Email</label>
-            <input
-              id="email"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="you@email.com"
-              style={inputStyle}
-              onFocus={(e) => (e.target.style.borderColor = 'var(--border-active)')}
-              onBlur={(e) => (e.target.style.borderColor = 'var(--border-subtle)')}
-            />
+            <div style={{ position: 'relative' }}>
+              <Mail size={16} style={{ position: 'absolute', left: '0.875rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)', pointerEvents: 'none' }} />
+              <input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@email.com" style={inputStyle} onFocus={handleFocus} onBlur={handleBlur} />
+            </div>
           </div>
 
-          <div style={{ marginBottom: '1.25rem' }}>
+          <div style={{ marginBottom: '1rem' }}>
             <label htmlFor="password" style={labelStyle}>Password</label>
-            <input
-              id="password"
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="Min 8 characters"
-              style={inputStyle}
-              onFocus={(e) => (e.target.style.borderColor = 'var(--border-active)')}
-              onBlur={(e) => (e.target.style.borderColor = 'var(--border-subtle)')}
-            />
+            <div style={{ position: 'relative' }}>
+              <Lock size={16} style={{ position: 'absolute', left: '0.875rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)', pointerEvents: 'none' }} />
+              <input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Min 8 characters" style={inputStyle} onFocus={handleFocus} onBlur={handleBlur} />
+            </div>
           </div>
 
-          <div style={{ marginBottom: '1.25rem' }}>
+          <div style={{ marginBottom: '1rem' }}>
             <label htmlFor="confirmPassword" style={labelStyle}>Confirm Password</label>
-            <input
-              id="confirmPassword"
-              type="password"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              placeholder="Re-enter password"
-              style={inputStyle}
-              onFocus={(e) => (e.target.style.borderColor = 'var(--border-active)')}
-              onBlur={(e) => (e.target.style.borderColor = 'var(--border-subtle)')}
-            />
+            <div style={{ position: 'relative' }}>
+              <Lock size={16} style={{ position: 'absolute', left: '0.875rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)', pointerEvents: 'none' }} />
+              <input id="confirmPassword" type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} placeholder="Re-enter password" style={inputStyle} onFocus={handleFocus} onBlur={handleBlur} />
+            </div>
           </div>
 
-          <div style={{ marginBottom: '1.25rem' }}>
+          <div style={{ marginBottom: '1rem' }}>
             <label htmlFor="dob" style={labelStyle}>Date of Birth</label>
-            <input
-              id="dob"
-              type="date"
-              value={dob}
-              onChange={(e) => setDob(e.target.value)}
-              style={{ ...inputStyle, colorScheme: 'dark' }}
-              onFocus={(e) => (e.target.style.borderColor = 'var(--border-active)')}
-              onBlur={(e) => (e.target.style.borderColor = 'var(--border-subtle)')}
-            />
+            <div style={{ position: 'relative' }}>
+              <Calendar size={16} style={{ position: 'absolute', left: '0.875rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)', pointerEvents: 'none' }} />
+              <input id="dob" type="date" value={dob} onChange={(e) => setDob(e.target.value)} style={{ ...inputStyle, colorScheme: 'dark' }} onFocus={handleFocus} onBlur={handleBlur} />
+            </div>
           </div>
 
           {needsParentalConsent && (
             <div
               style={{
-                marginBottom: '1.25rem',
+                marginBottom: '1rem',
                 padding: '1rem',
-                borderRadius: '0.5rem',
-                backgroundColor: 'rgba(249,115,22,0.08)',
-                border: '1px solid rgba(249,115,22,0.2)',
+                borderRadius: '0.75rem',
+                backgroundColor: 'rgba(249,115,22,0.06)',
+                border: '1px solid rgba(249,115,22,0.15)',
               }}
             >
-              <p
-                style={{
-                  fontSize: '0.8125rem',
-                  color: 'var(--accent-primary)',
-                  marginBottom: '0.75rem',
-                  fontWeight: 500,
-                }}
-              >
-                Since you are under 13, parental consent is required. Please provide a parent or guardian&apos;s email address.
-              </p>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem' }}>
+                <ShieldCheck size={16} style={{ color: 'var(--accent-primary)' }} />
+                <p style={{ fontSize: '0.8125rem', color: 'var(--accent-primary)', fontWeight: 500 }}>
+                  Parental consent required (under 13)
+                </p>
+              </div>
               <label htmlFor="parentEmail" style={labelStyle}>Parent/Guardian Email</label>
-              <input
-                id="parentEmail"
-                type="email"
-                value={parentEmail}
-                onChange={(e) => setParentEmail(e.target.value)}
-                placeholder="parent@email.com"
-                style={inputStyle}
-                onFocus={(e) => (e.target.style.borderColor = 'var(--border-active)')}
-                onBlur={(e) => (e.target.style.borderColor = 'var(--border-subtle)')}
-              />
+              <div style={{ position: 'relative' }}>
+                <Mail size={16} style={{ position: 'absolute', left: '0.875rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)', pointerEvents: 'none' }} />
+                <input id="parentEmail" type="email" value={parentEmail} onChange={(e) => setParentEmail(e.target.value)} placeholder="parent@email.com" style={inputStyle} onFocus={handleFocus} onBlur={handleBlur} />
+              </div>
             </div>
           )}
 
@@ -223,35 +255,45 @@ export default function Signup() {
                 color: '#ef4444',
                 fontSize: '0.8125rem',
                 marginBottom: '1rem',
+                padding: '0.625rem 0.75rem',
+                borderRadius: '0.5rem',
+                backgroundColor: 'rgba(239, 68, 68, 0.08)',
+                border: '1px solid rgba(239, 68, 68, 0.15)',
               }}
             >
               {error}
             </p>
           )}
 
-          <Button type="submit" fullWidth loading={loading}>
-            Create Account
-          </Button>
+          <button
+            type="submit"
+            disabled={loading}
+            style={{
+              width: '100%',
+              padding: '0.8125rem',
+              borderRadius: '0.625rem',
+              border: 'none',
+              backgroundColor: 'var(--accent-primary)',
+              color: '#fff',
+              fontSize: '0.9375rem',
+              fontWeight: 600,
+              fontFamily: "'DM Sans', sans-serif",
+              cursor: loading ? 'not-allowed' : 'pointer',
+              opacity: loading ? 0.6 : 1,
+              transition: 'all 0.2s ease',
+              boxShadow: '0 4px 12px rgba(249, 115, 22, 0.25)',
+            }}
+            onMouseEnter={(e) => { if (!loading) e.currentTarget.style.backgroundColor = 'var(--accent-primary-hover)' }}
+            onMouseLeave={(e) => { if (!loading) e.currentTarget.style.backgroundColor = 'var(--accent-primary)' }}
+          >
+            {loading ? 'Creating Account...' : 'Create Account'}
+          </button>
         </form>
 
-        <p
-          style={{
-            textAlign: 'center',
-            marginTop: '1.5rem',
-            fontSize: '0.875rem',
-            color: 'var(--text-muted)',
-          }}
-        >
+        <p style={{ textAlign: 'center', marginTop: '1.5rem', fontSize: '0.8125rem', color: 'var(--text-muted)' }}>
           Already have an account?{' '}
-          <Link
-            to="/login"
-            style={{
-              color: 'var(--accent-primary)',
-              textDecoration: 'none',
-              fontWeight: 500,
-            }}
-          >
-            Log In
+          <Link to="/login" style={{ color: 'var(--accent-primary)', textDecoration: 'none', fontWeight: 600 }}>
+            Sign In
           </Link>
         </p>
       </div>

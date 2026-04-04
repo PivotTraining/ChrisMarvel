@@ -20,25 +20,17 @@ function AppContent() {
 
   if (loading) {
     return (
-      <div className="flex min-h-screen items-center justify-center" style={{ backgroundColor: 'var(--bg-primary)' }}>
+      <div className="flex min-h-screen items-center justify-center" style={{ backgroundColor: 'var(--color-bg)' }}>
         <div style={{ textAlign: 'center' }}>
-          <h1
-            style={{
-              fontFamily: "'Barlow Condensed', sans-serif",
-              fontWeight: 700,
-              fontSize: '1.75rem',
-              color: 'var(--text-primary)',
-              marginBottom: '0.75rem',
-            }}
-          >
-            Court<span style={{ color: 'var(--accent-primary)' }}>IQ</span>
+          <h1 className="t-title2" style={{ color: 'var(--color-text)', marginBottom: '16px' }}>
+            Court<span style={{ color: 'var(--color-accent)' }}>IQ</span>
           </h1>
           <div
             style={{
-              width: '2rem',
-              height: '2rem',
-              border: '2px solid rgba(255,255,255,0.08)',
-              borderTopColor: 'var(--accent-primary)',
+              width: '32px',
+              height: '32px',
+              border: '3px solid rgba(255,255,255,0.08)',
+              borderTopColor: 'var(--color-accent)',
               borderRadius: '50%',
               margin: '0 auto',
               animation: 'spin 0.8s linear infinite',
@@ -73,7 +65,7 @@ function AppContent() {
 
   // Authenticated and onboarded — main app
   return (
-    <div className="min-h-screen" style={{ backgroundColor: 'var(--bg-primary)', color: 'var(--text-primary)' }}>
+    <div className="min-h-screen" style={{ backgroundColor: 'var(--color-bg)', color: 'var(--color-text)' }}>
       <Header />
       <Routes>
         <Route path="/" element={<Home />} />

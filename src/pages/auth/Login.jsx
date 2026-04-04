@@ -17,12 +17,10 @@ export default function Login() {
   async function handleSubmit(e) {
     e.preventDefault()
     setError('')
-
     if (!email || !password) {
       setError('Please fill in all fields.')
       return
     }
-
     try {
       setLoading(true)
       await signIn(email, password)
@@ -41,6 +39,31 @@ export default function Login() {
     navigate('/')
   }
 
+  const inputWrapStyle = { position: 'relative', marginBottom: '14px' }
+  const iconStyle = { position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: 'var(--color-text-sec)', pointerEvents: 'none' }
+  const inputStyle = {
+    width: '100%',
+    padding: '16px 16px 16px 46px',
+    borderRadius: '14px',
+    border: '1px solid var(--color-border)',
+    backgroundColor: 'var(--color-input-bg)',
+    color: 'var(--color-text)',
+    fontSize: '15px',
+    fontFamily: 'inherit',
+    outline: 'none',
+    boxSizing: 'border-box',
+    transition: 'border-color 0.2s, box-shadow 0.2s',
+  }
+
+  function handleFocus(e) {
+    e.target.style.borderColor = 'var(--color-accent)'
+    e.target.style.boxShadow = '0 0 0 3px rgba(255, 107, 53, 0.15)'
+  }
+  function handleBlur(e) {
+    e.target.style.borderColor = 'var(--color-border)'
+    e.target.style.boxShadow = 'none'
+  }
+
   return (
     <div
       style={{
@@ -49,308 +72,106 @@ export default function Login() {
         flexDirection: 'column',
         alignItems: 'center',
         justifyContent: 'center',
-        backgroundColor: 'var(--bg-primary)',
-        padding: '1.5rem',
-        fontFamily: "'DM Sans', sans-serif",
+        backgroundColor: 'var(--color-bg)',
+        padding: '24px',
       }}
     >
-      {/* Logo area */}
-      <div style={{ textAlign: 'center', marginBottom: '2.5rem' }}>
+      {/* Logo */}
+      <div style={{ textAlign: 'center', marginBottom: '40px' }}>
         <div
           style={{
-            width: '72px',
-            height: '72px',
-            borderRadius: '20px',
-            backgroundColor: 'rgba(249, 115, 22, 0.12)',
+            width: '80px',
+            height: '80px',
+            borderRadius: '24px',
+            background: 'linear-gradient(135deg, var(--color-accent), var(--color-accent-dark))',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            margin: '0 auto 1.25rem',
+            margin: '0 auto 20px',
+            boxShadow: '0 8px 24px rgba(255, 107, 53, 0.4)',
           }}
         >
-          <span
-            style={{
-              fontFamily: "'Barlow Condensed', sans-serif",
-              fontWeight: 700,
-              fontSize: '1.5rem',
-              color: 'var(--accent-primary)',
-            }}
-          >
-            CIQ
+          <span style={{ fontWeight: 900, fontSize: '28px', color: '#fff', letterSpacing: '-1px' }}>
+            🏀
           </span>
         </div>
-        <h1
-          style={{
-            fontFamily: "'Barlow Condensed', sans-serif",
-            fontWeight: 700,
-            fontSize: '2.25rem',
-            color: 'var(--text-primary)',
-            letterSpacing: '0.02em',
-          }}
-        >
-          Court<span style={{ color: 'var(--accent-primary)' }}>IQ</span>
+        <h1 className="t-title1" style={{ color: 'var(--color-text)' }}>
+          Court<span style={{ color: 'var(--color-accent)' }}>IQ</span>
         </h1>
-        <p
-          style={{
-            color: 'var(--text-muted)',
-            fontSize: '0.875rem',
-            marginTop: '0.5rem',
-          }}
-        >
-          Your basketball development companion
+        <p className="t-body" style={{ color: 'var(--color-text-sec)', marginTop: '6px' }}>
+          Your basketball performance tracker
         </p>
       </div>
 
       {/* Card */}
       <div
-        className="glass-card"
         style={{
           width: '100%',
           maxWidth: '400px',
-          padding: '2rem 1.75rem',
+          backgroundColor: 'var(--color-card)',
+          border: '1px solid var(--color-border)',
+          borderRadius: '24px',
+          padding: '28px 24px',
         }}
       >
-        {/* Demo Login Button */}
+        {/* Demo button */}
         <button
           onClick={handleDemoLogin}
-          style={{
-            width: '100%',
-            padding: '0.875rem',
-            borderRadius: '0.75rem',
-            border: '1px solid rgba(249, 115, 22, 0.3)',
-            backgroundColor: 'rgba(249, 115, 22, 0.08)',
-            color: 'var(--accent-primary)',
-            fontSize: '0.9375rem',
-            fontWeight: 600,
-            fontFamily: "'DM Sans', sans-serif",
-            cursor: 'pointer',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: '0.5rem',
-            transition: 'all 0.2s ease',
-            marginBottom: '1.75rem',
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.backgroundColor = 'rgba(249, 115, 22, 0.15)'
-            e.currentTarget.style.borderColor = 'rgba(249, 115, 22, 0.5)'
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.backgroundColor = 'rgba(249, 115, 22, 0.08)'
-            e.currentTarget.style.borderColor = 'rgba(249, 115, 22, 0.3)'
-          }}
+          className="btn-primary"
+          style={{ marginBottom: '20px' }}
         >
           <Play size={18} fill="currentColor" />
           Try Demo
         </button>
 
         {/* Divider */}
-        <div
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '0.75rem',
-            marginBottom: '1.75rem',
-          }}
-        >
-          <div style={{ flex: 1, height: '1px', backgroundColor: 'var(--border-subtle)' }} />
-          <span style={{ color: 'var(--text-muted)', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '20px' }}>
+          <div style={{ flex: 1, height: '1px', backgroundColor: 'var(--color-border)' }} />
+          <span className="t-caption" style={{ color: 'var(--color-text-sec)', textTransform: 'uppercase', fontWeight: 600 }}>
             or sign in
           </span>
-          <div style={{ flex: 1, height: '1px', backgroundColor: 'var(--border-subtle)' }} />
+          <div style={{ flex: 1, height: '1px', backgroundColor: 'var(--color-border)' }} />
         </div>
 
         <form onSubmit={handleSubmit}>
-          <div style={{ marginBottom: '1rem' }}>
-            <label
-              htmlFor="email"
-              style={{
-                display: 'block',
-                fontSize: '0.8125rem',
-                fontWeight: 500,
-                color: 'var(--text-secondary)',
-                marginBottom: '0.5rem',
-              }}
-            >
-              Email
-            </label>
-            <div style={{ position: 'relative' }}>
-              <Mail
-                size={16}
-                style={{
-                  position: 'absolute',
-                  left: '0.875rem',
-                  top: '50%',
-                  transform: 'translateY(-50%)',
-                  color: 'var(--text-muted)',
-                  pointerEvents: 'none',
-                }}
-              />
-              <input
-                id="email"
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="you@email.com"
-                style={{
-                  width: '100%',
-                  padding: '0.75rem 0.875rem 0.75rem 2.5rem',
-                  borderRadius: '0.625rem',
-                  border: '1px solid var(--border-subtle)',
-                  backgroundColor: 'var(--bg-surface)',
-                  color: 'var(--text-primary)',
-                  fontSize: '0.875rem',
-                  fontFamily: "'DM Sans', sans-serif",
-                  outline: 'none',
-                  boxSizing: 'border-box',
-                  transition: 'border-color 0.2s, box-shadow 0.2s',
-                }}
-                onFocus={(e) => {
-                  e.target.style.borderColor = 'var(--accent-primary)'
-                  e.target.style.boxShadow = '0 0 0 3px rgba(249, 115, 22, 0.12)'
-                }}
-                onBlur={(e) => {
-                  e.target.style.borderColor = 'var(--border-subtle)'
-                  e.target.style.boxShadow = 'none'
-                }}
-              />
-            </div>
+          <div style={inputWrapStyle}>
+            <Mail size={18} style={iconStyle} />
+            <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Email" style={inputStyle} onFocus={handleFocus} onBlur={handleBlur} />
           </div>
 
-          <div style={{ marginBottom: '1.25rem' }}>
-            <label
-              htmlFor="password"
-              style={{
-                display: 'block',
-                fontSize: '0.8125rem',
-                fontWeight: 500,
-                color: 'var(--text-secondary)',
-                marginBottom: '0.5rem',
-              }}
-            >
-              Password
-            </label>
-            <div style={{ position: 'relative' }}>
-              <Lock
-                size={16}
-                style={{
-                  position: 'absolute',
-                  left: '0.875rem',
-                  top: '50%',
-                  transform: 'translateY(-50%)',
-                  color: 'var(--text-muted)',
-                  pointerEvents: 'none',
-                }}
-              />
-              <input
-                id="password"
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="Your password"
-                style={{
-                  width: '100%',
-                  padding: '0.75rem 0.875rem 0.75rem 2.5rem',
-                  borderRadius: '0.625rem',
-                  border: '1px solid var(--border-subtle)',
-                  backgroundColor: 'var(--bg-surface)',
-                  color: 'var(--text-primary)',
-                  fontSize: '0.875rem',
-                  fontFamily: "'DM Sans', sans-serif",
-                  outline: 'none',
-                  boxSizing: 'border-box',
-                  transition: 'border-color 0.2s, box-shadow 0.2s',
-                }}
-                onFocus={(e) => {
-                  e.target.style.borderColor = 'var(--accent-primary)'
-                  e.target.style.boxShadow = '0 0 0 3px rgba(249, 115, 22, 0.12)'
-                }}
-                onBlur={(e) => {
-                  e.target.style.borderColor = 'var(--border-subtle)'
-                  e.target.style.boxShadow = 'none'
-                }}
-              />
-            </div>
+          <div style={{ ...inputWrapStyle, marginBottom: '20px' }}>
+            <Lock size={18} style={iconStyle} />
+            <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Password" style={inputStyle} onFocus={handleFocus} onBlur={handleBlur} />
           </div>
 
           {error && (
             <p
               style={{
-                color: '#ef4444',
-                fontSize: '0.8125rem',
-                marginBottom: '1rem',
-                padding: '0.625rem 0.75rem',
-                borderRadius: '0.5rem',
+                color: 'var(--color-danger)',
+                fontSize: '13px',
+                marginBottom: '16px',
+                padding: '12px 14px',
+                borderRadius: '12px',
                 backgroundColor: 'rgba(239, 68, 68, 0.08)',
-                border: '1px solid rgba(239, 68, 68, 0.15)',
+                border: '1px solid rgba(239, 68, 68, 0.2)',
               }}
             >
               {error}
             </p>
           )}
 
-          <button
-            type="submit"
-            disabled={loading}
-            style={{
-              width: '100%',
-              padding: '0.8125rem',
-              borderRadius: '0.625rem',
-              border: 'none',
-              backgroundColor: 'var(--accent-primary)',
-              color: '#fff',
-              fontSize: '0.9375rem',
-              fontWeight: 600,
-              fontFamily: "'DM Sans', sans-serif",
-              cursor: loading ? 'not-allowed' : 'pointer',
-              opacity: loading ? 0.6 : 1,
-              transition: 'all 0.2s ease',
-              boxShadow: '0 4px 12px rgba(249, 115, 22, 0.25)',
-            }}
-            onMouseEnter={(e) => {
-              if (!loading) e.currentTarget.style.backgroundColor = 'var(--accent-primary-hover)'
-            }}
-            onMouseLeave={(e) => {
-              if (!loading) e.currentTarget.style.backgroundColor = 'var(--accent-primary)'
-            }}
-          >
+          <button type="submit" disabled={loading} className="btn-primary">
             {loading ? 'Signing in...' : 'Sign In'}
           </button>
         </form>
 
-        <p
-          style={{
-            textAlign: 'center',
-            marginTop: '1.5rem',
-            fontSize: '0.8125rem',
-            color: 'var(--text-muted)',
-          }}
-        >
+        <p className="t-body" style={{ textAlign: 'center', marginTop: '20px', color: 'var(--color-text-sec)', fontSize: '14px' }}>
           Don&apos;t have an account?{' '}
-          <Link
-            to="/signup"
-            style={{
-              color: 'var(--accent-primary)',
-              textDecoration: 'none',
-              fontWeight: 600,
-            }}
-          >
+          <Link to="/signup" style={{ color: 'var(--color-accent)', textDecoration: 'none', fontWeight: 700 }}>
             Sign Up
           </Link>
         </p>
       </div>
-
-      {/* Footer */}
-      <p
-        style={{
-          color: 'var(--text-muted)',
-          fontSize: '0.6875rem',
-          marginTop: '2rem',
-          opacity: 0.6,
-        }}
-      >
-        CourtIQ v1.0
-      </p>
     </div>
   )
 }

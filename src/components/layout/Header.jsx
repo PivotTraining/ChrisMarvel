@@ -20,45 +20,50 @@ export default function Header() {
     <header
       className="sticky top-0 z-40 flex items-center justify-between"
       style={{
-        backgroundColor: 'rgba(19, 19, 26, 0.92)',
+        backgroundColor: 'rgba(15, 17, 23, 0.92)',
         backdropFilter: 'blur(12px)',
         WebkitBackdropFilter: 'blur(12px)',
-        borderBottom: '1px solid rgba(255,255,255,0.06)',
-        padding: '0.875rem 1.25rem',
+        borderBottom: '1px solid var(--color-border)',
+        padding: '14px 20px',
       }}
     >
       <h1
-        className="text-xl tracking-wide"
-        style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700 }}
+        style={{
+          fontSize: '22px',
+          fontWeight: 900,
+          letterSpacing: '-0.4px',
+          color: 'var(--color-text)',
+        }}
       >
-        Court<span style={{ color: '#F97316' }}>IQ</span>
+        Court<span style={{ color: 'var(--color-accent)' }}>IQ</span>
       </h1>
 
       <div className="flex items-center gap-3">
         <span
           className="inline-block h-2 w-2 rounded-full"
           title={isOnline ? 'Online' : 'Offline'}
-          style={{ backgroundColor: isOnline ? '#22C55E' : '#EAB308' }}
+          style={{ backgroundColor: isOnline ? 'var(--color-success)' : 'var(--color-warning)' }}
         />
         {initials ? (
           <Link
             to="/settings"
-            className="flex items-center justify-center rounded-full text-xs font-bold transition-all duration-200"
+            className="flex items-center justify-center rounded-full transition-all duration-200"
             style={{
-              width: '34px',
-              height: '34px',
-              backgroundColor: 'rgba(249, 115, 22, 0.12)',
-              color: '#F97316',
-              fontFamily: "'Barlow Condensed', sans-serif",
+              width: '36px',
+              height: '36px',
+              background: 'linear-gradient(135deg, var(--color-accent), var(--color-accent-dark))',
+              color: '#fff',
               textDecoration: 'none',
-              fontSize: '0.8125rem',
-              letterSpacing: '0.02em',
+              fontSize: '13px',
+              fontWeight: 800,
+              letterSpacing: '-0.2px',
+              boxShadow: '0 2px 8px rgba(255, 107, 53, 0.3)',
             }}
           >
             {initials}
           </Link>
         ) : (
-          <Link to="/settings" className="text-slate-400 hover:text-white transition-colors">
+          <Link to="/settings" style={{ color: 'var(--color-text-sec)' }}>
             <Settings size={20} />
           </Link>
         )}

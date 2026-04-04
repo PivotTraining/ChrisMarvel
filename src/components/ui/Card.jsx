@@ -1,7 +1,7 @@
 const paddingMap = {
-  sm: 'p-3.5',
-  md: 'p-5',
-  lg: 'p-7',
+  sm: '14px',
+  md: '18px',
+  lg: '24px',
 };
 
 export default function Card({
@@ -11,81 +11,63 @@ export default function Card({
   hover = false,
   onClick,
   className = '',
+  style: styleProp,
   ...props
 }) {
-  const base = [
-    'rounded-xl',
-    'transition-all duration-200 ease-out',
-    paddingMap[padding] || paddingMap.md,
-    hover || onClick ? 'cursor-pointer active:scale-[0.98]' : '',
-    className,
-  ].join(' ');
-
   const interactive = !!(hover || onClick);
 
-  if (glass) {
-    return (
-      <div
-        className={`${base}`}
-        onClick={onClick}
-        role={interactive ? 'button' : undefined}
-        tabIndex={interactive ? 0 : undefined}
-        style={{
-          background: 'rgba(19, 19, 26, 0.75)',
-          backdropFilter: 'blur(16px)',
-          WebkitBackdropFilter: 'blur(16px)',
-          border: '1px solid rgba(255, 255, 255, 0.06)',
-          WebkitTapHighlightColor: interactive ? 'transparent' : undefined,
-          touchAction: interactive ? 'manipulation' : undefined,
-          userSelect: interactive ? 'none' : undefined,
-          WebkitUserSelect: interactive ? 'none' : undefined,
-        }}
-        onMouseEnter={(e) => {
-          if (interactive) {
-            e.currentTarget.style.background = 'rgba(26, 26, 37, 0.85)';
-            e.currentTarget.style.borderColor = 'var(--border-active)';
-          }
-        }}
-        onMouseLeave={(e) => {
-          if (interactive) {
-            e.currentTarget.style.background = 'rgba(19, 19, 26, 0.75)';
-            e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.06)';
-          }
-        }}
-        {...props}
-      >
-        {children}
-      </div>
-    );
-  }
+  const baseStyle = {
+    borderRadius: '20px',
+    padding: paddingMap[padding] || paddingMap.md,
+    transition: 'background 0.2s ease, border-color 0.2s ease, transform 0.15s ease',
+    cursor: interactive ? 'pointer' : 'default',
+    WebkitTapHighlightColor: interactive ? 'transparent' : undefined,
+    touchAction: interactive ? 'manipulation' : undefined,
+    userSelect: interactive ? 'none' : undefined,
+    WebkitUserSelect: interactive ? 'none' : undefined,
+  };
+
+  const glassStyle = {
+    ...baseStyle,
+    background: 'rgba(26, 29, 46, 0.75)',
+    backdropFilter: 'blur(16px)',
+    WebkitBackdropFilter: 'blur(16px)',
+    border: '1px solid var(--color-border)',
+  };
+
+  const solidStyle = {
+    ...baseStyle,
+    background: 'var(--color-card)',
+    border: '1px solid var(--color-border)',
+  };
+
+  const finalStyle = { ...(glass ? glassStyle : solidStyle), ...styleProp };
+
+  const handleMouseEnter = (e) => {
+    if (!interactive) return;
+    e.currentTarget.style.borderColor = 'var(--border-active)';
+    if (!glass) e.currentTarget.style.background = 'var(--color-muted)';
+  };
+  const handleMouseLeave = (e) => {
+    if (!interactive) return;
+    e.currentTarget.style.borderColor = 'var(--color-border)';
+    if (!glass) e.currentTarget.style.background = 'var(--color-card)';
+  };
+  const handleMouseDown = (e) => { if (interactive) e.currentTarget.style.transform = 'scale(0.98)' };
+  const handleMouseUp = (e) => { if (interactive) e.currentTarget.style.transform = 'scale(1)' };
 
   return (
     <div
-      className={base}
+      className={className}
       onClick={onClick}
       role={interactive ? 'button' : undefined}
       tabIndex={interactive ? 0 : undefined}
       onKeyDown={interactive ? (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onClick?.() } } : undefined}
-      style={{
-        backgroundColor: 'var(--bg-surface)',
-        border: '1px solid rgba(255, 255, 255, 0.06)',
-        WebkitTapHighlightColor: interactive ? 'transparent' : undefined,
-        touchAction: interactive ? 'manipulation' : undefined,
-        userSelect: interactive ? 'none' : undefined,
-        WebkitUserSelect: interactive ? 'none' : undefined,
-      }}
-      onMouseEnter={(e) => {
-        if (interactive) {
-          e.currentTarget.style.backgroundColor = 'var(--bg-surface-hover)';
-          e.currentTarget.style.borderColor = 'var(--border-active)';
-        }
-      }}
-      onMouseLeave={(e) => {
-        if (interactive) {
-          e.currentTarget.style.backgroundColor = 'var(--bg-surface)';
-          e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.06)';
-        }
-      }}
+      style={finalStyle}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
+      onMouseDown={handleMouseDown}
+      onMouseUp={handleMouseUp}
       {...props}
     >
       {children}

@@ -15,12 +15,12 @@ export default function BottomNav() {
     <nav
       className="fixed bottom-0 left-0 right-0 z-50 flex items-center justify-around"
       style={{
-        backgroundColor: 'rgba(19, 19, 26, 0.95)',
-        backdropFilter: 'blur(12px)',
-        WebkitBackdropFilter: 'blur(12px)',
-        borderTop: '1px solid rgba(255,255,255,0.06)',
-        padding: '0.5rem 0.25rem',
-        paddingBottom: 'max(0.5rem, env(safe-area-inset-bottom))',
+        backgroundColor: 'rgba(15, 17, 23, 0.95)',
+        backdropFilter: 'blur(16px)',
+        WebkitBackdropFilter: 'blur(16px)',
+        borderTop: '1px solid var(--color-border)',
+        padding: '8px 4px',
+        paddingBottom: 'max(8px, env(safe-area-inset-bottom))',
       }}
     >
       {tabs.map(({ to, icon: Icon, label }) => (
@@ -28,26 +28,26 @@ export default function BottomNav() {
           key={to}
           to={to}
           end={to === '/'}
-          className="flex flex-col items-center gap-0.5 px-2 py-1.5"
-          style={{ textDecoration: 'none', minWidth: '3rem' }}
+          className="flex flex-col items-center gap-1"
+          style={{ textDecoration: 'none', minWidth: '48px', padding: '6px 8px' }}
         >
           {({ isActive }) => (
             <>
               <Icon
-                size={21}
+                size={22}
                 className="transition-colors duration-200"
                 style={{
-                  color: isActive ? '#F97316' : '#64748B',
-                  fill: isActive ? '#F97316' : 'none',
+                  color: isActive ? 'var(--color-accent)' : 'var(--color-text-sec)',
+                  fill: isActive ? 'var(--color-accent)' : 'none',
                 }}
               />
               <span
-                className="font-medium transition-all duration-200"
                 style={{
-                  fontSize: '0.625rem',
-                  color: isActive ? '#F97316' : '#64748B',
-                  opacity: isActive ? 1 : 0.7,
-                  letterSpacing: '0.01em',
+                  fontSize: '10px',
+                  fontWeight: isActive ? 700 : 500,
+                  color: isActive ? 'var(--color-accent)' : 'var(--color-text-sec)',
+                  letterSpacing: '0.1px',
+                  opacity: isActive ? 1 : 0.8,
                 }}
               >
                 {label}

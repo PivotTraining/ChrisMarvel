@@ -8,6 +8,7 @@ import Select from '../../components/ui/Select'
 import Badge from '../../components/ui/Badge'
 import EmptyState from '../../components/ui/EmptyState'
 import SkeletonLoader from '../../components/ui/SkeletonLoader'
+import SwipeableRow from '../../components/ui/SwipeableRow'
 import useGames from '../../hooks/useGames'
 import { useToast } from '../../context/ToastContext'
 
@@ -645,7 +646,17 @@ export default function Games() {
           <SeasonAverages avg={seasonAverages} />
           <Button variant="primary" onClick={() => openForm()} fullWidth>Log Game</Button>
           <div className="flex flex-col gap-3">
-            {games.map((g) => <GameCard key={g.id} game={g} onReview={openReview} />)}
+            {games.map((g) => (
+              <SwipeableRow
+                key={g.id}
+                onDelete={async () => {
+                  await deleteGame(g.id)
+                  showToast('Game deleted', 'success')
+                }}
+              >
+                <GameCard game={g} onReview={openReview} />
+              </SwipeableRow>
+            ))}
           </div>
           {hasMore && (
             <Button variant="outline" onClick={loadMore} fullWidth>Load More</Button>

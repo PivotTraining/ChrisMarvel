@@ -104,9 +104,9 @@ function GameCard({ game, onReview }) {
 /* ---- Tabbed Game Form ---- */
 
 const FORM_TABS = [
-  { id: 'info', label: 'Game', icon: Info, color: '#3B82F6' },
   { id: 'stats', label: 'Stats', icon: BarChart3, color: '#22C55E' },
   { id: 'shooting', label: 'Shooting', icon: Crosshair, color: '#FF6B35' },
+  { id: 'info', label: 'Game', icon: Info, color: '#3B82F6' },
 ]
 
 const SHOT_ZONES = [
@@ -297,7 +297,7 @@ function ShotZoneModal({ zone, onRecord, onClose }) {
 function GameForm({ initial, onSave, onDelete, onBack, saving }) {
   const [form, setForm] = useState(initial ? { ...emptyForm, ...initial, is_home_game: String(initial.is_home_game ?? 'true') } : { ...emptyForm })
   const [errors, setErrors] = useState({})
-  const [tab, setTab] = useState('info')
+  const [tab, setTab] = useState('stats')
   const [shotData, setShotData] = useState({})
   const [activeZone, setActiveZone] = useState(null)
   const isEdit = !!initial?.id
@@ -626,218 +626,370 @@ function buildShareText(game, feedback) {
   return text
 }
 
+// ─── Performance rating (0–100) ───────────────────────────────────────────────
+function calcPerformanceRating(game, seasonAvg) {
+  let score = 50
+  const pts = game.points || 0
+  const reb = game.rebounds || 0
+  const ast = game.assists || 0
+  const stl = game.steals || 0
+  const blk = game.blocks || 0
+  const tov = game.turnovers || 0
+
+  // Points scoring (max +25)
+  score += Math.min(pts * 0.6, 25)
+  // Rebounds (+10 max)
+  score += Math.min(reb * 0.8, 10)
+  // Assists (+10 max)
+  score += Math.min(ast * 0.9, 10)
+  // Defense (+5 max)
+  score += Math.min((stl * 2 + blk * 2), 5)
+  // Turnovers penalty
+  score -= tov * 2
+  // FG efficiency bonus
+  const fgPctVal = pct(game.field_goals_made, game.field_goals_attempted)
+  if (fgPctVal !== null) {
+    if (fgPctVal >= 55) score += 8
+    else if (fgPctVal >= 45) score += 4
+    else if (fgPctVal < 35) score -= 4
+  }
+  // Result bonus
+  if (game.result === 'Win') score += 5
+  if (game.result === 'Loss') score -= 3
+  // Season comparison bonus
+  if (seasonAvg && seasonAvg.gamesPlayed > 1) {
+    const diff = pts - seasonAvg.ppg
+    if (diff > 5) score += 5
+    else if (diff < -5) score -= 3
+  }
+  return Math.max(0, Math.min(100, Math.round(score)))
+}
+
+function ratingLabel(r) {
+  if (r >= 90) return { label: 'MVP', color: '#F59E0B' }
+  if (r >= 80) return { label: 'Elite', color: '#22C55E' }
+  if (r >= 70) return { label: 'Strong', color: '#3B82F6' }
+  if (r >= 60) return { label: 'Solid', color: '#8B5CF6' }
+  if (r >= 50) return { label: 'Average', color: 'var(--color-text-sec)' }
+  return { label: 'Rough', color: '#EF4444' }
+}
+
+function ShootingBar({ label, made, attempted, thresholdGood = 45, thresholdGreat = 55 }) {
+  const p = attempted > 0 ? (made / attempted) * 100 : null
+  const barColor = p === null ? 'var(--color-border)' : p >= thresholdGreat ? '#22C55E' : p >= thresholdGood ? '#FF6B35' : '#EF4444'
+  const barWidth = p === null ? 0 : Math.min(p, 100)
+  return (
+    <div style={{ marginBottom: '14px' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '6px' }}>
+        <span style={{ fontSize: '13px', fontWeight: 700, color: 'var(--color-text-sec)', textTransform: 'uppercase', letterSpacing: '0.4px' }}>{label}</span>
+        <div style={{ display: 'flex', alignItems: 'baseline', gap: '6px' }}>
+          {p !== null && (
+            <span style={{ fontSize: '20px', fontWeight: 900, color: barColor, letterSpacing: '-0.5px' }}>{p.toFixed(0)}%</span>
+          )}
+          <span style={{ fontSize: '13px', color: 'var(--color-text-sec)', fontWeight: 600 }}>
+            {attempted > 0 ? `${made}/${attempted}` : '—'}
+          </span>
+        </div>
+      </div>
+      <div style={{ height: '6px', borderRadius: '6px', background: 'var(--color-border)', overflow: 'hidden' }}>
+        <div
+          style={{
+            height: '100%',
+            borderRadius: '6px',
+            width: `${barWidth}%`,
+            background: p !== null
+              ? `linear-gradient(90deg, ${barColor}cc, ${barColor})`
+              : 'transparent',
+            transition: 'width 0.6s cubic-bezier(0.34, 1.56, 0.64, 1)',
+          }}
+        />
+      </div>
+    </div>
+  )
+}
+
+function IQChip({ text, tone }) {
+  const colors = {
+    hot: { bg: 'rgba(245,158,11,0.12)', border: 'rgba(245,158,11,0.3)', text: '#F59E0B' },
+    good: { bg: 'rgba(34,197,94,0.1)', border: 'rgba(34,197,94,0.25)', text: '#22C55E' },
+    neutral: { bg: 'rgba(139,143,171,0.1)', border: 'rgba(139,143,171,0.2)', text: 'var(--color-text-sec)' },
+    work: { bg: 'rgba(239,68,68,0.1)', border: 'rgba(239,68,68,0.25)', text: '#EF4444' },
+  }
+  const c = colors[tone] || colors.neutral
+  return (
+    <div style={{
+      display: 'inline-flex',
+      alignItems: 'center',
+      padding: '7px 12px',
+      borderRadius: '24px',
+      background: c.bg,
+      border: `1px solid ${c.border}`,
+      color: c.text,
+      fontSize: '12px',
+      fontWeight: 700,
+      letterSpacing: '0.1px',
+      lineHeight: 1.3,
+      fontFamily: 'inherit',
+    }}>
+      {text}
+    </div>
+  )
+}
+
 function GameResult({ game, seasonAvg, onDone, onEdit, showToast }) {
   const feedback = useMemo(() => generateFeedback(game, seasonAvg), [game, seasonAvg])
   const [shared, setShared] = useState(false)
   const pts = game.points || 0
   const reb = game.rebounds || 0
   const ast = game.assists || 0
+  const stl = game.steals || 0
+  const blk = game.blocks || 0
+  const tov = game.turnovers || 0
+  const fouls = game.fouls || 0
+  const min = game.minutes_played || 0
 
-  const resultColor = game.result === 'Win' ? '#22C55E' : game.result === 'Loss' ? '#EF4444' : 'var(--text-secondary)'
-  const resultText = game.result === 'Win' ? 'Victory' : game.result === 'Loss' ? 'Tough Loss' : 'Draw'
+  const rating = useMemo(() => calcPerformanceRating(game, seasonAvg), [game, seasonAvg])
+  const { label: rLabel, color: rColor } = ratingLabel(rating)
+
+  const isWin = game.result === 'Win'
+  const isLoss = game.result === 'Loss'
+  const resultGrad = isWin
+    ? 'linear-gradient(135deg, #22C55E, #16A34A)'
+    : isLoss
+    ? 'linear-gradient(135deg, #EF4444, #DC2626)'
+    : 'linear-gradient(135deg, #6B7280, #4B5563)'
+  const resultText = isWin ? 'Victory' : isLoss ? 'Tough Loss' : 'Draw'
+  const resultColor = isWin ? '#22C55E' : isLoss ? '#EF4444' : '#6B7280'
+
+  const fgPctVal = pct(game.field_goals_made, game.field_goals_attempted)
+  const threePctVal = pct(game.three_pointers_made, game.three_pointers_attempted)
+  const ftPctVal = pct(game.free_throws_made, game.free_throws_attempted)
+
+  // True Shooting %: pts / (2 * (fga + 0.44 * fta))
+  const tsPct = useMemo(() => {
+    const fga = game.field_goals_attempted || 0
+    const fta = game.free_throws_attempted || 0
+    if (!fga && !fta) return null
+    return +((pts / (2 * (fga + 0.44 * fta))) * 100).toFixed(1)
+  }, [game, pts])
+
+  // eFG%: (fgm + 0.5 * 3pm) / fga
+  const efgPct = useMemo(() => {
+    const fgm = game.field_goals_made || 0
+    const fga = game.field_goals_attempted || 0
+    const tpm = game.three_pointers_made || 0
+    if (!fga) return null
+    return +((((fgm + 0.5 * tpm) / fga) * 100)).toFixed(1)
+  }, [game])
+
+  const atrRatio = ast > 0 && tov > 0 ? +(ast / tov).toFixed(1) : null
+  const ptsPerMin = min > 0 ? +(pts / min).toFixed(1) : null
+
+  // Avg diffs vs season
+  const ppgDiff = seasonAvg && seasonAvg.gamesPlayed > 1 ? +(pts - seasonAvg.ppg).toFixed(1) : null
+  const rpgDiff = seasonAvg && seasonAvg.gamesPlayed > 1 ? +(reb - seasonAvg.rpg).toFixed(1) : null
+  const apgDiff = seasonAvg && seasonAvg.gamesPlayed > 1 ? +(ast - seasonAvg.apg).toFixed(1) : null
 
   const handleShare = async () => {
     const text = buildShareText(game, feedback)
-    // Try native share first (mobile)
     if (navigator.share) {
-      try {
-        await navigator.share({ title: `Game Review — ${game.opponent || 'Game'}`, text })
-        showToast?.('Shared successfully', 'success')
-        return
-      } catch {
-        // user cancelled or not supported, fall through
-      }
+      try { await navigator.share({ title: `Game Review — ${game.opponent || 'Game'}`, text }); showToast?.('Shared!', 'success'); return } catch {}
     }
-    // Try clipboard
     try {
       await navigator.clipboard.writeText(text)
-      setShared(true)
-      showToast?.('Stats copied to clipboard', 'success')
-      setTimeout(() => setShared(false), 2000)
-      return
-    } catch {
-      // clipboard not available
-    }
-    // Final fallback: select text in a temporary textarea
+      setShared(true); showToast?.('Copied to clipboard', 'success'); setTimeout(() => setShared(false), 2000); return
+    } catch {}
     try {
-      const ta = document.createElement('textarea')
-      ta.value = text
-      ta.style.cssText = 'position:fixed;left:-9999px;top:-9999px'
-      document.body.appendChild(ta)
-      ta.select()
-      document.execCommand('copy')
-      document.body.removeChild(ta)
-      setShared(true)
-      showToast?.('Stats copied to clipboard', 'success')
-      setTimeout(() => setShared(false), 2000)
-    } catch {
-      showToast?.('Could not copy — long press to select text manually', 'info')
-    }
+      const ta = document.createElement('textarea'); ta.value = text; ta.style.cssText = 'position:fixed;left:-9999px'; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta)
+      setShared(true); showToast?.('Copied to clipboard', 'success'); setTimeout(() => setShared(false), 2000)
+    } catch { showToast?.('Could not copy', 'info') }
   }
+
+  const cardStyle = { backgroundColor: 'var(--color-card)', border: '1px solid var(--color-border)', borderRadius: '20px', padding: '18px', marginBottom: '12px' }
+  const sectionLabel = { fontSize: '11px', fontWeight: 700, color: 'var(--color-text-sec)', textTransform: 'uppercase', letterSpacing: '0.8px', marginBottom: '14px' }
 
   return (
     <PageWrapper>
-      {/* Back + actions row */}
-      <div className="flex items-center justify-between mb-4">
-        <button
-          type="button"
-          onClick={onDone}
-          className="flex items-center gap-1 text-sm bg-transparent border-0 cursor-pointer"
-          style={{ color: 'var(--text-secondary)', ...body }}
-        >
-          <ArrowLeft className="w-4 h-4" /> Back
+      {/* Header row */}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px' }}>
+        <button type="button" onClick={onDone} style={{ display: 'flex', alignItems: 'center', gap: '4px', background: 'none', border: 'none', color: 'var(--color-text-sec)', fontSize: '14px', fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit', padding: 0 }}>
+          <ArrowLeft size={16} /> Games
         </button>
-        <div className="flex items-center gap-2">
-          <button
-            type="button"
-            onClick={handleShare}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-transparent border cursor-pointer transition-all duration-200"
-            style={{
-              color: shared ? 'var(--success)' : 'var(--text-secondary)',
-              borderColor: shared ? 'var(--success)' : 'var(--border-subtle)',
-              ...body,
-            }}
-          >
-            <Share2 className="w-3.5 h-3.5" />
-            {shared ? 'Copied!' : 'Share'}
+        <div style={{ display: 'flex', gap: '8px' }}>
+          <button type="button" onClick={handleShare} style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 14px', borderRadius: '12px', border: `1px solid ${shared ? '#22C55E' : 'var(--color-border)'}`, background: shared ? 'rgba(34,197,94,0.1)' : 'var(--color-card)', color: shared ? '#22C55E' : 'var(--color-text-sec)', fontSize: '13px', fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit', transition: 'all 0.2s' }}>
+            <Share2 size={14} />{shared ? 'Copied!' : 'Share'}
           </button>
           {onEdit && (
-            <button
-              type="button"
-              onClick={() => onEdit(game)}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-transparent border cursor-pointer transition-all duration-200"
-              style={{ color: 'var(--text-secondary)', borderColor: 'var(--border-subtle)', ...body }}
-            >
-              <Pencil className="w-3.5 h-3.5" />
-              Edit
+            <button type="button" onClick={() => onEdit(game)} style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 14px', borderRadius: '12px', border: '1px solid var(--color-border)', background: 'var(--color-card)', color: 'var(--color-text-sec)', fontSize: '13px', fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit' }}>
+              <Pencil size={14} />Edit
             </button>
           )}
         </div>
       </div>
 
-      {/* ===== TEAM RESULT ===== */}
-      <div className="flex flex-col items-center text-center mb-6">
-        <div
-          className="w-16 h-16 rounded-full flex items-center justify-center mb-4"
-          style={{ backgroundColor: `${resultColor}15` }}
-        >
-          <Trophy className="w-8 h-8" style={{ color: resultColor }} />
+      {/* ── HERO BANNER ── */}
+      <div style={{ background: resultGrad, borderRadius: '24px', padding: '24px 20px', marginBottom: '12px', position: 'relative', overflow: 'hidden' }}>
+        <div style={{ position: 'absolute', top: -20, right: -20, width: 120, height: 120, borderRadius: '50%', background: 'rgba(255,255,255,0.06)' }} />
+        <div style={{ position: 'absolute', bottom: -30, left: -10, width: 80, height: 80, borderRadius: '50%', background: 'rgba(0,0,0,0.12)' }} />
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', position: 'relative' }}>
+          <div>
+            <p style={{ fontSize: '12px', fontWeight: 700, color: 'rgba(255,255,255,0.7)', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '4px' }}>
+              {game.is_home_game === true || game.is_home_game === 'true' ? 'HOME' : 'AWAY'} · {game.game_type || 'GAME'}
+            </p>
+            <h1 style={{ fontSize: '34px', fontWeight: 900, color: '#fff', letterSpacing: '-1px', lineHeight: 1, marginBottom: '6px' }}>{resultText}</h1>
+            <p style={{ fontSize: '14px', color: 'rgba(255,255,255,0.75)', fontWeight: 600 }}>
+              vs {game.opponent || 'Unknown'} · {fmtDate(game.game_date)}
+            </p>
+          </div>
+          {/* Performance IQ Badge */}
+          <div style={{ textAlign: 'center', background: 'rgba(0,0,0,0.25)', borderRadius: '16px', padding: '10px 14px', backdropFilter: 'blur(8px)' }}>
+            <p style={{ fontSize: '28px', fontWeight: 900, color: '#fff', letterSpacing: '-1px', lineHeight: 1 }}>{rating}</p>
+            <p style={{ fontSize: '10px', fontWeight: 700, color: 'rgba(255,255,255,0.8)', textTransform: 'uppercase', letterSpacing: '0.5px', marginTop: '2px' }}>IQ Score</p>
+            <p style={{ fontSize: '11px', fontWeight: 700, color: rColor, marginTop: '2px' }}>{rLabel}</p>
+          </div>
         </div>
-        <h1 className="text-3xl mb-1" style={{ ...heading, color: resultColor }}>
-          {resultText}
-        </h1>
-        <p className="text-sm" style={{ ...body, color: 'var(--text-muted)' }}>
-          {game.is_home_game === true || game.is_home_game === 'true' ? 'vs' : '@'}{' '}
-          {game.opponent || 'Unknown'} — {fmtDate(game.game_date)}
-        </p>
       </div>
 
-      <Card padding="sm" className="mb-4">
-        <h3 className="text-xs font-semibold mb-2" style={{ ...body, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-          Game Info
-        </h3>
-        <div className="grid grid-cols-3 gap-3">
-          <div className="text-center">
-            <div style={{ ...heading, fontSize: '1rem', color: resultColor }}>{game.result || '—'}</div>
-            <div style={statLabel}>Result</div>
-          </div>
-          <div className="text-center">
-            <div style={{ ...heading, fontSize: '1rem', color: 'var(--text-primary)' }}>{game.game_type || '—'}</div>
-            <div style={statLabel}>Type</div>
-          </div>
-          <div className="text-center">
-            <div style={{ ...heading, fontSize: '1rem', color: 'var(--text-primary)' }}>
-              {game.is_home_game === true || game.is_home_game === 'true' ? 'Home' : 'Away'}
+      {/* ── MAIN STATS HERO ── */}
+      <div style={{ ...cardStyle, padding: '20px' }}>
+        <p style={sectionLabel}>Performance</p>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '0' }}>
+          {[
+            { val: pts, label: 'PTS', diff: ppgDiff, color: '#FF6B35' },
+            { val: reb, label: 'REB', diff: rpgDiff, color: '#3B82F6' },
+            { val: ast, label: 'AST', diff: apgDiff, color: '#22C55E' },
+          ].map(({ val, label, diff, color }, i) => (
+            <div key={label} style={{ textAlign: 'center', borderRight: i < 2 ? '1px solid var(--color-border)' : 'none', paddingBottom: '4px' }}>
+              <p style={{ fontSize: '38px', fontWeight: 900, color, letterSpacing: '-1.5px', lineHeight: 1 }}>{val}</p>
+              <p style={{ fontSize: '11px', fontWeight: 700, color: 'var(--color-text-sec)', textTransform: 'uppercase', letterSpacing: '0.5px', marginTop: '2px' }}>{label}</p>
+              {diff !== null && (
+                <p style={{ fontSize: '11px', fontWeight: 700, color: diff > 0 ? '#22C55E' : diff < 0 ? '#EF4444' : 'var(--color-text-sec)', marginTop: '3px' }}>
+                  {diff > 0 ? `↑ +${diff}` : diff < 0 ? `↓ ${diff}` : '= avg'}
+                </p>
+              )}
             </div>
-            <div style={statLabel}>Venue</div>
-          </div>
+          ))}
         </div>
-      </Card>
-
-      {/* ===== PLAYER STATS ===== */}
-      <h3 className="text-xs font-semibold mb-2 mt-2" style={{ ...body, color: 'var(--accent-primary)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-        Player Stats
-      </h3>
-
-      <Card padding="md" className="mb-4">
-        <div className="grid grid-cols-3 gap-4">
-          <StatBox value={pts} label="PTS" />
-          <StatBox value={reb} label="REB" />
-          <StatBox value={ast} label="AST" />
-        </div>
-      </Card>
-
-      {/* Shooting splits */}
-      {(game.field_goals_attempted > 0 || game.free_throws_attempted > 0 || game.three_pointers_attempted > 0) && (
-        <Card padding="sm" className="mb-4">
-          <h3 className="text-xs font-semibold mb-2" style={{ ...body, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-            Shooting Splits
-          </h3>
-          <div className="grid grid-cols-3 gap-3">
-            {game.field_goals_attempted > 0 && (
-              <div className="text-center">
-                <div style={{ ...heading, fontSize: '1.25rem', color: 'var(--text-primary)' }}>
-                  {game.field_goals_made}/{game.field_goals_attempted}
-                </div>
-                <div style={statLabel}>FG</div>
-              </div>
-            )}
-            {game.three_pointers_attempted > 0 && (
-              <div className="text-center">
-                <div style={{ ...heading, fontSize: '1.25rem', color: 'var(--text-primary)' }}>
-                  {game.three_pointers_made}/{game.three_pointers_attempted}
-                </div>
-                <div style={statLabel}>3PT</div>
-              </div>
-            )}
-            {game.free_throws_attempted > 0 && (
-              <div className="text-center">
-                <div style={{ ...heading, fontSize: '1.25rem', color: 'var(--text-primary)' }}>
-                  {game.free_throws_made}/{game.free_throws_attempted}
-                </div>
-                <div style={statLabel}>FT</div>
-              </div>
-            )}
+        {/* Secondary stats row */}
+        {(stl > 0 || blk > 0 || tov > 0 || fouls > 0 || min > 0) && (
+          <div style={{ borderTop: '1px solid var(--color-border)', marginTop: '16px', paddingTop: '14px', display: 'flex', justifyContent: 'space-around' }}>
+            {stl > 0 && <div style={{ textAlign: 'center' }}><p style={{ fontSize: '18px', fontWeight: 800, color: '#22C55E' }}>{stl}</p><p style={{ fontSize: '10px', fontWeight: 700, color: 'var(--color-text-sec)', textTransform: 'uppercase' }}>STL</p></div>}
+            {blk > 0 && <div style={{ textAlign: 'center' }}><p style={{ fontSize: '18px', fontWeight: 800, color: '#3B82F6' }}>{blk}</p><p style={{ fontSize: '10px', fontWeight: 700, color: 'var(--color-text-sec)', textTransform: 'uppercase' }}>BLK</p></div>}
+            {tov > 0 && <div style={{ textAlign: 'center' }}><p style={{ fontSize: '18px', fontWeight: 800, color: '#EF4444' }}>{tov}</p><p style={{ fontSize: '10px', fontWeight: 700, color: 'var(--color-text-sec)', textTransform: 'uppercase' }}>TO</p></div>}
+            {fouls > 0 && <div style={{ textAlign: 'center' }}><p style={{ fontSize: '18px', fontWeight: 800, color: '#F59E0B' }}>{fouls}</p><p style={{ fontSize: '10px', fontWeight: 700, color: 'var(--color-text-sec)', textTransform: 'uppercase' }}>PF</p></div>}
+            {min > 0 && <div style={{ textAlign: 'center' }}><p style={{ fontSize: '18px', fontWeight: 800, color: 'var(--color-text)' }}>{min}</p><p style={{ fontSize: '10px', fontWeight: 700, color: 'var(--color-text-sec)', textTransform: 'uppercase' }}>MIN</p></div>}
           </div>
-        </Card>
+        )}
+      </div>
+
+      {/* ── SHOOTING EFFICIENCY ── */}
+      {(game.field_goals_attempted > 0 || game.three_pointers_attempted > 0 || game.free_throws_attempted > 0) && (
+        <div style={cardStyle}>
+          <p style={sectionLabel}>Shooting Efficiency</p>
+          {game.field_goals_attempted > 0 && (
+            <ShootingBar label="Field Goal %" made={game.field_goals_made || 0} attempted={game.field_goals_attempted} thresholdGood={40} thresholdGreat={50} />
+          )}
+          {game.three_pointers_attempted > 0 && (
+            <ShootingBar label="Three Point %" made={game.three_pointers_made || 0} attempted={game.three_pointers_attempted} thresholdGood={33} thresholdGreat={40} />
+          )}
+          {game.free_throws_attempted > 0 && (
+            <ShootingBar label="Free Throw %" made={game.free_throws_made || 0} attempted={game.free_throws_attempted} thresholdGood={70} thresholdGreat={85} />
+          )}
+        </div>
       )}
 
-      {/* Defensive & extra stats */}
-      {(game.steals > 0 || game.blocks > 0 || game.turnovers > 0 || game.fouls > 0 || game.minutes_played > 0) && (
-        <Card padding="sm" className="mb-4">
-          <h3 className="text-xs font-semibold mb-2" style={{ ...body, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-            Defense & Other
-          </h3>
-          <div className="flex justify-around">
-            {game.steals > 0 && <StatBox value={game.steals} label="STL" />}
-            {game.blocks > 0 && <StatBox value={game.blocks} label="BLK" />}
-            {game.turnovers > 0 && <StatBox value={game.turnovers} label="TO" />}
-            {game.fouls > 0 && <StatBox value={game.fouls} label="PF" />}
-            {game.minutes_played > 0 && <StatBox value={game.minutes_played} label="MIN" />}
+      {/* ── ADVANCED EFFICIENCY ── */}
+      {(tsPct !== null || efgPct !== null || atrRatio !== null || ptsPerMin !== null) && (
+        <div style={cardStyle}>
+          <p style={sectionLabel}>Advanced Metrics</p>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+            {tsPct !== null && (
+              <div style={{ background: 'var(--color-input-bg)', borderRadius: '14px', padding: '14px', textAlign: 'center' }}>
+                <p style={{ fontSize: '24px', fontWeight: 900, color: tsPct >= 60 ? '#22C55E' : tsPct >= 50 ? '#FF6B35' : '#EF4444', letterSpacing: '-0.5px' }}>{tsPct}%</p>
+                <p style={{ fontSize: '11px', fontWeight: 700, color: 'var(--color-text-sec)', textTransform: 'uppercase', letterSpacing: '0.5px', marginTop: '3px' }}>True Shooting</p>
+              </div>
+            )}
+            {efgPct !== null && (
+              <div style={{ background: 'var(--color-input-bg)', borderRadius: '14px', padding: '14px', textAlign: 'center' }}>
+                <p style={{ fontSize: '24px', fontWeight: 900, color: efgPct >= 55 ? '#22C55E' : efgPct >= 45 ? '#FF6B35' : '#EF4444', letterSpacing: '-0.5px' }}>{efgPct}%</p>
+                <p style={{ fontSize: '11px', fontWeight: 700, color: 'var(--color-text-sec)', textTransform: 'uppercase', letterSpacing: '0.5px', marginTop: '3px' }}>Eff. FG%</p>
+              </div>
+            )}
+            {atrRatio !== null && (
+              <div style={{ background: 'var(--color-input-bg)', borderRadius: '14px', padding: '14px', textAlign: 'center' }}>
+                <p style={{ fontSize: '24px', fontWeight: 900, color: atrRatio >= 3 ? '#22C55E' : atrRatio >= 2 ? '#FF6B35' : '#EF4444', letterSpacing: '-0.5px' }}>{atrRatio}</p>
+                <p style={{ fontSize: '11px', fontWeight: 700, color: 'var(--color-text-sec)', textTransform: 'uppercase', letterSpacing: '0.5px', marginTop: '3px' }}>AST/TO</p>
+              </div>
+            )}
+            {ptsPerMin !== null && (
+              <div style={{ background: 'var(--color-input-bg)', borderRadius: '14px', padding: '14px', textAlign: 'center' }}>
+                <p style={{ fontSize: '24px', fontWeight: 900, color: ptsPerMin >= 1 ? '#22C55E' : ptsPerMin >= 0.6 ? '#FF6B35' : 'var(--color-text)', letterSpacing: '-0.5px' }}>{ptsPerMin}</p>
+                <p style={{ fontSize: '11px', fontWeight: 700, color: 'var(--color-text-sec)', textTransform: 'uppercase', letterSpacing: '0.5px', marginTop: '3px' }}>Pts/Min</p>
+              </div>
+            )}
           </div>
-        </Card>
+        </div>
       )}
 
-      {/* Feedback */}
+      {/* ── COURT IQ INSIGHTS ── */}
       {feedback.length > 0 && (
-        <Card padding="md" className="mb-4">
-          <h3 className="text-xs font-semibold mb-3" style={{ ...body, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-            Game Breakdown
-          </h3>
-          <div className="flex flex-col gap-2.5">
-            {feedback.map((item, i) => {
-              const Icon = item.icon
-              return (
-                <div key={i} className="flex items-start gap-2.5">
-                  <Icon className="w-4 h-4 mt-0.5 flex-shrink-0" style={{ color: toneColors[item.tone] }} />
-                  <p className="text-sm" style={{ ...body, color: 'var(--text-primary)', lineHeight: '1.4' }}>
-                    {item.text}
-                  </p>
+        <div style={cardStyle}>
+          <p style={sectionLabel}>CourtIQ Breakdown</p>
+          {/* Group by category */}
+          {(['hot', 'good', 'neutral', 'work']).map((tone) => {
+            const items = feedback.filter((f) => f.tone === tone)
+            if (!items.length) return null
+            const toneLabel = { hot: 'On Fire', good: 'Strong', neutral: 'Noted', work: 'Work On' }[tone]
+            return (
+              <div key={tone} style={{ marginBottom: '14px' }}>
+                <p style={{ fontSize: '10px', fontWeight: 800, color: toneColors[tone], textTransform: 'uppercase', letterSpacing: '0.8px', marginBottom: '8px' }}>{toneLabel}</p>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '7px' }}>
+                  {items.map((item, i) => <IQChip key={i} text={item.text} tone={tone} />)}
                 </div>
-              )
-            })}
+              </div>
+            )
+          })}
+        </div>
+      )}
+
+      {/* ── SEASON CONTEXT ── */}
+      {seasonAvg && seasonAvg.gamesPlayed > 1 && (
+        <div style={{ ...cardStyle, marginBottom: '20px' }}>
+          <p style={sectionLabel}>Season Context</p>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px' }}>
+            {[
+              { label: 'Season PPG', val: seasonAvg.ppg, curr: pts, color: '#FF6B35' },
+              { label: 'Season RPG', val: seasonAvg.rpg, curr: reb, color: '#3B82F6' },
+              { label: 'Season APG', val: seasonAvg.apg, curr: ast, color: '#22C55E' },
+            ].map(({ label, val, curr, color }) => (
+              <div key={label} style={{ background: 'var(--color-input-bg)', borderRadius: '12px', padding: '12px', textAlign: 'center' }}>
+                <p style={{ fontSize: '16px', fontWeight: 900, color, letterSpacing: '-0.3px' }}>{val}</p>
+                <p style={{ fontSize: '10px', fontWeight: 700, color: 'var(--color-text-sec)', textTransform: 'uppercase', marginTop: '2px' }}>{label}</p>
+                <p style={{ fontSize: '11px', fontWeight: 700, color: curr > val ? '#22C55E' : curr < val ? '#EF4444' : 'var(--color-text-sec)', marginTop: '4px' }}>
+                  This: {curr}
+                </p>
+              </div>
+            ))}
           </div>
-        </Card>
+          <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '12px', padding: '10px 14px', background: 'var(--color-input-bg)', borderRadius: '12px' }}>
+            <div style={{ textAlign: 'center' }}>
+              <p style={{ fontSize: '15px', fontWeight: 900, color: '#FF6B35' }}>{seasonAvg.fgPct ?? '—'}%</p>
+              <p style={{ fontSize: '10px', fontWeight: 700, color: 'var(--color-text-sec)', textTransform: 'uppercase' }}>Avg FG%</p>
+            </div>
+            <div style={{ textAlign: 'center' }}>
+              <p style={{ fontSize: '15px', fontWeight: 900, color: '#8B5CF6' }}>{seasonAvg.threePct ?? '—'}%</p>
+              <p style={{ fontSize: '10px', fontWeight: 700, color: 'var(--color-text-sec)', textTransform: 'uppercase' }}>Avg 3P%</p>
+            </div>
+            <div style={{ textAlign: 'center' }}>
+              <p style={{ fontSize: '15px', fontWeight: 900, color: '#22C55E' }}>{seasonAvg.winPct ?? '—'}%</p>
+              <p style={{ fontSize: '10px', fontWeight: 700, color: 'var(--color-text-sec)', textTransform: 'uppercase' }}>Win%</p>
+            </div>
+            <div style={{ textAlign: 'center' }}>
+              <p style={{ fontSize: '15px', fontWeight: 900, color: 'var(--color-text)' }}>{seasonAvg.gamesPlayed}</p>
+              <p style={{ fontSize: '10px', fontWeight: 700, color: 'var(--color-text-sec)', textTransform: 'uppercase' }}>Games</p>
+            </div>
+          </div>
+        </div>
       )}
 
       <Button variant="primary" fullWidth onClick={onDone}>

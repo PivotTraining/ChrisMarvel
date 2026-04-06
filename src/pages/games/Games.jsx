@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react'
-import { Trophy, ArrowLeft, ChevronRight, TrendingUp, TrendingDown, Target, Shield, Zap, Pencil, Share2, Crosshair, BarChart3, Info, Check, Plus, Minus } from 'lucide-react'
+import { Trophy, ArrowLeft, ChevronRight, TrendingUp, TrendingDown, Target, Shield, Zap, Pencil, Share2, Crosshair, BarChart3, Info, Plus, Minus, X, Copy } from 'lucide-react'
 import PageWrapper from '../../components/layout/PageWrapper'
 import Button from '../../components/ui/Button'
 import Card from '../../components/ui/Card'
@@ -200,14 +200,15 @@ function ChipSelect({ options, value, onChange, color }) {
         return (
           <button key={val} type="button" onClick={() => onChange(val)}
             style={{
-              padding: '10px 16px', borderRadius: '12px', display: 'flex', alignItems: 'center', gap: '6px',
-              border: isActive ? `1.5px solid ${color}` : '1px solid var(--color-border)',
-              background: isActive ? `${color}18` : 'var(--color-input-bg)',
-              color: isActive ? color : 'var(--color-text-sec)',
-              fontSize: '14px', fontWeight: isActive ? 700 : 500,
-              cursor: 'pointer', transition: 'all 0.15s ease', fontFamily: 'inherit',
+              padding: '12px 22px', borderRadius: '22px', minHeight: '44px',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              border: isActive ? 'none' : '1.5px solid var(--color-border)',
+              background: isActive ? color : 'transparent',
+              color: isActive ? '#fff' : 'var(--color-text-sec)',
+              fontSize: '15px', fontWeight: isActive ? 700 : 500,
+              cursor: 'pointer', transition: 'all 0.2s ease', fontFamily: 'inherit',
+              boxShadow: isActive ? `0 4px 14px ${color}35` : 'none',
             }}>
-            {isActive && <Check size={14} strokeWidth={3} />}
             {label}
           </button>
         )
@@ -766,12 +767,166 @@ function TrendBars({ games, currentPts }) {
   )
 }
 
+/* ---- Radar Chart ---- */
+function RadarChart({ data }) {
+  const labels = ['Scoring', 'Shooting', 'Playmaking', 'Defense', 'Hustle', 'Efficiency']
+  const size = 200
+  const cx = size / 2, cy = size / 2, r = 75
+  const angleStep = (2 * Math.PI) / 6
+  const point = (i, pct) => {
+    const a = angleStep * i - Math.PI / 2
+    return { x: cx + r * (pct / 100) * Math.cos(a), y: cy + r * (pct / 100) * Math.sin(a) }
+  }
+  const gridLevels = [33, 66, 100]
+  const dataPoints = data.map((v, i) => point(i, Math.min(100, Math.max(0, v))))
+  const poly = dataPoints.map(p => `${p.x},${p.y}`).join(' ')
+
+  return (
+    <Card>
+      <p style={{ fontSize: '12px', fontWeight: 700, color: 'var(--color-text-sec)', marginBottom: '12px', textTransform: 'uppercase', letterSpacing: '0.8px' }}>Player Profile</p>
+      <svg viewBox={`0 0 ${size} ${size}`} style={{ width: '100%', maxWidth: '280px', display: 'block', margin: '0 auto' }}>
+        {gridLevels.map((lvl) => (
+          <polygon key={lvl}
+            points={Array.from({ length: 6 }, (_, i) => point(i, lvl)).map(p => `${p.x},${p.y}`).join(' ')}
+            fill="none" stroke="rgba(255,255,255,0.08)" strokeWidth="0.5" />
+        ))}
+        {Array.from({ length: 6 }, (_, i) => (
+          <line key={i} x1={cx} y1={cy} x2={point(i, 100).x} y2={point(i, 100).y} stroke="rgba(255,255,255,0.06)" strokeWidth="0.5" />
+        ))}
+        <polygon points={poly} fill="rgba(255,107,53,0.18)" stroke="#FF6B35" strokeWidth="1.5" />
+        {dataPoints.map((p, i) => (
+          <circle key={i} cx={p.x} cy={p.y} r="3" fill="#FF6B35" />
+        ))}
+        {labels.map((l, i) => {
+          const p = point(i, 118)
+          return <text key={i} x={p.x} y={p.y} textAnchor="middle" dominantBaseline="central" fill="var(--color-text-sec)" fontSize="7" fontWeight="600">{l}</text>
+        })}
+      </svg>
+    </Card>
+  )
+}
+
+/* ---- Player Archetype ---- */
+const ARCHETYPES = [
+  { id: 'sniper', name: 'Sniper', icon: '\u{1F3AF}', desc: 'Deadly from beyond the arc', color: '#FF6B35', match: (g) => g.three_pointers_attempted > 3 && (g.three_pointers_made / g.three_pointers_attempted) > 0.38 },
+  { id: 'bucket', name: 'Bucket Getter', icon: '\u{1F525}', desc: 'Scores at will from anywhere', color: '#EF4444', match: (g) => (g.points || 0) >= 25 },
+  { id: 'floor-general', name: 'Floor General', icon: '\u{1F441}', desc: 'Controls the game with vision', color: '#F59E0B', match: (g) => (g.assists || 0) >= 6 && (g.turnovers > 0 ? g.assists / g.turnovers >= 2 : true) },
+  { id: 'two-way', name: 'Two-Way Force', icon: '\u26A1', desc: 'Dominant on both ends', color: '#8B5CF6', match: (g) => (g.steals || 0) + (g.blocks || 0) >= 3 && (g.points || 0) >= 15 },
+  { id: 'rim-protector', name: 'Rim Protector', icon: '\u{1F6E1}', desc: 'Anchors the defense inside', color: '#3B82F6', match: (g) => (g.blocks || 0) >= 2 && (g.rebounds || 0) >= 8 },
+  { id: 'sharpshooter', name: 'Sharpshooter', icon: '\u{1F4AB}', desc: 'Efficient scoring machine', color: '#22C55E', match: (g) => g.field_goals_attempted > 5 && (g.field_goals_made / g.field_goals_attempted) > 0.5 && (g.points || 0) >= 20 },
+  { id: 'playmaker', name: 'Playmaker', icon: '\u{1F3C0}', desc: 'Creates for self and others', color: '#FF6B35', match: (g) => (g.assists || 0) >= 4 && (g.points || 0) >= 15 },
+  { id: 'slasher', name: 'Slasher', icon: '\u{1F4AA}', desc: 'Attacks the rim relentlessly', color: '#EF4444', match: (g) => (g.paint_touches || 0) >= 5 || (g.drives || 0) >= 4 },
+  { id: 'energy', name: 'Energy Guy', icon: '\u26A1', desc: 'Hustle plays and heart', color: '#22C55E', match: (g) => (g.rebounds || 0) + (g.steals || 0) + (g.blocks || 0) >= 8 },
+  { id: 'balanced', name: 'All-Around', icon: '\u2B50', desc: 'Solid across the board', color: '#8B8FAB', match: () => true },
+]
+
+function getArchetype(game) {
+  for (const arch of ARCHETYPES) {
+    if (arch.match(game)) return arch
+  }
+  return ARCHETYPES[ARCHETYPES.length - 1]
+}
+
+function ArchetypeCard({ game }) {
+  const arch = getArchetype(game)
+  return (
+    <div style={{ padding: '20px', borderRadius: '20px', textAlign: 'center', background: `linear-gradient(135deg, ${arch.color}12, ${arch.color}06)`, border: `1px solid ${arch.color}20` }}>
+      <div style={{ fontSize: '40px', marginBottom: '8px' }}>{arch.icon}</div>
+      <p style={{ fontSize: '11px', color: 'var(--color-text-sec)', fontWeight: 600, marginBottom: '4px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>You played like a</p>
+      <h3 style={{ fontSize: '22px', fontWeight: 900, color: arch.color, marginBottom: '4px', letterSpacing: '-0.5px' }}>{arch.name}</h3>
+      <p style={{ fontSize: '14px', color: 'var(--color-text-sec)' }}>{arch.desc}</p>
+    </div>
+  )
+}
+
+/* ---- Streak & Consistency ---- */
+function StreakConsistency({ allGames }) {
+  if (!allGames || allGames.length < 2) return null
+  const ptsArr = allGames.map(g => g.points || 0)
+  const avg = ptsArr.reduce((s, v) => s + v, 0) / ptsArr.length
+  const variance = ptsArr.reduce((s, v) => s + (v - avg) ** 2, 0) / ptsArr.length
+  const stdDev = Math.sqrt(variance)
+  const consistency = avg > 0 ? Math.max(0, Math.round(100 - (stdDev / avg) * 100)) : 50
+  const consLabel = consistency >= 80 ? 'Elite' : consistency >= 60 ? 'Steady' : consistency >= 40 ? 'Variable' : 'Volatile'
+  const consColor = consistency >= 80 ? '#22C55E' : consistency >= 60 ? '#FF6B35' : consistency >= 40 ? '#F59E0B' : '#EF4444'
+  const sorted = [...allGames].sort((a, b) => (b.game_date || '').localeCompare(a.game_date || ''))
+  let winStreak = 0, lossStreak = 0, scoringStreak = 0
+  for (const g of sorted) { if (g.result === 'Win') winStreak++; else break }
+  if (winStreak === 0) { for (const g of sorted) { if (g.result === 'Loss') lossStreak++; else break } }
+  for (const g of sorted) { if ((g.points || 0) > avg) scoringStreak++; else break }
+
+  return (
+    <Card>
+      <p style={{ fontSize: '12px', fontWeight: 700, color: 'var(--color-text-sec)', marginBottom: '14px', textTransform: 'uppercase', letterSpacing: '0.8px' }}>Consistency & Streaks</p>
+      <div style={{ marginBottom: '16px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}>
+          <span style={{ fontSize: '13px', fontWeight: 700, color: 'var(--color-text)' }}>Consistency</span>
+          <span style={{ fontSize: '13px', fontWeight: 800, color: consColor }}>{consLabel}</span>
+        </div>
+        <div style={{ height: '6px', borderRadius: '3px', background: 'rgba(255,255,255,0.06)' }}>
+          <div style={{ height: '100%', borderRadius: '3px', width: `${consistency}%`, background: consColor, transition: 'width 0.8s ease' }} />
+        </div>
+        <p style={{ fontSize: '11px', color: 'var(--color-text-sec)', marginTop: '4px' }}>Avg {avg.toFixed(1)} PPG (±{stdDev.toFixed(1)})</p>
+      </div>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+        {winStreak >= 2 && <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 12px', borderRadius: '12px', background: 'rgba(34,197,94,0.1)' }}><span>🔥</span><span style={{ fontSize: '14px', fontWeight: 700, color: '#22C55E' }}>{winStreak}-Game Win Streak</span></div>}
+        {lossStreak >= 2 && <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 12px', borderRadius: '12px', background: 'rgba(239,68,68,0.1)' }}><span>📉</span><span style={{ fontSize: '14px', fontWeight: 700, color: '#EF4444' }}>{lossStreak}-Game Losing Streak</span></div>}
+        {scoringStreak >= 3 && <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 12px', borderRadius: '12px', background: 'rgba(255,107,53,0.1)' }}><span>📈</span><span style={{ fontSize: '14px', fontWeight: 700, color: '#FF6B35' }}>{scoringStreak} games above average</span></div>}
+        {winStreak < 2 && lossStreak < 2 && scoringStreak < 3 && <p style={{ fontSize: '13px', color: 'var(--color-text-sec)' }}>No active streaks — keep grinding!</p>}
+      </div>
+    </Card>
+  )
+}
+
+/* ---- Share Card Modal ---- */
+function ShareCardModal({ game, rating, onClose }) {
+  const resultColor = game.result === 'Win' ? '#22C55E' : game.result === 'Loss' ? '#EF4444' : '#8B8FAB'
+  const venue = game.is_home_game === true || game.is_home_game === 'true' ? 'vs' : '@'
+  const fgPctVal = game.field_goals_attempted > 0 ? ((game.field_goals_made / game.field_goals_attempted) * 100).toFixed(0) : null
+  const threePctVal = game.three_pointers_attempted > 0 ? ((game.three_pointers_made / game.three_pointers_attempted) * 100).toFixed(0) : null
+  return (
+    <div onClick={onClose} style={{ position: 'fixed', inset: 0, zIndex: 70, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(0,0,0,0.8)', backdropFilter: 'blur(12px)' }}>
+      <div onClick={(e) => e.stopPropagation()} style={{ width: '320px', borderRadius: '24px', overflow: 'hidden', animation: 'modalIn 0.25s ease' }}>
+        <div style={{ background: `linear-gradient(160deg, #1A1D2E, ${resultColor}15)`, padding: '28px 24px', textAlign: 'center', border: `1px solid ${resultColor}25`, borderRadius: '24px' }}>
+          <p style={{ fontSize: '13px', fontWeight: 800, color: 'var(--color-text-sec)', letterSpacing: '1px', marginBottom: '20px' }}>COURT<span style={{ color: '#FF6B35' }}>IQ</span></p>
+          <div style={{ display: 'inline-block', padding: '6px 20px', borderRadius: '10px', background: resultColor, marginBottom: '12px' }}>
+            <span style={{ fontSize: '13px', fontWeight: 800, color: '#fff', letterSpacing: '1.5px' }}>{game.result === 'Win' ? 'VICTORY' : game.result === 'Loss' ? 'LOSS' : 'DRAW'}</span>
+          </div>
+          <p style={{ fontSize: '15px', color: 'var(--color-text-sec)', marginBottom: '20px' }}>{venue} {game.opponent || 'Unknown'} — {fmtDate(game.game_date)}</p>
+          <div style={{ display: 'flex', justifyContent: 'center', gap: '24px', marginBottom: '20px' }}>
+            {[{ val: game.points || 0, label: 'PTS', color: '#FF6B35' }, { val: game.rebounds || 0, label: 'REB', color: '#3B82F6' }, { val: game.assists || 0, label: 'AST', color: '#22C55E' }].map((s) => (
+              <div key={s.label} style={{ textAlign: 'center' }}>
+                <div style={{ fontSize: '32px', fontWeight: 900, color: s.color, letterSpacing: '-1px' }}>{s.val}</div>
+                <div style={{ fontSize: '10px', fontWeight: 700, color: 'var(--color-text-sec)', textTransform: 'uppercase' }}>{s.label}</div>
+              </div>
+            ))}
+          </div>
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '8px 16px', borderRadius: '12px', background: 'rgba(255,255,255,0.05)', marginBottom: '16px' }}>
+            <span style={{ fontSize: '24px', fontWeight: 900, color: rating >= 70 ? '#22C55E' : '#FF6B35' }}>{rating}</span>
+            <span style={{ fontSize: '11px', fontWeight: 600, color: 'var(--color-text-sec)' }}>IQ Rating</span>
+          </div>
+          {(fgPctVal || threePctVal) && (
+            <div style={{ display: 'flex', justifyContent: 'center', gap: '16px', marginBottom: '16px' }}>
+              {fgPctVal && <span style={{ fontSize: '13px', color: 'var(--color-text-sec)' }}><strong style={{ color: 'var(--color-text)' }}>{fgPctVal}%</strong> FG</span>}
+              {threePctVal && <span style={{ fontSize: '13px', color: 'var(--color-text-sec)' }}><strong style={{ color: 'var(--color-text)' }}>{threePctVal}%</strong> 3PT</span>}
+            </div>
+          )}
+          <p style={{ fontSize: '10px', color: 'var(--color-text-sec)', opacity: 0.5 }}>Screenshot to share</p>
+        </div>
+      </div>
+      <button onClick={onClose} style={{ position: 'fixed', bottom: '40px', left: '50%', transform: 'translateX(-50%)', padding: '14px 32px', borderRadius: '16px', border: 'none', background: 'rgba(255,255,255,0.1)', color: '#fff', fontSize: '15px', fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit', backdropFilter: 'blur(8px)' }}>Close</button>
+    </div>
+  )
+}
+
+
 /* ===== NBA-LEVEL POST-GAME IQ SCREEN ===== */
 
 function GameResult({ game, seasonAvg, allGames, onDone, onEdit, showToast }) {
   const feedback = useMemo(() => generateFeedback(game, seasonAvg), [game, seasonAvg])
   const rating = useMemo(() => calcPerformanceRating(game, seasonAvg), [game, seasonAvg])
   const [shared, setShared] = useState(false)
+  const [showShareCard, setShowShareCard] = useState(false)
 
   const pts = game.points || 0
   const reb = game.rebounds || 0
@@ -793,6 +948,17 @@ function GameResult({ game, seasonAvg, allGames, onDone, onEdit, showToast }) {
   const efgRaw = fga > 0 ? ((fgm + 0.5 * tpm) / fga) * 100 : null
   const atr = game.turnovers > 0 ? +(ast / game.turnovers).toFixed(1) : ast > 0 ? `${ast}:0` : '0:0'
   const ppm = min > 0 ? +(pts / min).toFixed(1) : null
+
+  // Radar chart data
+  const radarData = useMemo(() => {
+    const scoring = Math.min(100, (pts / 30) * 100)
+    const shooting = tsRaw !== null ? Math.min(100, (tsRaw / 70) * 100) : 30
+    const playmaking = Math.min(100, (ast / 10) * 100)
+    const defense = Math.min(100, (((game.steals || 0) + (game.blocks || 0)) / 5) * 100)
+    const hustle = Math.min(100, ((reb + (game.paint_touches || 0) / 2) / 15) * 100)
+    const efficiency = efgRaw !== null ? Math.min(100, (efgRaw / 65) * 100) : 30
+    return [scoring, shooting, playmaking, defense, hustle, efficiency]
+  }, [pts, ast, reb, tsRaw, efgRaw, game])
 
   // Categorize feedback
   const categories = {}
@@ -993,15 +1159,25 @@ function GameResult({ game, seasonAvg, allGames, onDone, onEdit, showToast }) {
         </Card>
       )}
 
-      {/* Done button */}
-      <div style={{ marginTop: '20px', marginBottom: '16px' }}>
+      {/* ===== RADAR CHART ===== */}
+      <div style={{ marginTop: '16px' }}><RadarChart data={radarData} /></div>
+
+      {/* ===== PLAYER ARCHETYPE ===== */}
+      <div style={{ marginTop: '16px' }}><ArchetypeCard game={game} /></div>
+
+      {/* ===== STREAK & CONSISTENCY ===== */}
+      <div style={{ marginTop: '16px' }}><StreakConsistency allGames={allGames} /></div>
+
+      {showShareCard && <ShareCardModal game={game} rating={rating} onClose={() => setShowShareCard(false)} />}
+
+      {/* Action buttons */}
+      <div style={{ marginTop: '20px', marginBottom: '16px', display: 'flex', gap: '10px' }}>
+        <button type="button" onClick={() => setShowShareCard(true)}
+          style={{ flex: 1, padding: '16px', borderRadius: '16px', border: '1.5px solid var(--color-border)', background: 'transparent', color: 'var(--color-text)', fontSize: '15px', fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+          <Share2 size={16} /> Share Card
+        </button>
         <button type="button" onClick={onDone}
-          style={{
-            width: '100%', padding: '16px', borderRadius: '16px', border: 'none',
-            background: 'linear-gradient(135deg, #FF6B35, #E85A2A)', color: '#fff',
-            fontSize: '16px', fontWeight: 800, cursor: 'pointer', fontFamily: 'inherit',
-            boxShadow: '0 4px 16px rgba(255,107,53,0.35)',
-          }}>
+          style={{ flex: 1, padding: '16px', borderRadius: '16px', border: 'none', background: 'linear-gradient(135deg, #FF6B35, #E85A2A)', color: '#fff', fontSize: '15px', fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit', boxShadow: '0 4px 16px rgba(255,107,53,0.35)' }}>
           Done
         </button>
       </div>

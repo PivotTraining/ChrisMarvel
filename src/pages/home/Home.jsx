@@ -11,16 +11,19 @@ import PageWrapper from '../../components/layout/PageWrapper'
 import Card from '../../components/ui/Card'
 import Button from '../../components/ui/Button'
 
+const MOOD_COLORS = {
+  Great: 'var(--color-success)',
+  Good: 'var(--color-info)',
+  Okay: 'var(--color-warning)',
+  Bad: 'var(--color-accent)',
+  Terrible: 'var(--color-danger)',
+}
+
 function StatItem({ label, value }) {
   return (
     <div className="text-center">
-      <p
-        className="text-2xl font-bold"
-        style={{ color: 'var(--accent-primary)', fontFamily: "'Barlow Condensed', sans-serif" }}
-      >
-        {value}
-      </p>
-      <p className="text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>{label}</p>
+      <p className="t-title3" style={{ color: 'var(--color-accent)' }}>{value}</p>
+      <p className="t-caption" style={{ color: 'var(--color-text-sec)', marginTop: '2px' }}>{label}</p>
     </div>
   )
 }
@@ -31,19 +34,19 @@ function QuickAction({ icon: Icon, label, onClick }) {
       onClick={onClick}
       className="flex flex-col items-center gap-2 rounded-xl transition-all duration-200 active:scale-[0.97] cursor-pointer"
       style={{
-        backgroundColor: 'var(--bg-surface)',
+        backgroundColor: 'var(--color-card)',
         border: '1px solid rgba(255, 255, 255, 0.06)',
         minWidth: 0,
-        padding: '1rem 0.5rem',
+        padding: 'var(--space-2) var(--space-1)',
       }}
     >
       <div
         className="w-10 h-10 rounded-full flex items-center justify-center"
-        style={{ backgroundColor: 'rgba(249, 115, 22, 0.1)' }}
+        style={{ backgroundColor: 'var(--color-accent-tint)' }}
       >
-        <Icon className="w-5 h-5" style={{ color: 'var(--accent-primary)' }} />
+        <Icon className="w-5 h-5" style={{ color: 'var(--color-accent)' }} />
       </div>
-      <span className="text-xs font-medium" style={{ color: 'var(--text-secondary)' }}>{label}</span>
+      <span className="t-caption" style={{ color: 'var(--color-text-sec)', fontWeight: 600 }}>{label}</span>
     </button>
   )
 }
@@ -51,9 +54,9 @@ function QuickAction({ icon: Icon, label, onClick }) {
 function ChartTooltip({ active, payload, label, valueSuffix }) {
   if (!active || !payload?.length) return null
   return (
-    <div className="rounded-lg px-3 py-2 text-xs" style={{ backgroundColor: '#1E1E2E', border: '1px solid rgba(255,255,255,0.1)' }}>
-      <p style={{ color: '#94A3B8' }}>{payload[0]?.payload?.label || label}</p>
-      <p className="font-bold" style={{ color: '#F97316' }}>
+    <div className="rounded-lg px-3 py-2" style={{ backgroundColor: 'var(--color-card)', border: '1px solid var(--color-border)' }}>
+      <p className="t-caption" style={{ color: 'var(--color-text-sec)' }}>{payload[0]?.payload?.label || label}</p>
+      <p className="t-body" style={{ color: 'var(--color-accent)', fontWeight: 700 }}>
         {payload[0]?.value}{valueSuffix || ''}
       </p>
     </div>
@@ -62,37 +65,24 @@ function ChartTooltip({ active, payload, label, valueSuffix }) {
 
 function SectionHeader({ icon: Icon, title, actionLabel, onAction, extra }) {
   return (
-    <div className="flex items-center justify-between" style={{ marginBottom: '0.75rem', marginTop: '1.75rem' }}>
+    <div className="flex items-center justify-between" style={{ marginBottom: 'var(--space-2)', marginTop: 'var(--space-3)' }}>
       <div className="flex items-center gap-2">
-        {Icon && <Icon className="w-4 h-4" style={{ color: 'var(--accent-primary)' }} />}
-        <h2
-          style={{
-            fontFamily: "'Barlow Condensed', sans-serif",
-            fontWeight: 700,
-            fontSize: '1.125rem',
-            color: 'var(--text-primary)',
-            letterSpacing: '0.01em',
-          }}
-        >
-          {title}
-        </h2>
-        {extra && (
-          <span className="text-xs" style={{ color: 'var(--text-muted)' }}>{extra}</span>
-        )}
+        {Icon && <Icon className="w-4 h-4" style={{ color: 'var(--color-accent)' }} />}
+        <h2 className="t-title3" style={{ fontSize: '18px' }}>{title}</h2>
+        {extra && <span className="t-caption" style={{ color: 'var(--color-text-sec)' }}>{extra}</span>}
       </div>
       {onAction && (
         <button
           onClick={onAction}
-          className="flex items-center gap-0.5 transition-colors"
+          className="flex items-center gap-0.5 t-body"
           style={{
-            color: 'var(--accent-primary)',
-            fontSize: '0.8125rem',
+            color: 'var(--color-accent)',
+            fontSize: '13px',
             fontWeight: 600,
             background: 'none',
             border: 'none',
             cursor: 'pointer',
-            padding: '0.25rem 0',
-            fontFamily: "'DM Sans', sans-serif",
+            padding: '4px 0',
           }}
         >
           {actionLabel}
@@ -121,33 +111,23 @@ export default function Home() {
   return (
     <PageWrapper>
       {/* === Greeting + Level === */}
-      <div style={{ marginBottom: '0.5rem' }}>
-        <p className="text-sm" style={{ color: 'var(--text-muted)' }}>{greeting}</p>
+      <div style={{ marginBottom: 'var(--space-1)' }}>
+        <p className="t-body" style={{ color: 'var(--color-text-sec)' }}>{greeting}</p>
         <div className="flex items-center gap-3 mt-1">
-          <h1
-            style={{
-              fontFamily: "'Barlow Condensed', sans-serif",
-              fontWeight: 700,
-              fontSize: '2rem',
-              color: 'var(--text-primary)',
-              lineHeight: 1.1,
-            }}
-          >
-            {playerName}
-          </h1>
+          <h1 className="t-title1">{playerName}</h1>
           {level > 0 && (
-            <div className="flex items-center gap-1 px-2 py-0.5 rounded-full" style={{ backgroundColor: 'rgba(249, 115, 22, 0.15)' }}>
-              <Zap className="w-3 h-3" style={{ color: 'var(--accent-primary)' }} />
-              <span className="text-xs font-bold" style={{ color: 'var(--accent-primary)' }}>Lv {level}</span>
+            <div className="flex items-center gap-1 px-2 py-0.5 rounded-full" style={{ backgroundColor: 'var(--color-accent-tint)' }}>
+              <Zap className="w-3 h-3" style={{ color: 'var(--color-accent)' }} />
+              <span className="t-caption" style={{ color: 'var(--color-accent)', fontWeight: 700 }}>Lv {level}</span>
             </div>
           )}
         </div>
         {xp > 0 && (
           <div className="flex items-center gap-2 mt-3">
             <div className="flex-1 h-1.5 rounded-full overflow-hidden" style={{ backgroundColor: 'rgba(255,255,255,0.08)' }}>
-              <div className="h-full rounded-full transition-all" style={{ width: `${xpPct}%`, backgroundColor: 'var(--accent-primary)' }} />
+              <div className="h-full rounded-full transition-all" style={{ width: `${xpPct}%`, backgroundColor: 'var(--color-accent)' }} />
             </div>
-            <span className="text-[10px] whitespace-nowrap" style={{ color: 'var(--text-muted)' }}>{xp} XP</span>
+            <span className="t-caption" style={{ color: 'var(--color-text-sec)' }}>{xp} XP</span>
           </div>
         )}
       </div>
@@ -156,14 +136,14 @@ export default function Home() {
       {streak > 0 && (
         <Card padding="sm" className="mt-4" onClick={() => navigate('/settings')} hover>
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full flex items-center justify-center" style={{ backgroundColor: 'rgba(249, 115, 22, 0.15)' }}>
-              <Flame className="w-5 h-5" style={{ color: 'var(--accent-primary)' }} />
+            <div className="w-10 h-10 rounded-full flex items-center justify-center" style={{ backgroundColor: 'var(--color-accent-tint)' }}>
+              <Flame className="w-5 h-5" style={{ color: 'var(--color-accent)' }} />
             </div>
             <div className="flex-1">
-              <p className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>{streak} day streak</p>
-              <p className="text-xs" style={{ color: 'var(--text-muted)' }}>Keep it going</p>
+              <p className="t-body" style={{ color: 'var(--color-text)', fontWeight: 600 }}>{streak} day streak</p>
+              <p className="t-caption" style={{ color: 'var(--color-text-sec)' }}>Keep it going</p>
             </div>
-            <ChevronRight className="w-4 h-4" style={{ color: 'var(--text-muted)' }} />
+            <ChevronRight className="w-4 h-4" style={{ color: 'var(--color-text-sec)' }} />
           </div>
         </Card>
       )}
@@ -203,18 +183,13 @@ export default function Home() {
       {/* === Recent Game === */}
       {lastGame && (
         <>
-          <SectionHeader
-            icon={Trophy}
-            title="Recent Game"
-            actionLabel="All Games"
-            onAction={() => navigate('/games')}
-          />
+          <SectionHeader icon={Trophy} title="Recent Game" actionLabel="All Games" onAction={() => navigate('/games')} />
           <Card padding="md" hover onClick={() => navigate('/games')}>
             <div className="flex items-center justify-between mb-2">
-              <p className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>
+              <p className="t-body" style={{ color: 'var(--color-text)', fontWeight: 600 }}>
                 {lastGame.opponent ? `vs ${lastGame.opponent}` : lastGame.game_type || 'Game'}
               </p>
-              <p className="text-xs" style={{ color: 'var(--text-muted)' }}>{formatDate(lastGame.game_date)}</p>
+              <p className="t-caption" style={{ color: 'var(--color-text-sec)' }}>{formatDate(lastGame.game_date)}</p>
             </div>
             <div className="flex items-center gap-6 pt-2" style={{ borderTop: '1px solid rgba(255,255,255,0.06)' }}>
               <StatItem label="PTS" value={lastGame.points || 0} />
@@ -228,28 +203,21 @@ export default function Home() {
       {/* === Recent Journal === */}
       {lastEntry && (
         <>
-          <SectionHeader
-            icon={BookHeart}
-            title="Recent Journal"
-            actionLabel="All Entries"
-            onAction={() => navigate('/journal')}
-          />
+          <SectionHeader icon={BookHeart} title="Recent Journal" actionLabel="All Entries" onAction={() => navigate('/journal')} />
           <Card padding="md" hover onClick={() => navigate('/journal')}>
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <span
                   className="w-2.5 h-2.5 rounded-full inline-block"
-                  style={{
-                    backgroundColor: { Great: '#22C55E', Good: '#3B82F6', Okay: '#EAB308', Bad: '#F97316', Terrible: '#EF4444' }[lastEntry.mood] || 'var(--text-muted)',
-                  }}
+                  style={{ backgroundColor: MOOD_COLORS[lastEntry.mood] || 'var(--color-text-sec)' }}
                 />
-                <p className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>{lastEntry.mood}</p>
+                <p className="t-body" style={{ color: 'var(--color-text)', fontWeight: 600 }}>{lastEntry.mood}</p>
               </div>
-              <p className="text-xl font-bold" style={{ fontFamily: "'Barlow Condensed', sans-serif", color: 'var(--accent-primary)' }}>
+              <p className="t-title3" style={{ color: 'var(--color-accent)' }}>
                 {lastEntry.mental_game_score?.toFixed(1)}
               </p>
             </div>
-            <p className="text-xs mt-1" style={{ color: 'var(--text-muted)' }}>{formatDate(lastEntry.entry_date)}</p>
+            <p className="t-caption" style={{ color: 'var(--color-text-sec)', marginTop: '4px' }}>{formatDate(lastEntry.entry_date)}</p>
           </Card>
         </>
       )}
@@ -257,19 +225,14 @@ export default function Home() {
       {/* === Scoring Trend === */}
       {scoringTrend.length > 1 && (
         <>
-          <SectionHeader
-            icon={TrendingUp}
-            title="Scoring Trend"
-            actionLabel="Details"
-            onAction={() => navigate('/games')}
-          />
+          <SectionHeader icon={TrendingUp} title="Scoring Trend" actionLabel="Details" onAction={() => navigate('/games')} />
           <Card padding="md">
             <ResponsiveContainer width="100%" height={150}>
               <LineChart data={scoringTrend}>
-                <XAxis dataKey="label" tick={{ fontSize: 10, fill: '#64748B' }} axisLine={false} tickLine={false} />
-                <YAxis tick={{ fontSize: 10, fill: '#64748B' }} axisLine={false} tickLine={false} width={30} />
+                <XAxis dataKey="label" tick={{ fontSize: 10, fill: 'var(--color-text-sec)' }} axisLine={false} tickLine={false} />
+                <YAxis tick={{ fontSize: 10, fill: 'var(--color-text-sec)' }} axisLine={false} tickLine={false} width={30} />
                 <Tooltip content={<ChartTooltip valueSuffix=" pts" />} />
-                <Line type="monotone" dataKey="points" stroke="#F97316" strokeWidth={2} dot={{ r: 3, fill: '#F97316' }} activeDot={{ r: 5 }} />
+                <Line type="monotone" dataKey="points" stroke="var(--color-accent)" strokeWidth={2} dot={{ r: 3, fill: 'var(--color-accent)' }} activeDot={{ r: 5 }} />
               </LineChart>
             </ResponsiveContainer>
           </Card>
@@ -283,23 +246,23 @@ export default function Home() {
           <Card padding="md">
             <ResponsiveContainer width="100%" height={120}>
               <BarChart data={weeklyActivity}>
-                <XAxis dataKey="day" tick={{ fontSize: 10, fill: '#64748B' }} axisLine={false} tickLine={false} />
-                <YAxis tick={{ fontSize: 10, fill: '#64748B' }} axisLine={false} tickLine={false} width={20} allowDecimals={false} />
+                <XAxis dataKey="day" tick={{ fontSize: 10, fill: 'var(--color-text-sec)' }} axisLine={false} tickLine={false} />
+                <YAxis tick={{ fontSize: 10, fill: 'var(--color-text-sec)' }} axisLine={false} tickLine={false} width={20} allowDecimals={false} />
                 <Tooltip content={({ active, payload }) => {
                   if (!active || !payload?.length) return null
                   const d = payload[0]?.payload
                   return (
-                    <div className="rounded-lg px-3 py-2 text-xs" style={{ backgroundColor: '#1E1E2E', border: '1px solid rgba(255,255,255,0.1)' }}>
-                      <p style={{ color: '#94A3B8' }}>{d?.day}</p>
-                      {d?.games > 0 && <p style={{ color: '#F97316' }}>Games: {d.games}</p>}
-                      {d?.drills > 0 && <p style={{ color: '#3B82F6' }}>Drills: {d.drills}</p>}
-                      {d?.journal > 0 && <p style={{ color: '#22C55E' }}>Journal: {d.journal}</p>}
+                    <div className="rounded-lg px-3 py-2" style={{ backgroundColor: 'var(--color-card)', border: '1px solid var(--color-border)' }}>
+                      <p className="t-caption" style={{ color: 'var(--color-text-sec)' }}>{d?.day}</p>
+                      {d?.games > 0 && <p className="t-caption" style={{ color: 'var(--color-accent)' }}>Games: {d.games}</p>}
+                      {d?.drills > 0 && <p className="t-caption" style={{ color: 'var(--color-info)' }}>Drills: {d.drills}</p>}
+                      {d?.journal > 0 && <p className="t-caption" style={{ color: 'var(--color-success)' }}>Journal: {d.journal}</p>}
                     </div>
                   )
                 }} />
-                <Bar dataKey="games" stackId="a" fill="#F97316" radius={[0, 0, 0, 0]} />
-                <Bar dataKey="drills" stackId="a" fill="#3B82F6" radius={[0, 0, 0, 0]} />
-                <Bar dataKey="journal" stackId="a" fill="#22C55E" radius={[2, 2, 0, 0]} />
+                <Bar dataKey="games" stackId="a" fill="var(--color-accent)" radius={[0, 0, 0, 0]} />
+                <Bar dataKey="drills" stackId="a" fill="var(--color-info)" radius={[0, 0, 0, 0]} />
+                <Bar dataKey="journal" stackId="a" fill="var(--color-success)" radius={[2, 2, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </Card>
@@ -309,24 +272,18 @@ export default function Home() {
       {/* === Badges === */}
       {badges.length > 0 && (
         <>
-          <SectionHeader
-            icon={Award}
-            title="Badges"
-            extra={`${badges.length} earned`}
-            actionLabel="See All"
-            onAction={() => navigate('/settings')}
-          />
+          <SectionHeader icon={Award} title="Badges" extra={`${badges.length} earned`} actionLabel="See All" onAction={() => navigate('/settings')} />
           <Card padding="md">
             <div className="flex gap-3 overflow-x-auto hide-scrollbar">
               {badges.map((b) => (
                 <div key={b.id || b.badge_name} className="flex flex-col items-center gap-1 flex-shrink-0" title={b.badge_description}>
                   <div
-                    className="w-11 h-11 rounded-full flex items-center justify-center text-xs font-bold"
-                    style={{ backgroundColor: 'rgba(249, 115, 22, 0.15)', color: 'var(--accent-primary)' }}
+                    className="w-11 h-11 rounded-full flex items-center justify-center t-caption"
+                    style={{ backgroundColor: 'var(--color-accent-tint)', color: 'var(--color-accent)', fontWeight: 700 }}
                   >
                     {b.badge_name?.split(' ').map((w) => w[0]).join('').slice(0, 2)}
                   </div>
-                  <span className="text-[10px] text-center w-14 truncate" style={{ color: 'var(--text-muted)' }}>{b.badge_name}</span>
+                  <span className="t-caption text-center w-14 truncate" style={{ color: 'var(--color-text-sec)' }}>{b.badge_name}</span>
                 </div>
               ))}
             </div>
@@ -337,72 +294,52 @@ export default function Home() {
       {/* === Weekly Challenge === */}
       {weeklyChallenge && (
         <>
-          <SectionHeader
-            icon={Target}
-            title="Weekly Challenge"
-            actionLabel="Start"
-            onAction={() => navigate('/drills')}
-          />
+          <SectionHeader icon={Target} title="Weekly Challenge" actionLabel="Start" onAction={() => navigate('/drills')} />
           <Card padding="md">
-            <p className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>{weeklyChallenge.challenge_name}</p>
-            <p className="text-xs mb-3 mt-0.5" style={{ color: 'var(--text-muted)' }}>{weeklyChallenge.challenge_description}</p>
+            <p className="t-body" style={{ color: 'var(--color-text)', fontWeight: 600 }}>{weeklyChallenge.challenge_name}</p>
+            <p className="t-caption" style={{ color: 'var(--color-text-sec)', marginBottom: 'var(--space-2)', marginTop: '2px' }}>{weeklyChallenge.challenge_description}</p>
             <div className="flex items-center gap-3">
               <div className="flex-1 h-2 rounded-full overflow-hidden" style={{ backgroundColor: 'rgba(255,255,255,0.08)' }}>
                 <div
                   className="h-full rounded-full transition-all"
                   style={{
                     width: `${Math.round(challengeProgress * 100)}%`,
-                    backgroundColor: weeklyChallenge.completed ? '#22C55E' : 'var(--accent-primary)',
+                    backgroundColor: weeklyChallenge.completed ? 'var(--color-success)' : 'var(--color-accent)',
                   }}
                 />
               </div>
-              <span className="text-xs font-semibold whitespace-nowrap" style={{ color: 'var(--text-secondary)' }}>
+              <span className="t-caption" style={{ color: 'var(--color-text-sec)', fontWeight: 600 }}>
                 {weeklyChallenge.current_value || 0}/{weeklyChallenge.target_value}
               </span>
             </div>
             <div className="flex items-center gap-1 mt-2">
-              <Zap className="w-3 h-3" style={{ color: 'var(--accent-primary)' }} />
-              <span className="text-[10px]" style={{ color: 'var(--text-muted)' }}>{weeklyChallenge.xp_reward} XP reward</span>
+              <Zap className="w-3 h-3" style={{ color: 'var(--color-accent)' }} />
+              <span className="t-caption" style={{ color: 'var(--color-text-sec)' }}>{weeklyChallenge.xp_reward} XP reward</span>
             </div>
           </Card>
         </>
       )}
 
       {/* === Training Library === */}
-      <SectionHeader
-        icon={BookOpen}
-        title="Training Library"
-        actionLabel="Browse"
-        onAction={() => navigate('/training')}
-      />
+      <SectionHeader icon={BookOpen} title="Training Library" actionLabel="Browse" onAction={() => navigate('/training')} />
       <Card padding="md" hover onClick={() => navigate('/training')}>
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full flex items-center justify-center" style={{ backgroundColor: 'rgba(59, 130, 246, 0.15)' }}>
-            <BookOpen className="w-5 h-5" style={{ color: 'var(--accent-secondary)' }} />
+          <div className="w-10 h-10 rounded-full flex items-center justify-center" style={{ backgroundColor: 'var(--color-info-tint)' }}>
+            <BookOpen className="w-5 h-5" style={{ color: 'var(--color-info)' }} />
           </div>
           <div className="flex-1">
-            <p className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>Explore drills & tips</p>
-            <p className="text-xs" style={{ color: 'var(--text-muted)' }}>Curated basketball content</p>
+            <p className="t-body" style={{ color: 'var(--color-text)', fontWeight: 600 }}>Explore drills & tips</p>
+            <p className="t-caption" style={{ color: 'var(--color-text-sec)' }}>Curated basketball content</p>
           </div>
-          <ChevronRight className="w-4 h-4" style={{ color: 'var(--text-muted)' }} />
+          <ChevronRight className="w-4 h-4" style={{ color: 'var(--color-text-sec)' }} />
         </div>
       </Card>
 
       {/* === Empty state if nothing logged === */}
       {games.length === 0 && entries.length === 0 && (
-        <Card padding="lg" glass className="text-center" style={{ marginTop: '1.75rem' }}>
-          <h3
-            style={{
-              fontFamily: "'Barlow Condensed', sans-serif",
-              fontWeight: 700,
-              fontSize: '1.25rem',
-              color: 'var(--text-primary)',
-              marginBottom: '0.5rem',
-            }}
-          >
-            Welcome to CourtIQ
-          </h3>
-          <p className="text-sm" style={{ color: 'var(--text-muted)', marginBottom: '1.25rem' }}>
+        <Card padding="lg" glass className="text-center" style={{ marginTop: 'var(--space-3)' }}>
+          <h3 className="t-title3" style={{ marginBottom: 'var(--space-1)' }}>Welcome to CourtIQ</h3>
+          <p className="t-body" style={{ color: 'var(--color-text-sec)', marginBottom: 'var(--space-3)' }}>
             Start by logging your first game or journal entry to see your stats here.
           </p>
           <div className="flex gap-3 justify-center">

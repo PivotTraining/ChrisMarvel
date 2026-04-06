@@ -4,36 +4,30 @@ const ToastContext = createContext(null)
 
 function Toast({ message, type, onClose }) {
   const bgColors = {
-    success: 'rgba(34,197,94,0.15)',
-    error: 'rgba(239,68,68,0.15)',
-    info: 'rgba(59,130,246,0.15)',
-  }
-  const borderColors = {
-    success: 'rgba(34,197,94,0.4)',
-    error: 'rgba(239,68,68,0.4)',
-    info: 'rgba(59,130,246,0.4)',
+    success: 'var(--color-success-tint)',
+    error: 'var(--color-danger-tint)',
+    info: 'var(--color-info-tint)',
   }
   const textColors = {
-    success: '#22c55e',
-    error: '#ef4444',
-    info: '#3b82f6',
+    success: 'var(--color-success)',
+    error: 'var(--color-danger)',
+    info: 'var(--color-info)',
   }
 
   return (
     <div
+      className="t-body"
       style={{
         position: 'fixed',
-        top: '1.5rem',
+        top: 'var(--space-3)',
         left: '50%',
         transform: 'translateX(-50%)',
         zIndex: 9999,
-        padding: '0.75rem 1.25rem',
-        borderRadius: '0.5rem',
+        padding: 'var(--space-1) var(--space-2)',
+        borderRadius: 'var(--radius-btn)',
         backgroundColor: bgColors[type] || bgColors.info,
-        border: `1px solid ${borderColors[type] || borderColors.info}`,
+        border: `1px solid ${textColors[type] || textColors.info}`,
         color: textColors[type] || textColors.info,
-        fontFamily: "'DM Sans', sans-serif",
-        fontSize: '0.875rem',
         fontWeight: 500,
         cursor: 'pointer',
         animation: 'toastSlideIn 0.3s ease-out',

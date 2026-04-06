@@ -34,28 +34,6 @@ export default function Onboarding() {
   const { showToast } = useToast()
   const navigate = useNavigate()
 
-  const inputStyle = {
-    width: '100%',
-    padding: '0.625rem 0.75rem',
-    borderRadius: '0.5rem',
-    border: '1px solid var(--border-subtle)',
-    backgroundColor: 'var(--bg-surface)',
-    color: 'var(--text-primary)',
-    fontSize: '0.875rem',
-    fontFamily: "'DM Sans', sans-serif",
-    outline: 'none',
-    boxSizing: 'border-box',
-    appearance: 'none',
-    WebkitAppearance: 'none',
-  }
-
-  const labelStyle = {
-    display: 'block',
-    fontSize: '0.875rem',
-    color: 'var(--text-secondary)',
-    marginBottom: '0.375rem',
-  }
-
   async function handleFinish() {
     try {
       setLoading(true)
@@ -88,15 +66,15 @@ export default function Onboarding() {
 
   function renderProgressDots() {
     return (
-      <div style={{ display: 'flex', justifyContent: 'center', gap: '0.5rem', marginTop: '2rem' }}>
+      <div style={{ display: 'flex', justifyContent: 'center', gap: 'var(--space-1)', marginTop: 'var(--space-4)' }}>
         {Array.from({ length: TOTAL_STEPS }).map((_, i) => (
           <div
             key={i}
             style={{
-              width: '0.5rem',
-              height: '0.5rem',
+              width: 'var(--space-1)',
+              height: 'var(--space-1)',
               borderRadius: '50%',
-              backgroundColor: i === step ? 'var(--accent-primary)' : 'var(--border-subtle)',
+              backgroundColor: i === step ? 'var(--color-accent)' : 'var(--color-border)',
               transition: 'background-color 0.2s',
             }}
           />
@@ -110,45 +88,34 @@ export default function Onboarding() {
       case 0:
         return (
           <>
-            <h2
-              style={{
-                fontFamily: "'Barlow Condensed', sans-serif",
-                fontWeight: 700,
-                fontSize: '1.5rem',
-                color: 'var(--text-primary)',
-                marginBottom: '0.5rem',
-                textAlign: 'center',
-              }}
-            >
+            <h2 className="t-title2" style={{ textAlign: 'center', marginBottom: 'var(--space-1)' }}>
               Tell Us About Yourself
             </h2>
-            <p style={{ color: 'var(--text-muted)', fontSize: '0.875rem', textAlign: 'center', marginBottom: '1.5rem' }}>
+            <p className="t-body" style={{ color: 'var(--color-text-sec)', textAlign: 'center', marginBottom: 'var(--space-3)' }}>
               We&apos;ll use this to personalize your experience.
             </p>
 
-            <div style={{ marginBottom: '1.25rem' }}>
-              <label htmlFor="name" style={labelStyle}>Name</label>
+            <div style={{ marginBottom: 'var(--space-2)' }}>
+              <label htmlFor="name" className="t-label" style={{ display: 'block', marginBottom: 'var(--space-1)' }}>Name</label>
               <input
                 id="name"
                 type="text"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 placeholder="Your name"
-                style={inputStyle}
-                onFocus={(e) => (e.target.style.borderColor = 'var(--border-active)')}
-                onBlur={(e) => (e.target.style.borderColor = 'var(--border-subtle)')}
+                className="input-base"
+                style={{ width: '100%' }}
               />
             </div>
 
-            <div style={{ marginBottom: '1.25rem' }}>
-              <label htmlFor="position" style={labelStyle}>Position</label>
+            <div style={{ marginBottom: 'var(--space-2)' }}>
+              <label htmlFor="position" className="t-label" style={{ display: 'block', marginBottom: 'var(--space-1)' }}>Position</label>
               <select
                 id="position"
                 value={position}
                 onChange={(e) => setPosition(e.target.value)}
-                style={{ ...inputStyle, colorScheme: 'dark', cursor: 'pointer' }}
-                onFocus={(e) => (e.target.style.borderColor = 'var(--border-active)')}
-                onBlur={(e) => (e.target.style.borderColor = 'var(--border-subtle)')}
+                className="input-base"
+                style={{ width: '100%', colorScheme: 'dark', cursor: 'pointer', appearance: 'none' }}
               >
                 <option value="">Select position</option>
                 {POSITIONS.map((p) => (
@@ -157,15 +124,14 @@ export default function Onboarding() {
               </select>
             </div>
 
-            <div style={{ marginBottom: '1.5rem' }}>
-              <label htmlFor="skillLevel" style={labelStyle}>Skill Level</label>
+            <div style={{ marginBottom: 'var(--space-3)' }}>
+              <label htmlFor="skillLevel" className="t-label" style={{ display: 'block', marginBottom: 'var(--space-1)' }}>Skill Level</label>
               <select
                 id="skillLevel"
                 value={skillLevel}
                 onChange={(e) => setSkillLevel(e.target.value)}
-                style={{ ...inputStyle, colorScheme: 'dark', cursor: 'pointer' }}
-                onFocus={(e) => (e.target.style.borderColor = 'var(--border-active)')}
-                onBlur={(e) => (e.target.style.borderColor = 'var(--border-subtle)')}
+                className="input-base"
+                style={{ width: '100%', colorScheme: 'dark', cursor: 'pointer', appearance: 'none' }}
               >
                 <option value="">Select level</option>
                 {SKILL_LEVELS.map((s) => (
@@ -183,45 +149,28 @@ export default function Onboarding() {
       case 1:
         return (
           <>
-            <h2
-              style={{
-                fontFamily: "'Barlow Condensed', sans-serif",
-                fontWeight: 700,
-                fontSize: '1.5rem',
-                color: 'var(--text-primary)',
-                marginBottom: '0.5rem',
-                textAlign: 'center',
-              }}
-            >
+            <h2 className="t-title2" style={{ textAlign: 'center', marginBottom: 'var(--space-1)' }}>
               What You Can Do
             </h2>
-            <p style={{ color: 'var(--text-muted)', fontSize: '0.875rem', textAlign: 'center', marginBottom: '1.5rem' }}>
+            <p className="t-body" style={{ color: 'var(--color-text-sec)', textAlign: 'center', marginBottom: 'var(--space-3)' }}>
               Here&apos;s a quick look at CourtIQ&apos;s key features.
             </p>
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', marginBottom: '1.5rem' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-1)', marginBottom: 'var(--space-3)' }}>
               {TOUR_CARDS.map((card, i) => (
                 <div
                   key={i}
                   style={{
-                    padding: '1rem',
-                    borderRadius: '0.75rem',
-                    backgroundColor: 'var(--bg-surface)',
-                    border: '1px solid var(--border-subtle)',
+                    padding: 'var(--space-2)',
+                    borderRadius: 'var(--radius-card)',
+                    backgroundColor: 'var(--color-card)',
+                    border: '1px solid var(--color-border)',
                   }}
                 >
-                  <h3
-                    style={{
-                      fontFamily: "'Barlow Condensed', sans-serif",
-                      fontWeight: 600,
-                      fontSize: '1rem',
-                      color: 'var(--accent-primary)',
-                      marginBottom: '0.25rem',
-                    }}
-                  >
+                  <h3 className="t-title3" style={{ color: 'var(--color-accent)', marginBottom: '4px' }}>
                     {card.title}
                   </h3>
-                  <p style={{ fontSize: '0.8125rem', color: 'var(--text-secondary)', lineHeight: 1.5 }}>
+                  <p className="t-body" style={{ color: 'var(--color-text-sec)', lineHeight: 1.5 }}>
                     {card.description}
                   </p>
                 </div>
@@ -237,19 +186,10 @@ export default function Onboarding() {
       case 2:
         return (
           <>
-            <h2
-              style={{
-                fontFamily: "'Barlow Condensed', sans-serif",
-                fontWeight: 700,
-                fontSize: '1.75rem',
-                color: 'var(--text-primary)',
-                marginBottom: '0.5rem',
-                textAlign: 'center',
-              }}
-            >
+            <h2 className="t-title1" style={{ textAlign: 'center', marginBottom: 'var(--space-1)' }}>
               You&apos;re Ready!
             </h2>
-            <p style={{ color: 'var(--text-muted)', fontSize: '0.875rem', textAlign: 'center', marginBottom: '2rem', lineHeight: 1.6 }}>
+            <p className="t-body" style={{ color: 'var(--color-text-sec)', textAlign: 'center', marginBottom: 'var(--space-4)', lineHeight: 1.6 }}>
               Your profile is set up. Start tracking your game, get insights, and level up your basketball skills.
             </p>
 
@@ -271,12 +211,11 @@ export default function Onboarding() {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        backgroundColor: 'var(--bg-primary)',
-        padding: '1rem',
-        fontFamily: "'DM Sans', sans-serif",
+        backgroundColor: 'var(--color-bg)',
+        padding: 'var(--space-2)',
       }}
     >
-      <div className="glass-card" style={{ width: '100%', maxWidth: '420px', padding: '2.5rem 2rem' }}>
+      <div className="glass-card" style={{ width: '100%', maxWidth: '420px', padding: 'var(--space-5) var(--space-4)' }}>
         {renderStep()}
         {renderProgressDots()}
       </div>

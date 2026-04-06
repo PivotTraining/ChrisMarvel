@@ -250,7 +250,7 @@ function PackDetail({ pack, progress, onBack, onComplete, showToast }) {
         border: `1px solid ${pack.color}25`,
       }}>
         <div style={{ fontSize: '48px', marginBottom: '12px' }}>{pack.icon}</div>
-        <h1 style={{ fontSize: '24px', fontWeight: 900, color: 'var(--color-text)', marginBottom: '4px', letterSpacing: '-0.5px' }}>{pack.title}</h1>
+        <h1 className="t-title2" style={{ marginBottom: '4px' }}>{pack.title}</h1>
         <p style={{ fontSize: '14px', color: pack.color, fontWeight: 600, marginBottom: '8px' }}>{pack.subtitle}</p>
         <div style={{ display: 'flex', justifyContent: 'center', gap: '16px' }}>
           <span style={{ fontSize: '12px', color: 'var(--color-text-sec)', fontWeight: 600 }}>{pack.duration}</span>
@@ -260,7 +260,7 @@ function PackDetail({ pack, progress, onBack, onComplete, showToast }) {
       </div>
 
       {/* Daily Drills */}
-      <h2 style={{ fontSize: '14px', fontWeight: 700, color: 'var(--color-text-sec)', marginBottom: '12px', textTransform: 'uppercase', letterSpacing: '0.8px' }}>Daily Plan</h2>
+      <h2 className="section-label" style={{ marginBottom: 'var(--space-2)' }}>Daily Plan</h2>
       <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '24px' }}>
         {pack.drills.map((drill, i) => {
           const done = completedDays.has(i)
@@ -308,7 +308,7 @@ function PackDetail({ pack, progress, onBack, onComplete, showToast }) {
       </div>
 
       {/* Milestones */}
-      <h2 style={{ fontSize: '14px', fontWeight: 700, color: 'var(--color-text-sec)', marginBottom: '12px', textTransform: 'uppercase', letterSpacing: '0.8px' }}>Milestones</h2>
+      <h2 className="section-label" style={{ marginBottom: 'var(--space-2)' }}>Milestones</h2>
       <Card>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
           {pack.milestones.map((m, i) => (
@@ -331,7 +331,7 @@ function PackDetail({ pack, progress, onBack, onComplete, showToast }) {
 
 /* ===== CONTENT LIBRARY SECTION ===== */
 
-const TYPE_COLORS = { Drill: '#F97316', Recovery: '#3B82F6', Nutrition: '#22C55E' }
+const TYPE_COLORS = { Drill: 'var(--color-accent)', Recovery: 'var(--color-info)', Nutrition: 'var(--color-success)' }
 const TYPES = ['All', 'Drill', 'Recovery', 'Nutrition']
 const DIFFICULTIES = ['All', 'Beginner', 'Intermediate', 'Advanced', 'Elite']
 const DIFF_VARIANTS = { Beginner: 'beginner', Intermediate: 'intermediate', Advanced: 'elite', Elite: 'elite' }
@@ -348,9 +348,9 @@ function ContentCard({ item, saved, completed, onTap, onToggleSave }) {
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
         <span style={{ fontSize: '11px', fontWeight: 700, color, textTransform: 'uppercase', letterSpacing: '0.5px' }}>{item.content_type}</span>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          {completed && <Check size={14} style={{ color: '#22C55E' }} />}
+          {completed && <Check size={14} style={{ color: 'var(--color-success)' }} />}
           <button onClick={(e) => { e.stopPropagation(); onToggleSave() }}
-            style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '4px', color: saved ? '#FF6B35' : 'var(--color-text-sec)' }}>
+            style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '4px', color: saved ? 'var(--color-accent)' : 'var(--color-text-sec)' }}>
             <Bookmark size={14} fill={saved ? 'currentColor' : 'none'} />
           </button>
         </div>
@@ -378,7 +378,7 @@ function DetailView({ item, saved, completed, onBack, onToggleSave, onComplete }
         <ArrowLeft className="w-4 h-4" /> Back
       </button>
       <span style={{ fontSize: '11px', fontWeight: 700, color, textTransform: 'uppercase', letterSpacing: '0.5px' }}>{item.content_type}</span>
-      <h1 style={{ fontSize: '24px', fontWeight: 900, color: 'var(--color-text)', marginTop: '4px', marginBottom: '8px', letterSpacing: '-0.5px' }}>{item.title}</h1>
+      <h1 className="t-title2" style={{ marginTop: '4px', marginBottom: 'var(--space-1)' }}>{item.title}</h1>
       <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}>
         <Badge variant={DIFF_VARIANTS[item.difficulty] || 'default'}>{item.difficulty}</Badge>
         {item.duration_minutes && (
@@ -395,7 +395,7 @@ function DetailView({ item, saved, completed, onBack, onToggleSave, onComplete }
       </Card>
       {item.equipment_needed?.length > 0 && (
         <div style={{ marginBottom: '16px' }}>
-          <h4 style={{ fontSize: '13px', fontWeight: 700, color: 'var(--color-text-sec)', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Equipment</h4>
+          <h4 className="section-label" style={{ marginBottom: 'var(--space-1)' }}>Equipment</h4>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
             {item.equipment_needed.map((e) => <Badge key={e}>{e}</Badge>)}
           </div>
@@ -403,7 +403,7 @@ function DetailView({ item, saved, completed, onBack, onToggleSave, onComplete }
       )}
       <div style={{ display: 'flex', gap: '10px', marginTop: '20px' }}>
         {completed ? (
-          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '14px', color: '#22C55E', fontWeight: 600 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '14px', color: 'var(--color-success)', fontWeight: 600 }}>
             <Check size={18} /> Completed
           </div>
         ) : (
@@ -500,7 +500,7 @@ export default function Training() {
           style={{ color: 'var(--color-text-sec)', marginBottom: '16px', fontFamily: 'inherit' }}>
           <ArrowLeft className="w-4 h-4" /> Back
         </button>
-        <h1 style={{ fontSize: '24px', fontWeight: 900, color: 'var(--color-text)', marginBottom: '16px', letterSpacing: '-0.5px' }}>Drill Library</h1>
+        <h1 className="t-title2" style={{ marginBottom: 'var(--space-2)' }}>Drill Library</h1>
 
         {/* Filters */}
         <div style={{ display: 'flex', gap: '8px', marginBottom: '10px', flexWrap: 'wrap' }}>
@@ -508,7 +508,7 @@ export default function Training() {
             <button key={t} onClick={() => handleFilterType(t)}
               style={{
                 padding: '8px 16px', borderRadius: '20px', border: 'none',
-                background: typeFilter === t ? '#FF6B35' : 'rgba(255,255,255,0.04)',
+                background: typeFilter === t ? 'var(--color-accent)' : 'rgba(255,255,255,0.04)',
                 color: typeFilter === t ? '#fff' : 'var(--color-text-sec)',
                 fontSize: '13px', fontWeight: typeFilter === t ? 700 : 500,
                 cursor: 'pointer', fontFamily: 'inherit', transition: 'all 0.15s',
@@ -522,7 +522,7 @@ export default function Training() {
             <button key={d} onClick={() => handleFilterDiff(d)}
               style={{
                 padding: '8px 14px', borderRadius: '20px', border: 'none',
-                background: diffFilter === d ? '#3B82F6' : 'rgba(255,255,255,0.04)',
+                background: diffFilter === d ? 'var(--color-info)' : 'rgba(255,255,255,0.04)',
                 color: diffFilter === d ? '#fff' : 'var(--color-text-sec)',
                 fontSize: '12px', fontWeight: diffFilter === d ? 700 : 500,
                 cursor: 'pointer', fontFamily: 'inherit', transition: 'all 0.15s',
@@ -567,12 +567,12 @@ export default function Training() {
           style={{ color: 'var(--color-text-sec)', marginBottom: '16px', fontFamily: 'inherit' }}>
           <ArrowLeft className="w-4 h-4" /> Back
         </button>
-        <h1 style={{ fontSize: '24px', fontWeight: 900, color: 'var(--color-text)', marginBottom: '6px', letterSpacing: '-0.5px' }}>Training Packs</h1>
+        <h1 className="t-title2" style={{ marginBottom: '6px' }}>Training Packs</h1>
         <p style={{ fontSize: '14px', color: 'var(--color-text-sec)', marginBottom: '20px' }}>Structured programs to level up your game</p>
 
         {recommendedPacks.length > 0 && (
           <>
-            <h2 style={{ fontSize: '13px', fontWeight: 700, color: '#FF6B35', marginBottom: '12px', textTransform: 'uppercase', letterSpacing: '0.8px' }}>Recommended For You</h2>
+            <h2 className="section-label" style={{ color: 'var(--color-accent)', marginBottom: 'var(--space-2)' }}>Recommended For You</h2>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginBottom: '24px' }}>
               {recommendedPacks.map((p) => (
                 <PackCard key={p.id} pack={p} recommended progress={packProgress[p.id]}
@@ -582,7 +582,7 @@ export default function Training() {
           </>
         )}
 
-        <h2 style={{ fontSize: '13px', fontWeight: 700, color: 'var(--color-text-sec)', marginBottom: '12px', textTransform: 'uppercase', letterSpacing: '0.8px' }}>All Packs</h2>
+        <h2 className="section-label" style={{ marginBottom: 'var(--space-2)' }}>All Packs</h2>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
           {TRAINING_PACKS.map((p) => (
             <PackCard key={p.id} pack={p} progress={packProgress[p.id]}
@@ -596,27 +596,27 @@ export default function Training() {
   // Main training hub
   return (
     <PageWrapper>
-      <h1 style={{ fontSize: '28px', fontWeight: 900, color: 'var(--color-text)', marginBottom: '20px', letterSpacing: '-0.5px' }}>Training</h1>
+      <h1 className="t-title1" style={{ marginBottom: 'var(--space-3)' }}>Training</h1>
 
       {/* Quick Actions */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '24px' }}>
         <div onClick={() => setView('packs')} role="button" tabIndex={0}
           style={{
-            background: 'linear-gradient(135deg, #FF6B3515, #FF6B3508)',
-            border: '1px solid #FF6B3525', borderRadius: '20px', padding: '20px',
+            background: 'linear-gradient(135deg, rgba(255,107,53,0.08), rgba(255,107,53,0.03))',
+            border: '1px solid rgba(255,107,53,0.15)', borderRadius: 'var(--radius-card)', padding: 'var(--space-3)',
             cursor: 'pointer', transition: 'all 0.2s',
           }}>
-          <Zap size={24} style={{ color: '#FF6B35', marginBottom: '8px' }} />
+          <Zap size={24} style={{ color: 'var(--color-accent)', marginBottom: 'var(--space-1)' }} />
           <h3 style={{ fontSize: '16px', fontWeight: 800, color: 'var(--color-text)', marginBottom: '4px' }}>Training Packs</h3>
           <p style={{ fontSize: '12px', color: 'var(--color-text-sec)' }}>Structured programs</p>
         </div>
         <div onClick={() => { setView('library'); fetchContent({ contentType: 'All', difficulty: 'All', searchQuery: '' }) }} role="button" tabIndex={0}
           style={{
-            background: 'linear-gradient(135deg, #3B82F615, #3B82F608)',
-            border: '1px solid #3B82F625', borderRadius: '20px', padding: '20px',
+            background: 'linear-gradient(135deg, rgba(59,130,246,0.08), rgba(59,130,246,0.03))',
+            border: '1px solid rgba(59,130,246,0.15)', borderRadius: 'var(--radius-card)', padding: 'var(--space-3)',
             cursor: 'pointer', transition: 'all 0.2s',
           }}>
-          <BookOpen size={24} style={{ color: '#3B82F6', marginBottom: '8px' }} />
+          <BookOpen size={24} style={{ color: 'var(--color-info)', marginBottom: 'var(--space-1)' }} />
           <h3 style={{ fontSize: '16px', fontWeight: 800, color: 'var(--color-text)', marginBottom: '4px' }}>Drill Library</h3>
           <p style={{ fontSize: '12px', color: 'var(--color-text-sec)' }}>Browse all content</p>
         </div>
@@ -626,8 +626,8 @@ export default function Training() {
       {recommendedPacks.length > 0 && (
         <>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
-            <h2 style={{ fontSize: '14px', fontWeight: 700, color: 'var(--color-text-sec)', textTransform: 'uppercase', letterSpacing: '0.8px' }}>For You</h2>
-            <button onClick={() => setView('packs')} style={{ background: 'none', border: 'none', color: '#FF6B35', fontSize: '13px', fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit', display: 'flex', alignItems: 'center', gap: '4px' }}>
+            <h2 className="section-label">For You</h2>
+            <button onClick={() => setView('packs')} style={{ background: 'none', border: 'none', color: 'var(--color-accent)', fontSize: '13px', fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit', display: 'flex', alignItems: 'center', gap: '4px' }}>
               See All <ChevronRight size={14} />
             </button>
           </div>
@@ -643,7 +643,7 @@ export default function Training() {
       {/* Active Packs (in progress) */}
       {Object.keys(packProgress).length > 0 && (
         <>
-          <h2 style={{ fontSize: '14px', fontWeight: 700, color: 'var(--color-text-sec)', marginBottom: '12px', textTransform: 'uppercase', letterSpacing: '0.8px' }}>In Progress</h2>
+          <h2 className="section-label" style={{ marginBottom: 'var(--space-2)' }}>In Progress</h2>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginBottom: '24px' }}>
             {TRAINING_PACKS.filter((p) => packProgress[p.id]?.completedDays?.length > 0 && packProgress[p.id].completedDays.length < p.drills.length).map((p) => (
               <PackCard key={p.id} pack={p} progress={packProgress[p.id]}
@@ -655,9 +655,9 @@ export default function Training() {
 
       {/* Quick Drills */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
-        <h2 style={{ fontSize: '14px', fontWeight: 700, color: 'var(--color-text-sec)', textTransform: 'uppercase', letterSpacing: '0.8px' }}>Quick Drills</h2>
+        <h2 className="section-label">Quick Drills</h2>
         <button onClick={() => { setView('library'); fetchContent({ contentType: 'Drill', difficulty: 'All', searchQuery: '' }) }}
-          style={{ background: 'none', border: 'none', color: '#FF6B35', fontSize: '13px', fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit', display: 'flex', alignItems: 'center', gap: '4px' }}>
+          style={{ background: 'none', border: 'none', color: 'var(--color-accent)', fontSize: '13px', fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit', display: 'flex', alignItems: 'center', gap: '4px' }}>
           All Drills <ChevronRight size={14} />
         </button>
       </div>

@@ -14,16 +14,8 @@ export default function Slider({
     <div className={`flex flex-col gap-2 ${className}`}>
       {label && (
         <div className="flex items-center justify-between">
-          <label
-            className="text-sm font-medium"
-            style={{ color: 'var(--text-secondary)', fontFamily: "'DM Sans', sans-serif" }}
-          >
-            {label}
-          </label>
-          <span
-            className="text-lg font-bold tabular-nums"
-            style={{ color: 'var(--accent-primary)', fontFamily: "'Barlow Condensed', sans-serif" }}
-          >
+          <label className="t-label">{label}</label>
+          <span className="t-title3 tabular-nums" style={{ color: 'var(--color-accent)' }}>
             {value}
           </span>
         </div>
@@ -38,7 +30,7 @@ export default function Slider({
           onChange={onChange}
           className="w-full h-2 rounded-full appearance-none cursor-pointer outline-none"
           style={{
-            background: `linear-gradient(to right, var(--accent-primary) 0%, var(--accent-primary) ${percentage}%, var(--bg-surface-hover) ${percentage}%, var(--bg-surface-hover) 100%)`,
+            background: `linear-gradient(to right, var(--color-accent) 0%, var(--color-accent) ${percentage}%, var(--color-muted) ${percentage}%, var(--color-muted) 100%)`,
           }}
           {...props}
         />
@@ -50,9 +42,9 @@ export default function Slider({
           width: 20px;
           height: 20px;
           border-radius: 50%;
-          background: var(--accent-primary);
-          border: 3px solid var(--bg-primary);
-          box-shadow: 0 0 0 2px var(--accent-primary);
+          background: var(--color-accent);
+          border: 3px solid var(--color-bg);
+          box-shadow: 0 0 0 2px var(--color-accent);
           cursor: pointer;
           transition: transform 0.15s ease;
         }
@@ -63,9 +55,9 @@ export default function Slider({
           width: 20px;
           height: 20px;
           border-radius: 50%;
-          background: var(--accent-primary);
-          border: 3px solid var(--bg-primary);
-          box-shadow: 0 0 0 2px var(--accent-primary);
+          background: var(--color-accent);
+          border: 3px solid var(--color-bg);
+          box-shadow: 0 0 0 2px var(--color-accent);
           cursor: pointer;
         }
       `}</style>

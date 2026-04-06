@@ -13,14 +13,15 @@ const tabs = [
 export default function BottomNav() {
   return (
     <nav
-      className="fixed bottom-0 left-0 right-0 z-50 flex items-center justify-around"
+      className="fixed bottom-0 left-0 right-0 z-50 flex items-center justify-around glass-card"
       style={{
-        backgroundColor: 'rgba(15, 17, 23, 0.95)',
-        backdropFilter: 'blur(16px)',
-        WebkitBackdropFilter: 'blur(16px)',
+        borderRadius: 0,
+        borderBottom: 'none',
+        borderLeft: 'none',
+        borderRight: 'none',
         borderTop: '1px solid var(--color-border)',
-        padding: '8px 4px',
-        paddingBottom: 'max(8px, env(safe-area-inset-bottom))',
+        padding: 'var(--space-1) 4px',
+        paddingBottom: 'max(var(--space-1), env(safe-area-inset-bottom))',
       }}
     >
       {tabs.map(({ to, icon: Icon, label }) => (
@@ -29,7 +30,7 @@ export default function BottomNav() {
           to={to}
           end={to === '/'}
           className="flex flex-col items-center gap-1"
-          style={{ textDecoration: 'none', minWidth: '48px', padding: '6px 8px' }}
+          style={{ textDecoration: 'none', minWidth: '48px', padding: '6px var(--space-1)' }}
         >
           {({ isActive }) => (
             <>
@@ -42,11 +43,10 @@ export default function BottomNav() {
                 }}
               />
               <span
+                className="t-caption"
                 style={{
-                  fontSize: '10px',
                   fontWeight: isActive ? 700 : 500,
                   color: isActive ? 'var(--color-accent)' : 'var(--color-text-sec)',
-                  letterSpacing: '0.1px',
                   opacity: isActive ? 1 : 0.8,
                 }}
               >

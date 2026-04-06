@@ -14,7 +14,6 @@ import useDrills from '../../hooks/useDrills';
 const CATEGORIES = ['Shooting', 'Ball Handling', 'Passing', 'Defense', 'Conditioning', 'Agility', 'Custom'];
 const CATEGORY_OPTIONS = CATEGORIES.map(c => ({ value: c, label: c }));
 const BADGE_MAP = { Shooting: 'elite', 'Ball Handling': 'intermediate', Defense: 'beginner', default: 'default' };
-const font = (f) => ({ fontFamily: f === 'heading' ? "'Barlow Condensed', sans-serif" : "'DM Sans', sans-serif" });
 
 function Stars({ value, interactive, onChange }) {
   return (
@@ -24,8 +23,8 @@ function Stars({ value, interactive, onChange }) {
           key={i}
           className="w-5 h-5"
           style={{
-            color: 'var(--accent-primary)',
-            fill: i <= value ? 'var(--accent-primary)' : 'none',
+            color: 'var(--color-accent)',
+            fill: i <= value ? 'var(--color-accent)' : 'none',
             cursor: interactive ? 'pointer' : 'default',
           }}
           onClick={interactive ? () => onChange(i) : undefined}
@@ -44,7 +43,7 @@ const emptyForm = () => ({
 export default function Drills() {
   const { drills, loading, addDrill, updateDrill, deleteDrill, loadMore, hasMore, categoryStats, recentStreak } = useDrills();
   const { showToast } = useToast();
-  const [view, setView] = useState('list'); // list | form | result
+  const [view, setView] = useState('list');
   const [filter, setFilter] = useState('All');
   const [form, setForm] = useState(emptyForm());
   const [errors, setErrors] = useState({});
@@ -123,16 +122,16 @@ export default function Drills() {
     return (
       <PageWrapper>
         <div className="flex flex-col items-center gap-6 py-8">
-          <CheckCircle className="w-12 h-12" style={{ color: 'var(--success)' }} />
+          <CheckCircle className="w-12 h-12" style={{ color: 'var(--color-success)' }} />
           <Card padding="lg" glass>
             <div className="flex flex-col items-center gap-3 text-center">
-              <h2 className="text-2xl font-bold" style={{ ...font('heading'), color: 'var(--text-primary)' }}>{lastSaved.drill_name}</h2>
+              <h2 className="t-title2" style={{ color: 'var(--color-text)' }}>{lastSaved.drill_name}</h2>
               <Badge variant={BADGE_MAP[lastSaved.category] || 'default'}>{lastSaved.category}</Badge>
-              <div className="flex items-center gap-2" style={{ color: 'var(--text-secondary)', ...font('body') }}>
+              <div className="flex items-center gap-2 t-body" style={{ color: 'var(--color-text-sec)' }}>
                 <Clock className="w-4 h-4" /> {lastSaved.duration_minutes} min
               </div>
               {lastSaved.rating > 0 && <Stars value={lastSaved.rating} />}
-              <p className="text-sm mt-2" style={{ color: 'var(--accent-primary)', ...font('body') }}>{feedbackLine(lastSaved.duration_minutes)}</p>
+              <p className="t-body" style={{ color: 'var(--color-accent)', marginTop: 'var(--space-1)' }}>{feedbackLine(lastSaved.duration_minutes)}</p>
             </div>
           </Card>
           <Button variant="primary" onClick={() => setView('list')}>Done</Button>
@@ -146,10 +145,10 @@ export default function Drills() {
     return (
       <PageWrapper>
         <div className="flex flex-col gap-5">
-          <button onClick={() => setView('list')} className="flex items-center gap-1 text-sm" style={{ color: 'var(--text-secondary)', ...font('body'), background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>
+          <button onClick={() => setView('list')} className="btn-ghost self-start" style={{ padding: '8px 16px' }}>
             <ArrowLeft className="w-4 h-4" /> Back
           </button>
-          <h1 className="text-2xl font-bold" style={{ ...font('heading'), color: 'var(--text-primary)' }}>{editId ? 'Edit Drill' : 'Log Drill'}</h1>
+          <h1 className="t-title2" style={{ color: 'var(--color-text)' }}>{editId ? 'Edit Drill' : 'Log Drill'}</h1>
           <Input label="Date" type="date" value={form.session_date} onChange={e => set('session_date', e.target.value)} />
           <Input label="Drill Name" placeholder="e.g. Free Throws" value={form.drill_name} onChange={e => set('drill_name', e.target.value)} error={errors.drill_name} />
           <Select label="Category" options={CATEGORY_OPTIONS} value={form.category} onChange={e => set('category', e.target.value)} placeholder="Select category" error={errors.category} />
@@ -159,20 +158,20 @@ export default function Drills() {
             <Input label="Sets" type="number" placeholder="Optional" value={form.sets} onChange={e => set('sets', e.target.value)} />
           </div>
           <div className="flex flex-col gap-1.5">
-            <span className="text-sm font-medium" style={{ color: 'var(--text-secondary)', ...font('body') }}>Rating</span>
+            <span className="t-label">Rating</span>
             <Stars value={form.rating} interactive onChange={v => set('rating', v)} />
           </div>
-          <label className="flex items-center gap-2 cursor-pointer" style={{ ...font('body'), color: 'var(--text-secondary)' }}>
+          <label className="flex items-center gap-2 cursor-pointer t-body" style={{ color: 'var(--color-text-sec)' }}>
             <span
               className="w-5 h-5 rounded flex items-center justify-center text-xs font-bold"
-              style={{ border: '1px solid var(--border-subtle)', background: form.is_custom_drill ? 'var(--accent-primary)' : 'transparent', color: '#fff' }}
+              style={{ border: '1px solid var(--color-border)', background: form.is_custom_drill ? 'var(--color-accent)' : 'transparent', color: '#fff' }}
               onClick={() => set('is_custom_drill', !form.is_custom_drill)}
             >{form.is_custom_drill ? '✓' : ''}</span>
-            <span className="text-sm" onClick={() => set('is_custom_drill', !form.is_custom_drill)}>Custom drill</span>
+            <span onClick={() => set('is_custom_drill', !form.is_custom_drill)}>Custom drill</span>
           </label>
           <Input label="Notes" placeholder="Optional notes..." value={form.notes} onChange={e => set('notes', e.target.value)} />
           <Button variant="primary" fullWidth loading={saving} onClick={handleSave}>{editId ? 'Update Drill' : 'Save Drill'}</Button>
-          {editId && <Button variant="ghost" fullWidth loading={saving} onClick={handleDelete} style={{ color: 'var(--danger)' }}>Delete Drill</Button>}
+          {editId && <Button variant="ghost" fullWidth loading={saving} onClick={handleDelete} style={{ color: 'var(--color-danger)' }}>Delete Drill</Button>}
         </div>
       </PageWrapper>
     );
@@ -183,12 +182,12 @@ export default function Drills() {
     <PageWrapper>
       <div className="flex flex-col gap-5">
         <div className="flex items-center justify-between">
-          <h1 className="text-2xl font-bold" style={{ ...font('heading'), color: 'var(--text-primary)' }}>Drill Tracker</h1>
+          <h1 className="t-title2" style={{ color: 'var(--color-text)' }}>Drill Tracker</h1>
           <Button variant="primary" onClick={openNew}>Log Drill</Button>
         </div>
 
         {recentStreak > 0 && (
-          <div className="flex items-center gap-2 text-sm" style={{ color: 'var(--accent-primary)', ...font('heading'), fontWeight: 600 }}>
+          <div className="flex items-center gap-2 t-body" style={{ color: 'var(--color-accent)', fontWeight: 700 }}>
             <Flame className="w-5 h-5" /> {recentStreak} day drill streak
           </div>
         )}
@@ -196,23 +195,23 @@ export default function Drills() {
         {activeStats.length > 0 && (
           <div className="flex flex-wrap gap-2">
             {activeStats.map(([cat, v]) => (
-              <span key={cat} className="px-2.5 py-1 rounded-full text-xs font-medium"
-                style={{ background: 'var(--bg-surface)', color: 'var(--text-secondary)', border: '1px solid var(--border-subtle)', ...font('body') }}>
-                {cat} <strong style={{ color: 'var(--text-primary)', ...font('heading') }}>{v.count}</strong>
+              <span key={cat} className="px-2.5 py-1 rounded-full t-caption"
+                style={{ background: 'var(--color-card)', color: 'var(--color-text-sec)', border: '1px solid var(--color-border)' }}>
+                {cat} <strong style={{ color: 'var(--color-text)' }}>{v.count}</strong>
               </span>
             ))}
           </div>
         )}
 
-        <div className="flex gap-2 overflow-x-auto pb-1" style={{ scrollbarWidth: 'none' }}>
+        <div className="flex gap-2 overflow-x-auto pb-1 hide-scrollbar">
           {['All', ...CATEGORIES].map(c => (
             <button key={c} onClick={() => setFilter(c)}
-              className="px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-colors"
+              className="px-3 py-1.5 rounded-full t-caption whitespace-nowrap transition-colors cursor-pointer"
               style={{
-                background: filter === c ? 'var(--accent-primary)' : 'var(--bg-surface)',
-                color: filter === c ? '#fff' : 'var(--text-secondary)',
-                border: filter === c ? 'none' : '1px solid var(--border-subtle)',
-                cursor: 'pointer', ...font('body'),
+                background: filter === c ? 'var(--color-accent)' : 'var(--color-card)',
+                color: filter === c ? '#fff' : 'var(--color-text-sec)',
+                border: filter === c ? 'none' : '1px solid var(--color-border)',
+                fontWeight: 600,
               }}>
               {c}
             </button>
@@ -229,16 +228,16 @@ export default function Drills() {
               <Card key={d.id} padding="md" hover onClick={() => openEdit(d)}>
                 <div className="flex flex-col gap-2">
                   <div className="flex items-center justify-between">
-                    <span className="text-sm" style={{ color: 'var(--text-muted)', ...font('body') }}>{d.session_date}</span>
+                    <span className="t-caption" style={{ color: 'var(--color-text-sec)' }}>{d.session_date}</span>
                     <Badge variant={BADGE_MAP[d.category] || 'default'}>{d.category}</Badge>
                   </div>
-                  <span className="text-base font-bold" style={{ color: 'var(--text-primary)', ...font('heading') }}>{d.drill_name}</span>
+                  <span className="t-body" style={{ color: 'var(--color-text)', fontWeight: 700 }}>{d.drill_name}</span>
                   <div className="flex items-center gap-4 flex-wrap">
-                    <span className="flex items-center gap-1 text-sm" style={{ color: 'var(--text-secondary)', ...font('body') }}>
+                    <span className="flex items-center gap-1 t-caption" style={{ color: 'var(--color-text-sec)' }}>
                       <Clock className="w-3.5 h-3.5" /> {d.duration_minutes} min
                     </span>
                     {d.reps && d.sets && (
-                      <span className="text-sm" style={{ color: 'var(--text-secondary)', ...font('body') }}>{d.reps} x {d.sets}</span>
+                      <span className="t-caption" style={{ color: 'var(--color-text-sec)' }}>{d.reps} x {d.sets}</span>
                     )}
                     {d.rating > 0 && <Stars value={d.rating} />}
                   </div>

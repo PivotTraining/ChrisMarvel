@@ -47,7 +47,7 @@ function SeasonAverages({ avg }) {
   if (!avg) return null
   return (
     <Card padding="md">
-      <h3 className="text-sm mb-3" style={{ ...body, color: 'var(--text-secondary)', fontWeight: 600 }}>Season Averages</h3>
+      <h3 className="section-label" style={{ marginBottom: 'var(--space-2)' }}>Season Averages</h3>
       <div className="grid grid-cols-3 gap-4">
         <StatBox value={avg.ppg} label="PPG" />
         <StatBox value={avg.rpg} label="RPG" />
@@ -66,22 +66,22 @@ function GameCard({ game, onReview }) {
     <div role="button" tabIndex={0} onClick={handleClick}
       onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleClick() } }}
       className="rounded-xl cursor-pointer transition-all duration-200 active:scale-[0.98]"
-      style={{ backgroundColor: 'var(--bg-surface)', border: '1px solid rgba(255,255,255,0.06)', padding: '0.875rem 1rem', WebkitTapHighlightColor: 'transparent', touchAction: 'manipulation', userSelect: 'none' }}>
+      style={{ backgroundColor: 'var(--color-card)', border: '1px solid rgba(255,255,255,0.06)', padding: '0.875rem 1rem', WebkitTapHighlightColor: 'transparent', touchAction: 'manipulation', userSelect: 'none' }}>
       <div className="flex items-center justify-between mb-2">
-        <span className="text-xs" style={{ ...body, color: 'var(--text-muted)' }}>{fmtDate(game.game_date)}</span>
+        <span className="text-xs" style={{ ...body, color: 'var(--color-text-sec)' }}>{fmtDate(game.game_date)}</span>
         <Badge variant={resultBadge(game.result)}>{game.result}</Badge>
       </div>
       <div className="flex items-center justify-between mb-2">
-        <span className="text-sm font-semibold" style={{ ...body, color: 'var(--text-primary)' }}>
+        <span className="text-sm font-semibold" style={{ ...body, color: 'var(--color-text)' }}>
           {game.is_home_game === true || game.is_home_game === 'true' ? 'vs' : '@'} {game.opponent || 'Unknown'}
         </span>
         {game.game_type && <Badge>{game.game_type}</Badge>}
       </div>
       <div className="flex gap-6">
-        <span style={{ ...heading, color: 'var(--text-primary)', fontSize: '0.875rem' }}>{game.points ?? 0} <span style={statLabel}>PTS</span></span>
-        <span style={{ ...heading, color: 'var(--text-primary)', fontSize: '0.875rem' }}>{game.rebounds ?? 0} <span style={statLabel}>REB</span></span>
-        <span style={{ ...heading, color: 'var(--text-primary)', fontSize: '0.875rem' }}>{game.assists ?? 0} <span style={statLabel}>AST</span></span>
-        <ChevronRight className="ml-auto w-4 h-4" style={{ color: 'var(--text-muted)' }} />
+        <span style={{ ...heading, color: 'var(--color-text)', fontSize: '0.875rem' }}>{game.points ?? 0} <span style={statLabel}>PTS</span></span>
+        <span style={{ ...heading, color: 'var(--color-text)', fontSize: '0.875rem' }}>{game.rebounds ?? 0} <span style={statLabel}>REB</span></span>
+        <span style={{ ...heading, color: 'var(--color-text)', fontSize: '0.875rem' }}>{game.assists ?? 0} <span style={statLabel}>AST</span></span>
+        <ChevronRight className="ml-auto w-4 h-4" style={{ color: 'var(--color-text-sec)' }} />
       </div>
     </div>
   )
@@ -274,7 +274,7 @@ function ShotZoneModal({ zone, onRecord, onClose }) {
             <button key={t.id} type="button" onClick={() => setShotType(t.id)}
               style={{
                 flex: 1, padding: '10px 8px', borderRadius: '10px', border: 'none',
-                background: shotType === t.id ? '#FF6B35' : 'transparent',
+                background: shotType === t.id ? 'var(--color-accent)' : 'transparent',
                 color: shotType === t.id ? '#fff' : 'var(--color-text-sec)',
                 fontSize: '12px', fontWeight: shotType === t.id ? 700 : 500,
                 cursor: 'pointer', transition: 'all 0.15s', fontFamily: 'inherit',
@@ -286,11 +286,11 @@ function ShotZoneModal({ zone, onRecord, onClose }) {
 
         <div style={{ display: 'flex', gap: '12px' }}>
           <button onClick={() => onRecord(zone.id, true, shotType)}
-            style={{ flex: 1, padding: '16px', borderRadius: '16px', border: 'none', background: 'linear-gradient(135deg, #22C55E, #16A34A)', color: '#fff', fontSize: '16px', fontWeight: 800, cursor: 'pointer', boxShadow: '0 4px 14px rgba(34,197,94,0.3)', fontFamily: 'inherit' }}>
+            className="btn-primary" style={{ flex: 1, background: 'linear-gradient(135deg, var(--color-success), #16A34A)', boxShadow: '0 4px 14px rgba(34,197,94,0.3)' }}>
             Made
           </button>
           <button onClick={() => onRecord(zone.id, false, shotType)}
-            style={{ flex: 1, padding: '16px', borderRadius: '16px', border: 'none', background: 'linear-gradient(135deg, #EF4444, #DC2626)', color: '#fff', fontSize: '16px', fontWeight: 800, cursor: 'pointer', boxShadow: '0 4px 14px rgba(239,68,68,0.3)', fontFamily: 'inherit' }}>
+            className="btn-primary" style={{ flex: 1, background: 'linear-gradient(135deg, var(--color-danger), #DC2626)', boxShadow: '0 4px 14px rgba(239,68,68,0.3)' }}>
             Missed
           </button>
         </div>
@@ -386,7 +386,7 @@ function GameForm({ initial, onSave, onDelete, onBack, saving }) {
       <button type="button" onClick={onBack} className="flex items-center gap-1 text-sm bg-transparent border-0 cursor-pointer" style={{ color: 'var(--color-text-sec)', marginBottom: '12px', fontFamily: 'inherit' }}>
         <ArrowLeft className="w-4 h-4" /> Back
       </button>
-      <h2 style={{ fontSize: '22px', fontWeight: 900, color: 'var(--color-text)', marginBottom: '16px', letterSpacing: '-0.5px' }}>{isEdit ? 'Edit Game' : 'Track Game'}</h2>
+      <h2 className="t-title2" style={{ marginBottom: 'var(--space-2)' }}>{isEdit ? 'Edit Game' : 'Track Game'}</h2>
 
       <TabBar tabs={FORM_TABS} active={tab} onChange={setTab} />
 
@@ -394,7 +394,7 @@ function GameForm({ initial, onSave, onDelete, onBack, saving }) {
       {tab === 'stats' && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
           <Card>
-            <p style={{ fontSize: '12px', fontWeight: 700, color: '#22C55E', marginBottom: '14px', textTransform: 'uppercase', letterSpacing: '0.8px' }}>Scoring & Playmaking</p>
+            <p className="section-label" style={{ color: 'var(--color-success)', marginBottom: '14px' }}>Scoring & Playmaking</p>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '10px' }}>
               <NumInput label="PTS" value={form.points} onChange={numSet('points')} color="#FF6B35" />
               <NumInput label="REB" value={form.rebounds} onChange={numSet('rebounds')} color="#3B82F6" />
@@ -402,7 +402,7 @@ function GameForm({ initial, onSave, onDelete, onBack, saving }) {
             </div>
           </Card>
           <Card>
-            <p style={{ fontSize: '12px', fontWeight: 700, color: '#3B82F6', marginBottom: '14px', textTransform: 'uppercase', letterSpacing: '0.8px' }}>Defense & Hustle</p>
+            <p className="section-label" style={{ color: 'var(--color-info)', marginBottom: '14px' }}>Defense & Hustle</p>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: '10px' }}>
               <NumInput label="STL" value={form.steals} onChange={numSet('steals')} color="#22C55E" />
               <NumInput label="BLK" value={form.blocks} onChange={numSet('blocks')} color="#3B82F6" />
@@ -411,13 +411,13 @@ function GameForm({ initial, onSave, onDelete, onBack, saving }) {
             </div>
           </Card>
           <Card>
-            <p style={{ fontSize: '12px', fontWeight: 700, color: '#8B5CF6', marginBottom: '14px', textTransform: 'uppercase', letterSpacing: '0.8px' }}>Activity</p>
+            <p className="section-label" style={{ color: 'var(--color-purple)', marginBottom: '14px' }}>Activity</p>
             <CounterInput label="Paint Touches" value={form.paint_touches} onChange={(v) => setVal('paint_touches', v)} color="#8B5CF6" />
             <div style={{ height: '1px', background: 'var(--color-border)', margin: '4px 0' }} />
             <CounterInput label="Drives" value={form.drives} onChange={(v) => setVal('drives', v)} color="#F59E0B" />
           </Card>
           <Card>
-            <p style={{ fontSize: '12px', fontWeight: 700, color: 'var(--color-text-sec)', marginBottom: '12px', textTransform: 'uppercase', letterSpacing: '0.8px' }}>Minutes</p>
+            <p className="section-label" style={{ marginBottom: 'var(--space-2)' }}>Minutes</p>
             <NumInput label="MIN" value={form.minutes_played} onChange={numSet('minutes_played')} />
           </Card>
         </div>
@@ -434,20 +434,20 @@ function GameForm({ initial, onSave, onDelete, onBack, saving }) {
             <Card padding="sm">
               <div style={{ display: 'flex', justifyContent: 'space-around', textAlign: 'center' }}>
                 <div>
-                  <p style={{ fontSize: '22px', fontWeight: 900, color: '#22C55E' }}>{totalMade}</p>
+                  <p className="t-title2" style={{ color: 'var(--color-success)' }}>{totalMade}</p>
                   <p style={{ fontSize: '11px', color: 'var(--color-text-sec)', fontWeight: 600 }}>MADE</p>
                 </div>
                 <div>
-                  <p style={{ fontSize: '22px', fontWeight: 900, color: '#EF4444' }}>{totalShots - totalMade}</p>
+                  <p className="t-title2" style={{ color: 'var(--color-danger)' }}>{totalShots - totalMade}</p>
                   <p style={{ fontSize: '11px', color: 'var(--color-text-sec)', fontWeight: 600 }}>MISSED</p>
                 </div>
                 <div>
-                  <p style={{ fontSize: '22px', fontWeight: 900, color: '#FF6B35' }}>{totalShots > 0 ? Math.round((totalMade / totalShots) * 100) : 0}%</p>
+                  <p className="t-title2" style={{ color: 'var(--color-accent)' }}>{totalShots > 0 ? Math.round((totalMade / totalShots) * 100) : 0}%</p>
                   <p style={{ fontSize: '11px', color: 'var(--color-text-sec)', fontWeight: 600 }}>FG%</p>
                 </div>
                 {courtTotals.tpa > 0 && (
                   <div>
-                    <p style={{ fontSize: '22px', fontWeight: 900, color: '#8B5CF6' }}>{Math.round((courtTotals.tpm / courtTotals.tpa) * 100)}%</p>
+                    <p className="t-title2" style={{ color: 'var(--color-purple)' }}>{Math.round((courtTotals.tpm / courtTotals.tpa) * 100)}%</p>
                     <p style={{ fontSize: '11px', color: 'var(--color-text-sec)', fontWeight: 600 }}>3PT%</p>
                   </div>
                 )}
@@ -497,15 +497,7 @@ function GameForm({ initial, onSave, onDelete, onBack, saving }) {
       )}
 
       <div style={{ marginTop: '24px', display: 'flex', gap: '12px' }}>
-        <button type="submit" disabled={saving}
-          style={{
-            flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
-            padding: '16px', borderRadius: '16px', border: 'none', minHeight: '52px',
-            background: 'linear-gradient(135deg, #FF6B35, #E85A2A)', color: '#fff',
-            fontSize: '16px', fontWeight: 800, cursor: 'pointer', fontFamily: 'inherit',
-            boxShadow: '0 4px 16px rgba(255,107,53,0.35)', opacity: saving ? 0.7 : 1,
-            transition: 'all 0.2s',
-          }}>
+        <button type="submit" disabled={saving} className="btn-primary" style={{ flex: 1, opacity: saving ? 0.7 : 1 }}>
           <Trophy size={18} />
           {saving ? 'Saving...' : isEdit ? 'Update Game' : 'Save Game'}
         </button>
@@ -646,8 +638,8 @@ function generateFeedback(game, seasonAvg) {
   return lines
 }
 
-const toneColors = { hot: '#F59E0B', good: '#22C55E', neutral: 'var(--color-text-sec)', work: '#EF4444' }
-const toneBg = { hot: 'rgba(245,158,11,0.12)', good: 'rgba(34,197,94,0.12)', neutral: 'rgba(255,255,255,0.04)', work: 'rgba(239,68,68,0.12)' }
+const toneColors = { hot: 'var(--color-warning)', good: 'var(--color-success)', neutral: 'var(--color-text-sec)', work: 'var(--color-danger)' }
+const toneBg = { hot: 'var(--color-warning-tint)', good: 'var(--color-success-tint)', neutral: 'rgba(255,255,255,0.04)', work: 'var(--color-danger-tint)' }
 
 function buildShareText(game, feedback) {
   const venue = game.is_home_game === true || game.is_home_game === 'true' ? 'vs' : '@'
@@ -744,7 +736,7 @@ function TrendBars({ games, currentPts }) {
   const max = Math.max(...last5.map(g => g.points || 0), currentPts || 0, 1)
   return (
     <Card>
-      <p style={{ fontSize: '12px', fontWeight: 700, color: 'var(--color-text-sec)', marginBottom: '12px', textTransform: 'uppercase', letterSpacing: '0.8px' }}>
+      <p className="section-label" style={{ marginBottom: 'var(--space-2)' }}>
         Scoring Trend — Last {last5.length} Games
       </p>
       <div style={{ display: 'flex', alignItems: 'flex-end', gap: '6px', height: '60px' }}>
@@ -783,7 +775,7 @@ function RadarChart({ data }) {
 
   return (
     <Card>
-      <p style={{ fontSize: '12px', fontWeight: 700, color: 'var(--color-text-sec)', marginBottom: '12px', textTransform: 'uppercase', letterSpacing: '0.8px' }}>Player Profile</p>
+      <p className="section-label" style={{ marginBottom: 'var(--space-2)' }}>Player Profile</p>
       <svg viewBox={`0 0 ${size} ${size}`} style={{ width: '100%', maxWidth: '280px', display: 'block', margin: '0 auto' }}>
         {gridLevels.map((lvl) => (
           <polygon key={lvl}
@@ -793,9 +785,9 @@ function RadarChart({ data }) {
         {Array.from({ length: 6 }, (_, i) => (
           <line key={i} x1={cx} y1={cy} x2={point(i, 100).x} y2={point(i, 100).y} stroke="rgba(255,255,255,0.06)" strokeWidth="0.5" />
         ))}
-        <polygon points={poly} fill="rgba(255,107,53,0.18)" stroke="#FF6B35" strokeWidth="1.5" />
+        <polygon points={poly} fill="rgba(255,107,53,0.18)" stroke="var(--color-accent)" strokeWidth="1.5" />
         {dataPoints.map((p, i) => (
-          <circle key={i} cx={p.x} cy={p.y} r="3" fill="#FF6B35" />
+          <circle key={i} cx={p.x} cy={p.y} r="3" fill="var(--color-accent)" />
         ))}
         {labels.map((l, i) => {
           const p = point(i, 118)
@@ -857,7 +849,7 @@ function StreakConsistency({ allGames }) {
 
   return (
     <Card>
-      <p style={{ fontSize: '12px', fontWeight: 700, color: 'var(--color-text-sec)', marginBottom: '14px', textTransform: 'uppercase', letterSpacing: '0.8px' }}>Consistency & Streaks</p>
+      <p className="section-label" style={{ marginBottom: '14px' }}>Consistency & Streaks</p>
       <div style={{ marginBottom: '16px' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}>
           <span style={{ fontSize: '13px', fontWeight: 700, color: 'var(--color-text)' }}>Consistency</span>
@@ -888,7 +880,7 @@ function ShareCardModal({ game, rating, onClose }) {
     <div onClick={onClose} style={{ position: 'fixed', inset: 0, zIndex: 70, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(0,0,0,0.8)', backdropFilter: 'blur(12px)' }}>
       <div onClick={(e) => e.stopPropagation()} style={{ width: '320px', borderRadius: '24px', overflow: 'hidden', animation: 'modalIn 0.25s ease' }}>
         <div style={{ background: `linear-gradient(160deg, #1A1D2E, ${resultColor}15)`, padding: '28px 24px', textAlign: 'center', border: `1px solid ${resultColor}25`, borderRadius: '24px' }}>
-          <p style={{ fontSize: '13px', fontWeight: 800, color: 'var(--color-text-sec)', letterSpacing: '1px', marginBottom: '20px' }}>COURT<span style={{ color: '#FF6B35' }}>IQ</span></p>
+          <p className="section-label" style={{ fontSize: '13px', fontWeight: 800, marginBottom: 'var(--space-3)' }}>COURT<span style={{ color: 'var(--color-accent)' }}>IQ</span></p>
           <div style={{ display: 'inline-block', padding: '6px 20px', borderRadius: '10px', background: resultColor, marginBottom: '12px' }}>
             <span style={{ fontSize: '13px', fontWeight: 800, color: '#fff', letterSpacing: '1.5px' }}>{game.result === 'Win' ? 'VICTORY' : game.result === 'Loss' ? 'LOSS' : 'DRAW'}</span>
           </div>
@@ -1058,7 +1050,7 @@ function GameResult({ game, seasonAvg, allGames, onDone, onEdit, showToast }) {
       {/* ===== SHOOTING EFFICIENCY BARS ===== */}
       {(fga > 0 || tpa > 0 || fta > 0) && (
         <Card>
-          <p style={{ fontSize: '12px', fontWeight: 700, color: 'var(--color-text-sec)', marginBottom: '16px', textTransform: 'uppercase', letterSpacing: '0.8px' }}>Shooting Efficiency</p>
+          <p className="section-label" style={{ marginBottom: 'var(--space-2)' }}>Shooting Efficiency</p>
           {fga > 0 && <EffBar label="FG%" made={fgm} attempted={fga} thresholds={[50, 42]} />}
           {tpa > 0 && <EffBar label="3PT%" made={tpm} attempted={tpa} thresholds={[38, 30]} />}
           {fta > 0 && <EffBar label="FT%" made={ftm} attempted={fta} thresholds={[78, 65]} />}
@@ -1086,17 +1078,17 @@ function GameResult({ game, seasonAvg, allGames, onDone, onEdit, showToast }) {
       {(csTotal.attempted > 0 || odTotal.attempted > 0) && (
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginTop: '16px' }}>
           {csTotal.attempted > 0 && (
-            <div style={{ background: 'rgba(59,130,246,0.08)', borderRadius: '14px', padding: '14px', textAlign: 'center', border: '1px solid rgba(59,130,246,0.15)' }}>
-              <div style={{ fontSize: '20px', fontWeight: 900, color: '#3B82F6' }}>{csTotal.attempted > 0 ? Math.round((csTotal.made / csTotal.attempted) * 100) : 0}%</div>
-              <div style={{ fontSize: '11px', fontWeight: 600, color: 'var(--color-text-sec)', marginTop: '2px' }}>{csTotal.made}/{csTotal.attempted}</div>
-              <div style={{ fontSize: '10px', fontWeight: 700, color: '#3B82F6', textTransform: 'uppercase', letterSpacing: '0.5px', marginTop: '4px' }}>Catch & Shoot</div>
+            <div style={{ background: 'var(--color-info-tint)', borderRadius: '14px', padding: '14px', textAlign: 'center', border: '1px solid rgba(59,130,246,0.15)' }}>
+              <div className="t-title3" style={{ color: 'var(--color-info)' }}>{csTotal.attempted > 0 ? Math.round((csTotal.made / csTotal.attempted) * 100) : 0}%</div>
+              <div className="t-caption" style={{ color: 'var(--color-text-sec)', marginTop: '2px' }}>{csTotal.made}/{csTotal.attempted}</div>
+              <div className="section-label" style={{ color: 'var(--color-info)', marginTop: '4px', fontSize: '10px' }}>Catch & Shoot</div>
             </div>
           )}
           {odTotal.attempted > 0 && (
-            <div style={{ background: 'rgba(139,92,246,0.08)', borderRadius: '14px', padding: '14px', textAlign: 'center', border: '1px solid rgba(139,92,246,0.15)' }}>
-              <div style={{ fontSize: '20px', fontWeight: 900, color: '#8B5CF6' }}>{odTotal.attempted > 0 ? Math.round((odTotal.made / odTotal.attempted) * 100) : 0}%</div>
-              <div style={{ fontSize: '11px', fontWeight: 600, color: 'var(--color-text-sec)', marginTop: '2px' }}>{odTotal.made}/{odTotal.attempted}</div>
-              <div style={{ fontSize: '10px', fontWeight: 700, color: '#8B5CF6', textTransform: 'uppercase', letterSpacing: '0.5px', marginTop: '4px' }}>Off Dribble</div>
+            <div style={{ background: 'var(--color-purple-tint)', borderRadius: '14px', padding: '14px', textAlign: 'center', border: '1px solid rgba(139,92,246,0.15)' }}>
+              <div className="t-title3" style={{ color: 'var(--color-purple)' }}>{odTotal.attempted > 0 ? Math.round((odTotal.made / odTotal.attempted) * 100) : 0}%</div>
+              <div className="t-caption" style={{ color: 'var(--color-text-sec)', marginTop: '2px' }}>{odTotal.made}/{odTotal.attempted}</div>
+              <div className="section-label" style={{ color: 'var(--color-purple)', marginTop: '4px', fontSize: '10px' }}>Off Dribble</div>
             </div>
           )}
         </div>
@@ -1105,7 +1097,7 @@ function GameResult({ game, seasonAvg, allGames, onDone, onEdit, showToast }) {
       {/* ===== SHOT CHART (if zone data) ===== */}
       {Object.keys(shotData).length > 0 && (
         <Card style={{ marginTop: '16px' }}>
-          <p style={{ fontSize: '12px', fontWeight: 700, color: 'var(--color-text-sec)', marginBottom: '12px', textTransform: 'uppercase', letterSpacing: '0.8px' }}>Shot Chart</p>
+          <p className="section-label" style={{ marginBottom: 'var(--space-2)' }}>Shot Chart</p>
           <MiniCourtSVG shotData={shotData} />
         </Card>
       )}
@@ -1113,7 +1105,7 @@ function GameResult({ game, seasonAvg, allGames, onDone, onEdit, showToast }) {
       {/* ===== DEFENSE & EXTRA STATS ===== */}
       {(game.steals > 0 || game.blocks > 0 || game.turnovers > 0 || game.paint_touches > 0 || game.drives > 0 || min > 0) && (
         <Card style={{ marginTop: '16px' }}>
-          <p style={{ fontSize: '12px', fontWeight: 700, color: 'var(--color-text-sec)', marginBottom: '12px', textTransform: 'uppercase', letterSpacing: '0.8px' }}>Box Score</p>
+          <p className="section-label" style={{ marginBottom: 'var(--space-2)' }}>Box Score</p>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(60px, 1fr))', gap: '12px' }}>
             {game.steals > 0 && <StatBox value={game.steals} label="STL" />}
             {game.blocks > 0 && <StatBox value={game.blocks} label="BLK" />}
@@ -1134,10 +1126,10 @@ function GameResult({ game, seasonAvg, allGames, onDone, onEdit, showToast }) {
       {/* ===== INTELLIGENCE CALLOUTS ===== */}
       {feedback.length > 0 && (
         <Card style={{ marginTop: '16px' }}>
-          <p style={{ fontSize: '12px', fontWeight: 700, color: 'var(--color-text-sec)', marginBottom: '16px', textTransform: 'uppercase', letterSpacing: '0.8px' }}>Game Intelligence</p>
+          <p className="section-label" style={{ marginBottom: 'var(--space-2)' }}>Game Intelligence</p>
           {Object.entries(categories).map(([cat, items]) => (
             <div key={cat} style={{ marginBottom: '14px' }}>
-              <p style={{ fontSize: '11px', fontWeight: 700, color: cat === 'Improve' ? '#EF4444' : '#FF6B35', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>{cat === 'Improve' ? 'Areas to Improve' : cat}</p>
+              <p className="section-label" style={{ color: cat === 'Improve' ? 'var(--color-danger)' : 'var(--color-accent)', marginBottom: 'var(--space-1)' }}>{cat === 'Improve' ? 'Areas to Improve' : cat}</p>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
                 {items.map((item, i) => {
                   const Icon = item.icon
@@ -1172,12 +1164,10 @@ function GameResult({ game, seasonAvg, allGames, onDone, onEdit, showToast }) {
 
       {/* Action buttons */}
       <div style={{ marginTop: '20px', marginBottom: '16px', display: 'flex', gap: '10px' }}>
-        <button type="button" onClick={() => setShowShareCard(true)}
-          style={{ flex: 1, padding: '16px', borderRadius: '16px', border: '1.5px solid var(--color-border)', background: 'transparent', color: 'var(--color-text)', fontSize: '15px', fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+        <button type="button" onClick={() => setShowShareCard(true)} className="btn-outline" style={{ flex: 1 }}>
           <Share2 size={16} /> Share Card
         </button>
-        <button type="button" onClick={onDone}
-          style={{ flex: 1, padding: '16px', borderRadius: '16px', border: 'none', background: 'linear-gradient(135deg, #FF6B35, #E85A2A)', color: '#fff', fontSize: '15px', fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit', boxShadow: '0 4px 16px rgba(255,107,53,0.35)' }}>
+        <button type="button" onClick={onDone} className="btn-primary" style={{ flex: 1 }}>
           Done
         </button>
       </div>
@@ -1258,7 +1248,7 @@ export default function Games() {
 
   return (
     <PageWrapper>
-      <h1 className="text-2xl mb-4" style={{ ...heading, color: 'var(--text-primary)' }}>Game Stats</h1>
+      <h1 className="t-title2" style={{ marginBottom: 'var(--space-2)' }}>Game Stats</h1>
 
       {loading ? (
         <SkeletonLoader variant="card" count={3} />

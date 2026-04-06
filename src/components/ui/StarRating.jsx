@@ -11,14 +11,7 @@ export default function StarRating({
 }) {
   return (
     <div className={`flex flex-col gap-1.5 ${className}`}>
-      {label && (
-        <label
-          className="text-sm font-medium"
-          style={{ color: 'var(--text-secondary)', fontFamily: "'DM Sans', sans-serif" }}
-        >
-          {label}
-        </label>
-      )}
+      {label && <label className="t-label">{label}</label>}
       <div className="flex gap-1">
         {Array.from({ length: max }).map((_, i) => {
           const starValue = i + 1;
@@ -42,8 +35,8 @@ export default function StarRating({
             >
               <Star
                 size={size}
-                fill={filled ? 'var(--accent-primary)' : 'none'}
-                stroke={filled ? 'var(--accent-primary)' : 'var(--text-muted)'}
+                fill={filled ? 'var(--color-accent)' : 'none'}
+                stroke={filled ? 'var(--color-accent)' : 'var(--color-text-sec)'}
                 strokeWidth={1.5}
               />
             </button>

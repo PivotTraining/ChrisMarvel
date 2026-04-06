@@ -9,15 +9,12 @@ import Badge from '../../components/ui/Badge'
 import { useAuth } from '../../context/AuthContext'
 import { useToast } from '../../context/ToastContext'
 
-const barlow = { fontFamily: "'Barlow Condensed', sans-serif" }
-const dmSans = { fontFamily: "'DM Sans', sans-serif" }
-
 const POSITIONS = ['PG', 'SG', 'SF', 'PF', 'C']
 const SKILL_LEVELS = ['Beginner', 'Intermediate', 'Advanced']
 
 function SectionTitle({ children }) {
   return (
-    <h2 className="text-lg font-bold mb-3" style={{ color: 'var(--text-primary)', ...barlow }}>
+    <h2 className="t-title3" style={{ color: 'var(--color-text)', marginBottom: 'var(--space-2)' }}>
       {children}
     </h2>
   )
@@ -28,19 +25,21 @@ function ToggleRow({ label, enabled, onToggle }) {
     <button
       onClick={onToggle}
       className="flex items-center justify-between w-full py-2.5 cursor-pointer"
-      style={{ ...dmSans }}
+      style={{ background: 'none', border: 'none', fontFamily: 'inherit' }}
     >
-      <span className="text-sm" style={{ color: 'var(--text-secondary)' }}>{label}</span>
+      <span className="t-body" style={{ color: 'var(--color-text-sec)' }}>{label}</span>
       <div
         className="relative w-11 h-6 rounded-full transition-colors duration-200"
-        style={{ backgroundColor: enabled ? 'var(--accent-primary)' : 'var(--bg-surface)' ,
-          border: `1px solid ${enabled ? 'var(--accent-primary)' : 'var(--border-subtle)'}` }}
+        style={{
+          backgroundColor: enabled ? 'var(--color-accent)' : 'var(--color-card)',
+          border: `1px solid ${enabled ? 'var(--color-accent)' : 'var(--color-border)'}`,
+        }}
       >
         <div
-          className="absolute top-0.5 w-4.5 h-4.5 rounded-full transition-transform duration-200"
+          className="absolute top-0.5 rounded-full transition-transform duration-200"
           style={{
             width: '18px', height: '18px',
-            backgroundColor: enabled ? '#fff' : 'var(--text-muted)',
+            backgroundColor: enabled ? '#fff' : 'var(--color-text-sec)',
             transform: enabled ? 'translateX(22px)' : 'translateX(3px)',
           }}
         />
@@ -52,8 +51,8 @@ function ToggleRow({ label, enabled, onToggle }) {
 function StatItem({ label, value }) {
   return (
     <div className="flex flex-col items-center gap-0.5">
-      <span className="text-xl font-bold" style={{ color: 'var(--accent-primary)', ...barlow }}>{value}</span>
-      <span className="text-xs" style={{ color: 'var(--text-muted)', ...dmSans }}>{label}</span>
+      <span className="t-title3" style={{ color: 'var(--color-accent)' }}>{value}</span>
+      <span className="t-caption" style={{ color: 'var(--color-text-sec)' }}>{label}</span>
     </div>
   )
 }
@@ -127,29 +126,16 @@ export default function Settings() {
 
   return (
     <PageWrapper>
-      <h1 className="text-2xl font-bold mb-5" style={{ color: 'var(--text-primary)', ...barlow }}>
+      <h1 className="t-title2" style={{ color: 'var(--color-text)', marginBottom: 'var(--space-3)' }}>
         Settings
       </h1>
 
-      {/* Profile */}
       <SectionTitle>Profile</SectionTitle>
       <Card className="mb-5">
         <div className="flex flex-col gap-3">
           <Input label="Full Name" value={fullName} onChange={e => setFullName(e.target.value)} placeholder="Your name" />
-          <Select
-            label="Position"
-            value={position}
-            onChange={e => setPosition(e.target.value)}
-            options={POSITIONS}
-            placeholder="Select position"
-          />
-          <Select
-            label="Skill Level"
-            value={skillLevel}
-            onChange={e => setSkillLevel(e.target.value)}
-            options={SKILL_LEVELS}
-            placeholder="Select level"
-          />
+          <Select label="Position" value={position} onChange={e => setPosition(e.target.value)} options={POSITIONS} placeholder="Select position" />
+          <Select label="Skill Level" value={skillLevel} onChange={e => setSkillLevel(e.target.value)} options={SKILL_LEVELS} placeholder="Select level" />
           <Input label="Date of Birth" type="date" value={dob} onChange={e => setDob(e.target.value)} />
           <Button onClick={handleSaveProfile} loading={saving} fullWidth>
             <Save className="w-4 h-4" /> Save Profile
@@ -157,7 +143,6 @@ export default function Settings() {
         </div>
       </Card>
 
-      {/* Stats Summary */}
       <SectionTitle>Stats Summary</SectionTitle>
       <Card className="mb-5">
         <div className="grid grid-cols-4 gap-2 text-center">
@@ -168,22 +153,20 @@ export default function Settings() {
         </div>
       </Card>
 
-      {/* Preferences */}
       <SectionTitle>Preferences</SectionTitle>
       <Card className="mb-5">
         <ToggleRow label="Streak Reminders" enabled={streakReminder} onToggle={handleToggleStreak} />
-        <div style={{ borderTop: '1px solid var(--border-subtle)' }} />
+        <div style={{ borderTop: '1px solid var(--color-border)' }} />
         <ToggleRow label="Weekly Summary" enabled={weeklySummary} onToggle={handleToggleWeekly} />
       </Card>
 
-      {/* Account */}
       <SectionTitle>Account</SectionTitle>
       <Card className="mb-5">
         <Button variant="outline" fullWidth onClick={handleSignOut} className="mb-3"
-          style={{ color: '#EF4444', borderColor: 'rgba(239,68,68,0.4)' }}>
+          style={{ color: 'var(--color-danger)', borderColor: 'rgba(239,68,68,0.4)' }}>
           <LogOut className="w-4 h-4" /> Sign Out
         </Button>
-        <p className="text-center text-xs" style={{ color: 'var(--text-muted)', ...dmSans }}>
+        <p className="t-caption" style={{ textAlign: 'center', color: 'var(--color-text-sec)' }}>
           CourtIQ v1.0
         </p>
       </Card>

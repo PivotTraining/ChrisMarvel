@@ -3,7 +3,7 @@ function SkeletonBlock({ className = '', style = {} }) {
     <div
       className={`rounded-lg animate-pulse ${className}`}
       style={{
-        backgroundColor: 'var(--bg-surface-hover)',
+        backgroundColor: 'var(--color-muted)',
         ...style,
       }}
     />
@@ -15,8 +15,8 @@ export function SkeletonCard({ className = '' }) {
     <div
       className={`rounded-xl p-5 flex flex-col gap-3 ${className}`}
       style={{
-        backgroundColor: 'var(--bg-surface)',
-        border: '1px solid var(--border-subtle)',
+        backgroundColor: 'var(--color-card)',
+        border: '1px solid var(--color-border)',
       }}
     >
       <SkeletonBlock className="h-4 w-2/3" />
@@ -38,8 +38,8 @@ export function SkeletonList({ rows = 4, className = '' }) {
           key={i}
           className="flex items-center gap-3 rounded-xl p-4"
           style={{
-            backgroundColor: 'var(--bg-surface)',
-            border: '1px solid var(--border-subtle)',
+            backgroundColor: 'var(--color-card)',
+            border: '1px solid var(--color-border)',
           }}
         >
           <SkeletonBlock className="h-10 w-10 rounded-full flex-shrink-0" />

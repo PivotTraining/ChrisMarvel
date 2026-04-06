@@ -39,31 +39,6 @@ export default function Login() {
     navigate('/')
   }
 
-  const inputWrapStyle = { position: 'relative', marginBottom: '14px' }
-  const iconStyle = { position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: 'var(--color-text-sec)', pointerEvents: 'none' }
-  const inputStyle = {
-    width: '100%',
-    padding: '16px 16px 16px 46px',
-    borderRadius: '14px',
-    border: '1px solid var(--color-border)',
-    backgroundColor: 'var(--color-input-bg)',
-    color: 'var(--color-text)',
-    fontSize: '15px',
-    fontFamily: 'inherit',
-    outline: 'none',
-    boxSizing: 'border-box',
-    transition: 'border-color 0.2s, box-shadow 0.2s',
-  }
-
-  function handleFocus(e) {
-    e.target.style.borderColor = 'var(--color-accent)'
-    e.target.style.boxShadow = '0 0 0 3px rgba(255, 107, 53, 0.15)'
-  }
-  function handleBlur(e) {
-    e.target.style.borderColor = 'var(--color-border)'
-    e.target.style.boxShadow = 'none'
-  }
-
   return (
     <div
       style={{
@@ -73,21 +48,21 @@ export default function Login() {
         alignItems: 'center',
         justifyContent: 'center',
         backgroundColor: 'var(--color-bg)',
-        padding: '24px',
+        padding: 'var(--space-3)',
       }}
     >
       {/* Logo */}
-      <div style={{ textAlign: 'center', marginBottom: '40px' }}>
+      <div style={{ textAlign: 'center', marginBottom: 'var(--space-5)' }}>
         <div
           style={{
             width: '80px',
             height: '80px',
-            borderRadius: '24px',
+            borderRadius: 'var(--space-3)',
             background: 'linear-gradient(135deg, var(--color-accent), var(--color-accent-dark))',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            margin: '0 auto 20px',
+            margin: '0 auto var(--space-3)',
             boxShadow: '0 8px 24px rgba(255, 107, 53, 0.4)',
           }}
         >
@@ -98,7 +73,7 @@ export default function Login() {
         <h1 className="t-title1" style={{ color: 'var(--color-text)' }}>
           Court<span style={{ color: 'var(--color-accent)' }}>IQ</span>
         </h1>
-        <p className="t-body" style={{ color: 'var(--color-text-sec)', marginTop: '6px' }}>
+        <p className="t-body" style={{ color: 'var(--color-text-sec)', marginTop: 'var(--space-1)' }}>
           Your basketball performance tracker
         </p>
       </div>
@@ -110,22 +85,18 @@ export default function Login() {
           maxWidth: '400px',
           backgroundColor: 'var(--color-card)',
           border: '1px solid var(--color-border)',
-          borderRadius: '24px',
-          padding: '28px 24px',
+          borderRadius: 'var(--radius-card)',
+          padding: 'var(--space-4) var(--space-3)',
         }}
       >
         {/* Demo button */}
-        <button
-          onClick={handleDemoLogin}
-          className="btn-primary"
-          style={{ marginBottom: '20px' }}
-        >
+        <button onClick={handleDemoLogin} className="btn-primary" style={{ marginBottom: 'var(--space-3)' }}>
           <Play size={18} fill="currentColor" />
           Try Demo
         </button>
 
         {/* Divider */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '20px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)', marginBottom: 'var(--space-3)' }}>
           <div style={{ flex: 1, height: '1px', backgroundColor: 'var(--color-border)' }} />
           <span className="t-caption" style={{ color: 'var(--color-text-sec)', textTransform: 'uppercase', fontWeight: 600 }}>
             or sign in
@@ -134,25 +105,40 @@ export default function Login() {
         </div>
 
         <form onSubmit={handleSubmit}>
-          <div style={inputWrapStyle}>
-            <Mail size={18} style={iconStyle} />
-            <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Email" style={inputStyle} onFocus={handleFocus} onBlur={handleBlur} />
+          <div style={{ position: 'relative', marginBottom: 'var(--space-2)' }}>
+            <Mail size={18} style={{ position: 'absolute', left: 'var(--space-2)', top: '50%', transform: 'translateY(-50%)', color: 'var(--color-text-sec)', pointerEvents: 'none' }} />
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="Email"
+              className="input-base"
+              style={{ paddingLeft: '46px' }}
+            />
           </div>
 
-          <div style={{ ...inputWrapStyle, marginBottom: '20px' }}>
-            <Lock size={18} style={iconStyle} />
-            <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Password" style={inputStyle} onFocus={handleFocus} onBlur={handleBlur} />
+          <div style={{ position: 'relative', marginBottom: 'var(--space-3)' }}>
+            <Lock size={18} style={{ position: 'absolute', left: 'var(--space-2)', top: '50%', transform: 'translateY(-50%)', color: 'var(--color-text-sec)', pointerEvents: 'none' }} />
+            <input
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="Password"
+              className="input-base"
+              style={{ paddingLeft: '46px' }}
+            />
           </div>
 
           {error && (
             <p
+              className="t-body"
               style={{
                 color: 'var(--color-danger)',
                 fontSize: '13px',
-                marginBottom: '16px',
-                padding: '12px 14px',
-                borderRadius: '12px',
-                backgroundColor: 'rgba(239, 68, 68, 0.08)',
+                marginBottom: 'var(--space-2)',
+                padding: 'var(--space-2)',
+                borderRadius: 'var(--radius-input)',
+                backgroundColor: 'var(--color-danger-tint)',
                 border: '1px solid rgba(239, 68, 68, 0.2)',
               }}
             >
@@ -165,7 +151,7 @@ export default function Login() {
           </button>
         </form>
 
-        <p className="t-body" style={{ textAlign: 'center', marginTop: '20px', color: 'var(--color-text-sec)', fontSize: '14px' }}>
+        <p className="t-body" style={{ textAlign: 'center', marginTop: 'var(--space-3)', color: 'var(--color-text-sec)', fontSize: '14px' }}>
           Don&apos;t have an account?{' '}
           <Link to="/signup" style={{ color: 'var(--color-accent)', textDecoration: 'none', fontWeight: 700 }}>
             Sign Up

@@ -13,29 +13,16 @@ export default function EmptyState({
       {Icon && (
         <div
           className="w-14 h-14 rounded-full flex items-center justify-center mb-5"
-          style={{ backgroundColor: 'rgba(249, 115, 22, 0.1)' }}
+          style={{ backgroundColor: 'var(--color-accent-tint)' }}
         >
-          <Icon className="w-7 h-7" style={{ color: 'var(--accent-primary)' }} />
+          <Icon className="w-7 h-7" style={{ color: 'var(--color-accent)' }} />
         </div>
       )}
-      <h3
-        className="text-xl mb-2"
-        style={{
-          color: 'var(--text-primary)',
-          fontFamily: "'Barlow Condensed', sans-serif",
-          fontWeight: 700,
-        }}
-      >
+      <h3 className="t-title3 mb-2" style={{ color: 'var(--color-text)' }}>
         {title}
       </h3>
       {description && (
-        <p
-          className="text-sm max-w-xs mb-6"
-          style={{
-            color: 'var(--text-muted)',
-            fontFamily: "'DM Sans', sans-serif",
-          }}
-        >
+        <p className="t-body max-w-xs mb-6" style={{ color: 'var(--color-text-sec)' }}>
           {description}
         </p>
       )}

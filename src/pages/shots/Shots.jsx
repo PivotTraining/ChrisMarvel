@@ -20,59 +20,23 @@ const CONTEXT_OPTIONS = [
 function zoneColor(stats) {
   if (!stats || stats.attempted === 0) return 'rgba(255,255,255,0.08)'
   if (stats.pct > 50) return 'rgba(34,197,94,0.3)'
-  if (stats.pct >= 35) return 'rgba(249,115,22,0.3)'
+  if (stats.pct >= 35) return 'rgba(255,107,53,0.3)'
   return 'rgba(239,68,68,0.3)'
 }
 
 function CourtSVG({ zones, zoneStats, onZoneClick, interactive = true }) {
   return (
     <svg viewBox="0 0 100 92" style={{ width: '100%', maxWidth: 420, display: 'block', margin: '0 auto' }}>
-      {/* Background */}
-      <rect x="0" y="0" width="100" height="92" rx="2" fill="var(--bg-surface)" />
-
-      {/* Court outline */}
-      <rect x="2" y="2" width="96" height="88" rx="1" fill="none"
-        stroke="rgba(255,255,255,0.3)" strokeWidth="0.5" />
-
-      {/* Paint / lane */}
-      <rect x="34" y="62" width="32" height="28" fill="none"
-        stroke="rgba(255,255,255,0.3)" strokeWidth="0.5" />
-
-      {/* Free throw circle */}
-      <circle cx="50" cy="62" r="10" fill="none"
-        stroke="rgba(255,255,255,0.3)" strokeWidth="0.5" />
-
-      {/* Free throw line */}
-      <line x1="34" y1="62" x2="66" y2="62"
-        stroke="rgba(255,255,255,0.3)" strokeWidth="0.5" />
-
-      {/* Three-point arc */}
-      <path
-        d="M 10 90 L 10 68 Q 10 20, 50 15 Q 90 20, 90 68 L 90 90"
-        fill="none" stroke="rgba(255,255,255,0.3)" strokeWidth="0.5"
-      />
-
-      {/* Restricted area arc */}
-      <path
-        d="M 44 90 Q 44 82, 50 80 Q 56 82, 56 90"
-        fill="none" stroke="rgba(255,255,255,0.3)" strokeWidth="0.4"
-      />
-
-      {/* Basket */}
-      <circle cx="50" cy="88" r="1.2" fill="none"
-        stroke="rgba(249,115,22,0.6)" strokeWidth="0.5" />
-
-      {/* Backboard */}
-      <line x1="47" y1="90" x2="53" y2="90"
-        stroke="rgba(255,255,255,0.4)" strokeWidth="0.5" />
-
-      {/* Half-court arc at top */}
-      <path
-        d="M 30 2 Q 50 14, 70 2"
-        fill="none" stroke="rgba(255,255,255,0.2)" strokeWidth="0.4"
-      />
-
-      {/* Clickable zone overlays */}
+      <rect x="0" y="0" width="100" height="92" rx="2" fill="var(--color-card)" />
+      <rect x="2" y="2" width="96" height="88" rx="1" fill="none" stroke="rgba(255,255,255,0.3)" strokeWidth="0.5" />
+      <rect x="34" y="62" width="32" height="28" fill="none" stroke="rgba(255,255,255,0.3)" strokeWidth="0.5" />
+      <circle cx="50" cy="62" r="10" fill="none" stroke="rgba(255,255,255,0.3)" strokeWidth="0.5" />
+      <line x1="34" y1="62" x2="66" y2="62" stroke="rgba(255,255,255,0.3)" strokeWidth="0.5" />
+      <path d="M 10 90 L 10 68 Q 10 20, 50 15 Q 90 20, 90 68 L 90 90" fill="none" stroke="rgba(255,255,255,0.3)" strokeWidth="0.5" />
+      <path d="M 44 90 Q 44 82, 50 80 Q 56 82, 56 90" fill="none" stroke="rgba(255,255,255,0.3)" strokeWidth="0.4" />
+      <circle cx="50" cy="88" r="1.2" fill="none" stroke="rgba(255,107,53,0.6)" strokeWidth="0.5" />
+      <line x1="47" y1="90" x2="53" y2="90" stroke="rgba(255,255,255,0.4)" strokeWidth="0.5" />
+      <path d="M 30 2 Q 50 14, 70 2" fill="none" stroke="rgba(255,255,255,0.2)" strokeWidth="0.4" />
       {zones.map((zone) => {
         const stats = zoneStats.get(zone.id)
         const fill = zoneColor(stats)
@@ -80,21 +44,10 @@ function CourtSVG({ zones, zoneStats, onZoneClick, interactive = true }) {
         const textX = zone.x + zone.w / 2
         const textY = zone.y + zone.h / 2
         return (
-          <g key={zone.id}
-            onClick={interactive ? () => onZoneClick(zone) : undefined}
-            style={interactive ? { cursor: 'pointer' } : undefined}
-          >
-            <rect
-              x={zone.x} y={zone.y} width={zone.w} height={zone.h}
-              rx="2" fill={fill} stroke="rgba(255,255,255,0.12)" strokeWidth="0.3"
-            />
+          <g key={zone.id} onClick={interactive ? () => onZoneClick(zone) : undefined} style={interactive ? { cursor: 'pointer' } : undefined}>
+            <rect x={zone.x} y={zone.y} width={zone.w} height={zone.h} rx="2" fill={fill} stroke="rgba(255,255,255,0.12)" strokeWidth="0.3" />
             {hasShotData && (
-              <text
-                x={textX} y={textY}
-                textAnchor="middle" dominantBaseline="central"
-                fill="white" fontSize="3.5"
-                fontFamily="'Barlow Condensed', sans-serif" fontWeight="600"
-              >
+              <text x={textX} y={textY} textAnchor="middle" dominantBaseline="central" fill="white" fontSize="3.5" fontWeight="600">
                 {stats.made}/{stats.attempted}
               </text>
             )}
@@ -111,27 +64,20 @@ function ShotModal({ zone, onMade, onMissed, onClose }) {
       style={{
         position: 'fixed', inset: 0, zIndex: 50,
         display: 'flex', alignItems: 'center', justifyContent: 'center',
-        background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(4px)',
+        background: 'var(--color-overlay)', backdropFilter: 'blur(4px)',
       }}
       onClick={onClose}
     >
       <div
         onClick={(e) => e.stopPropagation()}
         style={{
-          background: 'var(--bg-surface)', border: '1px solid var(--border-subtle)',
-          borderRadius: 12, padding: '1.5rem', minWidth: 240, textAlign: 'center',
+          background: 'var(--color-card)', border: '1px solid var(--color-border)',
+          borderRadius: 'var(--radius-input)', padding: 'var(--space-3)', minWidth: 240, textAlign: 'center',
         }}
       >
-        <p style={{ color: 'var(--text-secondary)', fontFamily: "'DM Sans',sans-serif", fontSize: 14, marginBottom: 4 }}>
-          {zone.label}
-        </p>
-        <p style={{
-          color: 'var(--text-primary)', fontFamily: "'Barlow Condensed',sans-serif",
-          fontWeight: 700, fontSize: 20, marginBottom: 16,
-        }}>
-          Made or Missed?
-        </p>
-        <div style={{ display: 'flex', gap: 12 }}>
+        <p className="t-body" style={{ color: 'var(--color-text-sec)', marginBottom: '4px' }}>{zone.label}</p>
+        <p className="t-title3" style={{ marginBottom: 'var(--space-2)' }}>Made or Missed?</p>
+        <div style={{ display: 'flex', gap: 'var(--space-2)' }}>
           <Button fullWidth onClick={onMade}>Made</Button>
           <Button fullWidth variant="ghost" onClick={onMissed}>Missed</Button>
         </div>
@@ -165,51 +111,38 @@ function SessionSummaryCard({ summary, zoneStats, onDone }) {
 
   return (
     <Card padding="md" className="mb-4">
-      <h3 style={{
-        fontFamily: "'Barlow Condensed',sans-serif", fontWeight: 700,
-        fontSize: 20, color: 'var(--text-primary)', marginBottom: 12,
-      }}>
-        Session Summary
-      </h3>
-      <div style={{ display: 'flex', gap: 16, marginBottom: 16, flexWrap: 'wrap' }}>
+      <h3 className="t-title3" style={{ marginBottom: 'var(--space-2)' }}>Session Summary</h3>
+      <div style={{ display: 'flex', gap: 'var(--space-2)', marginBottom: 'var(--space-2)', flexWrap: 'wrap' }}>
         <div>
-          <p style={{ color: 'var(--text-muted)', fontFamily: "'DM Sans',sans-serif", fontSize: 12 }}>Total</p>
-          <p style={{
-            color: 'var(--text-primary)', fontFamily: "'Barlow Condensed',sans-serif",
-            fontWeight: 700, fontSize: 28,
-          }}>
+          <p className="t-caption" style={{ color: 'var(--color-text-sec)' }}>Total</p>
+          <p className="t-title2">
             {summary.totalMade}/{summary.totalAttempted}
-            <span style={{ fontSize: 16, color: 'var(--text-secondary)', marginLeft: 6 }}>{summary.pct}%</span>
+            <span className="t-body" style={{ color: 'var(--color-text-sec)', marginLeft: '6px' }}>{summary.pct}%</span>
           </p>
         </div>
         {bestZone && (
           <div>
-            <p style={{ color: 'var(--text-muted)', fontFamily: "'DM Sans',sans-serif", fontSize: 12 }}>Best Zone</p>
-            <p style={{ color: '#22c55e', fontFamily: "'DM Sans',sans-serif", fontWeight: 600, fontSize: 14 }}>
+            <p className="t-caption" style={{ color: 'var(--color-text-sec)' }}>Best Zone</p>
+            <p className="t-body" style={{ color: 'var(--color-success)', fontWeight: 600 }}>
               {zoneLabel(bestZone.zoneId)} ({bestZone.pct}%)
             </p>
           </div>
         )}
         {worstZone && bestZone && worstZone.zoneId !== bestZone.zoneId && (
           <div>
-            <p style={{ color: 'var(--text-muted)', fontFamily: "'DM Sans',sans-serif", fontSize: 12 }}>Worst Zone</p>
-            <p style={{ color: '#ef4444', fontFamily: "'DM Sans',sans-serif", fontWeight: 600, fontSize: 14 }}>
+            <p className="t-caption" style={{ color: 'var(--color-text-sec)' }}>Worst Zone</p>
+            <p className="t-body" style={{ color: 'var(--color-danger)', fontWeight: 600 }}>
               {zoneLabel(worstZone.zoneId)} ({worstZone.pct}%)
             </p>
           </div>
         )}
       </div>
-      {/* Shot distribution by type */}
       {Object.keys(summary.shotsByZone).length > 0 && (
-        <div style={{ marginBottom: 16 }}>
-          <p style={{ color: 'var(--text-muted)', fontFamily: "'DM Sans',sans-serif", fontSize: 12, marginBottom: 6 }}>
-            By Zone
-          </p>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+        <div style={{ marginBottom: 'var(--space-2)' }}>
+          <p className="t-caption" style={{ color: 'var(--color-text-sec)', marginBottom: '6px' }}>By Zone</p>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
             {Object.entries(summary.shotsByZone).map(([zId, st]) => (
-              <Badge key={zId} variant="default">
-                {zoneLabel(zId)}: {st.made}/{st.attempted}
-              </Badge>
+              <Badge key={zId} variant="default">{zoneLabel(zId)}: {st.made}/{st.attempted}</Badge>
             ))}
           </div>
         </div>
@@ -248,9 +181,7 @@ export default function Shots() {
     showToast('Session complete', 'success')
   }
 
-  const handleZoneClick = (zone) => {
-    setSelectedZone(zone)
-  }
+  const handleZoneClick = (zone) => setSelectedZone(zone)
 
   const handleShotResult = async (isMade) => {
     if (!selectedZone) return
@@ -271,12 +202,7 @@ export default function Shots() {
   if (loading) {
     return (
       <PageWrapper>
-        <h1 style={{
-          fontFamily: "'Barlow Condensed',sans-serif", fontWeight: 700,
-          fontSize: 24, color: 'var(--text-primary)', marginBottom: 16,
-        }}>
-          Shot Tracker
-        </h1>
+        <h1 className="t-title2" style={{ marginBottom: 'var(--space-2)' }}>Shot Tracker</h1>
         <SkeletonLoader variant="card" count={2} />
       </PageWrapper>
     )
@@ -284,81 +210,49 @@ export default function Shots() {
 
   return (
     <PageWrapper>
-      <h1 style={{
-        fontFamily: "'Barlow Condensed',sans-serif", fontWeight: 700,
-        fontSize: 24, color: 'var(--text-primary)', marginBottom: 16,
-      }}>
-        Shot Tracker
-      </h1>
+      <h1 className="t-title2" style={{ marginBottom: 'var(--space-2)' }}>Shot Tracker</h1>
 
-      {/* Session summary after ending */}
       {showSummary && lastSummary && (
-        <SessionSummaryCard
-          summary={lastSummary}
-          zoneStats={lastZoneStats}
-          onDone={() => setShowSummary(false)}
-        />
+        <SessionSummaryCard summary={lastSummary} zoneStats={lastZoneStats} onDone={() => setShowSummary(false)} />
       )}
 
-      {/* Start session */}
       {!sessionActive && !showSummary && (
         <Card padding="md" className="mb-4">
-          <p style={{
-            color: 'var(--text-primary)', fontFamily: "'Barlow Condensed',sans-serif",
-            fontWeight: 600, fontSize: 18, marginBottom: 12,
-          }}>
-            New Session
-          </p>
-          <Select
-            label="Context"
-            value={context}
-            onChange={(e) => setContext(e.target.value)}
-            options={CONTEXT_OPTIONS}
-            className="mb-4"
-          />
+          <p className="t-title3" style={{ marginBottom: 'var(--space-2)' }}>New Session</p>
+          <Select label="Context" value={context} onChange={(e) => setContext(e.target.value)} options={CONTEXT_OPTIONS} className="mb-4" />
           <Button fullWidth onClick={handleStartSession}>
             <Target className="w-4 h-4" /> Start Session
           </Button>
         </Card>
       )}
 
-      {/* Active session */}
       {sessionActive && (
         <>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 'var(--space-1)' }}>
             <Badge variant="elite">{sessionContext}</Badge>
-            <p style={{
-              color: 'var(--text-secondary)', fontFamily: "'Barlow Condensed',sans-serif",
-              fontWeight: 600, fontSize: 18,
-            }}>
+            <p className="t-title3">
               {sessionSummary.totalMade}/{sessionSummary.totalAttempted}
-              <span style={{ color: 'var(--text-muted)', fontSize: 14, marginLeft: 4 }}>
+              <span className="t-body" style={{ color: 'var(--color-text-sec)', marginLeft: '4px' }}>
                 ({sessionSummary.pct}%)
               </span>
             </p>
           </div>
 
-          {/* Court */}
-          <Card padding="sm" className="mb-4" style={{ background: 'var(--bg-surface)' }}>
-            <CourtSVG
-              zones={COURT_ZONES}
-              zoneStats={zoneStats}
-              onZoneClick={handleZoneClick}
-            />
+          <Card padding="sm" className="mb-4" style={{ background: 'var(--color-card)' }}>
+            <CourtSVG zones={COURT_ZONES} zoneStats={zoneStats} onZoneClick={handleZoneClick} />
           </Card>
 
-          {/* Shot type pills */}
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 12 }}>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginBottom: 'var(--space-2)' }}>
             {SHOT_TYPES.map((st) => (
               <button
                 key={st}
                 onClick={() => setShotType(st)}
+                className="t-caption"
                 style={{
-                  padding: '4px 10px', borderRadius: 16, fontSize: 12,
-                  fontFamily: "'DM Sans',sans-serif", fontWeight: 500, border: 'none',
-                  cursor: 'pointer', transition: 'all 0.15s',
-                  background: shotType === st ? 'var(--accent-primary)' : 'rgba(255,255,255,0.06)',
-                  color: shotType === st ? 'white' : 'var(--text-secondary)',
+                  padding: '6px 12px', borderRadius: 'var(--radius-btn)', border: 'none',
+                  fontWeight: 600, cursor: 'pointer', transition: 'all 0.15s', fontFamily: 'inherit',
+                  background: shotType === st ? 'var(--color-accent)' : 'rgba(255,255,255,0.06)',
+                  color: shotType === st ? 'white' : 'var(--color-text-sec)',
                 }}
               >
                 {st}
@@ -366,27 +260,19 @@ export default function Shots() {
             ))}
           </div>
 
-          {/* Zone breakdown */}
           {shots.length > 0 && (
             <Card padding="sm" className="mb-3">
-              <p style={{ color: 'var(--text-muted)', fontFamily: "'DM Sans',sans-serif", fontSize: 12, marginBottom: 6 }}>
-                Zone Breakdown
-              </p>
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
+              <p className="t-caption" style={{ color: 'var(--color-text-sec)', marginBottom: '6px' }}>Zone Breakdown</p>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
                 {[...zoneStats.entries()].map(([zId, st]) => {
                   const label = COURT_ZONES.find((z) => z.id === zId)?.label || zId
-                  return (
-                    <Badge key={zId} variant="default">
-                      {label}: {st.made}/{st.attempted} ({st.pct}%)
-                    </Badge>
-                  )
+                  return <Badge key={zId} variant="default">{label}: {st.made}/{st.attempted} ({st.pct}%)</Badge>
                 })}
               </div>
             </Card>
           )}
 
-          {/* Session controls */}
-          <div style={{ display: 'flex', gap: 8 }}>
+          <div style={{ display: 'flex', gap: 'var(--space-1)' }}>
             <Button variant="ghost" onClick={handleUndo} disabled={shots.length === 0}>
               <Undo2 className="w-4 h-4" /> Undo
             </Button>
@@ -395,7 +281,6 @@ export default function Shots() {
         </>
       )}
 
-      {/* Shot result modal */}
       {selectedZone && (
         <ShotModal
           zone={selectedZone}
@@ -405,30 +290,15 @@ export default function Shots() {
         />
       )}
 
-      {/* All-time heat map */}
       {!sessionActive && (
-        <div style={{ marginTop: 24 }}>
-          <p style={{
-            color: 'var(--text-secondary)', fontFamily: "'Barlow Condensed',sans-serif",
-            fontWeight: 600, fontSize: 16, marginBottom: 8,
-          }}>
-            All-Time Shooting
-          </p>
+        <div style={{ marginTop: 'var(--space-3)' }}>
+          <p className="section-label" style={{ marginBottom: 'var(--space-1)' }}>All-Time Shooting</p>
           {overallZoneStats.size > 0 ? (
             <Card padding="sm">
-              <CourtSVG
-                zones={COURT_ZONES}
-                zoneStats={overallZoneStats}
-                onZoneClick={() => {}}
-                interactive={false}
-              />
+              <CourtSVG zones={COURT_ZONES} zoneStats={overallZoneStats} onZoneClick={() => {}} interactive={false} />
             </Card>
           ) : (
-            <EmptyState
-              icon={Activity}
-              title="No Shot Data Yet"
-              description="Start a shooting session to begin tracking your shots on the court."
-            />
+            <EmptyState icon={Activity} title="No Shot Data Yet" description="Start a shooting session to begin tracking your shots on the court." />
           )}
         </div>
       )}

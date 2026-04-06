@@ -20,27 +20,25 @@ const MOODS = [
   { value: 'Terrible', label: 'Terrible' },
 ]
 
-const MOOD_COLORS = { Great: '#22C55E', Good: '#3B82F6', Okay: '#EAB308', Bad: '#F97316', Terrible: '#EF4444' }
-
-const barlow = { fontFamily: "'Barlow Condensed', sans-serif" }
-const dmSans = { fontFamily: "'DM Sans', sans-serif" }
+const MOOD_COLORS = {
+  Great: 'var(--color-success)',
+  Good: 'var(--color-info)',
+  Okay: 'var(--color-warning)',
+  Bad: 'var(--color-accent)',
+  Terrible: 'var(--color-danger)',
+}
 
 function TextArea({ label, value, onChange, placeholder, rows = 3 }) {
   return (
     <div className="flex flex-col gap-1.5">
-      {label && <label className="text-sm font-medium" style={{ color: 'var(--text-secondary)', ...dmSans }}>{label}</label>}
+      {label && <label className="t-label">{label}</label>}
       <textarea
         rows={rows}
         placeholder={placeholder}
         value={value}
         onChange={onChange}
-        className="w-full px-3.5 py-2.5 rounded-lg text-sm outline-none transition-all duration-200 resize-y"
-        style={{
-          backgroundColor: 'var(--bg-surface)', color: 'var(--text-primary)',
-          border: '1px solid var(--border-subtle)', ...dmSans,
-        }}
-        onFocus={e => { e.target.style.borderColor = 'var(--accent-primary)'; e.target.style.boxShadow = '0 0 0 3px rgba(249,115,22,0.15)' }}
-        onBlur={e => { e.target.style.borderColor = 'var(--border-subtle)'; e.target.style.boxShadow = 'none' }}
+        className="input-base resize-y"
+        style={{ minHeight: '80px' }}
       />
     </div>
   )
@@ -50,8 +48,8 @@ function MentalGameScore({ confidence, focus, stress, sleep_quality, energy_leve
   const score = ((confidence + focus + (11 - stress) + sleep_quality + energy_level) / 5).toFixed(1)
   return (
     <div className="flex flex-col items-center py-4">
-      <span className="text-sm" style={{ color: 'var(--text-muted)', ...dmSans }}>Mental Game Score</span>
-      <span className="text-5xl font-bold" style={{ color: 'var(--accent-primary)', ...barlow }}>{score}</span>
+      <span className="t-caption" style={{ color: 'var(--color-text-sec)' }}>Mental Game Score</span>
+      <span className="t-title1" style={{ color: 'var(--color-accent)', fontSize: '48px' }}>{score}</span>
     </div>
   )
 }
@@ -63,10 +61,10 @@ function JournalEntryCard({ entry, onClick }) {
     <Card hover onClick={onClick} padding="md">
       <div className="flex items-center justify-between">
         <div className="flex flex-col gap-1">
-          <span className="text-xs" style={{ color: 'var(--text-muted)', ...dmSans }}>{date}</span>
+          <span className="t-caption" style={{ color: 'var(--color-text-sec)' }}>{date}</span>
           <div className="flex items-center gap-2">
-            <span className="w-2.5 h-2.5 rounded-full inline-block" style={{ backgroundColor: MOOD_COLORS[entry.mood] || 'var(--text-muted)' }} />
-            <span className="text-sm font-medium" style={{ color: 'var(--text-primary)', ...dmSans }}>{entry.mood}</span>
+            <span className="w-2.5 h-2.5 rounded-full inline-block" style={{ backgroundColor: MOOD_COLORS[entry.mood] || 'var(--color-text-sec)' }} />
+            <span className="t-body" style={{ color: 'var(--color-text)', fontWeight: 600 }}>{entry.mood}</span>
           </div>
           {entry.tags?.length > 0 && (
             <div className="flex gap-1.5 flex-wrap mt-1">
@@ -74,7 +72,7 @@ function JournalEntryCard({ entry, onClick }) {
             </div>
           )}
         </div>
-        <span className="text-3xl font-bold" style={{ color: 'var(--accent-primary)', ...barlow }}>{mgs}</span>
+        <span className="t-title2" style={{ color: 'var(--color-accent)' }}>{mgs}</span>
       </div>
     </Card>
   )
@@ -103,10 +101,10 @@ function JournalForm({ entry, onSave, onDelete, onBack, saving }) {
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-5">
-      <button type="button" onClick={onBack} className="flex items-center gap-1.5 text-sm self-start" style={{ color: 'var(--text-secondary)', ...dmSans, background: 'none', border: 'none', cursor: 'pointer' }}>
+      <button type="button" onClick={onBack} className="flex items-center gap-1.5 self-start btn-ghost" style={{ padding: '8px 16px' }}>
         <ArrowLeft className="w-4 h-4" /> Back
       </button>
-      <h1 className="text-2xl font-bold" style={{ color: 'var(--text-primary)', ...barlow }}>{editing ? 'Edit Entry' : 'New Entry'}</h1>
+      <h1 className="t-title2" style={{ color: 'var(--color-text)' }}>{editing ? 'Edit Entry' : 'New Entry'}</h1>
 
       <Input label="Date" type="date" value={form.entry_date} onChange={e => set('entry_date', e.target.value)} />
       <Select label="Mood" value={form.mood} onChange={e => set('mood', e.target.value)} options={MOODS} placeholder="How are you feeling?" />
@@ -127,7 +125,7 @@ function JournalForm({ entry, onSave, onDelete, onBack, saving }) {
       <Button type="submit" variant="primary" loading={saving} fullWidth>Save Entry</Button>
       {editing && (
         <Button type="button" variant="ghost" fullWidth onClick={() => onDelete(entry.id)}
-          style={{ color: 'var(--danger)' }}>
+          style={{ color: 'var(--color-danger)' }}>
           <Trash2 className="w-4 h-4 mr-1.5" /> Delete Entry
         </Button>
       )}
@@ -172,19 +170,19 @@ export default function Journal() {
   return (
     <PageWrapper>
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold" style={{ color: 'var(--text-primary)', ...barlow }}>Journal</h1>
+        <h1 className="t-title2" style={{ color: 'var(--color-text)' }}>Journal</h1>
         <Button variant="primary" onClick={openNew}>New Entry</Button>
       </div>
 
       {showMentalHealthSupport && (
-        <Card padding="md" className="mb-5" style={{ borderColor: 'rgba(139,92,246,0.35)', background: 'linear-gradient(135deg, rgba(59,130,246,0.08), rgba(139,92,246,0.08))' }}>
+        <Card padding="md" className="mb-5" style={{ borderColor: 'rgba(139,92,246,0.35)', background: 'linear-gradient(135deg, var(--color-info-tint), var(--color-purple-tint))' }}>
           <div className="flex items-start gap-3">
-            <Heart className="w-5 h-5 mt-0.5 flex-shrink-0" style={{ color: '#8B5CF6' }} />
+            <Heart className="w-5 h-5 mt-0.5 flex-shrink-0" style={{ color: 'var(--color-purple)' }} />
             <div>
-              <p className="text-sm font-medium mb-1" style={{ color: 'var(--text-primary)', ...dmSans }}>
+              <p className="t-body" style={{ color: 'var(--color-text)', fontWeight: 600, marginBottom: '4px' }}>
                 We notice things have been tough lately.
               </p>
-              <p className="text-xs" style={{ color: 'var(--text-secondary)', ...dmSans }}>
+              <p className="t-caption" style={{ color: 'var(--color-text-sec)' }}>
                 It's okay to not feel your best. Consider reaching out to a coach, counselor, or someone you trust. You don't have to work through it alone.
               </p>
             </div>

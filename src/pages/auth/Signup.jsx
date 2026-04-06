@@ -87,37 +87,7 @@ export default function Signup() {
     navigate('/')
   }
 
-  const inputStyle = {
-    width: '100%',
-    padding: '0.75rem 0.875rem 0.75rem 2.5rem',
-    borderRadius: '0.625rem',
-    border: '1px solid var(--border-subtle)',
-    backgroundColor: 'var(--bg-surface)',
-    color: 'var(--text-primary)',
-    fontSize: '0.875rem',
-    fontFamily: "'DM Sans', sans-serif",
-    outline: 'none',
-    boxSizing: 'border-box',
-    transition: 'border-color 0.2s, box-shadow 0.2s',
-  }
-
-  const labelStyle = {
-    display: 'block',
-    fontSize: '0.8125rem',
-    fontWeight: 500,
-    color: 'var(--text-secondary)',
-    marginBottom: '0.5rem',
-  }
-
-  function handleFocus(e) {
-    e.target.style.borderColor = 'var(--accent-primary)'
-    e.target.style.boxShadow = '0 0 0 3px rgba(249, 115, 22, 0.12)'
-  }
-
-  function handleBlur(e) {
-    e.target.style.borderColor = 'var(--border-subtle)'
-    e.target.style.boxShadow = 'none'
-  }
+  const iconStyle = { position: 'absolute', left: 'var(--space-2)', top: '50%', transform: 'translateY(-50%)', color: 'var(--color-text-sec)', pointerEvents: 'none' }
 
   return (
     <div
@@ -127,137 +97,101 @@ export default function Signup() {
         flexDirection: 'column',
         alignItems: 'center',
         justifyContent: 'center',
-        backgroundColor: 'var(--bg-primary)',
-        padding: '1.5rem',
-        fontFamily: "'DM Sans', sans-serif",
+        backgroundColor: 'var(--color-bg)',
+        padding: 'var(--space-3)',
       }}
     >
-      <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
-        <h1
-          style={{
-            fontFamily: "'Barlow Condensed', sans-serif",
-            fontWeight: 700,
-            fontSize: '2rem',
-            color: 'var(--text-primary)',
-            letterSpacing: '0.02em',
-          }}
-        >
-          Join Court<span style={{ color: 'var(--accent-primary)' }}>IQ</span>
+      <div style={{ textAlign: 'center', marginBottom: 'var(--space-4)' }}>
+        <h1 className="t-title1" style={{ color: 'var(--color-text)' }}>
+          Join Court<span style={{ color: 'var(--color-accent)' }}>IQ</span>
         </h1>
-        <p style={{ color: 'var(--text-muted)', fontSize: '0.875rem', marginTop: '0.375rem' }}>
+        <p className="t-body" style={{ color: 'var(--color-text-sec)', marginTop: 'var(--space-1)' }}>
           Create your player profile
         </p>
       </div>
 
-      <div className="glass-card" style={{ width: '100%', maxWidth: '400px', padding: '2rem 1.75rem' }}>
+      <div className="glass-card" style={{ width: '100%', maxWidth: '400px', padding: 'var(--space-4) var(--space-3)' }}>
         {/* Demo button */}
-        <button
-          onClick={handleDemoLogin}
-          style={{
-            width: '100%',
-            padding: '0.875rem',
-            borderRadius: '0.75rem',
-            border: '1px solid rgba(249, 115, 22, 0.3)',
-            backgroundColor: 'rgba(249, 115, 22, 0.08)',
-            color: 'var(--accent-primary)',
-            fontSize: '0.9375rem',
-            fontWeight: 600,
-            fontFamily: "'DM Sans', sans-serif",
-            cursor: 'pointer',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: '0.5rem',
-            transition: 'all 0.2s ease',
-            marginBottom: '1.75rem',
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.backgroundColor = 'rgba(249, 115, 22, 0.15)'
-            e.currentTarget.style.borderColor = 'rgba(249, 115, 22, 0.5)'
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.backgroundColor = 'rgba(249, 115, 22, 0.08)'
-            e.currentTarget.style.borderColor = 'rgba(249, 115, 22, 0.3)'
-          }}
-        >
+        <button onClick={handleDemoLogin} className="btn-ghost" style={{ width: '100%', marginBottom: 'var(--space-3)', color: 'var(--color-accent)', borderColor: 'rgba(255, 107, 53, 0.3)' }}>
           <Play size={18} fill="currentColor" />
           Try Demo Instead
         </button>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1.75rem' }}>
-          <div style={{ flex: 1, height: '1px', backgroundColor: 'var(--border-subtle)' }} />
-          <span style={{ color: 'var(--text-muted)', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)', marginBottom: 'var(--space-3)' }}>
+          <div style={{ flex: 1, height: '1px', backgroundColor: 'var(--color-border)' }} />
+          <span className="t-caption" style={{ color: 'var(--color-text-sec)', textTransform: 'uppercase', fontWeight: 600 }}>
             or create account
           </span>
-          <div style={{ flex: 1, height: '1px', backgroundColor: 'var(--border-subtle)' }} />
+          <div style={{ flex: 1, height: '1px', backgroundColor: 'var(--color-border)' }} />
         </div>
 
         <form onSubmit={handleSubmit}>
-          <div style={{ marginBottom: '1rem' }}>
-            <label htmlFor="email" style={labelStyle}>Email</label>
+          <div style={{ marginBottom: 'var(--space-2)' }}>
+            <label htmlFor="email" className="t-label" style={{ display: 'block', marginBottom: 'var(--space-1)' }}>Email</label>
             <div style={{ position: 'relative' }}>
-              <Mail size={16} style={{ position: 'absolute', left: '0.875rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)', pointerEvents: 'none' }} />
-              <input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@email.com" style={inputStyle} onFocus={handleFocus} onBlur={handleBlur} />
+              <Mail size={16} style={iconStyle} />
+              <input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@email.com" className="input-base" style={{ paddingLeft: '40px' }} />
             </div>
           </div>
 
-          <div style={{ marginBottom: '1rem' }}>
-            <label htmlFor="password" style={labelStyle}>Password</label>
+          <div style={{ marginBottom: 'var(--space-2)' }}>
+            <label htmlFor="password" className="t-label" style={{ display: 'block', marginBottom: 'var(--space-1)' }}>Password</label>
             <div style={{ position: 'relative' }}>
-              <Lock size={16} style={{ position: 'absolute', left: '0.875rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)', pointerEvents: 'none' }} />
-              <input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Min 8 characters" style={inputStyle} onFocus={handleFocus} onBlur={handleBlur} />
+              <Lock size={16} style={iconStyle} />
+              <input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Min 8 characters" className="input-base" style={{ paddingLeft: '40px' }} />
             </div>
           </div>
 
-          <div style={{ marginBottom: '1rem' }}>
-            <label htmlFor="confirmPassword" style={labelStyle}>Confirm Password</label>
+          <div style={{ marginBottom: 'var(--space-2)' }}>
+            <label htmlFor="confirmPassword" className="t-label" style={{ display: 'block', marginBottom: 'var(--space-1)' }}>Confirm Password</label>
             <div style={{ position: 'relative' }}>
-              <Lock size={16} style={{ position: 'absolute', left: '0.875rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)', pointerEvents: 'none' }} />
-              <input id="confirmPassword" type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} placeholder="Re-enter password" style={inputStyle} onFocus={handleFocus} onBlur={handleBlur} />
+              <Lock size={16} style={iconStyle} />
+              <input id="confirmPassword" type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} placeholder="Re-enter password" className="input-base" style={{ paddingLeft: '40px' }} />
             </div>
           </div>
 
-          <div style={{ marginBottom: '1rem' }}>
-            <label htmlFor="dob" style={labelStyle}>Date of Birth</label>
+          <div style={{ marginBottom: 'var(--space-2)' }}>
+            <label htmlFor="dob" className="t-label" style={{ display: 'block', marginBottom: 'var(--space-1)' }}>Date of Birth</label>
             <div style={{ position: 'relative' }}>
-              <Calendar size={16} style={{ position: 'absolute', left: '0.875rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)', pointerEvents: 'none' }} />
-              <input id="dob" type="date" value={dob} onChange={(e) => setDob(e.target.value)} style={{ ...inputStyle, colorScheme: 'dark' }} onFocus={handleFocus} onBlur={handleBlur} />
+              <Calendar size={16} style={iconStyle} />
+              <input id="dob" type="date" value={dob} onChange={(e) => setDob(e.target.value)} className="input-base" style={{ paddingLeft: '40px', colorScheme: 'dark' }} />
             </div>
           </div>
 
           {needsParentalConsent && (
             <div
               style={{
-                marginBottom: '1rem',
-                padding: '1rem',
-                borderRadius: '0.75rem',
-                backgroundColor: 'rgba(249,115,22,0.06)',
-                border: '1px solid rgba(249,115,22,0.15)',
+                marginBottom: 'var(--space-2)',
+                padding: 'var(--space-2)',
+                borderRadius: 'var(--radius-input)',
+                backgroundColor: 'var(--color-accent-tint)',
+                border: '1px solid rgba(255, 107, 53, 0.15)',
               }}
             >
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem' }}>
-                <ShieldCheck size={16} style={{ color: 'var(--accent-primary)' }} />
-                <p style={{ fontSize: '0.8125rem', color: 'var(--accent-primary)', fontWeight: 500 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-1)', marginBottom: 'var(--space-1)' }}>
+                <ShieldCheck size={16} style={{ color: 'var(--color-accent)' }} />
+                <p className="t-caption" style={{ color: 'var(--color-accent)', fontWeight: 600 }}>
                   Parental consent required (under 13)
                 </p>
               </div>
-              <label htmlFor="parentEmail" style={labelStyle}>Parent/Guardian Email</label>
+              <label htmlFor="parentEmail" className="t-label" style={{ display: 'block', marginBottom: 'var(--space-1)' }}>Parent/Guardian Email</label>
               <div style={{ position: 'relative' }}>
-                <Mail size={16} style={{ position: 'absolute', left: '0.875rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)', pointerEvents: 'none' }} />
-                <input id="parentEmail" type="email" value={parentEmail} onChange={(e) => setParentEmail(e.target.value)} placeholder="parent@email.com" style={inputStyle} onFocus={handleFocus} onBlur={handleBlur} />
+                <Mail size={16} style={iconStyle} />
+                <input id="parentEmail" type="email" value={parentEmail} onChange={(e) => setParentEmail(e.target.value)} placeholder="parent@email.com" className="input-base" style={{ paddingLeft: '40px' }} />
               </div>
             </div>
           )}
 
           {error && (
             <p
+              className="t-body"
               style={{
-                color: '#ef4444',
-                fontSize: '0.8125rem',
-                marginBottom: '1rem',
-                padding: '0.625rem 0.75rem',
-                borderRadius: '0.5rem',
-                backgroundColor: 'rgba(239, 68, 68, 0.08)',
+                color: 'var(--color-danger)',
+                fontSize: '13px',
+                marginBottom: 'var(--space-2)',
+                padding: 'var(--space-2)',
+                borderRadius: 'var(--radius-input)',
+                backgroundColor: 'var(--color-danger-tint)',
                 border: '1px solid rgba(239, 68, 68, 0.15)',
               }}
             >
@@ -265,34 +199,14 @@ export default function Signup() {
             </p>
           )}
 
-          <button
-            type="submit"
-            disabled={loading}
-            style={{
-              width: '100%',
-              padding: '0.8125rem',
-              borderRadius: '0.625rem',
-              border: 'none',
-              backgroundColor: 'var(--accent-primary)',
-              color: '#fff',
-              fontSize: '0.9375rem',
-              fontWeight: 600,
-              fontFamily: "'DM Sans', sans-serif",
-              cursor: loading ? 'not-allowed' : 'pointer',
-              opacity: loading ? 0.6 : 1,
-              transition: 'all 0.2s ease',
-              boxShadow: '0 4px 12px rgba(249, 115, 22, 0.25)',
-            }}
-            onMouseEnter={(e) => { if (!loading) e.currentTarget.style.backgroundColor = 'var(--accent-primary-hover)' }}
-            onMouseLeave={(e) => { if (!loading) e.currentTarget.style.backgroundColor = 'var(--accent-primary)' }}
-          >
+          <button type="submit" disabled={loading} className="btn-primary">
             {loading ? 'Creating Account...' : 'Create Account'}
           </button>
         </form>
 
-        <p style={{ textAlign: 'center', marginTop: '1.5rem', fontSize: '0.8125rem', color: 'var(--text-muted)' }}>
+        <p className="t-body" style={{ textAlign: 'center', marginTop: 'var(--space-3)', color: 'var(--color-text-sec)', fontSize: '14px' }}>
           Already have an account?{' '}
-          <Link to="/login" style={{ color: 'var(--accent-primary)', textDecoration: 'none', fontWeight: 600 }}>
+          <Link to="/login" style={{ color: 'var(--color-accent)', textDecoration: 'none', fontWeight: 600 }}>
             Sign In
           </Link>
         </p>

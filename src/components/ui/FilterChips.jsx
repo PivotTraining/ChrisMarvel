@@ -23,11 +23,10 @@ export default function FilterChips({
             onClick={() => onChange?.(optValue)}
             className="flex-shrink-0 px-4 py-1.5 rounded-full text-sm font-medium transition-all duration-200 cursor-pointer active:scale-[0.97] whitespace-nowrap border"
             style={{
-              backgroundColor: isActive ? 'var(--accent-primary)' : 'transparent',
-              color: isActive ? '#fff' : 'var(--text-secondary)',
-              borderColor: isActive ? 'var(--accent-primary)' : 'var(--border-subtle)',
-              fontFamily: "'DM Sans', sans-serif",
-              boxShadow: isActive ? '0 2px 8px rgba(249, 115, 22, 0.25)' : 'none',
+              backgroundColor: isActive ? 'var(--color-accent)' : 'transparent',
+              color: isActive ? '#fff' : 'var(--color-text-sec)',
+              borderColor: isActive ? 'var(--color-accent)' : 'var(--color-border)',
+              boxShadow: isActive ? '0 2px 8px rgba(255, 107, 53, 0.25)' : 'none',
             }}
           >
             {optLabel}

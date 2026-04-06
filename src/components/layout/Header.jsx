@@ -18,23 +18,17 @@ export default function Header() {
 
   return (
     <header
-      className="sticky top-0 z-40 flex items-center justify-between"
+      className="sticky top-0 z-40 flex items-center justify-between glass-card"
       style={{
-        backgroundColor: 'rgba(15, 17, 23, 0.92)',
-        backdropFilter: 'blur(12px)',
-        WebkitBackdropFilter: 'blur(12px)',
+        borderRadius: 0,
+        borderTop: 'none',
+        borderLeft: 'none',
+        borderRight: 'none',
         borderBottom: '1px solid var(--color-border)',
-        padding: '14px 20px',
+        padding: 'var(--space-2) var(--space-3)',
       }}
     >
-      <h1
-        style={{
-          fontSize: '22px',
-          fontWeight: 900,
-          letterSpacing: '-0.4px',
-          color: 'var(--color-text)',
-        }}
-      >
+      <h1 className="t-title3" style={{ color: 'var(--color-text)' }}>
         Court<span style={{ color: 'var(--color-accent)' }}>IQ</span>
       </h1>
 
@@ -47,7 +41,7 @@ export default function Header() {
         {initials ? (
           <Link
             to="/settings"
-            className="flex items-center justify-center rounded-full transition-all duration-200"
+            className="flex items-center justify-center rounded-full"
             style={{
               width: '36px',
               height: '36px',

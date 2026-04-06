@@ -1,10 +1,8 @@
 import { useState, useMemo } from 'react'
-import { Trophy, ArrowLeft, ChevronRight, TrendingUp, TrendingDown, Target, Shield, Zap, Pencil, Share2 } from 'lucide-react'
+import { Trophy, ArrowLeft, ChevronRight, TrendingUp, TrendingDown, Target, Shield, Zap, Pencil, Share2, Crosshair, BarChart3, Info } from 'lucide-react'
 import PageWrapper from '../../components/layout/PageWrapper'
 import Button from '../../components/ui/Button'
 import Card from '../../components/ui/Card'
-import Input from '../../components/ui/Input'
-import Select from '../../components/ui/Select'
 import Badge from '../../components/ui/Badge'
 import EmptyState from '../../components/ui/EmptyState'
 import SkeletonLoader from '../../components/ui/SkeletonLoader'
@@ -14,12 +12,11 @@ import { useToast } from '../../context/ToastContext'
 
 const GAME_TYPES = ['League', 'Tournament', 'Pickup', 'Practice', 'Scrimmage']
 const RESULTS = ['Win', 'Loss', 'Draw']
-const VENUE = [{ value: 'true', label: 'Home' }, { value: 'false', label: 'Away' }]
 
-const heading = { fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700 }
-const body = { fontFamily: "'DM Sans', sans-serif" }
-const statNum = { ...heading, fontSize: '1.5rem', color: 'var(--text-primary)' }
-const statLabel = { ...body, fontSize: '0.75rem', color: 'var(--text-muted)', textTransform: 'uppercase' }
+const heading = { fontWeight: 800, letterSpacing: '-0.3px' }
+const body = { fontFamily: 'inherit' }
+const statNum = { ...heading, fontSize: '1.5rem', color: 'var(--color-text)' }
+const statLabel = { ...body, fontSize: '0.75rem', color: 'var(--color-text-sec)', textTransform: 'uppercase', letterSpacing: '0.2px' }
 
 const emptyForm = {
   game_date: '', opponent: '', game_type: '', result: '', is_home_game: 'true',
@@ -104,33 +101,237 @@ function GameCard({ game, onReview }) {
   )
 }
 
+/* ---- Tabbed Game Form ---- */
+
+const FORM_TABS = [
+  { id: 'info', label: 'Game', icon: Info, color: '#3B82F6' },
+  { id: 'stats', label: 'Stats', icon: BarChart3, color: '#22C55E' },
+  { id: 'shooting', label: 'Shooting', icon: Crosshair, color: '#FF6B35' },
+]
+
+const SHOT_ZONES = [
+  { id: 'paint', label: 'Paint', x: 42, y: 70, w: 16, h: 22 },
+  { id: 'mid-left', label: 'Mid L', x: 10, y: 50, w: 20, h: 25 },
+  { id: 'mid-right', label: 'Mid R', x: 70, y: 50, w: 20, h: 25 },
+  { id: 'mid-top', label: 'Mid Top', x: 30, y: 40, w: 40, h: 15 },
+  { id: 'left-corner-3', label: 'L Corner 3', x: 2, y: 70, w: 12, h: 22 },
+  { id: 'right-corner-3', label: 'R Corner 3', x: 86, y: 70, w: 12, h: 22 },
+  { id: 'left-wing-3', label: 'L Wing 3', x: 5, y: 30, w: 20, h: 22 },
+  { id: 'right-wing-3', label: 'R Wing 3', x: 75, y: 30, w: 20, h: 22 },
+  { id: 'top-key-3', label: 'Top 3', x: 30, y: 15, w: 40, h: 18 },
+  { id: 'free-throw', label: 'FT Line', x: 40, y: 55, w: 20, h: 10 },
+]
+
+function TabBar({ tabs, active, onChange }) {
+  return (
+    <div style={{ display: 'flex', gap: '8px', marginBottom: '20px' }}>
+      {tabs.map((tab) => {
+        const isActive = active === tab.id
+        const Icon = tab.icon
+        return (
+          <button
+            key={tab.id}
+            type="button"
+            onClick={() => onChange(tab.id)}
+            style={{
+              flex: 1,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '6px',
+              padding: '12px 8px',
+              borderRadius: '14px',
+              border: 'none',
+              background: isActive ? tab.color : 'var(--color-card)',
+              color: isActive ? '#fff' : 'var(--color-text-sec)',
+              fontSize: '13px',
+              fontWeight: isActive ? 800 : 600,
+              cursor: 'pointer',
+              transition: 'all 0.2s ease',
+              boxShadow: isActive ? `0 4px 14px ${tab.color}40` : 'none',
+              fontFamily: 'inherit',
+            }}
+          >
+            <Icon size={16} />
+            {tab.label}
+          </button>
+        )
+      })}
+    </div>
+  )
+}
+
+function NumInput({ label, value, onChange, error, color }) {
+  return (
+    <div style={{ textAlign: 'center' }}>
+      <label style={{ display: 'block', fontSize: '11px', fontWeight: 700, color: color || 'var(--color-text-sec)', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+        {label}
+      </label>
+      <input
+        type="number"
+        inputMode="numeric"
+        value={value}
+        onChange={onChange}
+        placeholder="0"
+        style={{
+          width: '100%',
+          padding: '14px 8px',
+          borderRadius: '14px',
+          border: error ? '1px solid var(--color-danger)' : '1px solid var(--color-border)',
+          background: 'var(--color-input-bg)',
+          color: 'var(--color-text)',
+          fontSize: '20px',
+          fontWeight: 800,
+          textAlign: 'center',
+          outline: 'none',
+          fontFamily: 'inherit',
+          letterSpacing: '-0.5px',
+          boxSizing: 'border-box',
+          transition: 'border-color 0.2s',
+        }}
+        onFocus={(e) => { e.target.style.borderColor = color || 'var(--color-accent)'; e.target.style.boxShadow = `0 0 0 3px ${color || 'var(--color-accent)'}20` }}
+        onBlur={(e) => { e.target.style.borderColor = 'var(--color-border)'; e.target.style.boxShadow = 'none' }}
+      />
+      {error && <p style={{ fontSize: '10px', color: 'var(--color-danger)', marginTop: '4px' }}>{error}</p>}
+    </div>
+  )
+}
+
+function ChipSelect({ options, value, onChange, color }) {
+  return (
+    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+      {options.map((opt) => {
+        const val = typeof opt === 'string' ? opt : opt.value
+        const label = typeof opt === 'string' ? opt : opt.label
+        const isActive = value === val
+        return (
+          <button
+            key={val}
+            type="button"
+            onClick={() => onChange(val)}
+            style={{
+              padding: '10px 16px',
+              borderRadius: '12px',
+              border: isActive ? `1.5px solid ${color}` : '1px solid var(--color-border)',
+              background: isActive ? `${color}15` : 'var(--color-input-bg)',
+              color: isActive ? color : 'var(--color-text-sec)',
+              fontSize: '14px',
+              fontWeight: isActive ? 700 : 500,
+              cursor: 'pointer',
+              transition: 'all 0.15s ease',
+              fontFamily: 'inherit',
+            }}
+          >
+            {label}
+          </button>
+        )
+      })}
+    </div>
+  )
+}
+
+function MiniCourtSVG({ shotData, onZoneClick }) {
+  return (
+    <svg viewBox="0 0 100 92" style={{ width: '100%', maxWidth: 380, display: 'block', margin: '0 auto' }}>
+      <rect x="0" y="0" width="100" height="92" rx="4" fill="var(--color-court-bg)" />
+      <rect x="2" y="2" width="96" height="88" rx="2" fill="none" stroke="var(--color-court-line)" strokeWidth="0.5" />
+      <rect x="34" y="62" width="32" height="28" fill="none" stroke="var(--color-court-line)" strokeWidth="0.5" />
+      <circle cx="50" cy="62" r="10" fill="none" stroke="var(--color-court-line)" strokeWidth="0.5" />
+      <line x1="34" y1="62" x2="66" y2="62" stroke="var(--color-court-line)" strokeWidth="0.5" />
+      <path d="M 10 90 L 10 68 Q 10 20, 50 15 Q 90 20, 90 68 L 90 90" fill="none" stroke="var(--color-court-line)" strokeWidth="0.5" />
+      <path d="M 44 90 Q 44 82, 50 80 Q 56 82, 56 90" fill="none" stroke="var(--color-court-line)" strokeWidth="0.4" />
+      <circle cx="50" cy="88" r="1.2" fill="none" stroke="rgba(255,107,53,0.6)" strokeWidth="0.5" />
+      <line x1="47" y1="90" x2="53" y2="90" stroke="var(--color-court-line)" strokeWidth="0.5" />
+      {SHOT_ZONES.map((zone) => {
+        const data = shotData?.[zone.id]
+        const made = data?.made || 0
+        const att = data?.attempted || 0
+        const pct = att > 0 ? (made / att) * 100 : -1
+        const fill = pct < 0 ? 'rgba(255,255,255,0.04)' : pct > 50 ? 'rgba(34,197,94,0.35)' : pct >= 33 ? 'rgba(255,107,53,0.35)' : 'rgba(239,68,68,0.35)'
+        return (
+          <g key={zone.id} onClick={() => onZoneClick(zone)} style={{ cursor: 'pointer' }}>
+            <rect x={zone.x} y={zone.y} width={zone.w} height={zone.h} rx="2" fill={fill} stroke="rgba(255,255,255,0.1)" strokeWidth="0.3" />
+            {att > 0 && (
+              <text x={zone.x + zone.w / 2} y={zone.y + zone.h / 2} textAnchor="middle" dominantBaseline="central" fill="#fff" fontSize="3.5" fontWeight="700">
+                {made}/{att}
+              </text>
+            )}
+            {att === 0 && (
+              <text x={zone.x + zone.w / 2} y={zone.y + zone.h / 2} textAnchor="middle" dominantBaseline="central" fill="rgba(255,255,255,0.25)" fontSize="2.8" fontWeight="600">
+                {zone.label}
+              </text>
+            )}
+          </g>
+        )
+      })}
+    </svg>
+  )
+}
+
+function ShotZoneModal({ zone, onRecord, onClose }) {
+  if (!zone) return null
+  return (
+    <div onClick={onClose} style={{ position: 'fixed', inset: 0, zIndex: 60, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(4px)' }}>
+      <div onClick={(e) => e.stopPropagation()} style={{ background: 'var(--color-card)', border: '1px solid var(--color-border)', borderRadius: '24px', padding: '28px', minWidth: '260px', textAlign: 'center' }}>
+        <p style={{ fontSize: '18px', fontWeight: 800, color: 'var(--color-text)', marginBottom: '4px' }}>{zone.label}</p>
+        <p style={{ fontSize: '13px', color: 'var(--color-text-sec)', marginBottom: '20px' }}>Record your shot</p>
+        <div style={{ display: 'flex', gap: '12px' }}>
+          <button
+            onClick={() => onRecord(zone.id, true)}
+            style={{ flex: 1, padding: '16px', borderRadius: '16px', border: 'none', background: 'linear-gradient(135deg, #22C55E, #16A34A)', color: '#fff', fontSize: '16px', fontWeight: 800, cursor: 'pointer', boxShadow: '0 4px 14px rgba(34,197,94,0.3)', fontFamily: 'inherit' }}
+          >
+            Made
+          </button>
+          <button
+            onClick={() => onRecord(zone.id, false)}
+            style={{ flex: 1, padding: '16px', borderRadius: '16px', border: 'none', background: 'linear-gradient(135deg, #EF4444, #DC2626)', color: '#fff', fontSize: '16px', fontWeight: 800, cursor: 'pointer', boxShadow: '0 4px 14px rgba(239,68,68,0.3)', fontFamily: 'inherit' }}
+          >
+            Missed
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 function GameForm({ initial, onSave, onDelete, onBack, saving }) {
   const [form, setForm] = useState(initial ? { ...emptyForm, ...initial, is_home_game: String(initial.is_home_game ?? 'true') } : { ...emptyForm })
   const [errors, setErrors] = useState({})
+  const [tab, setTab] = useState('info')
+  const [shotData, setShotData] = useState({})
+  const [activeZone, setActiveZone] = useState(null)
   const isEdit = !!initial?.id
 
   const set = (field) => (e) => setForm((f) => ({ ...f, [field]: e.target.value }))
+  const setVal = (field, val) => setForm((f) => ({ ...f, [field]: val }))
   const numSet = (field) => (e) => setForm((f) => ({ ...f, [field]: e.target.value === '' ? '' : e.target.value }))
+
+  // Auto-calculate shooting totals from court taps
+  const courtTotals = useMemo(() => {
+    let fgm = 0, fga = 0, tpm = 0, tpa = 0, ftm = 0, fta = 0
+    Object.entries(shotData).forEach(([zoneId, d]) => {
+      if (zoneId === 'free-throw') { ftm += d.made; fta += d.attempted }
+      else if (zoneId.includes('3') || zoneId.includes('corner') || zoneId.includes('wing') || zoneId.includes('top-key')) { tpm += d.made; tpa += d.attempted; fgm += d.made; fga += d.attempted }
+      else { fgm += d.made; fga += d.attempted }
+    })
+    return { fgm, fga, tpm, tpa, ftm, fta }
+  }, [shotData])
+
+  function handleShotRecord(zoneId, made) {
+    setShotData((prev) => {
+      const z = prev[zoneId] || { made: 0, attempted: 0 }
+      return { ...prev, [zoneId]: { made: z.made + (made ? 1 : 0), attempted: z.attempted + 1 } }
+    })
+    setActiveZone(null)
+  }
 
   const validate = () => {
     const errs = {}
-    if (!form.game_date) errs.game_date = 'Required'
-    if (!form.opponent?.trim()) errs.opponent = 'Required'
-    if (!form.game_type) errs.game_type = 'Required'
-    if (!form.result) errs.result = 'Required'
-    const n = (v) => v === '' ? null : Number(v)
-    if (n(form.points) !== null && (n(form.points) < 0 || n(form.points) > 200)) errs.points = '0-200'
-    if (n(form.rebounds) !== null && (n(form.rebounds) < 0 || n(form.rebounds) > 100)) errs.rebounds = '0-100'
-    if (n(form.assists) !== null && (n(form.assists) < 0 || n(form.assists) > 100)) errs.assists = '0-100'
-    if (n(form.steals) !== null && (n(form.steals) < 0 || n(form.steals) > 50)) errs.steals = '0-50'
-    if (n(form.blocks) !== null && (n(form.blocks) < 0 || n(form.blocks) > 50)) errs.blocks = '0-50'
-    if (n(form.turnovers) !== null && (n(form.turnovers) < 0 || n(form.turnovers) > 50)) errs.turnovers = '0-50'
-    if (n(form.fouls) !== null && (n(form.fouls) < 0 || n(form.fouls) > 10)) errs.fouls = '0-10'
-    if (n(form.minutes_played) !== null && (n(form.minutes_played) < 0 || n(form.minutes_played) > 60)) errs.minutes_played = '0-60'
-    if (n(form.field_goals_made) !== null && n(form.field_goals_attempted) !== null && n(form.field_goals_made) > n(form.field_goals_attempted)) errs.field_goals_made = 'Cannot exceed attempts'
-    if (n(form.free_throws_made) !== null && n(form.free_throws_attempted) !== null && n(form.free_throws_made) > n(form.free_throws_attempted)) errs.free_throws_made = 'Cannot exceed attempts'
-    if (n(form.three_pointers_made) !== null && n(form.three_pointers_attempted) !== null && n(form.three_pointers_made) > n(form.three_pointers_attempted)) errs.three_pointers_made = 'Cannot exceed attempts'
+    if (!form.game_date) errs.game_date = 'Date required'
+    if (!form.opponent?.trim()) errs.opponent = 'Opponent required'
+    if (!form.result) errs.result = 'Result required'
     setErrors(errs)
+    if (Object.keys(errs).length > 0) setTab('info')
     return Object.keys(errs).length === 0
   }
 
@@ -138,6 +339,24 @@ function GameForm({ initial, onSave, onDelete, onBack, saving }) {
     e.preventDefault()
     if (!validate()) return
     const data = { ...form, is_home_game: form.is_home_game === 'true' }
+    // Apply court totals if user tapped shots
+    if (courtTotals.fga > 0) {
+      data.field_goals_made = courtTotals.fgm
+      data.field_goals_attempted = courtTotals.fga
+      data.three_pointers_made = courtTotals.tpm
+      data.three_pointers_attempted = courtTotals.tpa
+    }
+    if (courtTotals.fta > 0) {
+      data.free_throws_made = courtTotals.ftm
+      data.free_throws_attempted = courtTotals.fta
+    }
+    // Auto-calculate points if not set
+    if (!data.points && courtTotals.fga > 0) {
+      const twos = (courtTotals.fgm - courtTotals.tpm) * 2
+      const threes = courtTotals.tpm * 3
+      const fts = courtTotals.ftm
+      data.points = twos + threes + fts
+    }
     Object.keys(data).forEach((k) => { if (data[k] === '') data[k] = null })
     ;['points','rebounds','assists','steals','blocks','turnovers','fouls','minutes_played',
       'field_goals_made','field_goals_attempted','free_throws_made','free_throws_attempted',
@@ -147,52 +366,125 @@ function GameForm({ initial, onSave, onDelete, onBack, saving }) {
     onSave(data)
   }
 
+  const totalShots = Object.values(shotData).reduce((s, d) => s + d.attempted, 0)
+  const totalMade = Object.values(shotData).reduce((s, d) => s + d.made, 0)
+
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-      <button type="button" onClick={onBack} className="flex items-center gap-1 text-sm self-start mb-2 bg-transparent border-0 cursor-pointer" style={{ color: 'var(--text-secondary)', ...body }}>
-        <ArrowLeft className="w-4 h-4" /> Back to Games
+    <form onSubmit={handleSubmit}>
+      <button type="button" onClick={onBack} className="flex items-center gap-1 text-sm bg-transparent border-0 cursor-pointer" style={{ color: 'var(--color-text-sec)', marginBottom: '16px', fontFamily: 'inherit' }}>
+        <ArrowLeft className="w-4 h-4" /> Back
       </button>
-      <h2 className="text-2xl" style={{ ...heading, color: 'var(--text-primary)' }}>{isEdit ? 'Edit Game' : 'Log Game'}</h2>
-      <div className="grid grid-cols-2 gap-3">
-        <Input label="Date" type="date" value={form.game_date} onChange={set('game_date')} error={errors.game_date} />
-        <Input label="Opponent" value={form.opponent} onChange={set('opponent')} error={errors.opponent} placeholder="Opponent name" />
-      </div>
-      <div className="grid grid-cols-3 gap-3">
-        <Select label="Game Type" value={form.game_type} onChange={set('game_type')} options={GAME_TYPES} error={errors.game_type} placeholder="Type" />
-        <Select label="Result" value={form.result} onChange={set('result')} options={RESULTS} error={errors.result} placeholder="Result" />
-        <Select label="Venue" value={form.is_home_game} onChange={set('is_home_game')} options={VENUE} />
-      </div>
-      <Input label="Minutes Played" type="number" value={form.minutes_played} onChange={numSet('minutes_played')} error={errors.minutes_played} placeholder="0" />
-      <div className="grid grid-cols-3 gap-3">
-        <Input label="Points" type="number" value={form.points} onChange={numSet('points')} error={errors.points} placeholder="0" />
-        <Input label="Rebounds" type="number" value={form.rebounds} onChange={numSet('rebounds')} error={errors.rebounds} placeholder="0" />
-        <Input label="Assists" type="number" value={form.assists} onChange={numSet('assists')} error={errors.assists} placeholder="0" />
-      </div>
-      <div className="grid grid-cols-3 gap-3">
-        <Input label="Steals" type="number" value={form.steals} onChange={numSet('steals')} error={errors.steals} placeholder="0" />
-        <Input label="Blocks" type="number" value={form.blocks} onChange={numSet('blocks')} error={errors.blocks} placeholder="0" />
-        <Input label="Turnovers" type="number" value={form.turnovers} onChange={numSet('turnovers')} error={errors.turnovers} placeholder="0" />
-      </div>
-      <Input label="Fouls" type="number" value={form.fouls} onChange={numSet('fouls')} error={errors.fouls} placeholder="0" />
-      <div className="grid grid-cols-2 gap-3">
-        <Input label="FG Made" type="number" value={form.field_goals_made} onChange={numSet('field_goals_made')} error={errors.field_goals_made} placeholder="0" />
-        <Input label="FG Attempted" type="number" value={form.field_goals_attempted} onChange={numSet('field_goals_attempted')} placeholder="0" />
-      </div>
-      <div className="grid grid-cols-2 gap-3">
-        <Input label="FT Made" type="number" value={form.free_throws_made} onChange={numSet('free_throws_made')} error={errors.free_throws_made} placeholder="0" />
-        <Input label="FT Attempted" type="number" value={form.free_throws_attempted} onChange={numSet('free_throws_attempted')} placeholder="0" />
-      </div>
-      <div className="grid grid-cols-2 gap-3">
-        <Input label="3PT Made" type="number" value={form.three_pointers_made} onChange={numSet('three_pointers_made')} error={errors.three_pointers_made} placeholder="0" />
-        <Input label="3PT Attempted" type="number" value={form.three_pointers_attempted} onChange={numSet('three_pointers_attempted')} placeholder="0" />
-      </div>
-      <Input label="Notes" value={form.notes} onChange={set('notes')} placeholder="Game notes..." />
-      <div className="flex gap-3 mt-2">
+      <h2 className="t-title2" style={{ color: 'var(--color-text)', marginBottom: '16px' }}>{isEdit ? 'Edit Game' : 'Log Game'}</h2>
+
+      <TabBar tabs={FORM_TABS} active={tab} onChange={setTab} />
+
+      {/* TAB: Game Info */}
+      {tab === 'info' && (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+          <div>
+            <label style={{ display: 'block', fontSize: '13px', fontWeight: 700, color: 'var(--color-text-sec)', marginBottom: '6px' }}>Date</label>
+            <input type="date" value={form.game_date} onChange={set('game_date')} style={{ width: '100%', padding: '14px 16px', borderRadius: '14px', border: errors.game_date ? '1px solid var(--color-danger)' : '1px solid var(--color-border)', background: 'var(--color-input-bg)', color: 'var(--color-text)', fontSize: '15px', fontFamily: 'inherit', outline: 'none', boxSizing: 'border-box', colorScheme: 'dark' }} />
+            {errors.game_date && <p style={{ fontSize: '11px', color: 'var(--color-danger)', marginTop: '4px' }}>{errors.game_date}</p>}
+          </div>
+          <div>
+            <label style={{ display: 'block', fontSize: '13px', fontWeight: 700, color: 'var(--color-text-sec)', marginBottom: '6px' }}>Opponent</label>
+            <input value={form.opponent} onChange={set('opponent')} placeholder="Team name" style={{ width: '100%', padding: '14px 16px', borderRadius: '14px', border: errors.opponent ? '1px solid var(--color-danger)' : '1px solid var(--color-border)', background: 'var(--color-input-bg)', color: 'var(--color-text)', fontSize: '15px', fontFamily: 'inherit', outline: 'none', boxSizing: 'border-box' }} />
+            {errors.opponent && <p style={{ fontSize: '11px', color: 'var(--color-danger)', marginTop: '4px' }}>{errors.opponent}</p>}
+          </div>
+          <div>
+            <label style={{ display: 'block', fontSize: '13px', fontWeight: 700, color: 'var(--color-text-sec)', marginBottom: '8px' }}>Result</label>
+            <ChipSelect options={RESULTS} value={form.result} onChange={(v) => setVal('result', v)} color="#3B82F6" />
+            {errors.result && <p style={{ fontSize: '11px', color: 'var(--color-danger)', marginTop: '4px' }}>{errors.result}</p>}
+          </div>
+          <div>
+            <label style={{ display: 'block', fontSize: '13px', fontWeight: 700, color: 'var(--color-text-sec)', marginBottom: '8px' }}>Game Type</label>
+            <ChipSelect options={GAME_TYPES} value={form.game_type} onChange={(v) => setVal('game_type', v)} color="#8B5CF6" />
+          </div>
+          <div>
+            <label style={{ display: 'block', fontSize: '13px', fontWeight: 700, color: 'var(--color-text-sec)', marginBottom: '8px' }}>Venue</label>
+            <ChipSelect options={[{ value: 'true', label: 'Home' }, { value: 'false', label: 'Away' }]} value={form.is_home_game} onChange={(v) => setVal('is_home_game', v)} color="#FF6B35" />
+          </div>
+          <div>
+            <label style={{ display: 'block', fontSize: '13px', fontWeight: 700, color: 'var(--color-text-sec)', marginBottom: '6px' }}>Notes</label>
+            <textarea value={form.notes} onChange={set('notes')} placeholder="How did the game go?" rows={3} style={{ width: '100%', padding: '14px 16px', borderRadius: '14px', border: '1px solid var(--color-border)', background: 'var(--color-input-bg)', color: 'var(--color-text)', fontSize: '15px', fontFamily: 'inherit', outline: 'none', boxSizing: 'border-box', resize: 'vertical' }} />
+          </div>
+        </div>
+      )}
+
+      {/* TAB: Stats */}
+      {tab === 'stats' && (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+          <Card>
+            <p style={{ fontSize: '13px', fontWeight: 700, color: '#22C55E', marginBottom: '12px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Scoring & Playmaking</p>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '10px' }}>
+              <NumInput label="PTS" value={form.points} onChange={numSet('points')} error={errors.points} color="#FF6B35" />
+              <NumInput label="REB" value={form.rebounds} onChange={numSet('rebounds')} error={errors.rebounds} color="#3B82F6" />
+              <NumInput label="AST" value={form.assists} onChange={numSet('assists')} error={errors.assists} color="#22C55E" />
+            </div>
+          </Card>
+          <Card>
+            <p style={{ fontSize: '13px', fontWeight: 700, color: '#3B82F6', marginBottom: '12px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Defense & Hustle</p>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: '10px' }}>
+              <NumInput label="STL" value={form.steals} onChange={numSet('steals')} color="#22C55E" />
+              <NumInput label="BLK" value={form.blocks} onChange={numSet('blocks')} color="#3B82F6" />
+              <NumInput label="TO" value={form.turnovers} onChange={numSet('turnovers')} color="#EF4444" />
+              <NumInput label="PF" value={form.fouls} onChange={numSet('fouls')} color="#F59E0B" />
+            </div>
+          </Card>
+          <Card>
+            <p style={{ fontSize: '13px', fontWeight: 700, color: 'var(--color-text-sec)', marginBottom: '12px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Minutes</p>
+            <NumInput label="MIN" value={form.minutes_played} onChange={numSet('minutes_played')} />
+          </Card>
+        </div>
+      )}
+
+      {/* TAB: Shooting (Court) */}
+      {tab === 'shooting' && (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+          <p style={{ fontSize: '14px', color: 'var(--color-text-sec)', textAlign: 'center' }}>
+            Tap a zone to record makes & misses
+          </p>
+          <MiniCourtSVG shotData={shotData} onZoneClick={setActiveZone} />
+          {totalShots > 0 && (
+            <Card padding="sm">
+              <div style={{ display: 'flex', justifyContent: 'space-around', textAlign: 'center' }}>
+                <div>
+                  <p style={{ fontSize: '22px', fontWeight: 900, color: '#22C55E' }}>{totalMade}</p>
+                  <p style={{ fontSize: '11px', color: 'var(--color-text-sec)', fontWeight: 600 }}>MADE</p>
+                </div>
+                <div>
+                  <p style={{ fontSize: '22px', fontWeight: 900, color: '#EF4444' }}>{totalShots - totalMade}</p>
+                  <p style={{ fontSize: '11px', color: 'var(--color-text-sec)', fontWeight: 600 }}>MISSED</p>
+                </div>
+                <div>
+                  <p style={{ fontSize: '22px', fontWeight: 900, color: '#FF6B35' }}>{totalShots > 0 ? Math.round((totalMade / totalShots) * 100) : 0}%</p>
+                  <p style={{ fontSize: '11px', color: 'var(--color-text-sec)', fontWeight: 600 }}>FG%</p>
+                </div>
+                {courtTotals.tpa > 0 && (
+                  <div>
+                    <p style={{ fontSize: '22px', fontWeight: 900, color: '#8B5CF6' }}>{courtTotals.tpa > 0 ? Math.round((courtTotals.tpm / courtTotals.tpa) * 100) : 0}%</p>
+                    <p style={{ fontSize: '11px', color: 'var(--color-text-sec)', fontWeight: 600 }}>3PT%</p>
+                  </div>
+                )}
+              </div>
+            </Card>
+          )}
+          {totalShots > 0 && (
+            <p style={{ fontSize: '12px', color: 'var(--color-text-sec)', textAlign: 'center' }}>
+              Auto-calculated: ~{(() => { const twos = (courtTotals.fgm - courtTotals.tpm) * 2; return twos + courtTotals.tpm * 3 + courtTotals.ftm })()} PTS from court data
+            </p>
+          )}
+          <ShotZoneModal zone={activeZone} onRecord={handleShotRecord} onClose={() => setActiveZone(null)} />
+        </div>
+      )}
+
+      {/* Save button always visible */}
+      <div style={{ marginTop: '24px', display: 'flex', gap: '12px' }}>
         <Button type="submit" variant="primary" loading={saving} fullWidth>
           {isEdit ? 'Update Game' : 'Save Game'}
         </Button>
         {isEdit && (
-          <Button type="button" variant="ghost" onClick={() => onDelete(initial.id)} style={{ color: 'var(--danger)' }}>
+          <Button type="button" variant="ghost" onClick={() => onDelete(initial.id)} style={{ color: 'var(--color-danger)', borderColor: 'rgba(239,68,68,0.3)' }}>
             Delete
           </Button>
         )}

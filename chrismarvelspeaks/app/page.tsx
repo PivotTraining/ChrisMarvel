@@ -177,12 +177,11 @@ export default function Home() {
       {/* ===== KEYNOTES ===== */}
       <section className="keynotes" id="keynotes" aria-label="Keynote speaking topics and programs">
         <div className="container">
-          <span className="section-badge badge-gold">Signature Keynotes &amp; Workshops</span>
-          <h2 className="section-title">Keynote Talks That <span className="accent">Transform</span></h2>
+          <span className="section-badge badge-gold">Signature keynotes &amp; workshops</span>
+          <h2 className="section-title">Keynote Talks That <span className="accent">Hit Because They Hit Real</span></h2>
           <p className="keynotes-sub">
             Each keynote is customizable for corporate, education, and nonprofit audiences.
             Available as 60-minute keynotes, half-day workshops, or full-day immersive training programs.
-            Chris Marvel tailors every presentation to your organization&rsquo;s specific goals and challenges.
           </p>
           <div className="keynote-grid">
             <article className="keynote-card fade-in">
@@ -190,34 +189,31 @@ export default function Home() {
               <h3>Pressure Is a Privilege</h3>
               <p>
                 A powerful keynote exploring how high performers can reframe stress as fuel rather than a barrier.
-                Learn to build mental resilience frameworks and develop team-wide psychological safety practices.
-                Ideal for <strong>corporate leadership teams</strong> and <strong>high-performance organizations</strong>.
+                Learn to build mental resilience, emotional control, and stronger performance under pressure.
               </p>
             </article>
             <article className="keynote-card fade-in">
               <div className="keynote-icon">&#128065;</div>
               <h3>The Invisible Injury</h3>
               <p>
-                Unveiling the hidden <strong>mental health challenges</strong> that silently erode performance, culture, and retention.
-                Recognize the signs others miss and build environments where seeking help is strength.
-                Perfect for <strong>school districts</strong>, <strong>HR professionals</strong>, and <strong>healthcare organizations</strong>.
+                Unveiling the hidden mental strain that quietly erodes performance, culture, and retention.
+                Learn how to recognize what others miss and build environments where people can perform without falling apart.
               </p>
             </article>
             <article className="keynote-card fade-in">
               <div className="keynote-icon">&#128161;</div>
               <h3>The What If Effect</h3>
               <p>
-                Based on Chris Marvel&rsquo;s bestselling book — a framework for breaking through the mental barriers that keep us stuck.
-                Transform fear-based thinking into possibility-driven strategy.
-                A <strong>motivational keynote</strong> for anyone ready to unlock their next level of performance.
+                A framework for breaking through the mental barriers that keep people stuck.
+                Transform fear-based thinking into possibility-driven strategy and help your audience move from hesitation to aligned action.
               </p>
             </article>
             <article className="keynote-card fade-in">
               <div className="keynote-icon">&#127919;</div>
               <h3>Custom Programs &amp; Workshops</h3>
               <p>
-                Multi-session <strong>professional development training</strong> designed for your organization&rsquo;s specific needs.
-                From <strong>corporate wellness initiatives</strong> to <strong>school district programs</strong> and <strong>nonprofit training</strong> — tailored for lasting impact.
+                Multi-session training designed for your organization&rsquo;s actual pressure points.
+                Tailored for leaders, teams, educators, students, and systems that need more than a one-time message.
               </p>
             </article>
           </div>
@@ -252,19 +248,15 @@ export default function Home() {
       <section className="book-section" id="book" aria-label="The What If Effect book by Chris Marvel Davis">
         <div className="container">
           <div className="book-cover">
-            <img src="/images/book-cover.jpg" alt="The What If Effect: Flip Doubt Into Direction — bestselling book by keynote speaker Chris Marvel Davis on mental performance and resilience" loading="lazy" width={350} height={500} />
+            <img src="/images/book-cover.jpg" alt="The What If Effect: Flip Doubt Into Direction — book by keynote speaker Chris Marvel Davis on mental performance and resilience" loading="lazy" width={350} height={500} />
           </div>
           <div className="book-copy">
-            <span className="section-badge badge-gold">The Book</span>
+            <span className="section-badge badge-gold">The book</span>
             <h2 className="section-title">The What If <span className="accent">Effect</span></h2>
             <p>
-              What if the only thing standing between you and your breakthrough is the story you keep telling yourself?
-              In &ldquo;<strong>The What If Effect: Flip Doubt Into Direction</strong>,&rdquo; keynote speaker Chris Marvel draws on a decade of coaching elite athletes
-              and corporate leaders to reveal the mental patterns that keep high performers stuck — and the precise strategies to break through them.
+              A message built around fear, possibility, ownership, and the mental shifts required to move forward when doubt, pressure, and uncertainty try to take over.
             </p>
             <p>
-              This isn&rsquo;t another motivational book filled with empty affirmations. It&rsquo;s a <strong>psychology-backed playbook</strong>
-              for anyone ready to stop asking &ldquo;what if&rdquo; out of fear and start asking &ldquo;what if&rdquo; out of possibility.
               Available for individual purchase and <strong>bulk orders for corporate events</strong>, conferences, and team retreats.
             </p>
             <div className="book-buttons">

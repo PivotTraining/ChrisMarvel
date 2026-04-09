@@ -35,7 +35,7 @@ function QuickAction({ icon: Icon, label, onClick }) {
       className="flex flex-col items-center gap-2 rounded-xl transition-all duration-200 active:scale-[0.97] cursor-pointer"
       style={{
         backgroundColor: 'var(--color-card)',
-        border: '1px solid rgba(255, 255, 255, 0.06)',
+        border: '1px solid rgba(255, 255, 255, 0.08)',
         minWidth: 0,
         padding: 'var(--space-2) var(--space-1)',
       }}
@@ -68,17 +68,15 @@ function SectionHeader({ icon: Icon, title, actionLabel, onAction, extra }) {
     <div className="flex items-center justify-between" style={{ marginBottom: 'var(--space-2)', marginTop: 'var(--space-3)' }}>
       <div className="flex items-center gap-2">
         {Icon && <Icon className="w-4 h-4" style={{ color: 'var(--color-accent)' }} />}
-        <h2 className="t-title3" style={{ fontSize: '18px' }}>{title}</h2>
+        <h2 className="t-title3">{title}</h2>
         {extra && <span className="t-caption" style={{ color: 'var(--color-text-sec)' }}>{extra}</span>}
       </div>
       {onAction && (
         <button
           onClick={onAction}
-          className="flex items-center gap-0.5 t-body"
+          className="flex items-center gap-0.5 t-label"
           style={{
             color: 'var(--color-accent)',
-            fontSize: '13px',
-            fontWeight: 600,
             background: 'none',
             border: 'none',
             cursor: 'pointer',
@@ -191,7 +189,7 @@ export default function Home() {
               </p>
               <p className="t-caption" style={{ color: 'var(--color-text-sec)' }}>{formatDate(lastGame.game_date)}</p>
             </div>
-            <div className="flex items-center gap-6 pt-2" style={{ borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+            <div className="flex items-center gap-6 pt-2" style={{ borderTop: '1px solid rgba(255,255,255,0.08)' }}>
               <StatItem label="PTS" value={lastGame.points || 0} />
               <StatItem label="REB" value={lastGame.rebounds || 0} />
               <StatItem label="AST" value={lastGame.assists || 0} />

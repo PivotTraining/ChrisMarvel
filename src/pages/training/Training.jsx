@@ -182,46 +182,45 @@ function PackCard({ pack, recommended, progress, onTap }) {
     <div onClick={onTap} role="button" tabIndex={0}
       onKeyDown={(e) => { if (e.key === 'Enter') onTap() }}
       style={{
-        background: 'var(--color-card)', borderRadius: '20px',
+        background: 'var(--color-card)', borderRadius: 'var(--radius-card)',
         border: recommended ? `1.5px solid ${pack.color}40` : '1px solid var(--color-border)',
-        padding: '20px', cursor: 'pointer', transition: 'all 0.2s ease',
+        padding: 'var(--space-3)', cursor: 'pointer', transition: 'all 0.2s ease',
         position: 'relative', overflow: 'hidden',
       }}>
       {recommended && (
-        <div style={{
-          position: 'absolute', top: '12px', right: '12px',
-          background: `${pack.color}20`, borderRadius: '8px', padding: '4px 10px',
-          fontSize: '10px', fontWeight: 700, color: pack.color, textTransform: 'uppercase',
-          letterSpacing: '0.5px',
+        <div className="section-label" style={{
+          position: 'absolute', top: 'var(--space-2)', right: 'var(--space-2)',
+          background: `${pack.color}20`, borderRadius: 'var(--space-1)', padding: '4px var(--space-1)',
+          color: pack.color,
         }}>
           Recommended
         </div>
       )}
-      <div style={{ display: 'flex', alignItems: 'flex-start', gap: '14px' }}>
+      <div style={{ display: 'flex', alignItems: 'flex-start', gap: 'var(--space-2)' }}>
         <div style={{
-          width: '52px', height: '52px', borderRadius: '16px',
+          width: '52px', height: '52px', borderRadius: 'var(--radius-btn)',
           background: `${pack.color}15`, display: 'flex', alignItems: 'center',
           justifyContent: 'center', fontSize: '24px', flexShrink: 0,
         }}>
           {pack.icon}
         </div>
         <div style={{ flex: 1, minWidth: 0 }}>
-          <h3 style={{ fontSize: '17px', fontWeight: 800, color: 'var(--color-text)', marginBottom: '2px', letterSpacing: '-0.3px' }}>{pack.title}</h3>
-          <p style={{ fontSize: '13px', color: pack.color, fontWeight: 600, marginBottom: '6px' }}>{pack.subtitle}</p>
-          <p style={{ fontSize: '13px', color: 'var(--color-text-sec)', lineHeight: 1.4 }}>{pack.description}</p>
-          <div style={{ display: 'flex', gap: '12px', marginTop: '10px', alignItems: 'center' }}>
-            <span style={{ fontSize: '11px', color: 'var(--color-text-sec)', fontWeight: 600 }}>
+          <h3 className="t-title3" style={{ marginBottom: '2px' }}>{pack.title}</h3>
+          <p className="t-label" style={{ color: pack.color, marginBottom: 'var(--space-1)' }}>{pack.subtitle}</p>
+          <p className="t-body" style={{ color: 'var(--color-text-sec)', lineHeight: 1.4 }}>{pack.description}</p>
+          <div style={{ display: 'flex', gap: 'var(--space-2)', marginTop: 'var(--space-1)', alignItems: 'center' }}>
+            <span className="t-caption" style={{ color: 'var(--color-text-sec)', fontWeight: 600 }}>
               <Clock size={12} style={{ display: 'inline', verticalAlign: '-2px', marginRight: '3px' }} />{pack.duration}
             </span>
-            <span style={{ fontSize: '11px', color: 'var(--color-text-sec)', fontWeight: 600 }}>{pack.difficulty}</span>
+            <span className="t-caption" style={{ color: 'var(--color-text-sec)', fontWeight: 600 }}>{pack.difficulty}</span>
           </div>
           {completedDays > 0 && (
             <div style={{ marginTop: '10px' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
-                <span style={{ fontSize: '11px', color: 'var(--color-text-sec)', fontWeight: 600 }}>Progress</span>
-                <span style={{ fontSize: '11px', color: pack.color, fontWeight: 700 }}>{completedDays}/{totalDays} days</span>
+                <span className="t-caption" style={{ color: 'var(--color-text-sec)', fontWeight: 600 }}>Progress</span>
+                <span className="t-caption" style={{ color: pack.color, fontWeight: 700 }}>{completedDays}/{totalDays} days</span>
               </div>
-              <div style={{ height: '4px', borderRadius: '2px', background: 'rgba(255,255,255,0.06)' }}>
+              <div style={{ height: '4px', borderRadius: '2px', background: 'rgba(255,255,255,0.08)' }}>
                 <div style={{ height: '100%', borderRadius: '2px', width: `${pctDone}%`, background: pack.color, transition: 'width 0.5s ease' }} />
               </div>
             </div>
@@ -239,61 +238,62 @@ function PackDetail({ pack, progress, onBack, onComplete, showToast }) {
   return (
     <div>
       <button onClick={onBack} className="flex items-center gap-1 text-sm bg-transparent border-0 cursor-pointer"
-        style={{ color: 'var(--color-text-sec)', marginBottom: '16px', fontFamily: 'inherit' }}>
+        style={{ color: 'var(--color-text-sec)', marginBottom: 'var(--space-2)' }}>
         <ArrowLeft className="w-4 h-4" /> Back
       </button>
 
       {/* Hero */}
       <div style={{
-        textAlign: 'center', padding: '28px 20px', borderRadius: '20px', marginBottom: '20px',
+        textAlign: 'center', padding: 'var(--space-4) var(--space-3)', borderRadius: 'var(--radius-card)', marginBottom: 'var(--space-3)',
         background: `linear-gradient(135deg, ${pack.color}15, ${pack.color}08)`,
         border: `1px solid ${pack.color}25`,
       }}>
-        <div style={{ fontSize: '48px', marginBottom: '12px' }}>{pack.icon}</div>
+        <div style={{ fontSize: '48px', marginBottom: 'var(--space-2)' }}>{pack.icon}</div>
         <h1 className="t-title2" style={{ marginBottom: '4px' }}>{pack.title}</h1>
-        <p style={{ fontSize: '14px', color: pack.color, fontWeight: 600, marginBottom: '8px' }}>{pack.subtitle}</p>
-        <div style={{ display: 'flex', justifyContent: 'center', gap: '16px' }}>
-          <span style={{ fontSize: '12px', color: 'var(--color-text-sec)', fontWeight: 600 }}>{pack.duration}</span>
-          <span style={{ fontSize: '12px', color: 'var(--color-text-sec)', fontWeight: 600 }}>{pack.sessionsPerWeek}x / week</span>
-          <span style={{ fontSize: '12px', color: 'var(--color-text-sec)', fontWeight: 600 }}>{pack.difficulty}</span>
+        <p className="t-body" style={{ color: pack.color, fontWeight: 600, marginBottom: 'var(--space-1)' }}>{pack.subtitle}</p>
+        <div style={{ display: 'flex', justifyContent: 'center', gap: 'var(--space-2)' }}>
+          <span className="t-caption" style={{ color: 'var(--color-text-sec)', fontWeight: 600 }}>{pack.duration}</span>
+          <span className="t-caption" style={{ color: 'var(--color-text-sec)', fontWeight: 600 }}>{pack.sessionsPerWeek}x / week</span>
+          <span className="t-caption" style={{ color: 'var(--color-text-sec)', fontWeight: 600 }}>{pack.difficulty}</span>
         </div>
       </div>
 
       {/* Daily Drills */}
       <h2 className="section-label" style={{ marginBottom: 'var(--space-2)' }}>Daily Plan</h2>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '24px' }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-1)', marginBottom: 'var(--space-3)' }}>
         {pack.drills.map((drill, i) => {
           const done = completedDays.has(i)
           const isNext = !done && (i === 0 || completedDays.has(i - 1))
           return (
             <div key={i} style={{
-              display: 'flex', alignItems: 'center', gap: '14px',
-              padding: '16px', borderRadius: '16px',
-              background: done ? `${pack.color}10` : isNext ? 'var(--color-card)' : 'rgba(255,255,255,0.02)',
+              display: 'flex', alignItems: 'center', gap: 'var(--space-2)',
+              padding: 'var(--space-2)', borderRadius: 'var(--radius-btn)',
+              background: done ? `${pack.color}10` : isNext ? 'var(--color-card)' : 'rgba(255,255,255,0.04)',
               border: isNext ? `1.5px solid ${pack.color}50` : '1px solid var(--color-border)',
               opacity: done ? 0.7 : 1,
               transition: 'all 0.2s ease',
             }}>
               {/* Day number */}
-              <div style={{
-                width: '36px', height: '36px', borderRadius: '12px', flexShrink: 0,
+              <div className="t-label" style={{
+                width: '36px', height: '36px', borderRadius: 'var(--radius-input)', flexShrink: 0,
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
                 background: done ? pack.color : isNext ? `${pack.color}25` : 'rgba(255,255,255,0.04)',
                 color: done ? '#fff' : isNext ? pack.color : 'var(--color-text-sec)',
-                fontSize: '13px', fontWeight: 800,
+                fontWeight: 800,
               }}>
                 {done ? <Check size={16} /> : `D${i + 1}`}
               </div>
               <div style={{ flex: 1, minWidth: 0 }}>
-                <p style={{ fontSize: '15px', fontWeight: 700, color: 'var(--color-text)', marginBottom: '2px' }}>{drill.title}</p>
-                <p style={{ fontSize: '12px', color: 'var(--color-text-sec)' }}>{drill.reps} • {drill.duration} min</p>
+                <p className="t-body-bold" style={{ marginBottom: '2px' }}>{drill.title}</p>
+                <p className="t-caption" style={{ color: 'var(--color-text-sec)' }}>{drill.reps} • {drill.duration} min</p>
               </div>
               {isNext && !done && (
                 <button onClick={(e) => { e.stopPropagation(); onComplete(i) }}
+                  className="t-label"
                   style={{
-                    padding: '10px 16px', borderRadius: '12px', border: 'none',
-                    background: pack.color, color: '#fff', fontSize: '13px', fontWeight: 700,
-                    cursor: 'pointer', fontFamily: 'inherit', display: 'flex', alignItems: 'center', gap: '6px',
+                    padding: 'var(--space-1) var(--space-2)', borderRadius: 'var(--radius-input)', border: 'none',
+                    background: pack.color, color: '#fff',
+                    cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 'var(--space-1)',
                     boxShadow: `0 4px 12px ${pack.color}40`,
                   }}>
                   <Play size={14} /> Start
@@ -310,17 +310,17 @@ function PackDetail({ pack, progress, onBack, onComplete, showToast }) {
       {/* Milestones */}
       <h2 className="section-label" style={{ marginBottom: 'var(--space-2)' }}>Milestones</h2>
       <Card>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-1)' }}>
           {pack.milestones.map((m, i) => (
-            <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-1)' }}>
               <div style={{
-                width: '24px', height: '24px', borderRadius: '8px', flexShrink: 0,
+                width: '24px', height: '24px', borderRadius: 'var(--space-1)', flexShrink: 0,
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
                 background: 'rgba(255,255,255,0.04)', border: '1px solid var(--color-border)',
               }}>
                 <Target size={12} style={{ color: 'var(--color-text-sec)' }} />
               </div>
-              <span style={{ fontSize: '14px', color: 'var(--color-text)', fontWeight: 500 }}>{m}</span>
+              <span className="t-body">{m}</span>
             </div>
           ))}
         </div>
@@ -337,17 +337,17 @@ const DIFFICULTIES = ['All', 'Beginner', 'Intermediate', 'Advanced', 'Elite']
 const DIFF_VARIANTS = { Beginner: 'beginner', Intermediate: 'intermediate', Advanced: 'elite', Elite: 'elite' }
 
 function ContentCard({ item, saved, completed, onTap, onToggleSave }) {
-  const color = TYPE_COLORS[item.content_type] || '#9CA3AF'
+  const color = TYPE_COLORS[item.content_type] || 'var(--color-text-sec)'
   return (
     <div onClick={onTap} role="button" tabIndex={0}
       style={{
-        background: 'var(--color-card)', borderRadius: '16px',
-        border: '1px solid var(--color-border)', padding: '16px',
+        background: 'var(--color-card)', borderRadius: 'var(--radius-btn)',
+        border: '1px solid var(--color-border)', padding: 'var(--space-2)',
         cursor: 'pointer', transition: 'all 0.2s ease',
       }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-        <span style={{ fontSize: '11px', fontWeight: 700, color, textTransform: 'uppercase', letterSpacing: '0.5px' }}>{item.content_type}</span>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-1)' }}>
+        <span className="section-label" style={{ color }}>{item.content_type}</span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-1)' }}>
           {completed && <Check size={14} style={{ color: 'var(--color-success)' }} />}
           <button onClick={(e) => { e.stopPropagation(); onToggleSave() }}
             style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '4px', color: saved ? 'var(--color-accent)' : 'var(--color-text-sec)' }}>
@@ -355,12 +355,12 @@ function ContentCard({ item, saved, completed, onTap, onToggleSave }) {
           </button>
         </div>
       </div>
-      <h3 style={{ fontSize: '16px', fontWeight: 700, color: 'var(--color-text)', marginBottom: '4px' }}>{item.title}</h3>
-      <p style={{ fontSize: '13px', color: 'var(--color-text-sec)', lineHeight: 1.4, marginBottom: '8px', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{item.description}</p>
-      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+      <h3 className="t-title3" style={{ marginBottom: '4px' }}>{item.title}</h3>
+      <p className="t-body" style={{ color: 'var(--color-text-sec)', lineHeight: 1.4, marginBottom: 'var(--space-1)', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{item.description}</p>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-1)' }}>
         <Badge variant={DIFF_VARIANTS[item.difficulty] || 'default'}>{item.difficulty}</Badge>
         {item.duration_minutes && (
-          <span style={{ fontSize: '11px', color: 'var(--color-text-sec)', fontWeight: 500, display: 'flex', alignItems: 'center', gap: '3px' }}>
+          <span className="t-caption" style={{ color: 'var(--color-text-sec)', display: 'flex', alignItems: 'center', gap: '3px' }}>
             <Clock size={11} />{item.duration_minutes}m
           </span>
         )}
@@ -370,40 +370,40 @@ function ContentCard({ item, saved, completed, onTap, onToggleSave }) {
 }
 
 function DetailView({ item, saved, completed, onBack, onToggleSave, onComplete }) {
-  const color = TYPE_COLORS[item.content_type] || '#9CA3AF'
+  const color = TYPE_COLORS[item.content_type] || 'var(--color-text-sec)'
   return (
     <div>
       <button onClick={onBack} className="flex items-center gap-1 text-sm bg-transparent border-0 cursor-pointer"
-        style={{ color: 'var(--color-text-sec)', marginBottom: '16px', fontFamily: 'inherit' }}>
+        style={{ color: 'var(--color-text-sec)', marginBottom: 'var(--space-2)' }}>
         <ArrowLeft className="w-4 h-4" /> Back
       </button>
-      <span style={{ fontSize: '11px', fontWeight: 700, color, textTransform: 'uppercase', letterSpacing: '0.5px' }}>{item.content_type}</span>
+      <span className="section-label" style={{ color }}>{item.content_type}</span>
       <h1 className="t-title2" style={{ marginTop: '4px', marginBottom: 'var(--space-1)' }}>{item.title}</h1>
-      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-1)', marginBottom: 'var(--space-2)' }}>
         <Badge variant={DIFF_VARIANTS[item.difficulty] || 'default'}>{item.difficulty}</Badge>
         {item.duration_minutes && (
-          <span style={{ fontSize: '12px', color: 'var(--color-text-sec)', display: 'flex', alignItems: 'center', gap: '3px' }}>
+          <span className="t-caption" style={{ color: 'var(--color-text-sec)', display: 'flex', alignItems: 'center', gap: '3px' }}>
             <Clock size={12} />{item.duration_minutes} min
           </span>
         )}
       </div>
-      <p style={{ fontSize: '15px', color: 'var(--color-text-sec)', lineHeight: 1.6, marginBottom: '16px' }}>{item.description}</p>
-      <Card style={{ borderLeft: `3px solid ${color}`, marginBottom: '16px' }}>
-        <p style={{ fontSize: '14px', color: 'var(--color-text)' }}>
+      <p className="t-body" style={{ color: 'var(--color-text-sec)', lineHeight: 1.6, marginBottom: 'var(--space-2)' }}>{item.description}</p>
+      <Card style={{ borderLeft: `3px solid ${color}`, marginBottom: 'var(--space-2)' }}>
+        <p className="t-body">
           <span style={{ color, fontWeight: 700 }}>Coaching Tip: </span>{item.coaching_cue}
         </p>
       </Card>
       {item.equipment_needed?.length > 0 && (
-        <div style={{ marginBottom: '16px' }}>
+        <div style={{ marginBottom: 'var(--space-2)' }}>
           <h4 className="section-label" style={{ marginBottom: 'var(--space-1)' }}>Equipment</h4>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 'var(--space-1)' }}>
             {item.equipment_needed.map((e) => <Badge key={e}>{e}</Badge>)}
           </div>
         </div>
       )}
-      <div style={{ display: 'flex', gap: '10px', marginTop: '20px' }}>
+      <div style={{ display: 'flex', gap: 'var(--space-1)', marginTop: 'var(--space-3)' }}>
         {completed ? (
-          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '14px', color: 'var(--color-success)', fontWeight: 600 }}>
+          <div className="t-body" style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-1)', color: 'var(--color-success)', fontWeight: 600 }}>
             <Check size={18} /> Completed
           </div>
         ) : (
@@ -497,35 +497,37 @@ export default function Training() {
     return (
       <PageWrapper>
         <button onClick={() => setView('main')} className="flex items-center gap-1 text-sm bg-transparent border-0 cursor-pointer"
-          style={{ color: 'var(--color-text-sec)', marginBottom: '16px', fontFamily: 'inherit' }}>
+          style={{ color: 'var(--color-text-sec)', marginBottom: 'var(--space-2)' }}>
           <ArrowLeft className="w-4 h-4" /> Back
         </button>
         <h1 className="t-title2" style={{ marginBottom: 'var(--space-2)' }}>Drill Library</h1>
 
         {/* Filters */}
-        <div style={{ display: 'flex', gap: '8px', marginBottom: '10px', flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', gap: 'var(--space-1)', marginBottom: 'var(--space-1)', flexWrap: 'wrap' }}>
           {TYPES.map((t) => (
             <button key={t} onClick={() => handleFilterType(t)}
+              className="t-body"
               style={{
-                padding: '8px 16px', borderRadius: '20px', border: 'none',
+                padding: 'var(--space-1) var(--space-2)', borderRadius: 'var(--radius-card)', border: 'none',
                 background: typeFilter === t ? 'var(--color-accent)' : 'rgba(255,255,255,0.04)',
                 color: typeFilter === t ? '#fff' : 'var(--color-text-sec)',
-                fontSize: '13px', fontWeight: typeFilter === t ? 700 : 500,
-                cursor: 'pointer', fontFamily: 'inherit', transition: 'all 0.15s',
+                fontWeight: typeFilter === t ? 700 : 500,
+                cursor: 'pointer', transition: 'all 0.15s',
               }}>
               {t === 'All' ? 'All' : `${t}s`}
             </button>
           ))}
         </div>
-        <div style={{ display: 'flex', gap: '8px', marginBottom: '14px', flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', gap: 'var(--space-1)', marginBottom: 'var(--space-2)', flexWrap: 'wrap' }}>
           {DIFFICULTIES.map((d) => (
             <button key={d} onClick={() => handleFilterDiff(d)}
+              className="t-caption"
               style={{
-                padding: '8px 14px', borderRadius: '20px', border: 'none',
+                padding: 'var(--space-1) var(--space-2)', borderRadius: 'var(--radius-card)', border: 'none',
                 background: diffFilter === d ? 'var(--color-info)' : 'rgba(255,255,255,0.04)',
                 color: diffFilter === d ? '#fff' : 'var(--color-text-sec)',
-                fontSize: '12px', fontWeight: diffFilter === d ? 700 : 500,
-                cursor: 'pointer', fontFamily: 'inherit', transition: 'all 0.15s',
+                fontWeight: diffFilter === d ? 700 : 500,
+                cursor: 'pointer', transition: 'all 0.15s',
               }}>
               {d}
             </button>
@@ -533,20 +535,16 @@ export default function Training() {
         </div>
 
         {/* Search */}
-        <div style={{ position: 'relative', marginBottom: '16px' }}>
-          <Search size={16} style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', color: 'var(--color-text-sec)' }} />
+        <div style={{ position: 'relative', marginBottom: 'var(--space-2)' }}>
+          <Search size={16} style={{ position: 'absolute', left: 'var(--space-2)', top: '50%', transform: 'translateY(-50%)', color: 'var(--color-text-sec)' }} />
           <input value={search} onChange={handleSearch} placeholder="Search drills..."
-            style={{
-              width: '100%', padding: '12px 14px 12px 40px', borderRadius: '14px',
-              border: '1px solid var(--color-border)', background: 'var(--color-input-bg)',
-              color: 'var(--color-text)', fontSize: '14px', fontFamily: 'inherit',
-              outline: 'none', boxSizing: 'border-box',
-            }} />
+            className="input-base"
+            style={{ paddingLeft: 'var(--space-5)' }} />
         </div>
 
         {loading ? <SkeletonLoader variant="card" count={4} /> :
           content.length === 0 ? <EmptyState icon={BookOpen} title="No Content Found" description="Try adjusting your filters." /> : (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-1)' }}>
               {content.map((item) => (
                 <ContentCard key={item.id} item={item} saved={savedIds.has(item.id)} completed={completedIds.has(item.id)}
                   onTap={() => { setSelected(item); setView('detail') }}
@@ -564,16 +562,16 @@ export default function Training() {
     return (
       <PageWrapper>
         <button onClick={() => setView('main')} className="flex items-center gap-1 text-sm bg-transparent border-0 cursor-pointer"
-          style={{ color: 'var(--color-text-sec)', marginBottom: '16px', fontFamily: 'inherit' }}>
+          style={{ color: 'var(--color-text-sec)', marginBottom: 'var(--space-2)' }}>
           <ArrowLeft className="w-4 h-4" /> Back
         </button>
-        <h1 className="t-title2" style={{ marginBottom: '6px' }}>Training Packs</h1>
-        <p style={{ fontSize: '14px', color: 'var(--color-text-sec)', marginBottom: '20px' }}>Structured programs to level up your game</p>
+        <h1 className="t-title2" style={{ marginBottom: 'var(--space-1)' }}>Training Packs</h1>
+        <p className="t-body" style={{ color: 'var(--color-text-sec)', marginBottom: 'var(--space-3)' }}>Structured programs to level up your game</p>
 
         {recommendedPacks.length > 0 && (
           <>
             <h2 className="section-label" style={{ color: 'var(--color-accent)', marginBottom: 'var(--space-2)' }}>Recommended For You</h2>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginBottom: '24px' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-2)', marginBottom: 'var(--space-3)' }}>
               {recommendedPacks.map((p) => (
                 <PackCard key={p.id} pack={p} recommended progress={packProgress[p.id]}
                   onTap={() => { setSelectedPack(p); setView('pack-detail') }} />
@@ -583,7 +581,7 @@ export default function Training() {
         )}
 
         <h2 className="section-label" style={{ marginBottom: 'var(--space-2)' }}>All Packs</h2>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-2)' }}>
           {TRAINING_PACKS.map((p) => (
             <PackCard key={p.id} pack={p} progress={packProgress[p.id]}
               onTap={() => { setSelectedPack(p); setView('pack-detail') }} />
@@ -599,39 +597,39 @@ export default function Training() {
       <h1 className="t-title1" style={{ marginBottom: 'var(--space-3)' }}>Training</h1>
 
       {/* Quick Actions */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '24px' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-2)', marginBottom: 'var(--space-3)' }}>
         <div onClick={() => setView('packs')} role="button" tabIndex={0}
           style={{
-            background: 'linear-gradient(135deg, rgba(255,107,53,0.08), rgba(255,107,53,0.03))',
+            background: 'linear-gradient(135deg, rgba(255,107,53,0.08), rgba(255,107,53,0.04))',
             border: '1px solid rgba(255,107,53,0.15)', borderRadius: 'var(--radius-card)', padding: 'var(--space-3)',
             cursor: 'pointer', transition: 'all 0.2s',
           }}>
           <Zap size={24} style={{ color: 'var(--color-accent)', marginBottom: 'var(--space-1)' }} />
-          <h3 style={{ fontSize: '16px', fontWeight: 800, color: 'var(--color-text)', marginBottom: '4px' }}>Training Packs</h3>
-          <p style={{ fontSize: '12px', color: 'var(--color-text-sec)' }}>Structured programs</p>
+          <h3 className="t-body-bold" style={{ marginBottom: '4px' }}>Training Packs</h3>
+          <p className="t-caption" style={{ color: 'var(--color-text-sec)' }}>Structured programs</p>
         </div>
         <div onClick={() => { setView('library'); fetchContent({ contentType: 'All', difficulty: 'All', searchQuery: '' }) }} role="button" tabIndex={0}
           style={{
-            background: 'linear-gradient(135deg, rgba(59,130,246,0.08), rgba(59,130,246,0.03))',
+            background: 'linear-gradient(135deg, rgba(59,130,246,0.08), rgba(59,130,246,0.04))',
             border: '1px solid rgba(59,130,246,0.15)', borderRadius: 'var(--radius-card)', padding: 'var(--space-3)',
             cursor: 'pointer', transition: 'all 0.2s',
           }}>
           <BookOpen size={24} style={{ color: 'var(--color-info)', marginBottom: 'var(--space-1)' }} />
-          <h3 style={{ fontSize: '16px', fontWeight: 800, color: 'var(--color-text)', marginBottom: '4px' }}>Drill Library</h3>
-          <p style={{ fontSize: '12px', color: 'var(--color-text-sec)' }}>Browse all content</p>
+          <h3 className="t-body-bold" style={{ marginBottom: '4px' }}>Drill Library</h3>
+          <p className="t-caption" style={{ color: 'var(--color-text-sec)' }}>Browse all content</p>
         </div>
       </div>
 
       {/* Recommended Packs */}
       {recommendedPacks.length > 0 && (
         <>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-2)' }}>
             <h2 className="section-label">For You</h2>
-            <button onClick={() => setView('packs')} style={{ background: 'none', border: 'none', color: 'var(--color-accent)', fontSize: '13px', fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit', display: 'flex', alignItems: 'center', gap: '4px' }}>
+            <button onClick={() => setView('packs')} className="t-label" style={{ background: 'none', border: 'none', color: 'var(--color-accent)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px' }}>
               See All <ChevronRight size={14} />
             </button>
           </div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginBottom: '24px' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-2)', marginBottom: 'var(--space-3)' }}>
             {recommendedPacks.slice(0, 2).map((p) => (
               <PackCard key={p.id} pack={p} recommended progress={packProgress[p.id]}
                 onTap={() => { setSelectedPack(p); setView('pack-detail') }} />
@@ -644,7 +642,7 @@ export default function Training() {
       {Object.keys(packProgress).length > 0 && (
         <>
           <h2 className="section-label" style={{ marginBottom: 'var(--space-2)' }}>In Progress</h2>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginBottom: '24px' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-2)', marginBottom: 'var(--space-3)' }}>
             {TRAINING_PACKS.filter((p) => packProgress[p.id]?.completedDays?.length > 0 && packProgress[p.id].completedDays.length < p.drills.length).map((p) => (
               <PackCard key={p.id} pack={p} progress={packProgress[p.id]}
                 onTap={() => { setSelectedPack(p); setView('pack-detail') }} />
@@ -654,15 +652,15 @@ export default function Training() {
       )}
 
       {/* Quick Drills */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-2)' }}>
         <h2 className="section-label">Quick Drills</h2>
         <button onClick={() => { setView('library'); fetchContent({ contentType: 'Drill', difficulty: 'All', searchQuery: '' }) }}
-          style={{ background: 'none', border: 'none', color: 'var(--color-accent)', fontSize: '13px', fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit', display: 'flex', alignItems: 'center', gap: '4px' }}>
+          className="t-label" style={{ background: 'none', border: 'none', color: 'var(--color-accent)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px' }}>
           All Drills <ChevronRight size={14} />
         </button>
       </div>
       {loading ? <SkeletonLoader variant="card" count={3} /> : (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-1)' }}>
           {content.filter((c) => c.content_type === 'Drill').slice(0, 3).map((item) => (
             <ContentCard key={item.id} item={item} saved={savedIds.has(item.id)} completed={completedIds.has(item.id)}
               onTap={() => { setSelected(item); setView('detail') }}

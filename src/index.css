@@ -237,6 +237,20 @@ input, select, textarea, button {
   box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.15);
 }
 
+/* Stat display (hero numbers) */
+.t-stat {
+  font-size: 36px;
+  line-height: 1;
+  font-weight: 900;
+  letter-spacing: -1px;
+}
+.t-stat-sm {
+  font-size: 28px;
+  line-height: 1;
+  font-weight: 900;
+  letter-spacing: -0.5px;
+}
+
 /* Section label (uppercase micro) */
 .section-label {
   font-size: 11px;

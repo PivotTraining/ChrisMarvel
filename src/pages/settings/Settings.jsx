@@ -39,7 +39,7 @@ function ToggleRow({ label, enabled, onToggle }) {
           className="absolute top-0.5 rounded-full transition-transform duration-200"
           style={{
             width: '18px', height: '18px',
-            backgroundColor: enabled ? '#fff' : 'var(--color-text-sec)',
+            backgroundColor: enabled ? 'var(--color-text)' : 'var(--color-text-sec)',
             transform: enabled ? 'translateX(22px)' : 'translateX(3px)',
           }}
         />

@@ -13,10 +13,7 @@ import { useToast } from '../../context/ToastContext'
 const GAME_TYPES = ['League', 'Tournament', 'Pickup', 'Practice', 'Scrimmage']
 const RESULTS = ['Win', 'Loss', 'Draw']
 
-const heading = { fontWeight: 800, letterSpacing: '-0.3px' }
-const body = { fontFamily: 'inherit' }
-const statNum = { ...heading, fontSize: '1.5rem', color: 'var(--color-text)' }
-const statLabel = { ...body, fontSize: '0.75rem', color: 'var(--color-text-sec)', textTransform: 'uppercase', letterSpacing: '0.2px' }
+/* typography via CSS classes: .t-title3, .section-label, .t-body, .t-caption */
 
 const emptyForm = {
   game_date: '', opponent: '', game_type: '', result: '', is_home_game: 'true',
@@ -37,8 +34,8 @@ const fmtDate = (d) => new Date(d).toLocaleDateString('en-US', { month: 'short',
 function StatBox({ value, label }) {
   return (
     <div style={{ textAlign: 'center' }}>
-      <div style={statNum}>{value ?? '—'}</div>
-      <div style={statLabel}>{label}</div>
+      <div className="t-title3" style={{ color: 'var(--color-text)' }}>{value ?? '—'}</div>
+      <div className="section-label">{label}</div>
     </div>
   )
 }
@@ -66,21 +63,21 @@ function GameCard({ game, onReview }) {
     <div role="button" tabIndex={0} onClick={handleClick}
       onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleClick() } }}
       className="rounded-xl cursor-pointer transition-all duration-200 active:scale-[0.98]"
-      style={{ backgroundColor: 'var(--color-card)', border: '1px solid rgba(255,255,255,0.06)', padding: '0.875rem 1rem', WebkitTapHighlightColor: 'transparent', touchAction: 'manipulation', userSelect: 'none' }}>
+      style={{ backgroundColor: 'var(--color-card)', border: '1px solid rgba(255,255,255,0.08)', padding: 'var(--space-2)', WebkitTapHighlightColor: 'transparent', touchAction: 'manipulation', userSelect: 'none' }}>
       <div className="flex items-center justify-between mb-2">
-        <span className="text-xs" style={{ ...body, color: 'var(--color-text-sec)' }}>{fmtDate(game.game_date)}</span>
+        <span className="t-caption" style={{ color: 'var(--color-text-sec)' }}>{fmtDate(game.game_date)}</span>
         <Badge variant={resultBadge(game.result)}>{game.result}</Badge>
       </div>
       <div className="flex items-center justify-between mb-2">
-        <span className="text-sm font-semibold" style={{ ...body, color: 'var(--color-text)' }}>
+        <span className="t-body" style={{ fontWeight: 600 }}>
           {game.is_home_game === true || game.is_home_game === 'true' ? 'vs' : '@'} {game.opponent || 'Unknown'}
         </span>
         {game.game_type && <Badge>{game.game_type}</Badge>}
       </div>
       <div className="flex gap-6">
-        <span style={{ ...heading, color: 'var(--color-text)', fontSize: '0.875rem' }}>{game.points ?? 0} <span style={statLabel}>PTS</span></span>
-        <span style={{ ...heading, color: 'var(--color-text)', fontSize: '0.875rem' }}>{game.rebounds ?? 0} <span style={statLabel}>REB</span></span>
-        <span style={{ ...heading, color: 'var(--color-text)', fontSize: '0.875rem' }}>{game.assists ?? 0} <span style={statLabel}>AST</span></span>
+        <span className="t-body" style={{ fontWeight: 800 }}>{game.points ?? 0} <span className="section-label">PTS</span></span>
+        <span className="t-body" style={{ fontWeight: 800 }}>{game.rebounds ?? 0} <span className="section-label">REB</span></span>
+        <span className="t-body" style={{ fontWeight: 800 }}>{game.assists ?? 0} <span className="section-label">AST</span></span>
         <ChevronRight className="ml-auto w-4 h-4" style={{ color: 'var(--color-text-sec)' }} />
       </div>
     </div>
@@ -110,21 +107,22 @@ const SHOT_ZONES = [
 
 function TabBar({ tabs, active, onChange }) {
   return (
-    <div style={{ display: 'flex', gap: '8px', marginBottom: '20px', padding: '4px', background: 'rgba(255,255,255,0.03)', borderRadius: '18px' }}>
+    <div style={{ display: 'flex', gap: 'var(--space-1)', marginBottom: 'var(--space-3)', padding: '4px', background: 'rgba(255,255,255,0.04)', borderRadius: 'var(--radius-btn)' }}>
       {tabs.map((tab) => {
         const isActive = active === tab.id
         const Icon = tab.icon
         return (
           <button key={tab.id} type="button" onClick={() => onChange(tab.id)}
+            className="t-label"
             style={{
-              flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px',
-              padding: '14px 8px', borderRadius: '14px', border: 'none', minHeight: '48px',
+              flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 'var(--space-1)',
+              padding: 'var(--space-2) var(--space-1)', borderRadius: 'var(--radius-input)', border: 'none', minHeight: '48px',
               background: isActive ? tab.color : 'transparent',
               color: isActive ? '#fff' : 'var(--color-text-sec)',
-              fontSize: '13px', fontWeight: isActive ? 800 : 600,
+              fontWeight: isActive ? 800 : 600,
               cursor: 'pointer', transition: 'all 0.25s cubic-bezier(0.4,0,0.2,1)',
               boxShadow: isActive ? `0 4px 16px ${tab.color}50` : 'none',
-              fontFamily: 'inherit', transform: isActive ? 'scale(1.02)' : 'scale(1)',
+              transform: isActive ? 'scale(1.02)' : 'scale(1)',
             }}>
             <Icon size={16} />
             {tab.label}
@@ -138,48 +136,48 @@ function TabBar({ tabs, active, onChange }) {
 function NumInput({ label, value, onChange, error, color }) {
   return (
     <div style={{ textAlign: 'center' }}>
-      <label style={{ display: 'block', fontSize: '11px', fontWeight: 700, color: color || 'var(--color-text-sec)', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+      <label className="section-label" style={{ display: 'block', color: color || 'var(--color-text-sec)', marginBottom: 'var(--space-1)' }}>
         {label}
       </label>
       <input type="number" inputMode="numeric" value={value} onChange={onChange} placeholder="0"
         style={{
-          width: '100%', padding: '14px 8px', borderRadius: '14px',
+          width: '100%', padding: 'var(--space-2) var(--space-1)', borderRadius: 'var(--radius-input)',
           border: error ? '1px solid var(--color-danger)' : '1.5px solid var(--color-border)',
           background: 'var(--color-input-bg)', color: 'var(--color-text)',
           fontSize: '20px', fontWeight: 800, textAlign: 'center', outline: 'none',
-          fontFamily: 'inherit', letterSpacing: '-0.5px', boxSizing: 'border-box',
+          letterSpacing: '-0.5px', boxSizing: 'border-box',
           transition: 'all 0.2s ease',
         }}
         onFocus={(e) => { e.target.style.borderColor = color || 'var(--color-accent)'; e.target.style.boxShadow = `0 0 0 3px ${color || 'var(--color-accent)'}25` }}
         onBlur={(e) => { e.target.style.borderColor = 'var(--color-border)'; e.target.style.boxShadow = 'none' }}
       />
-      {error && <p style={{ fontSize: '10px', color: 'var(--color-danger)', marginTop: '4px' }}>{error}</p>}
+      {error && <p className="t-caption" style={{ color: 'var(--color-danger)', marginTop: '4px' }}>{error}</p>}
     </div>
   )
 }
 
 function CounterInput({ label, value, onChange, color }) {
   return (
-    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 0' }}>
-      <span style={{ fontSize: '14px', fontWeight: 700, color: 'var(--color-text)', letterSpacing: '-0.2px' }}>{label}</span>
-      <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: 'var(--space-2) 0' }}>
+      <span className="t-body-bold">{label}</span>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)' }}>
         <button type="button" onClick={() => onChange(Math.max(0, (value || 0) - 1))}
           style={{
             width: '44px', height: '44px', borderRadius: '50%', border: 'none',
             background: 'var(--color-input-bg)', color: 'var(--color-text-sec)',
-            fontSize: '20px', fontWeight: 700, cursor: 'pointer', display: 'flex',
+            cursor: 'pointer', display: 'flex',
             alignItems: 'center', justifyContent: 'center', transition: 'all 0.15s',
           }}>
           <Minus size={18} />
         </button>
-        <span style={{ fontSize: '24px', fontWeight: 900, color: color || 'var(--color-text)', minWidth: '36px', textAlign: 'center', letterSpacing: '-0.5px' }}>
+        <span className="t-title2" style={{ color: color || 'var(--color-text)', minWidth: '36px', textAlign: 'center' }}>
           {value || 0}
         </span>
         <button type="button" onClick={() => onChange((value || 0) + 1)}
           style={{
             width: '44px', height: '44px', borderRadius: '50%', border: 'none',
             background: `linear-gradient(135deg, ${color}, ${color}CC)`,
-            color: '#fff', fontSize: '20px', fontWeight: 700, cursor: 'pointer',
+            color: '#fff', cursor: 'pointer',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             transition: 'all 0.15s', boxShadow: `0 4px 12px ${color}40`,
           }}>
@@ -192,21 +190,22 @@ function CounterInput({ label, value, onChange, color }) {
 
 function ChipSelect({ options, value, onChange, color }) {
   return (
-    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 'var(--space-1)' }}>
       {options.map((opt) => {
         const val = typeof opt === 'string' ? opt : opt.value
         const label = typeof opt === 'string' ? opt : opt.label
         const isActive = value === val
         return (
           <button key={val} type="button" onClick={() => onChange(val)}
+            className="t-body"
             style={{
-              padding: '12px 22px', borderRadius: '22px', minHeight: '44px',
+              padding: 'var(--space-2) var(--space-3)', borderRadius: 'var(--radius-card)', minHeight: '44px',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
               border: isActive ? 'none' : '1.5px solid var(--color-border)',
               background: isActive ? color : 'transparent',
               color: isActive ? '#fff' : 'var(--color-text-sec)',
-              fontSize: '15px', fontWeight: isActive ? 700 : 500,
-              cursor: 'pointer', transition: 'all 0.2s ease', fontFamily: 'inherit',
+              fontWeight: isActive ? 700 : 500,
+              cursor: 'pointer', transition: 'all 0.2s ease',
               boxShadow: isActive ? `0 4px 14px ${color}35` : 'none',
             }}>
             {label}
@@ -261,30 +260,31 @@ function ShotZoneModal({ zone, onRecord, onClose }) {
   return (
     <div onClick={onClose} style={{ position: 'fixed', inset: 0, zIndex: 60, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(0,0,0,0.65)', backdropFilter: 'blur(8px)' }}>
       <div onClick={(e) => e.stopPropagation()} style={{
-        background: 'var(--color-card)', border: '1px solid var(--color-border)', borderRadius: '24px',
-        padding: '28px', minWidth: '280px', textAlign: 'center',
+        background: 'var(--color-card)', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-card)',
+        padding: 'var(--space-4)', minWidth: '280px', textAlign: 'center',
         animation: 'modalIn 0.2s ease', transform: 'scale(1)',
       }}>
-        <p style={{ fontSize: '18px', fontWeight: 800, color: 'var(--color-text)', marginBottom: '4px' }}>{zone.label}</p>
-        <p style={{ fontSize: '13px', color: 'var(--color-text-sec)', marginBottom: '16px' }}>Record your shot</p>
+        <p className="t-title3" style={{ marginBottom: '4px' }}>{zone.label}</p>
+        <p className="t-body" style={{ color: 'var(--color-text-sec)', marginBottom: 'var(--space-2)' }}>Record your shot</p>
 
         {/* Shot Type Toggle */}
-        <div style={{ display: 'flex', gap: '8px', marginBottom: '20px', padding: '4px', background: 'rgba(255,255,255,0.04)', borderRadius: '12px' }}>
+        <div style={{ display: 'flex', gap: 'var(--space-1)', marginBottom: 'var(--space-3)', padding: '4px', background: 'rgba(255,255,255,0.04)', borderRadius: 'var(--radius-input)' }}>
           {[{ id: 'catch', label: 'Catch & Shoot' }, { id: 'dribble', label: 'Off Dribble' }].map((t) => (
             <button key={t.id} type="button" onClick={() => setShotType(t.id)}
+              className="t-caption"
               style={{
-                flex: 1, padding: '10px 8px', borderRadius: '10px', border: 'none',
+                flex: 1, padding: 'var(--space-1)', borderRadius: 'var(--radius-input)', border: 'none',
                 background: shotType === t.id ? 'var(--color-accent)' : 'transparent',
                 color: shotType === t.id ? '#fff' : 'var(--color-text-sec)',
-                fontSize: '12px', fontWeight: shotType === t.id ? 700 : 500,
-                cursor: 'pointer', transition: 'all 0.15s', fontFamily: 'inherit',
+                fontWeight: shotType === t.id ? 700 : 500,
+                cursor: 'pointer', transition: 'all 0.15s',
               }}>
               {t.label}
             </button>
           ))}
         </div>
 
-        <div style={{ display: 'flex', gap: '12px' }}>
+        <div style={{ display: 'flex', gap: 'var(--space-2)' }}>
           <button onClick={() => onRecord(zone.id, true, shotType)}
             className="btn-primary" style={{ flex: 1, background: 'linear-gradient(135deg, var(--color-success), #16A34A)', boxShadow: '0 4px 14px rgba(34,197,94,0.3)' }}>
             Made
@@ -383,7 +383,7 @@ function GameForm({ initial, onSave, onDelete, onBack, saving }) {
 
   return (
     <form onSubmit={handleSubmit}>
-      <button type="button" onClick={onBack} className="flex items-center gap-1 text-sm bg-transparent border-0 cursor-pointer" style={{ color: 'var(--color-text-sec)', marginBottom: '12px', fontFamily: 'inherit' }}>
+      <button type="button" onClick={onBack} className="flex items-center gap-1 text-sm bg-transparent border-0 cursor-pointer" style={{ color: 'var(--color-text-sec)', marginBottom: 'var(--space-2)' }}>
         <ArrowLeft className="w-4 h-4" /> Back
       </button>
       <h2 className="t-title2" style={{ marginBottom: 'var(--space-2)' }}>{isEdit ? 'Edit Game' : 'Track Game'}</h2>
@@ -392,18 +392,18 @@ function GameForm({ initial, onSave, onDelete, onBack, saving }) {
 
       {/* TAB: Stats (FIRST) */}
       {tab === 'stats' && (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-2)' }}>
           <Card>
-            <p className="section-label" style={{ color: 'var(--color-success)', marginBottom: '14px' }}>Scoring & Playmaking</p>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '10px' }}>
+            <p className="section-label" style={{ color: 'var(--color-success)', marginBottom: 'var(--space-2)' }}>Scoring & Playmaking</p>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 'var(--space-1)' }}>
               <NumInput label="PTS" value={form.points} onChange={numSet('points')} color="#FF6B35" />
               <NumInput label="REB" value={form.rebounds} onChange={numSet('rebounds')} color="#3B82F6" />
               <NumInput label="AST" value={form.assists} onChange={numSet('assists')} color="#22C55E" />
             </div>
           </Card>
           <Card>
-            <p className="section-label" style={{ color: 'var(--color-info)', marginBottom: '14px' }}>Defense & Hustle</p>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: '10px' }}>
+            <p className="section-label" style={{ color: 'var(--color-info)', marginBottom: 'var(--space-2)' }}>Defense & Hustle</p>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: 'var(--space-1)' }}>
               <NumInput label="STL" value={form.steals} onChange={numSet('steals')} color="#22C55E" />
               <NumInput label="BLK" value={form.blocks} onChange={numSet('blocks')} color="#3B82F6" />
               <NumInput label="TO" value={form.turnovers} onChange={numSet('turnovers')} color="#EF4444" />
@@ -411,7 +411,7 @@ function GameForm({ initial, onSave, onDelete, onBack, saving }) {
             </div>
           </Card>
           <Card>
-            <p className="section-label" style={{ color: 'var(--color-purple)', marginBottom: '14px' }}>Activity</p>
+            <p className="section-label" style={{ color: 'var(--color-purple)', marginBottom: 'var(--space-2)' }}>Activity</p>
             <CounterInput label="Paint Touches" value={form.paint_touches} onChange={(v) => setVal('paint_touches', v)} color="#8B5CF6" />
             <div style={{ height: '1px', background: 'var(--color-border)', margin: '4px 0' }} />
             <CounterInput label="Drives" value={form.drives} onChange={(v) => setVal('drives', v)} color="#F59E0B" />
@@ -425,7 +425,7 @@ function GameForm({ initial, onSave, onDelete, onBack, saving }) {
 
       {/* TAB: Shooting (SECOND) */}
       {tab === 'shooting' && (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-2)' }}>
           <p style={{ fontSize: '14px', color: 'var(--color-text-sec)', textAlign: 'center' }}>
             Tap a zone to record makes & misses
           </p>
@@ -465,32 +465,32 @@ function GameForm({ initial, onSave, onDelete, onBack, saving }) {
 
       {/* TAB: Game Info (LAST) */}
       {tab === 'info' && (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-2)' }}>
           <div>
-            <label style={{ display: 'block', fontSize: '13px', fontWeight: 700, color: 'var(--color-text-sec)', marginBottom: '6px' }}>Date</label>
-            <input type="date" value={form.game_date} onChange={set('game_date')} style={{ width: '100%', padding: '14px 16px', borderRadius: '14px', border: errors.game_date ? '1px solid var(--color-danger)' : '1px solid var(--color-border)', background: 'var(--color-input-bg)', color: 'var(--color-text)', fontSize: '15px', fontFamily: 'inherit', outline: 'none', boxSizing: 'border-box', colorScheme: 'dark' }} />
-            {errors.game_date && <p style={{ fontSize: '11px', color: 'var(--color-danger)', marginTop: '4px' }}>{errors.game_date}</p>}
+            <label className="t-label" style={{ display: 'block', marginBottom: 'var(--space-1)' }}>Date</label>
+            <input type="date" value={form.game_date} onChange={set('game_date')} className={`input-base${errors.game_date ? ' input-error' : ''}`} style={{ colorScheme: 'dark' }} />
+            {errors.game_date && <p className="t-caption" style={{ color: 'var(--color-danger)', marginTop: '4px' }}>{errors.game_date}</p>}
           </div>
           <div>
-            <label style={{ display: 'block', fontSize: '13px', fontWeight: 700, color: 'var(--color-text-sec)', marginBottom: '6px' }}>Opponent</label>
+            <label className="t-label" style={{ display: 'block', marginBottom: 'var(--space-1)' }}>Opponent</label>
             <input value={form.opponent} onChange={set('opponent')} placeholder="Team name" style={{ width: '100%', padding: '14px 16px', borderRadius: '14px', border: errors.opponent ? '1px solid var(--color-danger)' : '1px solid var(--color-border)', background: 'var(--color-input-bg)', color: 'var(--color-text)', fontSize: '15px', fontFamily: 'inherit', outline: 'none', boxSizing: 'border-box' }} />
             {errors.opponent && <p style={{ fontSize: '11px', color: 'var(--color-danger)', marginTop: '4px' }}>{errors.opponent}</p>}
           </div>
           <div>
-            <label style={{ display: 'block', fontSize: '13px', fontWeight: 700, color: 'var(--color-text-sec)', marginBottom: '8px' }}>Result</label>
+            <label className="t-label" style={{ display: 'block', marginBottom: 'var(--space-1)' }}>Result</label>
             <ChipSelect options={RESULTS} value={form.result} onChange={(v) => setVal('result', v)} color="#3B82F6" />
             {errors.result && <p style={{ fontSize: '11px', color: 'var(--color-danger)', marginTop: '4px' }}>{errors.result}</p>}
           </div>
           <div>
-            <label style={{ display: 'block', fontSize: '13px', fontWeight: 700, color: 'var(--color-text-sec)', marginBottom: '8px' }}>Game Type</label>
+            <label className="t-label" style={{ display: 'block', marginBottom: 'var(--space-1)' }}>Game Type</label>
             <ChipSelect options={GAME_TYPES} value={form.game_type} onChange={(v) => setVal('game_type', v)} color="#8B5CF6" />
           </div>
           <div>
-            <label style={{ display: 'block', fontSize: '13px', fontWeight: 700, color: 'var(--color-text-sec)', marginBottom: '8px' }}>Venue</label>
+            <label className="t-label" style={{ display: 'block', marginBottom: 'var(--space-1)' }}>Venue</label>
             <ChipSelect options={[{ value: 'true', label: 'Home' }, { value: 'false', label: 'Away' }]} value={form.is_home_game} onChange={(v) => setVal('is_home_game', v)} color="#FF6B35" />
           </div>
           <div>
-            <label style={{ display: 'block', fontSize: '13px', fontWeight: 700, color: 'var(--color-text-sec)', marginBottom: '6px' }}>Notes</label>
+            <label className="t-label" style={{ display: 'block', marginBottom: 'var(--space-1)' }}>Notes</label>
             <textarea value={form.notes} onChange={set('notes')} placeholder="How did the game go?" rows={3} style={{ width: '100%', padding: '14px 16px', borderRadius: '14px', border: '1px solid var(--color-border)', background: 'var(--color-input-bg)', color: 'var(--color-text)', fontSize: '15px', fontFamily: 'inherit', outline: 'none', boxSizing: 'border-box', resize: 'vertical' }} />
           </div>
         </div>
@@ -1163,7 +1163,7 @@ function GameResult({ game, seasonAvg, allGames, onDone, onEdit, showToast }) {
       {showShareCard && <ShareCardModal game={game} rating={rating} onClose={() => setShowShareCard(false)} />}
 
       {/* Action buttons */}
-      <div style={{ marginTop: '20px', marginBottom: '16px', display: 'flex', gap: '10px' }}>
+      <div style={{ marginTop: '20px', marginBottom: '16px', display: 'flex', gap: 'var(--space-1)' }}>
         <button type="button" onClick={() => setShowShareCard(true)} className="btn-outline" style={{ flex: 1 }}>
           <Share2 size={16} /> Share Card
         </button>

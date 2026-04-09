@@ -250,8 +250,8 @@ export default function Shots() {
                 className="t-caption"
                 style={{
                   padding: '6px 12px', borderRadius: 'var(--radius-btn)', border: 'none',
-                  fontWeight: 600, cursor: 'pointer', transition: 'all 0.15s', fontFamily: 'inherit',
-                  background: shotType === st ? 'var(--color-accent)' : 'rgba(255,255,255,0.06)',
+                  fontWeight: 600, cursor: 'pointer', transition: 'all 0.15s',
+                  background: shotType === st ? 'var(--color-accent)' : 'rgba(255,255,255,0.08)',
                   color: shotType === st ? 'white' : 'var(--color-text-sec)',
                 }}
               >

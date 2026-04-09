@@ -66,7 +66,7 @@ export default function Login() {
             boxShadow: '0 8px 24px rgba(255, 107, 53, 0.4)',
           }}
         >
-          <span style={{ fontWeight: 900, fontSize: '28px', color: '#fff', letterSpacing: '-1px' }}>
+          <span className="t-title1" style={{ color: '#fff' }}>
             🏀
           </span>
         </div>

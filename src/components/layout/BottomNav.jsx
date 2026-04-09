@@ -1,12 +1,11 @@
 import { NavLink } from 'react-router-dom'
-import { Home, BookOpen, Target, Crosshair, Trophy, BookHeart } from 'lucide-react'
+import { Home, Target, Crosshair, Trophy, BookHeart } from 'lucide-react'
 
 const tabs = [
   { to: '/', icon: Home, label: 'Home' },
-  { to: '/training', icon: BookOpen, label: 'Train' },
   { to: '/drills', icon: Target, label: 'Drills' },
-  { to: '/shots', icon: Crosshair, label: 'Shots' },
-  { to: '/games', icon: Trophy, label: 'Games' },
+  { to: '/shots', icon: Crosshair, label: 'Shot Tracking' },
+  { to: '/games', icon: Trophy, label: 'Game Log' },
   { to: '/journal', icon: BookHeart, label: 'Journal' },
 ]
 

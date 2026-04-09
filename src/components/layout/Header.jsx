@@ -28,9 +28,11 @@ export default function Header() {
         padding: 'var(--space-2) var(--space-3)',
       }}
     >
-      <h1 className="t-title3" style={{ color: 'var(--color-text)' }}>
-        Court<span style={{ color: 'var(--color-accent)' }}>IQ</span>
-      </h1>
+      <Link to="/" style={{ textDecoration: 'none' }}>
+        <h1 className="t-title3" style={{ color: 'var(--color-text)' }}>
+          Court<span style={{ color: 'var(--color-accent)' }}>IQ</span>
+        </h1>
+      </Link>
 
       <div className="flex items-center gap-3">
         <span

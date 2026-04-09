@@ -1,9 +1,11 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import { Zap, Check, Crown, Lock, Flame, Target, Timer, BarChart3, Share2, Crosshair, Dumbbell, ChevronRight, Star } from 'lucide-react'
 import { usePremium, PLANS } from '../../context/PremiumContext'
 import PageWrapper from '../../components/layout/PageWrapper'
 import Card from '../../components/ui/Card'
 import { useToast } from '../../context/ToastContext'
+import { stripePromise } from '../../lib/stripe'
 
 const PRO_FEATURES = [
   { icon: Flame, title: 'Quick Game', desc: 'Tap stats live from the sideline — real-time play-by-play', color: 'var(--color-accent)' },
@@ -24,15 +26,35 @@ export default function Premium() {
   const { isPro, upgrade, downgrade } = usePremium()
   const { showToast } = useToast()
   const [processing, setProcessing] = useState(false)
+  const [searchParams, setSearchParams] = useSearchParams()
 
-  const handleUpgrade = () => {
-    setProcessing(true)
-    // Simulate payment processing
-    setTimeout(() => {
+  // Handle return from Stripe Checkout
+  useEffect(() => {
+    if (searchParams.get('success') === 'true' && !isPro) {
       upgrade()
-      setProcessing(false)
       showToast('Welcome to CourtIQ Pro!', 'success')
-    }, 1500)
+      setSearchParams({}, { replace: true })
+    }
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
+
+  const handleUpgrade = async () => {
+    setProcessing(true)
+    try {
+      const stripe = await stripePromise
+      const { error } = await stripe.redirectToCheckout({
+        lineItems: [{ price: import.meta.env.VITE_STRIPE_PRICE_ID, quantity: 1 }],
+        mode: 'subscription',
+        successUrl: `${window.location.origin}/premium?success=true`,
+        cancelUrl: `${window.location.origin}/premium`,
+      })
+      if (error) {
+        showToast(error.message, 'error')
+      }
+    } catch (err) {
+      showToast('Payment failed. Please try again.', 'error')
+    } finally {
+      setProcessing(false)
+    }
   }
 
   const handleDowngrade = () => {

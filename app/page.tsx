@@ -68,15 +68,15 @@ export default function Home() {
       {/* ===== NAVIGATION ===== */}
       <nav id="navbar" className={menuOpen ? 'open' : ''} aria-label="Main navigation">
         <div className="container">
-          <a href="#" className="nav-logo" onClick={(e) => { e.preventDefault(); window.scrollTo({ top: 0, behavior: 'smooth' }) }} aria-label="Chris Marvel — Keynote Speaker homepage">
-            Chris<img src="/images/chris-marvel-logo.png" alt="Chris Marvel keynote speaker logo" className="nav-logo-icon" width={28} height={28} /><span>Marvel</span>
+          <a href="#" className="nav-logo" onClick={(e) => { e.preventDefault(); window.scrollTo({ top: 0, behavior: 'smooth' }) }} aria-label="Chris Marvel — Performance Strategist homepage">
+            Chris<img src="/images/chris-marvel-logo.png" alt="Chris Marvel performance strategist logo" className="nav-logo-icon" width={28} height={28} /><span>Marvel</span>
           </a>
           <ul className={`nav-links ${menuOpen ? 'show' : ''}`} role="menubar">
             <li role="none"><a href="#about" role="menuitem" onClick={(e) => { e.preventDefault(); scrollTo('about') }}>About</a></li>
+            <li role="none"><a href="#method" role="menuitem" onClick={(e) => { e.preventDefault(); scrollTo('method') }}>Method</a></li>
             <li role="none"><a href="#keynotes" role="menuitem" onClick={(e) => { e.preventDefault(); scrollTo('keynotes') }}>Keynotes</a></li>
             <li role="none"><a href="#reel" role="menuitem" onClick={(e) => { e.preventDefault(); scrollTo('reel') }}>Reel</a></li>
             <li role="none"><a href="#book" role="menuitem" onClick={(e) => { e.preventDefault(); scrollTo('book') }}>Book</a></li>
-            <li role="none"><a href="#testimonials" role="menuitem" onClick={(e) => { e.preventDefault(); scrollTo('testimonials') }}>Testimonials</a></li>
             <li role="none"><a href="#contact" className="nav-cta" role="menuitem" onClick={(e) => { e.preventDefault(); scrollTo('contact') }}>Book Chris</a></li>
           </ul>
           <button className="mobile-toggle" onClick={() => setMenuOpen(!menuOpen)} aria-label="Toggle navigation menu" aria-expanded={menuOpen}>
@@ -89,16 +89,15 @@ export default function Home() {
       <header className="hero" id="home">
         <div className="container">
           <div className="hero-content">
-            <span className="badge badge-gold">Mental Health Performance Coach &amp; Keynote Speaker</span>
-            <h1>Keynote Speaker Turning Pressure<br />Into <span className="accent">Power</span></h1>
+            <span className="badge badge-gold">Performance Strategist &amp; Keynote Speaker</span>
+            <h1>Increase Engagement.<br />Elevate Thinking.<br />Drive <span className="accent">Performance.</span></h1>
             <p className="hero-tagline">
-              From NFL locker rooms to Fortune 500 boardrooms — keynote speaker Chris Marvel transforms how organizations think about mental health, resilience, and peak performance.
+              Chris Marvel partners with organizations, schools, and universities to solve disengagement, burnout, and inconsistent performance &mdash; by teaching people how to think, regulate, and execute under pressure.
             </p>
             <p className="hero-description">
-              With over a decade of experience and a Master&rsquo;s in Psychology, Chris Marvel helps
-              high-performers and organizations move from crisis response to performance strategy.
-              His keynotes, workshops, and training programs are direct, evidence-based, and built for real results.
-              Trusted by Johnson &amp; Johnson, Cleveland Metro Schools, and professional athletes from the NFL and NBA.
+              This is not motivation. This is a <strong>performance system</strong>. Using psychology, behavioral science,
+              and real-world application, Chris helps institutions increase engagement, strengthen decision-making,
+              and drive measurable outcomes &mdash; from Fortune 500 boardrooms to K&ndash;12 classrooms to university campuses.
             </p>
             <div className="hero-buttons">
               <a href="#contact" className="btn btn-gold" onClick={(e) => { e.preventDefault(); scrollTo('contact') }}>Book Chris to Speak</a>
@@ -108,7 +107,7 @@ export default function Home() {
           <div className="hero-image-container">
             <img
               src="/images/hero-headshot.jpg"
-              alt="Chris Marvel — keynote speaker and mental health performance coach available for corporate events, conferences, and workshops"
+              alt="Chris Marvel — performance strategist and keynote speaker for corporate events, schools, and universities"
               width={520}
               height={520}
               loading="eager"
@@ -120,7 +119,7 @@ export default function Home() {
       {/* ===== TRUSTED BY BAR ===== */}
       <section className="trusted-bar" aria-label="Organizations that trust Chris Marvel">
         <div className="container">
-          <div className="trusted-bar-label">Trusted By Leading Organizations</div>
+          <div className="trusted-bar-label">Trusted By Leading Organizations &amp; Institutions</div>
           <div className="trusted-logos">
             <span>Johnson &amp; Johnson</span>
             <span>Cleveland Metro Schools</span>
@@ -132,31 +131,33 @@ export default function Home() {
       </section>
 
       {/* ===== ABOUT ===== */}
-      <section className="mission" id="about" aria-label="About keynote speaker Chris Marvel">
+      <section className="mission" id="about" aria-label="About performance strategist Chris Marvel">
         <div className="container">
           <div className="mission-content">
-            <span className="badge badge-gold">About the Speaker</span>
-            <h2>The Coach Behind<br />The <span className="accent">Movement</span></h2>
+            <span className="badge badge-gold">About the Strategist</span>
+            <h2>From the Inner City<br />To the <span className="accent">Main Stage</span></h2>
             <p>
-              Christopher &ldquo;Chris Marvel&rdquo; Davis is a <strong>Mental Health Performance Coach</strong>, <strong>professional keynote speaker</strong>,
-              and published author with over a decade of experience optimizing human performance through the lens of psychology.
-              He holds a Bachelor&rsquo;s and Master&rsquo;s degree in Psychology, along with several life coaching certifications.
+              Chris Marvel was raised in <strong>Cleveland, Ohio</strong> &mdash; in an era defined by inner-city drugs,
+              violence, and economic uncertainty. He grew up surrounded by obstacles that were designed to hold him back.
+              But he didn&rsquo;t stay there.
             </p>
             <p>
-              As a sought-after <strong>corporate keynote speaker</strong> and <strong>mental health workshop facilitator</strong>,
-              Chris has worked with some of the biggest names in professional sports — including <strong>Lamar Odom</strong>,
-              <strong> Terrell Owens</strong>, and <strong>Ted Ginn Jr.</strong> — helping elite performers manage the mental demands of
-              high-pressure environments. His work extends beyond athletics into Fortune 500 boardrooms,
-              school districts, HBCUs, and nonprofit organizations nationwide.
+              He rose past every barrier to become a <strong>college graduate</strong>, a <strong>published author</strong>,
+              a <strong>business owner</strong>, a <strong>devoted family man</strong>, and a man of God &mdash; and now he pours his heart,
+              love, and mind into people across the world. His mission is singular: to help people become
+              <strong> resilient, gritty, transformational, and determined</strong> &mdash; people who push past
+              their comfort zone in order to grow, achieve, and become great.
             </p>
             <p>
-              As founder of <strong>Pivot Training &amp; Development</strong> alongside co-founder Jazmine Davis, Chris has built
-              a <strong>mental health professional development company</strong> headquartered in Cleveland, Ohio and Atlanta, Georgia
-              that is reshaping how organizations approach employee wellbeing, leadership development, and workplace culture.
+              Today, Chris is a <strong>performance strategist and keynote speaker</strong> who uses psychology, behavioral science,
+              and real-world application to help organizations and institutions increase engagement, elevate thinking,
+              and drive measurable performance outcomes. As founder of <strong>Pivot Training &amp; Development</strong> alongside
+              co-founder Jazmine Davis, Chris has built a performance development company headquartered in Cleveland, Ohio
+              and Atlanta, Georgia that is reshaping how organizations approach execution, engagement, and culture.
             </p>
             <div className="credentials-row">
               <span className="credential-tag">M.S. Psychology</span>
-              <span className="credential-tag">Certified Life Coach</span>
+              <span className="credential-tag">Performance Strategist</span>
               <span className="credential-tag">Published Author</span>
               <span className="credential-tag">10+ Years Experience</span>
               <span className="credential-tag">NFL/NBA Coach</span>
@@ -164,60 +165,116 @@ export default function Home() {
             <a href="#contact" className="btn btn-navy" onClick={(e) => { e.preventDefault(); scrollTo('contact') }} style={{ marginTop: '32px' }}>Get In Touch</a>
           </div>
           <div className="mission-image">
-            <img src="/images/about-presenting.jpg" alt="Keynote speaker Chris Marvel presenting mental health workshop to corporate audience" loading="lazy" width={600} height={400} />
+            <img src="/images/about-presenting.jpg" alt="Chris Marvel presenting performance strategy keynote to corporate audience" loading="lazy" width={600} height={400} />
           </div>
         </div>
       </section>
 
       {/* ===== FULL-WIDTH STAGE PHOTO ===== */}
-      <div className="stage-photo" role="img" aria-label="Chris Marvel delivering keynote speech on stage at major conference">
-        <img src="/images/gallery-stage.jpg" alt="Chris Marvel delivering mental health keynote on stage at corporate conference event" loading="lazy" />
+      <div className="stage-photo" role="img" aria-label="Chris Marvel delivering keynote on stage at major conference">
+        <img src="/images/gallery-stage.jpg" alt="Chris Marvel delivering performance keynote on stage at corporate conference" loading="lazy" />
       </div>
+
+      {/* ===== THE RECHARGE METHOD ===== */}
+      <section className="keynotes" id="method" aria-label="The Recharge Method — Chris Marvel's performance system">
+        <div className="container">
+          <span className="badge badge-gold">The Performance System</span>
+          <h2>The Recharge <span className="accent">Method&trade;</span></h2>
+          <p className="keynotes-subtitle">
+            Most speakers inspire temporarily. Chris Marvel installs systems, changes behavior, and drives performance outcomes.
+            The Recharge Method&trade; is a structured performance system designed to improve how individuals operate under pressure.
+          </p>
+          <div className="keynote-grid">
+            <article className="keynote-card fade-in">
+              <div className="keynote-card-icon">&#128269;</div>
+              <h3>1. Diagnose</h3>
+              <p>
+                Identify how individuals respond to stress and pressure. Assess patterns of thinking, behavior,
+                and emotional regulation that are silently eroding performance, engagement, and culture.
+              </p>
+            </article>
+            <article className="keynote-card fade-in">
+              <div className="keynote-card-icon">&#9889;</div>
+              <h3>2. Rewire</h3>
+              <p>
+                Train individuals to shift from <strong>reactive to intentional thinking</strong>. Build emotional regulation
+                and mental discipline. Introduce elevated thinking frameworks that change how people process pressure.
+              </p>
+            </article>
+            <article className="keynote-card fade-in">
+              <div className="keynote-card-icon">&#127919;</div>
+              <h3>3. Deploy</h3>
+              <p>
+                Apply new behaviors in real-world environments. Reinforce performance habits and create
+                <strong> repeatable execution patterns</strong> that drive sustained results &mdash; not temporary motivation.
+              </p>
+            </article>
+            <article className="keynote-card fade-in">
+              <div className="keynote-card-icon">&#128200;</div>
+              <h3>The Outcome</h3>
+              <p>
+                Higher engagement. Stronger accountability. Improved focus and execution. Reduced burnout behaviors.
+                Elevated decision-making. <strong>Sustainable performance improvement</strong> that lasts long after the event.
+              </p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      {/* ===== PHOTO GALLERY STRIP ===== */}
+      <section className="photo-gallery" aria-label="Chris Marvel keynote speaker photo gallery">
+        <div className="gallery-strip">
+          <img src="/images/gallery-workshop.jpg" alt="Chris Marvel leading interactive performance workshop for corporate team" loading="lazy" width={400} height={300} />
+          <img src="/images/gallery-ballroom.jpg" alt="Chris Marvel delivering keynote to packed ballroom at national conference" loading="lazy" width={400} height={300} />
+          <img src="/images/gallery-education.jpg" alt="Chris Marvel presenting engagement strategies for educators and school administrators" loading="lazy" width={400} height={300} />
+          <img src="/images/about-presenting.jpg" alt="Chris Marvel engaging corporate audience during performance strategy presentation" loading="lazy" width={400} height={300} />
+        </div>
+      </section>
 
       {/* ===== KEYNOTES ===== */}
       <section className="keynotes" id="keynotes" aria-label="Keynote speaking topics and programs">
         <div className="container">
           <span className="badge badge-gold">Signature Keynotes &amp; Workshops</span>
-          <h2>Keynote Talks That <span className="accent">Transform</span></h2>
+          <h2>Keynote Talks That Drive <span className="accent">Results</span></h2>
           <p className="keynotes-subtitle">
-            Each keynote is customizable for corporate, education, and nonprofit audiences.
-            Available as 60-minute keynotes, half-day workshops, or full-day immersive training programs.
-            Chris Marvel tailors every presentation to your organization&rsquo;s specific goals and challenges.
+            Each keynote is built on The Recharge Method&trade; and customizable for corporate, K&ndash;12, university, and nonprofit audiences.
+            Available as 60-minute keynotes, half-day workshops, full-day training, or multi-session programs.
           </p>
           <div className="keynote-grid">
             <article className="keynote-card fade-in">
               <div className="keynote-card-icon">&#9889;</div>
               <h3>Pressure Is a Privilege</h3>
               <p>
-                A powerful keynote exploring how high performers can reframe stress as fuel rather than a barrier.
-                Learn to build mental resilience frameworks and develop team-wide psychological safety practices.
-                Ideal for <strong>corporate leadership teams</strong> and <strong>high-performance organizations</strong>.
+                Performance is revealed under pressure &mdash; not in comfort. This keynote teaches high performers
+                how to reframe stress as fuel, build execution habits under pressure, and develop team-wide
+                psychological performance systems. Ideal for <strong>corporate leadership teams</strong> and <strong>high-performance organizations</strong>.
               </p>
             </article>
             <article className="keynote-card fade-in">
               <div className="keynote-card-icon">&#128065;</div>
               <h3>The Invisible Injury</h3>
               <p>
-                Unveiling the hidden <strong>mental health challenges</strong> that silently erode performance, culture, and retention.
-                Recognize the signs others miss and build environments where seeking help is strength.
-                Perfect for <strong>school districts</strong>, <strong>HR professionals</strong>, and <strong>healthcare organizations</strong>.
+                The hidden barriers that silently erode performance, culture, and retention. This keynote helps organizations
+                recognize the thinking patterns that drive disengagement &mdash; and install systems that shift individuals from
+                reactive behavior to <strong>intentional execution</strong>. Perfect for <strong>school districts</strong>, <strong>HR teams</strong>, and <strong>universities</strong>.
               </p>
             </article>
             <article className="keynote-card fade-in">
               <div className="keynote-card-icon">&#128161;</div>
               <h3>The What If Effect</h3>
               <p>
-                Based on Chris Marvel&rsquo;s bestselling book — a framework for breaking through the mental barriers that keep us stuck.
-                Transform fear-based thinking into possibility-driven strategy.
-                A <strong>motivational keynote</strong> for anyone ready to unlock their next level of performance.
+                Based on Chris Marvel&rsquo;s bestselling book &mdash; a framework for breaking through the mental barriers
+                that keep people stuck. Transform fear-based thinking into possibility-driven strategy and unlock
+                the next level of performance. A <strong>keynote for anyone ready to execute at a higher level</strong>.
               </p>
             </article>
             <article className="keynote-card fade-in">
-              <div className="keynote-card-icon">&#127919;</div>
+              <div className="keynote-card-icon">&#128736;</div>
               <h3>Custom Programs &amp; Workshops</h3>
               <p>
-                Multi-session <strong>professional development training</strong> designed for your organization&rsquo;s specific needs.
-                From <strong>corporate wellness initiatives</strong> to <strong>school district programs</strong> and <strong>nonprofit training</strong> — tailored for lasting impact.
+                Multi-session <strong>performance development training</strong> designed for your organization&rsquo;s specific challenges.
+                From <strong>corporate engagement initiatives</strong> to <strong>student success programs</strong> (TRIO, First-Year Experience)
+                and <strong>K&ndash;12 professional development</strong> &mdash; tailored for measurable, lasting impact.
               </p>
             </article>
           </div>
@@ -225,22 +282,12 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ===== PHOTO GALLERY STRIP ===== */}
-      <section className="photo-gallery" aria-label="Chris Marvel keynote speaker photo gallery">
-        <div className="gallery-strip">
-          <img src="/images/gallery-workshop.jpg" alt="Chris Marvel leading interactive mental health workshop for corporate team" loading="lazy" width={400} height={300} />
-          <img src="/images/gallery-ballroom.jpg" alt="Chris Marvel delivering keynote speech to packed ballroom at national conference" loading="lazy" width={400} height={300} />
-          <img src="/images/gallery-education.jpg" alt="Chris Marvel presenting emotional intelligence keynote for educators and school administrators" loading="lazy" width={400} height={300} />
-          <img src="/images/about-presenting.jpg" alt="Keynote speaker Chris Marvel engaging corporate audience during workplace wellness presentation" loading="lazy" width={400} height={300} />
-        </div>
-      </section>
-
       {/* ===== SPEAKER REEL ===== */}
       <section className="reel-section" id="reel" aria-label="Chris Marvel keynote speaker demo reel">
         <div className="container">
           <span className="badge badge-navy">See Chris Marvel In Action</span>
-          <h2>Keynote Speaker <span className="accent">Reel</span></h2>
-          <p className="reel-subtitle">Watch what happens when psychology meets the stage. See why event planners and speaker bureaus book Chris Marvel for their most important events.</p>
+          <h2>Speaker <span className="accent">Reel</span></h2>
+          <p className="reel-subtitle">Watch what happens when psychology meets the stage. See why organizations, schools, and universities book Chris Marvel for their most important events.</p>
           <a href="https://youtu.be/AAAURVaEE48?si=4LKNwd9qRLYzhkNp" target="_blank" rel="noopener noreferrer" className="reel-container" aria-label="Watch Chris Marvel keynote speaker demo reel on YouTube">
             <img src="/images/gallery-stage.jpg" alt="Chris Marvel keynote speaker demo reel — watch highlights from corporate events, conferences, and workshops" loading="lazy" />
             <div className="play-btn" role="button" aria-label="Play speaker demo reel video"></div>
@@ -252,20 +299,22 @@ export default function Home() {
       <section className="book-section" id="book" aria-label="The What If Effect book by Chris Marvel Davis">
         <div className="container">
           <div className="book-cover">
-            <img src="/images/book-cover.jpg" alt="The What If Effect: Flip Doubt Into Direction — bestselling book by keynote speaker Chris Marvel Davis on mental performance and resilience" loading="lazy" width={350} height={500} />
+            <img src="/images/book-cover.jpg" alt="The What If Effect: Flip Doubt Into Direction — book by performance strategist Chris Marvel Davis" loading="lazy" width={350} height={500} />
           </div>
           <div className="book-content">
             <span className="badge badge-gold">The Book</span>
             <h2>The What If <span className="accent">Effect</span></h2>
             <p>
               What if the only thing standing between you and your breakthrough is the story you keep telling yourself?
-              In &ldquo;<strong>The What If Effect: Flip Doubt Into Direction</strong>,&rdquo; keynote speaker Chris Marvel draws on a decade of coaching elite athletes
-              and corporate leaders to reveal the mental patterns that keep high performers stuck — and the precise strategies to break through them.
+              In &ldquo;<strong>The What If Effect: Flip Doubt Into Direction</strong>,&rdquo; Chris Marvel draws on a decade
+              of coaching elite athletes and corporate leaders to reveal the thinking patterns that keep high performers
+              stuck &mdash; and the precise strategies to break through them.
             </p>
             <p>
-              This isn&rsquo;t another motivational book filled with empty affirmations. It&rsquo;s a <strong>psychology-backed playbook</strong>
-              for anyone ready to stop asking &ldquo;what if&rdquo; out of fear and start asking &ldquo;what if&rdquo; out of possibility.
-              Available for individual purchase and <strong>bulk orders for corporate events</strong>, conferences, and team retreats.
+              This isn&rsquo;t another motivational book filled with empty affirmations. It&rsquo;s a <strong>psychology-backed
+              performance playbook</strong> for anyone ready to stop asking &ldquo;what if&rdquo; out of fear and start asking
+              &ldquo;what if&rdquo; out of possibility. Available for individual purchase and <strong>bulk orders for
+              corporate events</strong>, conferences, universities, and team retreats.
             </p>
             <div className="book-buttons">
               <a href="#" className="btn btn-navy">Get the Book</a>
@@ -276,31 +325,31 @@ export default function Home() {
       </section>
 
       {/* ===== TESTIMONIALS ===== */}
-      <section className="testimonials" id="testimonials" aria-label="Client testimonials and reviews for keynote speaker Chris Marvel">
+      <section className="testimonials" id="testimonials" aria-label="Client testimonials and results from Chris Marvel engagements">
         <div className="container">
           <span className="badge badge-gold">What Clients Say</span>
-          <h2>Keynote Speaker <span className="accent">Testimonials</span></h2>
+          <h2>Real <span className="accent">Results</span></h2>
           <div className="testimonial-grid">
             <article className="testimonial-card fade-in">
               <p className="testimonial-text">
-                Chris has a rare ability to connect complex psychology concepts to real-world workplace challenges.
-                Our leadership team walked away with actionable strategies they started implementing the same week.
+                Chris doesn&rsquo;t just inspire &mdash; he installs systems. Our leadership team walked away with
+                actionable strategies they started implementing the same week. Engagement scores improved within the quarter.
               </p>
               <div className="testimonial-author">Johnson &amp; Johnson</div>
-              <div className="testimonial-title">Corporate Keynote &amp; Workshop Client</div>
+              <div className="testimonial-title">Corporate Performance Engagement</div>
             </article>
             <article className="testimonial-card fade-in">
               <p className="testimonial-text">
-                The way Chris broke down mental health for our educators was a game-changer. Our teachers finally
-                felt seen and equipped. Absenteeism dropped and morale went up within one semester.
+                The way Chris reframed performance for our educators was a game-changer. Our teachers finally had a system
+                for managing pressure. Absenteeism dropped and classroom engagement went up within one semester.
               </p>
               <div className="testimonial-author">Cleveland Metropolitan School District</div>
-              <div className="testimonial-title">Education Keynote Partner</div>
+              <div className="testimonial-title">K&ndash;12 Performance Partner</div>
             </article>
             <article className="testimonial-card fade-in">
               <p className="testimonial-text">
                 Working with Chris changed how I approach the mental side of competition. He doesn&rsquo;t just talk
-                about mental health — he gives you a system that actually works under pressure.
+                about thinking differently &mdash; he gives you a system that actually works under pressure.
               </p>
               <div className="testimonial-author">Professional Athlete Client</div>
               <div className="testimonial-title">NFL / NBA Performance Coaching</div>
@@ -311,54 +360,54 @@ export default function Home() {
                 Staff rated his session the highest of any professional development we&rsquo;ve offered in five years.
               </p>
               <div className="testimonial-author">Clark County School District</div>
-              <div className="testimonial-title">Education Keynote Partner</div>
+              <div className="testimonial-title">Education Performance Partner</div>
             </article>
           </div>
         </div>
       </section>
 
       {/* ===== CTA BANNER ===== */}
-      <section className="cta-banner" aria-label="Book keynote speaker Chris Marvel for your event">
+      <section className="cta-banner" aria-label="Book performance strategist Chris Marvel for your event">
         <div className="bg-img">
           <img src="/images/gallery-ballroom.jpg" alt="Chris Marvel speaking to large audience at corporate conference event" loading="lazy" />
         </div>
         <div className="container">
-          <div className="cta-banner-sub">Ready to Transform Your Organization?</div>
-          <h2>Book Keynote Speaker Chris Marvel<br />For Your Next Event</h2>
-          <p>Whether it&rsquo;s a corporate keynote, leadership workshop, or multi-session training program — Chris Marvel delivers measurable results that last.</p>
+          <div className="cta-banner-sub">Ready to Elevate Performance?</div>
+          <h2>Stop Losing Performance<br />To Disengagement &amp; <span className="accent">Burnout</span></h2>
+          <p>Whether it&rsquo;s a corporate keynote, K&ndash;12 training, university program, or multi-session engagement &mdash; Chris Marvel delivers measurable results that last.</p>
           <a href="#contact" className="btn btn-gold" onClick={(e) => { e.preventDefault(); scrollTo('contact') }}>Book Chris Marvel Now</a>
         </div>
       </section>
 
       {/* ===== FAQ ===== */}
-      <section className="faq-section" id="faq" aria-label="Frequently asked questions about booking keynote speaker Chris Marvel">
+      <section className="faq-section" id="faq" aria-label="Frequently asked questions about booking Chris Marvel">
         <div className="container">
           <span className="badge badge-gold">FAQ</span>
           <h2>Frequently Asked <span className="accent">Questions</span></h2>
           <div className="faq-grid">
             <details className="faq-item" open>
-              <summary>What topics does Chris Marvel speak about?</summary>
-              <p>Chris delivers keynotes on mental health performance, workplace wellness, emotional intelligence, resilience, and leadership. His signature keynotes include &ldquo;Pressure Is a Privilege,&rdquo; &ldquo;The Invisible Injury,&rdquo; and &ldquo;The What If Effect.&rdquo; All topics are fully customizable for corporate, education, and nonprofit audiences.</p>
+              <summary>What does Chris Marvel speak about?</summary>
+              <p>Chris is a performance strategist who helps organizations, schools, and universities increase engagement, elevate thinking, and drive measurable performance outcomes. His signature keynotes include &ldquo;Pressure Is a Privilege,&rdquo; &ldquo;The Invisible Injury,&rdquo; and &ldquo;The What If Effect&rdquo; &mdash; all built on The Recharge Method&trade;. Topics are fully customizable for corporate, education, university, and nonprofit audiences.</p>
             </details>
             <details className="faq-item">
               <summary>How much does it cost to book Chris Marvel?</summary>
-              <p>Speaking engagements start at $7,500 for corporate keynotes. Education and nonprofit rates are available upon request. Pricing varies based on event type, duration, travel requirements, and customization. Contact Jazmine@pivottraining.us or call (770) 313-1232 for a custom quote.</p>
+              <p>Speaking engagements start at $7,500 for corporate keynotes. K&ndash;12, university, and nonprofit rates are available upon request. Pricing varies based on event type, duration, travel requirements, and customization. Contact Jazmine@pivottraining.us or call (770) 313-1232 for a custom quote.</p>
             </details>
             <details className="faq-item">
               <summary>What types of events does Chris speak at?</summary>
-              <p>Chris speaks at corporate conferences, leadership summits, professional development days, school district training, HBCU events, nonprofit galas, team retreats, and industry conventions. He offers 60-minute keynotes, half-day workshops, full-day training, and multi-session programs.</p>
+              <p>Chris speaks at corporate conferences, leadership summits, professional development days, K&ndash;12 school district training, university student success programs (TRIO, First-Year Experience), HBCU events, nonprofit galas, team retreats, and industry conventions. He offers 60-minute keynotes, half-day workshops, full-day training, and multi-session programs.</p>
             </details>
             <details className="faq-item">
-              <summary>Does Chris travel for speaking engagements?</summary>
-              <p>Yes. Chris is headquartered in Cleveland, Ohio and Atlanta, Georgia, and is available for speaking engagements nationwide across the United States. Virtual and hybrid keynote options are also available for remote teams and global audiences.</p>
+              <summary>What is The Recharge Method&trade;?</summary>
+              <p>The Recharge Method&trade; is Chris Marvel&rsquo;s structured performance system built on three phases: Diagnose (identify how individuals respond to stress and pressure), Rewire (train individuals to shift from reactive to intentional thinking), and Deploy (apply new behaviors in real-world environments with repeatable execution patterns). It&rsquo;s designed to improve how people operate under pressure &mdash; not just inspire them temporarily.</p>
+            </details>
+            <details className="faq-item">
+              <summary>What makes Chris Marvel different from other speakers?</summary>
+              <p>Most speakers inspire temporarily and focus on awareness. Chris installs systems, changes behavior, and drives performance outcomes. He uses psychology, behavioral science, and real-world application to deliver a performance system that transforms how people think, behave, and execute &mdash; across corporate teams, classrooms, and campuses.</p>
             </details>
             <details className="faq-item">
               <summary>What organizations has Chris worked with?</summary>
-              <p>Chris has delivered keynotes and training for Johnson &amp; Johnson, Cleveland Metropolitan School District, Clark County Schools, Head Start, and has coached professional athletes from the NFL and NBA including Lamar Odom, Terrell Owens, and Ted Ginn Jr.</p>
-            </details>
-            <details className="faq-item">
-              <summary>What are Chris Marvel&rsquo;s credentials?</summary>
-              <p>Chris holds a Master&rsquo;s degree and Bachelor&rsquo;s degree in Psychology, along with multiple life coaching certifications. He has over a decade of experience, is a published author, and is the founder of Pivot Training &amp; Development — a nationally recognized mental health professional development company.</p>
+              <p>Chris has delivered keynotes and training for Johnson &amp; Johnson, Cleveland Metropolitan School District, Clark County Schools, Head Start, and has coached professional athletes from the NFL and NBA including Lamar Odom, Terrell Owens, and Ted Ginn Jr. He works across corporate, K&ndash;12, university, and nonprofit sectors.</p>
             </details>
             <details className="faq-item">
               <summary>How do I book Chris for my event?</summary>
@@ -366,22 +415,23 @@ export default function Home() {
             </details>
             <details className="faq-item">
               <summary>Can Chris customize his keynote for our industry?</summary>
-              <p>Absolutely. Every keynote and workshop is tailored to your organization&rsquo;s specific challenges, culture, and goals. Chris works directly with event planners to ensure maximum relevance and impact for your audience — whether corporate, education, healthcare, nonprofit, or government.</p>
+              <p>Absolutely. Every keynote and workshop is tailored to your organization&rsquo;s specific challenges, culture, and performance goals. Chris works directly with event planners to ensure maximum relevance and impact &mdash; whether corporate, K&ndash;12, university, healthcare, nonprofit, or government.</p>
             </details>
           </div>
         </div>
       </section>
 
       {/* ===== CONTACT / BOOKING ===== */}
-      <section className="contact" id="contact" aria-label="Book keynote speaker Chris Marvel — contact and inquiry form">
+      <section className="contact" id="contact" aria-label="Book performance strategist Chris Marvel — contact and inquiry form">
         <div className="container">
           <div className="contact-info">
-            <span className="badge badge-gold">Book Keynote Speaker Chris Marvel</span>
-            <h2>Let&rsquo;s Build Something <span className="accent">Together</span></h2>
+            <span className="badge badge-gold">Book Chris Marvel</span>
+            <h2>Let&rsquo;s Drive <span className="accent">Performance</span></h2>
             <p className="contact-description">
-              Whether you need a <strong>keynote speaker</strong> that moves the room, a <strong>workshop facilitator</strong> that transforms your team,
-              or a <strong>multi-session training program</strong> that shifts your organizational culture — Chris Marvel delivers.
-              Event planners, HR directors, conference organizers, and school administrators: let&rsquo;s talk.
+              Whether your organization is losing performance to <strong>disengagement and burnout</strong>,
+              your school district needs to <strong>increase engagement and accountability</strong>,
+              or your university wants to <strong>improve student retention and persistence</strong> &mdash;
+              Chris Marvel delivers a performance system that gets measurable results.
             </p>
             <ul className="contact-details">
               <li>
@@ -414,7 +464,7 @@ export default function Home() {
             {formSubmitted ? (
               <div className="form-success">
                 <h3>Thank You!</h3>
-                <p>Your booking inquiry has been submitted. Jazmine will be in touch within 24–48 hours to discuss your event.</p>
+                <p>Your booking inquiry has been submitted. Jazmine will be in touch within 24&ndash;48 hours to discuss your event.</p>
               </div>
             ) : (
               <form onSubmit={handleSubmit} aria-label="Speaker booking inquiry form">
@@ -428,13 +478,13 @@ export default function Home() {
                   </div>
                   <div className="form-group">
                     <label htmlFor="organization">Organization</label>
-                    <input type="text" id="organization" name="organization" placeholder="Company, school, or organization name" />
+                    <input type="text" id="organization" name="organization" placeholder="Company, school, district, or university" />
                   </div>
                 </div>
                 <div className="form-row">
                   <div className="form-group">
                     <label htmlFor="email">Email</label>
-                    <input type="email" id="email" name="email" placeholder="you@company.com" required />
+                    <input type="email" id="email" name="email" placeholder="you@organization.com" required />
                   </div>
                   <div className="form-group">
                     <label htmlFor="phone">Phone</label>
@@ -450,14 +500,15 @@ export default function Home() {
                     <option>Full-Day Training</option>
                     <option>Multi-Session Program</option>
                     <option>Conference Speaker</option>
-                    <option>Education / School District</option>
+                    <option>K–12 School District</option>
+                    <option>University / Student Success</option>
                     <option>Nonprofit Event</option>
                     <option>Other</option>
                   </select>
                 </div>
                 <div className="form-group">
                   <label htmlFor="message">Tell Us About Your Event</label>
-                  <textarea id="message" name="message" placeholder="Event date, audience size, goals, specific keynote topics of interest..."></textarea>
+                  <textarea id="message" name="message" placeholder="Event date, audience size, performance goals, specific challenges you're facing..."></textarea>
                 </div>
                 <button type="submit" className="btn btn-gold" disabled={formSubmitting}>
                   {formSubmitting ? 'Submitting...' : 'Submit Booking Inquiry'}
@@ -469,14 +520,14 @@ export default function Home() {
       </section>
 
       {/* ===== FOOTER ===== */}
-      <footer aria-label="Chris Marvel keynote speaker site footer">
+      <footer aria-label="Chris Marvel performance strategist site footer">
         <div className="container">
           <div className="footer-grid">
             <div className="footer-col">
               <div className="footer-brand-name">Chris <span>Marvel</span></div>
               <p className="footer-brand-tagline">
-                Keynote speaker, mental health performance coach, and author transforming how organizations approach wellbeing, resilience, and peak performance.
-                Available for corporate keynotes, workshops, and training programs nationwide.
+                Performance strategist and keynote speaker helping organizations, schools, and universities
+                increase engagement, elevate thinking, and drive measurable outcomes.
               </p>
               <div className="social-links">
                 <a href="https://www.linkedin.com/in/chrismarvel" target="_blank" rel="noopener noreferrer" aria-label="Chris Marvel on LinkedIn">in</a>
@@ -488,20 +539,20 @@ export default function Home() {
             <div className="footer-col">
               <h4>Navigate</h4>
               <ul>
-                <li><a href="#about" onClick={(e) => { e.preventDefault(); scrollTo('about') }}>About the Speaker</a></li>
+                <li><a href="#about" onClick={(e) => { e.preventDefault(); scrollTo('about') }}>About Chris</a></li>
+                <li><a href="#method" onClick={(e) => { e.preventDefault(); scrollTo('method') }}>The Recharge Method</a></li>
                 <li><a href="#keynotes" onClick={(e) => { e.preventDefault(); scrollTo('keynotes') }}>Keynote Topics</a></li>
                 <li><a href="#book" onClick={(e) => { e.preventDefault(); scrollTo('book') }}>The What If Effect</a></li>
-                <li><a href="#testimonials" onClick={(e) => { e.preventDefault(); scrollTo('testimonials') }}>Client Testimonials</a></li>
                 <li><a href="#faq" onClick={(e) => { e.preventDefault(); scrollTo('faq') }}>FAQ</a></li>
               </ul>
             </div>
 
             <div className="footer-col">
-              <h4>Services</h4>
+              <h4>Who We Serve</h4>
               <ul>
-                <li><a href="#keynotes" onClick={(e) => { e.preventDefault(); scrollTo('keynotes') }}>Corporate Keynotes</a></li>
-                <li><a href="#keynotes" onClick={(e) => { e.preventDefault(); scrollTo('keynotes') }}>Workshops &amp; Training</a></li>
-                <li><a href="#reel" onClick={(e) => { e.preventDefault(); scrollTo('reel') }}>Speaker Reel</a></li>
+                <li><a href="#keynotes" onClick={(e) => { e.preventDefault(); scrollTo('keynotes') }}>Corporate &amp; Leadership</a></li>
+                <li><a href="#keynotes" onClick={(e) => { e.preventDefault(); scrollTo('keynotes') }}>K&ndash;12 Schools &amp; Districts</a></li>
+                <li><a href="#keynotes" onClick={(e) => { e.preventDefault(); scrollTo('keynotes') }}>Universities &amp; Student Success</a></li>
                 <li><a href="#contact" onClick={(e) => { e.preventDefault(); scrollTo('contact') }}>Book Chris to Speak</a></li>
               </ul>
             </div>
@@ -523,7 +574,7 @@ export default function Home() {
             </div>
           </div>
           <div className="footer-bottom">
-            &copy; 2026 Chris Marvel | Pivot Training &amp; Development. All rights reserved. | <strong>Keynote Speaker</strong> &bull; <strong>Mental Health Coach</strong> &bull; <strong>Author</strong>
+            &copy; 2026 Chris Marvel | Pivot Training &amp; Development. All rights reserved. | <strong>Performance Strategist</strong> &bull; <strong>Keynote Speaker</strong> &bull; <strong>Author</strong>
           </div>
         </div>
       </footer>

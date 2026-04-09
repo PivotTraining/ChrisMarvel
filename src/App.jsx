@@ -1,9 +1,11 @@
+import { useState, useCallback } from 'react'
 import { Routes, Route, Navigate } from 'react-router-dom'
 import { AuthProvider, useAuth } from './context/AuthContext'
 import { ToastProvider } from './context/ToastContext'
 import { OfflineProvider } from './context/OfflineContext'
 import Header from './components/layout/Header'
 import BottomNav from './components/layout/BottomNav'
+import SplashScreen from './components/SplashScreen'
 import Login from './pages/auth/Login'
 import Signup from './pages/auth/Signup'
 import Onboarding from './pages/auth/Onboarding'
@@ -17,6 +19,13 @@ import Settings from './pages/settings/Settings'
 
 function AppContent() {
   const { user, loading, profile } = useAuth()
+  const [splashDone, setSplashDone] = useState(false)
+  const handleSplashFinish = useCallback(() => setSplashDone(true), [])
+
+  // Show splash on first load (covers auth loading too)
+  if (!splashDone) {
+    return <SplashScreen onFinish={handleSplashFinish} />
+  }
 
   if (loading) {
     return (

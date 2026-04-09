@@ -173,6 +173,18 @@ export function AuthProvider({ children }) {
         .select('*')
         .eq('id', userId)
         .single()
+      if (error && error.code === 'PGRST116') {
+        // Profile doesn't exist yet — create it
+        const { data: authData } = await supabase.auth.getUser()
+        const { data: newProfile, error: insertErr } = await supabase
+          .from('profiles')
+          .upsert({ id: userId, email: authData?.user?.email || '' }, { onConflict: 'id' })
+          .select()
+          .single()
+        if (insertErr) { setProfile(null); return null }
+        setProfile(newProfile)
+        return newProfile
+      }
       if (error) throw error
       setProfile(data)
       return data
@@ -194,9 +206,22 @@ export function AuthProvider({ children }) {
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
-      options: { data: metadata },
+      options: {
+        data: metadata,
+        emailRedirectTo: `${window.location.origin}/login`,
+      },
     })
     if (error) throw error
+    // If we got a session (auto-confirmed), create profile now
+    if (data?.session && data?.user) {
+      await supabase
+        .from('profiles')
+        .upsert({
+          id: data.user.id,
+          email,
+          date_of_birth: metadata.date_of_birth || null,
+        }, { onConflict: 'id' })
+    }
     return data
   }
 

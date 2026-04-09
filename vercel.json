@@ -3,7 +3,13 @@
   "outputDirectory": "dist",
   "installCommand": "npm install",
   "framework": "vite",
+  "functions": {
+    "api/create-checkout-session.js": {
+      "runtime": "@vercel/node@3"
+    }
+  },
   "rewrites": [
+    { "source": "/api/(.*)", "destination": "/api/$1" },
     { "source": "/((?!api|assets|favicon|icons|manifest|registerSW|sw|workbox).*)", "destination": "/index.html" }
   ]
 }

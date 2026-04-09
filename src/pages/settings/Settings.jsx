@@ -189,7 +189,7 @@ function DangerAction({ icon: Icon, title, description, buttonLabel, onAction, c
 
 export default function Settings() {
   const navigate = useNavigate()
-  const { profile, updateProfile, signOut } = useAuth()
+  const { profile, updateProfile, signOut, deleteAccount } = useAuth()
   const { isPro } = usePremium()
   const { showToast } = useToast()
   const { seasonAverages } = useGames()
@@ -260,9 +260,9 @@ export default function Settings() {
     })
     try { localStorage.removeItem('courtiq_premium') } catch { /* noop */ }
 
-    // Sign out (clears profile state)
+    // Delete account and sign out
     try {
-      await signOut()
+      await deleteAccount()
     } catch { /* noop */ }
 
     showToast('Profile erased', 'info')

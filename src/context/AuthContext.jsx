@@ -3,23 +3,125 @@ import { supabase, BYPASS_AUTH } from '../lib/supabase'
 
 const AuthContext = createContext(null)
 
-const DEMO_USER = {
-  id: 'demo-user-001',
-  email: 'demo@courtiq.app',
+const USERS_KEY = 'courtiq_users'
+const ACTIVE_USER_KEY = 'courtiq_active_user'
+
+/* ---------- localStorage user management ---------- */
+
+function getStoredUsers() {
+  try { return JSON.parse(localStorage.getItem(USERS_KEY) || '{}') } catch { return {} }
 }
 
-const DEMO_PROFILE = {
-  id: 'demo-user-001',
-  full_name: 'Demo Player',
-  position: 'SG',
-  skill_level: 'Intermediate',
-  onboarding_completed: true,
-  date_of_birth: '2005-06-15',
-  xp: 450,
-  level: 3,
-  streak_count: 5,
-  created_at: new Date().toISOString(),
+function saveStoredUsers(users) {
+  try { localStorage.setItem(USERS_KEY, JSON.stringify(users)) } catch { /* noop */ }
 }
+
+function getActiveUserId() {
+  try { return localStorage.getItem(ACTIVE_USER_KEY) || null } catch { return null }
+}
+
+function setActiveUserId(id) {
+  try {
+    if (id) localStorage.setItem(ACTIVE_USER_KEY, id)
+    else localStorage.removeItem(ACTIVE_USER_KEY)
+  } catch { /* noop */ }
+}
+
+function createLocalUser(email, password, metadata = {}) {
+  const users = getStoredUsers()
+  if (users[email]) throw new Error('An account with this email already exists.')
+  const id = crypto.randomUUID ? crypto.randomUUID() : `user-${Date.now()}`
+  const user = {
+    id,
+    email,
+    password,
+    created_at: new Date().toISOString(),
+  }
+  const profile = {
+    id,
+    email,
+    full_name: metadata.full_name || '',
+    position: metadata.position || '',
+    skill_level: metadata.skill_level || 'Beginner',
+    onboarding_completed: false,
+    date_of_birth: metadata.date_of_birth || '',
+    xp: 0,
+    level: 1,
+    streak_count: 0,
+    created_at: user.created_at,
+    notification_preferences: { streak_reminder: true, weekly_summary: true },
+  }
+  users[email] = { user, profile }
+  saveStoredUsers(users)
+  return { user, profile }
+}
+
+function loginLocalUser(email, password) {
+  const users = getStoredUsers()
+  const entry = users[email]
+  if (!entry) throw new Error('No account found with this email.')
+  if (entry.user.password !== password) throw new Error('Incorrect password.')
+  return { user: entry.user, profile: entry.profile }
+}
+
+function updateLocalProfile(email, updates) {
+  const users = getStoredUsers()
+  const entry = users[email]
+  if (!entry) return null
+  entry.profile = { ...entry.profile, ...updates }
+  saveStoredUsers(users)
+  return entry.profile
+}
+
+function getLocalProfile(email) {
+  const users = getStoredUsers()
+  return users[email]?.profile || null
+}
+
+function getLocalUserByEmail(email) {
+  const users = getStoredUsers()
+  return users[email] || null
+}
+
+function findUserById(id) {
+  const users = getStoredUsers()
+  for (const entry of Object.values(users)) {
+    if (entry.user.id === id) return entry
+  }
+  return null
+}
+
+/* ---------- Demo seed user ---------- */
+
+const DEMO_EMAIL = 'demo@courtiq.app'
+
+function ensureDemoUser() {
+  const users = getStoredUsers()
+  if (!users[DEMO_EMAIL]) {
+    const id = 'demo-user-001'
+    users[DEMO_EMAIL] = {
+      user: { id, email: DEMO_EMAIL, password: 'demo', created_at: new Date().toISOString() },
+      profile: {
+        id,
+        email: DEMO_EMAIL,
+        full_name: 'Demo Player',
+        position: 'SG',
+        skill_level: 'Intermediate',
+        onboarding_completed: true,
+        date_of_birth: '2005-06-15',
+        xp: 450,
+        level: 3,
+        streak_count: 5,
+        created_at: new Date().toISOString(),
+        notification_preferences: { streak_reminder: true, weekly_summary: true },
+      },
+    }
+    saveStoredUsers(users)
+  }
+  return users[DEMO_EMAIL]
+}
+
+/* ---------- Provider ---------- */
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null)
@@ -27,8 +129,44 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(!BYPASS_AUTH)
   const [profile, setProfile] = useState(null)
 
+  // On mount: restore active session from localStorage (bypass mode)
+  useEffect(() => {
+    if (BYPASS_AUTH) {
+      ensureDemoUser()
+      const activeId = getActiveUserId()
+      if (activeId) {
+        const entry = findUserById(activeId)
+        if (entry) {
+          setUser(entry.user)
+          setSession({ user: entry.user })
+          setProfile(entry.profile)
+        }
+      }
+      setLoading(false)
+      return
+    }
+
+    supabase.auth.getSession().then(({ data: { session: currentSession } }) => {
+      setSession(currentSession)
+      setUser(currentSession?.user ?? null)
+      if (currentSession?.user) fetchProfile(currentSession.user.id)
+      setLoading(false)
+    })
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      async (_event, newSession) => {
+        setSession(newSession)
+        setUser(newSession?.user ?? null)
+        if (newSession?.user) await fetchProfile(newSession.user.id)
+        else setProfile(null)
+        setLoading(false)
+      }
+    )
+
+    return () => subscription.unsubscribe()
+  }, [])
+
   async function fetchProfile(userId) {
-    if (BYPASS_AUTH) return DEMO_PROFILE
     try {
       const { data, error } = await supabase
         .from('profiles')
@@ -38,48 +176,20 @@ export function AuthProvider({ children }) {
       if (error) throw error
       setProfile(data)
       return data
-    } catch (err) {
+    } catch {
       setProfile(null)
       return null
     }
   }
 
-  useEffect(() => {
-    if (BYPASS_AUTH) {
-      setLoading(false)
-      return
-    }
-
-    supabase.auth.getSession().then(({ data: { session: currentSession } }) => {
-      setSession(currentSession)
-      setUser(currentSession?.user ?? null)
-      if (currentSession?.user) {
-        fetchProfile(currentSession.user.id)
-      }
-      setLoading(false)
-    })
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (_event, newSession) => {
-        setSession(newSession)
-        setUser(newSession?.user ?? null)
-        if (newSession?.user) {
-          await fetchProfile(newSession.user.id)
-        } else {
-          setProfile(null)
-        }
-        setLoading(false)
-      }
-    )
-
-    return () => subscription.unsubscribe()
-  }, [])
-
   async function signUp(email, password, metadata = {}) {
     if (BYPASS_AUTH) {
-      setUser(DEMO_USER)
-      setProfile(DEMO_PROFILE)
-      return { user: DEMO_USER }
+      const { user: newUser, profile: newProfile } = createLocalUser(email, password, metadata)
+      setUser(newUser)
+      setSession({ user: newUser })
+      setProfile(newProfile)
+      setActiveUserId(newUser.id)
+      return { user: newUser }
     }
     const { data, error } = await supabase.auth.signUp({
       email,
@@ -92,23 +202,25 @@ export function AuthProvider({ children }) {
 
   async function signIn(email, password) {
     if (BYPASS_AUTH) {
-      setUser(DEMO_USER)
-      setProfile(DEMO_PROFILE)
-      return { user: DEMO_USER }
+      const { user: loggedIn, profile: loggedInProfile } = loginLocalUser(email, password)
+      setUser(loggedIn)
+      setSession({ user: loggedIn })
+      setProfile(loggedInProfile)
+      setActiveUserId(loggedIn.id)
+      return { user: loggedIn }
     }
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    })
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password })
     if (error) throw error
     return data
   }
 
   function demoSignIn() {
-    setUser(DEMO_USER)
-    setSession({ user: DEMO_USER })
-    setProfile(DEMO_PROFILE)
-    return { user: DEMO_USER }
+    const demo = ensureDemoUser()
+    setUser(demo.user)
+    setSession({ user: demo.user })
+    setProfile(demo.profile)
+    setActiveUserId(demo.user.id)
+    return { user: demo.user }
   }
 
   async function signOut() {
@@ -116,6 +228,7 @@ export function AuthProvider({ children }) {
       setUser(null)
       setSession(null)
       setProfile(null)
+      setActiveUserId(null)
       return
     }
     const { error } = await supabase.auth.signOut()
@@ -127,6 +240,12 @@ export function AuthProvider({ children }) {
 
   async function updateProfile(updates) {
     if (BYPASS_AUTH) {
+      const email = user?.email
+      if (email) {
+        const updated = updateLocalProfile(email, updates)
+        if (updated) setProfile(updated)
+        return updated
+      }
       const updated = { ...profile, ...updates }
       setProfile(updated)
       return updated
@@ -142,6 +261,23 @@ export function AuthProvider({ children }) {
     return data
   }
 
+  async function deleteAccount() {
+    if (BYPASS_AUTH) {
+      const email = user?.email
+      if (email) {
+        const users = getStoredUsers()
+        delete users[email]
+        saveStoredUsers(users)
+      }
+      setUser(null)
+      setSession(null)
+      setProfile(null)
+      setActiveUserId(null)
+      return
+    }
+    await signOut()
+  }
+
   const value = {
     user,
     session,
@@ -152,6 +288,7 @@ export function AuthProvider({ children }) {
     signOut,
     demoSignIn,
     updateProfile,
+    deleteAccount,
   }
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
@@ -159,8 +296,6 @@ export function AuthProvider({ children }) {
 
 export function useAuth() {
   const context = useContext(AuthContext)
-  if (!context) {
-    throw new Error('useAuth must be used within an AuthProvider')
-  }
+  if (!context) throw new Error('useAuth must be used within an AuthProvider')
   return context
 }

@@ -1,18 +1,31 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { LogOut, Save, Bell, BarChart3, Calendar, Crown, ChevronRight, Check, Star } from 'lucide-react'
+import { LogOut, Save, Crown, ChevronRight, Star, Share2, Trash2, RotateCcw, AlertTriangle } from 'lucide-react'
 import PageWrapper from '../../components/layout/PageWrapper'
 import Button from '../../components/ui/Button'
 import Card from '../../components/ui/Card'
 import Input from '../../components/ui/Input'
 import Select from '../../components/ui/Select'
-import Badge from '../../components/ui/Badge'
+import SeasonShareCard from '../../components/ui/SeasonShareCard'
 import { useAuth } from '../../context/AuthContext'
 import { usePremium } from '../../context/PremiumContext'
 import { useToast } from '../../context/ToastContext'
+import useGames from '../../hooks/useGames'
 
 const POSITIONS = ['PG', 'SG', 'SF', 'PF', 'C']
 const SKILL_LEVELS = ['Beginner', 'Intermediate', 'Advanced']
+
+const ALL_STORAGE_KEYS = [
+  'courtiq_games',
+  'courtiq_shots',
+  'courtiq_drills',
+  'courtiq_journal',
+  'courtiq_badges',
+  'courtiq_challenges',
+  'courtiq_content_saved',
+  'courtiq_content_history',
+  'courtiq_pack_progress',
+]
 
 function SectionTitle({ children }) {
   return (
@@ -59,11 +72,127 @@ function StatItem({ label, value }) {
   )
 }
 
+function DangerAction({ icon: Icon, title, description, buttonLabel, onAction, confirmText }) {
+  const [confirming, setConfirming] = useState(false)
+
+  const handleClick = () => {
+    if (!confirming) {
+      setConfirming(true)
+      return
+    }
+    onAction()
+    setConfirming(false)
+  }
+
+  return (
+    <div
+      style={{
+        padding: 'var(--space-2)',
+        borderBottom: '1px solid rgba(239,68,68,0.1)',
+      }}
+    >
+      <div className="flex items-start gap-3">
+        <div
+          style={{
+            width: '36px',
+            height: '36px',
+            borderRadius: '10px',
+            backgroundColor: 'var(--color-danger-tint)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            flexShrink: 0,
+            marginTop: '2px',
+          }}
+        >
+          <Icon size={18} style={{ color: 'var(--color-danger)' }} />
+        </div>
+        <div className="flex-1">
+          <p className="t-body" style={{ fontWeight: 700, color: 'var(--color-text)' }}>{title}</p>
+          <p className="t-caption" style={{ color: 'var(--color-text-sec)', marginTop: '2px' }}>{description}</p>
+          {confirming && (
+            <div
+              style={{
+                marginTop: 'var(--space-1)',
+                padding: 'var(--space-1) var(--space-2)',
+                borderRadius: '10px',
+                backgroundColor: 'rgba(239,68,68,0.08)',
+                border: '1px solid rgba(239,68,68,0.2)',
+              }}
+            >
+              <div className="flex items-center gap-2" style={{ marginBottom: '8px' }}>
+                <AlertTriangle size={14} style={{ color: 'var(--color-danger)' }} />
+                <p className="t-caption" style={{ color: 'var(--color-danger)', fontWeight: 700 }}>{confirmText}</p>
+              </div>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => setConfirming(false)}
+                  className="t-caption"
+                  style={{
+                    flex: 1,
+                    padding: '8px',
+                    borderRadius: '8px',
+                    border: '1px solid var(--color-border)',
+                    background: 'var(--color-card)',
+                    color: 'var(--color-text-sec)',
+                    fontWeight: 700,
+                    cursor: 'pointer',
+                    fontFamily: 'inherit',
+                  }}
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleClick}
+                  className="t-caption"
+                  style={{
+                    flex: 1,
+                    padding: '8px',
+                    borderRadius: '8px',
+                    border: 'none',
+                    background: 'var(--color-danger)',
+                    color: '#fff',
+                    fontWeight: 700,
+                    cursor: 'pointer',
+                    fontFamily: 'inherit',
+                  }}
+                >
+                  {buttonLabel}
+                </button>
+              </div>
+            </div>
+          )}
+          {!confirming && (
+            <button
+              onClick={handleClick}
+              className="t-caption"
+              style={{
+                marginTop: '8px',
+                padding: '6px 14px',
+                borderRadius: '8px',
+                border: '1px solid rgba(239,68,68,0.3)',
+                background: 'transparent',
+                color: 'var(--color-danger)',
+                fontWeight: 700,
+                cursor: 'pointer',
+                fontFamily: 'inherit',
+              }}
+            >
+              {buttonLabel}
+            </button>
+          )}
+        </div>
+      </div>
+    </div>
+  )
+}
+
 export default function Settings() {
   const navigate = useNavigate()
   const { profile, updateProfile, signOut } = useAuth()
   const { isPro } = usePremium()
   const { showToast } = useToast()
+  const { seasonAverages } = useGames()
 
   const [fullName, setFullName] = useState('')
   const [position, setPosition] = useState('')
@@ -73,6 +202,7 @@ export default function Settings() {
 
   const [streakReminder, setStreakReminder] = useState(true)
   const [weeklySummary, setWeeklySummary] = useState(true)
+  const [showShareCard, setShowShareCard] = useState(false)
 
   useEffect(() => {
     if (profile) {
@@ -115,6 +245,29 @@ export default function Settings() {
     updateProfile({ notification_preferences: { streak_reminder: streakReminder, weekly_summary: next } })
   }
 
+  const handleResetStats = () => {
+    ALL_STORAGE_KEYS.forEach((key) => {
+      try { localStorage.removeItem(key) } catch { /* noop */ }
+    })
+    showToast('All stats have been reset', 'success')
+    window.location.reload()
+  }
+
+  const handleEraseProfile = async () => {
+    // Clear all local data
+    ALL_STORAGE_KEYS.forEach((key) => {
+      try { localStorage.removeItem(key) } catch { /* noop */ }
+    })
+    try { localStorage.removeItem('courtiq_premium') } catch { /* noop */ }
+
+    // Sign out (clears profile state)
+    try {
+      await signOut()
+    } catch { /* noop */ }
+
+    showToast('Profile erased', 'info')
+  }
+
   const handleSignOut = async () => {
     try {
       await signOut()
@@ -148,7 +301,7 @@ export default function Settings() {
       </Card>
 
       <SectionTitle>Stats Summary</SectionTitle>
-      <Card className="mb-5">
+      <Card className="mb-3">
         <div className="grid grid-cols-4 gap-2 text-center">
           <StatItem label="XP" value={profile?.xp ?? 0} />
           <StatItem label="Level" value={profile?.level ?? 1} />
@@ -156,6 +309,32 @@ export default function Settings() {
           <StatItem label="Since" value={memberSince} />
         </div>
       </Card>
+
+      {/* Share Season Card */}
+      <button
+        onClick={() => setShowShareCard(true)}
+        style={{
+          width: '100%',
+          padding: '14px 20px',
+          borderRadius: 'var(--radius-btn)',
+          border: 'none',
+          background: 'linear-gradient(135deg, var(--color-accent), var(--color-accent-dark))',
+          color: '#fff',
+          fontSize: '15px',
+          fontWeight: 800,
+          fontFamily: 'inherit',
+          cursor: 'pointer',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: '8px',
+          marginBottom: 'var(--space-4)',
+          boxShadow: '0 4px 16px rgba(255,107,53,0.35)',
+        }}
+      >
+        <Share2 size={18} />
+        Share Season Scorecard
+      </button>
 
       <SectionTitle>Preferences</SectionTitle>
       <Card className="mb-5">
@@ -195,14 +374,52 @@ export default function Settings() {
 
       <SectionTitle>Account</SectionTitle>
       <Card className="mb-5">
-        <Button variant="outline" fullWidth onClick={handleSignOut} className="mb-3"
-          style={{ color: 'var(--color-danger)', borderColor: 'rgba(239,68,68,0.4)' }}>
+        <Button variant="outline" fullWidth onClick={handleSignOut} className="mb-3">
           <LogOut className="w-4 h-4" /> Sign Out
         </Button>
-        <p className="t-caption" style={{ textAlign: 'center', color: 'var(--color-text-sec)' }}>
-          CourtIQ v1.0
-        </p>
       </Card>
+
+      {/* Danger Zone */}
+      <SectionTitle>Danger Zone</SectionTitle>
+      <div
+        style={{
+          borderRadius: 'var(--radius-card)',
+          border: '1px solid rgba(239,68,68,0.2)',
+          backgroundColor: 'var(--color-card)',
+          overflow: 'hidden',
+          marginBottom: 'var(--space-5)',
+        }}
+      >
+        <DangerAction
+          icon={RotateCcw}
+          title="Reset All Stats"
+          description="Clears all games, shots, drills, journal entries, badges, and challenges. Your profile stays intact."
+          buttonLabel="Reset Stats"
+          confirmText="This will permanently delete all your tracked data. This cannot be undone."
+          onAction={handleResetStats}
+        />
+        <DangerAction
+          icon={Trash2}
+          title="Erase Profile"
+          description="Permanently deletes your profile, all data, and signs you out. Everything will be gone."
+          buttonLabel="Erase Everything"
+          confirmText="This will permanently erase your entire profile and all data. You will be signed out."
+          onAction={handleEraseProfile}
+        />
+      </div>
+
+      <p className="t-caption" style={{ textAlign: 'center', color: 'var(--color-text-sec)', marginBottom: 'var(--space-3)' }}>
+        CourtIQ v1.0
+      </p>
+
+      {/* Season Share Card Modal */}
+      {showShareCard && (
+        <SeasonShareCard
+          player={profile}
+          stats={seasonAverages}
+          onClose={() => setShowShareCard(false)}
+        />
+      )}
     </PageWrapper>
   )
 }

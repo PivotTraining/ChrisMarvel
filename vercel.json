@@ -4,6 +4,6 @@
   "installCommand": "npm install",
   "framework": "vite",
   "rewrites": [
-    { "source": "/((?!assets|favicon|icons|manifest|registerSW|sw|workbox).*)", "destination": "/index.html" }
+    { "source": "/((?!api|assets|favicon|icons|manifest|registerSW|sw|workbox).*)", "destination": "/index.html" }
   ]
 }

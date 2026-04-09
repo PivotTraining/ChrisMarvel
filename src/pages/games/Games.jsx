@@ -140,11 +140,12 @@ function NumInput({ label, value, onChange, error, color }) {
         {label}
       </label>
       <input type="number" inputMode="numeric" value={value} onChange={onChange} placeholder="0"
+        className="t-title3"
         style={{
           width: '100%', padding: 'var(--space-2) var(--space-1)', borderRadius: 'var(--radius-input)',
           border: error ? '1px solid var(--color-danger)' : '1.5px solid var(--color-border)',
           background: 'var(--color-input-bg)', color: 'var(--color-text)',
-          fontSize: '20px', fontWeight: 800, textAlign: 'center', outline: 'none',
+          textAlign: 'center', outline: 'none',
           letterSpacing: '-0.5px', boxSizing: 'border-box',
           transition: 'all 0.2s ease',
         }}
@@ -426,7 +427,7 @@ function GameForm({ initial, onSave, onDelete, onBack, saving }) {
       {/* TAB: Shooting (SECOND) */}
       {tab === 'shooting' && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-2)' }}>
-          <p style={{ fontSize: '14px', color: 'var(--color-text-sec)', textAlign: 'center' }}>
+          <p className="t-body" style={{ color: 'var(--color-text-sec)', textAlign: 'center' }}>
             Tap a zone to record makes & misses
           </p>
           <MiniCourtSVG shotData={shotData} onZoneClick={setActiveZone} />
@@ -435,27 +436,27 @@ function GameForm({ initial, onSave, onDelete, onBack, saving }) {
               <div style={{ display: 'flex', justifyContent: 'space-around', textAlign: 'center' }}>
                 <div>
                   <p className="t-title2" style={{ color: 'var(--color-success)' }}>{totalMade}</p>
-                  <p style={{ fontSize: '11px', color: 'var(--color-text-sec)', fontWeight: 600 }}>MADE</p>
+                  <p className="section-label">MADE</p>
                 </div>
                 <div>
                   <p className="t-title2" style={{ color: 'var(--color-danger)' }}>{totalShots - totalMade}</p>
-                  <p style={{ fontSize: '11px', color: 'var(--color-text-sec)', fontWeight: 600 }}>MISSED</p>
+                  <p className="section-label">MISSED</p>
                 </div>
                 <div>
                   <p className="t-title2" style={{ color: 'var(--color-accent)' }}>{totalShots > 0 ? Math.round((totalMade / totalShots) * 100) : 0}%</p>
-                  <p style={{ fontSize: '11px', color: 'var(--color-text-sec)', fontWeight: 600 }}>FG%</p>
+                  <p className="section-label">FG%</p>
                 </div>
                 {courtTotals.tpa > 0 && (
                   <div>
                     <p className="t-title2" style={{ color: 'var(--color-purple)' }}>{Math.round((courtTotals.tpm / courtTotals.tpa) * 100)}%</p>
-                    <p style={{ fontSize: '11px', color: 'var(--color-text-sec)', fontWeight: 600 }}>3PT%</p>
+                    <p className="section-label">3PT%</p>
                   </div>
                 )}
               </div>
             </Card>
           )}
           {totalShots > 0 && (
-            <p style={{ fontSize: '12px', color: 'var(--color-text-sec)', textAlign: 'center' }}>
+            <p className="t-caption" style={{ color: 'var(--color-text-sec)', textAlign: 'center' }}>
               Auto-calculated: ~{(() => { const twos = (courtTotals.fgm - courtTotals.tpm) * 2; return twos + courtTotals.tpm * 3 + courtTotals.ftm })()} PTS from court data
             </p>
           )}
@@ -473,13 +474,13 @@ function GameForm({ initial, onSave, onDelete, onBack, saving }) {
           </div>
           <div>
             <label className="t-label" style={{ display: 'block', marginBottom: 'var(--space-1)' }}>Opponent</label>
-            <input value={form.opponent} onChange={set('opponent')} placeholder="Team name" style={{ width: '100%', padding: '14px 16px', borderRadius: '14px', border: errors.opponent ? '1px solid var(--color-danger)' : '1px solid var(--color-border)', background: 'var(--color-input-bg)', color: 'var(--color-text)', fontSize: '15px', fontFamily: 'inherit', outline: 'none', boxSizing: 'border-box' }} />
-            {errors.opponent && <p style={{ fontSize: '11px', color: 'var(--color-danger)', marginTop: '4px' }}>{errors.opponent}</p>}
+            <input value={form.opponent} onChange={set('opponent')} placeholder="Team name" className="input-base" style={{ width: '100%', border: errors.opponent ? '1px solid var(--color-danger)' : undefined }} />
+            {errors.opponent && <p className="t-caption" style={{ color: 'var(--color-danger)', marginTop: '4px' }}>{errors.opponent}</p>}
           </div>
           <div>
             <label className="t-label" style={{ display: 'block', marginBottom: 'var(--space-1)' }}>Result</label>
             <ChipSelect options={RESULTS} value={form.result} onChange={(v) => setVal('result', v)} color="#3B82F6" />
-            {errors.result && <p style={{ fontSize: '11px', color: 'var(--color-danger)', marginTop: '4px' }}>{errors.result}</p>}
+            {errors.result && <p className="t-caption" style={{ color: 'var(--color-danger)', marginTop: '4px' }}>{errors.result}</p>}
           </div>
           <div>
             <label className="t-label" style={{ display: 'block', marginBottom: 'var(--space-1)' }}>Game Type</label>
@@ -491,12 +492,12 @@ function GameForm({ initial, onSave, onDelete, onBack, saving }) {
           </div>
           <div>
             <label className="t-label" style={{ display: 'block', marginBottom: 'var(--space-1)' }}>Notes</label>
-            <textarea value={form.notes} onChange={set('notes')} placeholder="How did the game go?" rows={3} style={{ width: '100%', padding: '14px 16px', borderRadius: '14px', border: '1px solid var(--color-border)', background: 'var(--color-input-bg)', color: 'var(--color-text)', fontSize: '15px', fontFamily: 'inherit', outline: 'none', boxSizing: 'border-box', resize: 'vertical' }} />
+            <textarea value={form.notes} onChange={set('notes')} placeholder="How did the game go?" rows={3} className="input-base" style={{ resize: 'vertical' }} />
           </div>
         </div>
       )}
 
-      <div style={{ marginTop: '24px', display: 'flex', gap: '12px' }}>
+      <div style={{ marginTop: 'var(--space-3)', display: 'flex', gap: 'var(--space-2)' }}>
         <button type="submit" disabled={saving} className="btn-primary" style={{ flex: 1, opacity: saving ? 0.7 : 1 }}>
           <Trophy size={18} />
           {saving ? 'Saving...' : isEdit ? 'Update Game' : 'Save Game'}
@@ -665,23 +666,24 @@ function buildShareText(game, feedback) {
 /* ---- Efficiency Bar Component ---- */
 function EffBar({ label, made, attempted, thresholds }) {
   const val = attempted > 0 ? (made / attempted) * 100 : 0
-  const color = val >= thresholds[0] ? '#22C55E' : val >= thresholds[1] ? '#FF6B35' : '#EF4444'
+  const color = val >= thresholds[0] ? 'var(--color-success)' : val >= thresholds[1] ? 'var(--color-accent)' : 'var(--color-danger)'
+  const colorHex = val >= thresholds[0] ? '#22C55E' : val >= thresholds[1] ? '#FF6B35' : '#EF4444'
   return (
-    <div style={{ marginBottom: '14px' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}>
-        <span style={{ fontSize: '13px', fontWeight: 700, color: 'var(--color-text)' }}>{label}</span>
-        <span style={{ fontSize: '13px', fontWeight: 600, color: 'var(--color-text-sec)' }}>{made}/{attempted}</span>
+    <div style={{ marginBottom: 'var(--space-2)' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 'var(--space-1)' }}>
+        <span className="t-body-bold" style={{ color: 'var(--color-text)' }}>{label}</span>
+        <span className="t-body" style={{ color: 'var(--color-text-sec)' }}>{made}/{attempted}</span>
       </div>
-      <div style={{ height: '8px', borderRadius: '4px', background: 'rgba(255,255,255,0.06)', overflow: 'hidden' }}>
+      <div style={{ height: '8px', borderRadius: '4px', background: 'rgba(255,255,255,0.08)', overflow: 'hidden' }}>
         <div style={{
           height: '100%', borderRadius: '4px', width: `${Math.min(100, val)}%`,
-          background: `linear-gradient(90deg, ${color}, ${color}CC)`,
+          background: `linear-gradient(90deg, ${colorHex}, ${colorHex}CC)`,
           transition: 'width 0.8s cubic-bezier(0.4,0,0.2,1)',
-          boxShadow: `0 0 8px ${color}40`,
+          boxShadow: `0 0 8px ${colorHex}40`,
         }} />
       </div>
       <div style={{ textAlign: 'right', marginTop: '4px' }}>
-        <span style={{ fontSize: '16px', fontWeight: 900, color, letterSpacing: '-0.5px' }}>{val.toFixed(1)}%</span>
+        <span className="t-body" style={{ fontWeight: 900, color, letterSpacing: '-0.5px' }}>{val.toFixed(1)}%</span>
       </div>
     </div>
   )
@@ -694,19 +696,20 @@ function RatingRing({ rating }) {
   const radius = (size - stroke) / 2
   const circ = 2 * Math.PI * radius
   const offset = circ - (rating / 100) * circ
-  const color = rating >= 80 ? '#22C55E' : rating >= 60 ? '#FF6B35' : rating >= 40 ? '#F59E0B' : '#EF4444'
+  const colorHex = rating >= 80 ? '#22C55E' : rating >= 60 ? '#FF6B35' : rating >= 40 ? '#F59E0B' : '#EF4444'
+  const colorVar = rating >= 80 ? 'var(--color-success)' : rating >= 60 ? 'var(--color-accent)' : rating >= 40 ? 'var(--color-warning)' : 'var(--color-danger)'
   const label = rating >= 80 ? 'Elite' : rating >= 60 ? 'Strong' : rating >= 40 ? 'Average' : 'Developing'
   return (
     <div style={{ textAlign: 'center' }}>
       <svg width={size} height={size} style={{ transform: 'rotate(-90deg)' }}>
-        <circle cx={size/2} cy={size/2} r={radius} fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth={stroke} />
-        <circle cx={size/2} cy={size/2} r={radius} fill="none" stroke={color} strokeWidth={stroke}
+        <circle cx={size/2} cy={size/2} r={radius} fill="none" stroke="rgba(255,255,255,0.08)" strokeWidth={stroke} />
+        <circle cx={size/2} cy={size/2} r={radius} fill="none" stroke={colorHex} strokeWidth={stroke}
           strokeDasharray={circ} strokeDashoffset={offset} strokeLinecap="round"
           style={{ transition: 'stroke-dashoffset 1s cubic-bezier(0.4,0,0.2,1)' }} />
       </svg>
-      <div style={{ marginTop: '-72px', marginBottom: '28px' }}>
-        <div style={{ fontSize: '28px', fontWeight: 900, color, letterSpacing: '-1px' }}>{rating}</div>
-        <div style={{ fontSize: '10px', fontWeight: 700, color: 'var(--color-text-sec)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>{label}</div>
+      <div style={{ marginTop: '-72px', marginBottom: 'var(--space-4)' }}>
+        <div className="t-title1" style={{ color: colorVar, letterSpacing: '-1px' }}>{rating}</div>
+        <div className="section-label">{label}</div>
       </div>
     </div>
   )
@@ -716,13 +719,13 @@ function RatingRing({ rating }) {
 function MetricCard({ label, value, unit, color }) {
   return (
     <div style={{
-      background: 'rgba(255,255,255,0.03)', borderRadius: '14px', padding: '14px 10px',
-      textAlign: 'center', border: '1px solid rgba(255,255,255,0.06)',
+      background: 'rgba(255,255,255,0.04)', borderRadius: 'var(--radius-input)', padding: 'var(--space-2) var(--space-1)',
+      textAlign: 'center', border: '1px solid rgba(255,255,255,0.08)',
     }}>
-      <div style={{ fontSize: '22px', fontWeight: 900, color: color || 'var(--color-text)', letterSpacing: '-0.5px' }}>
+      <div className="t-title3" style={{ color: color || 'var(--color-text)', letterSpacing: '-0.5px' }}>
         {value}{unit || ''}
       </div>
-      <div style={{ fontSize: '10px', fontWeight: 700, color: 'var(--color-text-sec)', textTransform: 'uppercase', letterSpacing: '0.5px', marginTop: '4px' }}>
+      <div className="section-label" style={{ marginTop: '4px' }}>
         {label}
       </div>
     </div>
@@ -739,16 +742,16 @@ function TrendBars({ games, currentPts }) {
       <p className="section-label" style={{ marginBottom: 'var(--space-2)' }}>
         Scoring Trend — Last {last5.length} Games
       </p>
-      <div style={{ display: 'flex', alignItems: 'flex-end', gap: '6px', height: '60px' }}>
+      <div style={{ display: 'flex', alignItems: 'flex-end', gap: 'var(--space-1)', height: '60px' }}>
         {last5.map((g, i) => {
           const h = Math.max(4, ((g.points || 0) / max) * 56)
           const isLast = i === last5.length - 1
           return (
             <div key={g.id || i} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}>
-              <span style={{ fontSize: '10px', fontWeight: 700, color: isLast ? '#FF6B35' : 'var(--color-text-sec)' }}>{g.points || 0}</span>
+              <span className="t-caption" style={{ fontWeight: 700, color: isLast ? 'var(--color-accent)' : 'var(--color-text-sec)' }}>{g.points || 0}</span>
               <div style={{
-                width: '100%', maxWidth: '32px', height: `${h}px`, borderRadius: '4px',
-                background: isLast ? 'linear-gradient(180deg, #FF6B35, #E85A2A)' : 'rgba(255,255,255,0.1)',
+                width: '100%', maxWidth: 'var(--space-4)', height: `${h}px`, borderRadius: '4px',
+                background: isLast ? 'linear-gradient(180deg, var(--color-accent), var(--color-accent-dark))' : 'rgba(255,255,255,0.08)',
                 transition: 'height 0.5s ease',
               }} />
             </div>
@@ -783,7 +786,7 @@ function RadarChart({ data }) {
             fill="none" stroke="rgba(255,255,255,0.08)" strokeWidth="0.5" />
         ))}
         {Array.from({ length: 6 }, (_, i) => (
-          <line key={i} x1={cx} y1={cy} x2={point(i, 100).x} y2={point(i, 100).y} stroke="rgba(255,255,255,0.06)" strokeWidth="0.5" />
+          <line key={i} x1={cx} y1={cy} x2={point(i, 100).x} y2={point(i, 100).y} stroke="rgba(255,255,255,0.08)" strokeWidth="0.5" />
         ))}
         <polygon points={poly} fill="rgba(255,107,53,0.18)" stroke="var(--color-accent)" strokeWidth="1.5" />
         {dataPoints.map((p, i) => (
@@ -822,11 +825,11 @@ function getArchetype(game) {
 function ArchetypeCard({ game }) {
   const arch = getArchetype(game)
   return (
-    <div style={{ padding: '20px', borderRadius: '20px', textAlign: 'center', background: `linear-gradient(135deg, ${arch.color}12, ${arch.color}06)`, border: `1px solid ${arch.color}20` }}>
-      <div style={{ fontSize: '40px', marginBottom: '8px' }}>{arch.icon}</div>
-      <p style={{ fontSize: '11px', color: 'var(--color-text-sec)', fontWeight: 600, marginBottom: '4px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>You played like a</p>
-      <h3 style={{ fontSize: '22px', fontWeight: 900, color: arch.color, marginBottom: '4px', letterSpacing: '-0.5px' }}>{arch.name}</h3>
-      <p style={{ fontSize: '14px', color: 'var(--color-text-sec)' }}>{arch.desc}</p>
+    <div style={{ padding: 'var(--space-3)', borderRadius: 'var(--radius-card)', textAlign: 'center', background: `linear-gradient(135deg, ${arch.color}12, ${arch.color}06)`, border: `1px solid ${arch.color}20` }}>
+      <div style={{ fontSize: '40px', marginBottom: 'var(--space-1)' }}>{arch.icon}</div>
+      <p className="section-label" style={{ marginBottom: '4px' }}>You played like a</p>
+      <h3 className="t-title3" style={{ color: arch.color, marginBottom: '4px', letterSpacing: '-0.5px' }}>{arch.name}</h3>
+      <p className="t-body" style={{ color: 'var(--color-text-sec)' }}>{arch.desc}</p>
     </div>
   )
 }
@@ -840,7 +843,8 @@ function StreakConsistency({ allGames }) {
   const stdDev = Math.sqrt(variance)
   const consistency = avg > 0 ? Math.max(0, Math.round(100 - (stdDev / avg) * 100)) : 50
   const consLabel = consistency >= 80 ? 'Elite' : consistency >= 60 ? 'Steady' : consistency >= 40 ? 'Variable' : 'Volatile'
-  const consColor = consistency >= 80 ? '#22C55E' : consistency >= 60 ? '#FF6B35' : consistency >= 40 ? '#F59E0B' : '#EF4444'
+  const consColor = consistency >= 80 ? 'var(--color-success)' : consistency >= 60 ? 'var(--color-accent)' : consistency >= 40 ? 'var(--color-warning)' : 'var(--color-danger)'
+  const consHex = consistency >= 80 ? '#22C55E' : consistency >= 60 ? '#FF6B35' : consistency >= 40 ? '#F59E0B' : '#EF4444'
   const sorted = [...allGames].sort((a, b) => (b.game_date || '').localeCompare(a.game_date || ''))
   let winStreak = 0, lossStreak = 0, scoringStreak = 0
   for (const g of sorted) { if (g.result === 'Win') winStreak++; else break }
@@ -849,22 +853,22 @@ function StreakConsistency({ allGames }) {
 
   return (
     <Card>
-      <p className="section-label" style={{ marginBottom: '14px' }}>Consistency & Streaks</p>
-      <div style={{ marginBottom: '16px' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}>
-          <span style={{ fontSize: '13px', fontWeight: 700, color: 'var(--color-text)' }}>Consistency</span>
-          <span style={{ fontSize: '13px', fontWeight: 800, color: consColor }}>{consLabel}</span>
+      <p className="section-label" style={{ marginBottom: 'var(--space-2)' }}>Consistency & Streaks</p>
+      <div style={{ marginBottom: 'var(--space-2)' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 'var(--space-1)' }}>
+          <span className="t-body-bold" style={{ color: 'var(--color-text)' }}>Consistency</span>
+          <span className="t-body" style={{ fontWeight: 800, color: consColor }}>{consLabel}</span>
         </div>
-        <div style={{ height: '6px', borderRadius: '3px', background: 'rgba(255,255,255,0.06)' }}>
-          <div style={{ height: '100%', borderRadius: '3px', width: `${consistency}%`, background: consColor, transition: 'width 0.8s ease' }} />
+        <div style={{ height: '6px', borderRadius: '3px', background: 'rgba(255,255,255,0.08)' }}>
+          <div style={{ height: '100%', borderRadius: '3px', width: `${consistency}%`, background: consHex, transition: 'width 0.8s ease' }} />
         </div>
-        <p style={{ fontSize: '11px', color: 'var(--color-text-sec)', marginTop: '4px' }}>Avg {avg.toFixed(1)} PPG (±{stdDev.toFixed(1)})</p>
+        <p className="t-caption" style={{ color: 'var(--color-text-sec)', marginTop: '4px' }}>Avg {avg.toFixed(1)} PPG (±{stdDev.toFixed(1)})</p>
       </div>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-        {winStreak >= 2 && <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 12px', borderRadius: '12px', background: 'rgba(34,197,94,0.1)' }}><span>🔥</span><span style={{ fontSize: '14px', fontWeight: 700, color: '#22C55E' }}>{winStreak}-Game Win Streak</span></div>}
-        {lossStreak >= 2 && <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 12px', borderRadius: '12px', background: 'rgba(239,68,68,0.1)' }}><span>📉</span><span style={{ fontSize: '14px', fontWeight: 700, color: '#EF4444' }}>{lossStreak}-Game Losing Streak</span></div>}
-        {scoringStreak >= 3 && <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 12px', borderRadius: '12px', background: 'rgba(255,107,53,0.1)' }}><span>📈</span><span style={{ fontSize: '14px', fontWeight: 700, color: '#FF6B35' }}>{scoringStreak} games above average</span></div>}
-        {winStreak < 2 && lossStreak < 2 && scoringStreak < 3 && <p style={{ fontSize: '13px', color: 'var(--color-text-sec)' }}>No active streaks — keep grinding!</p>}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-1)' }}>
+        {winStreak >= 2 && <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-1)', padding: 'var(--space-1) var(--space-2)', borderRadius: 'var(--radius-input)', background: 'var(--color-success-tint)' }}><span>🔥</span><span className="t-body-bold" style={{ color: 'var(--color-success)' }}>{winStreak}-Game Win Streak</span></div>}
+        {lossStreak >= 2 && <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-1)', padding: 'var(--space-1) var(--space-2)', borderRadius: 'var(--radius-input)', background: 'var(--color-danger-tint)' }}><span>📉</span><span className="t-body-bold" style={{ color: 'var(--color-danger)' }}>{lossStreak}-Game Losing Streak</span></div>}
+        {scoringStreak >= 3 && <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-1)', padding: 'var(--space-1) var(--space-2)', borderRadius: 'var(--radius-input)', background: 'var(--color-accent-tint)' }}><span>📈</span><span className="t-body-bold" style={{ color: 'var(--color-accent)' }}>{scoringStreak} games above average</span></div>}
+        {winStreak < 2 && lossStreak < 2 && scoringStreak < 3 && <p className="t-body" style={{ color: 'var(--color-text-sec)' }}>No active streaks — keep grinding!</p>}
       </div>
     </Card>
   )
@@ -878,35 +882,35 @@ function ShareCardModal({ game, rating, onClose }) {
   const threePctVal = game.three_pointers_attempted > 0 ? ((game.three_pointers_made / game.three_pointers_attempted) * 100).toFixed(0) : null
   return (
     <div onClick={onClose} style={{ position: 'fixed', inset: 0, zIndex: 70, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(0,0,0,0.8)', backdropFilter: 'blur(12px)' }}>
-      <div onClick={(e) => e.stopPropagation()} style={{ width: '320px', borderRadius: '24px', overflow: 'hidden', animation: 'modalIn 0.25s ease' }}>
-        <div style={{ background: `linear-gradient(160deg, #1A1D2E, ${resultColor}15)`, padding: '28px 24px', textAlign: 'center', border: `1px solid ${resultColor}25`, borderRadius: '24px' }}>
-          <p className="section-label" style={{ fontSize: '13px', fontWeight: 800, marginBottom: 'var(--space-3)' }}>COURT<span style={{ color: 'var(--color-accent)' }}>IQ</span></p>
-          <div style={{ display: 'inline-block', padding: '6px 20px', borderRadius: '10px', background: resultColor, marginBottom: '12px' }}>
-            <span style={{ fontSize: '13px', fontWeight: 800, color: '#fff', letterSpacing: '1.5px' }}>{game.result === 'Win' ? 'VICTORY' : game.result === 'Loss' ? 'LOSS' : 'DRAW'}</span>
+      <div onClick={(e) => e.stopPropagation()} style={{ width: '320px', borderRadius: 'var(--radius-card)', overflow: 'hidden', animation: 'modalIn 0.25s ease' }}>
+        <div style={{ background: `linear-gradient(160deg, var(--color-card), ${resultColor}15)`, padding: 'var(--space-4) var(--space-3)', textAlign: 'center', border: `1px solid ${resultColor}25`, borderRadius: 'var(--radius-card)' }}>
+          <p className="t-label" style={{ fontWeight: 800, marginBottom: 'var(--space-3)', textTransform: 'uppercase', letterSpacing: '0.8px' }}>COURT<span style={{ color: 'var(--color-accent)' }}>IQ</span></p>
+          <div style={{ display: 'inline-block', padding: 'var(--space-1) var(--space-3)', borderRadius: 'var(--radius-input)', background: resultColor, marginBottom: 'var(--space-2)' }}>
+            <span className="t-label" style={{ fontWeight: 800, color: '#fff', letterSpacing: '1.5px' }}>{game.result === 'Win' ? 'VICTORY' : game.result === 'Loss' ? 'LOSS' : 'DRAW'}</span>
           </div>
-          <p style={{ fontSize: '15px', color: 'var(--color-text-sec)', marginBottom: '20px' }}>{venue} {game.opponent || 'Unknown'} — {fmtDate(game.game_date)}</p>
-          <div style={{ display: 'flex', justifyContent: 'center', gap: '24px', marginBottom: '20px' }}>
-            {[{ val: game.points || 0, label: 'PTS', color: '#FF6B35' }, { val: game.rebounds || 0, label: 'REB', color: '#3B82F6' }, { val: game.assists || 0, label: 'AST', color: '#22C55E' }].map((s) => (
+          <p className="t-body" style={{ color: 'var(--color-text-sec)', marginBottom: 'var(--space-3)' }}>{venue} {game.opponent || 'Unknown'} — {fmtDate(game.game_date)}</p>
+          <div style={{ display: 'flex', justifyContent: 'center', gap: 'var(--space-3)', marginBottom: 'var(--space-3)' }}>
+            {[{ val: game.points || 0, label: 'PTS', color: 'var(--color-accent)' }, { val: game.rebounds || 0, label: 'REB', color: 'var(--color-info)' }, { val: game.assists || 0, label: 'AST', color: 'var(--color-success)' }].map((s) => (
               <div key={s.label} style={{ textAlign: 'center' }}>
-                <div style={{ fontSize: '32px', fontWeight: 900, color: s.color, letterSpacing: '-1px' }}>{s.val}</div>
-                <div style={{ fontSize: '10px', fontWeight: 700, color: 'var(--color-text-sec)', textTransform: 'uppercase' }}>{s.label}</div>
+                <div className="t-title1" style={{ fontSize: '32px', color: s.color, letterSpacing: '-1px' }}>{s.val}</div>
+                <div className="section-label">{s.label}</div>
               </div>
             ))}
           </div>
-          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '8px 16px', borderRadius: '12px', background: 'rgba(255,255,255,0.05)', marginBottom: '16px' }}>
-            <span style={{ fontSize: '24px', fontWeight: 900, color: rating >= 70 ? '#22C55E' : '#FF6B35' }}>{rating}</span>
-            <span style={{ fontSize: '11px', fontWeight: 600, color: 'var(--color-text-sec)' }}>IQ Rating</span>
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 'var(--space-1)', padding: 'var(--space-1) var(--space-2)', borderRadius: 'var(--radius-input)', background: 'rgba(255,255,255,0.04)', marginBottom: 'var(--space-2)' }}>
+            <span className="t-title2" style={{ color: rating >= 70 ? 'var(--color-success)' : 'var(--color-accent)' }}>{rating}</span>
+            <span className="t-caption" style={{ color: 'var(--color-text-sec)' }}>IQ Rating</span>
           </div>
           {(fgPctVal || threePctVal) && (
-            <div style={{ display: 'flex', justifyContent: 'center', gap: '16px', marginBottom: '16px' }}>
-              {fgPctVal && <span style={{ fontSize: '13px', color: 'var(--color-text-sec)' }}><strong style={{ color: 'var(--color-text)' }}>{fgPctVal}%</strong> FG</span>}
-              {threePctVal && <span style={{ fontSize: '13px', color: 'var(--color-text-sec)' }}><strong style={{ color: 'var(--color-text)' }}>{threePctVal}%</strong> 3PT</span>}
+            <div style={{ display: 'flex', justifyContent: 'center', gap: 'var(--space-2)', marginBottom: 'var(--space-2)' }}>
+              {fgPctVal && <span className="t-body" style={{ color: 'var(--color-text-sec)' }}><strong style={{ color: 'var(--color-text)' }}>{fgPctVal}%</strong> FG</span>}
+              {threePctVal && <span className="t-body" style={{ color: 'var(--color-text-sec)' }}><strong style={{ color: 'var(--color-text)' }}>{threePctVal}%</strong> 3PT</span>}
             </div>
           )}
-          <p style={{ fontSize: '10px', color: 'var(--color-text-sec)', opacity: 0.5 }}>Screenshot to share</p>
+          <p className="t-caption" style={{ color: 'var(--color-text-sec)', opacity: 0.5 }}>Screenshot to share</p>
         </div>
       </div>
-      <button onClick={onClose} style={{ position: 'fixed', bottom: '40px', left: '50%', transform: 'translateX(-50%)', padding: '14px 32px', borderRadius: '16px', border: 'none', background: 'rgba(255,255,255,0.1)', color: '#fff', fontSize: '15px', fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit', backdropFilter: 'blur(8px)' }}>Close</button>
+      <button onClick={onClose} className="t-body-bold" style={{ position: 'fixed', bottom: 'var(--space-5)', left: '50%', transform: 'translateX(-50%)', padding: 'var(--space-2) var(--space-4)', borderRadius: 'var(--radius-btn)', border: 'none', background: 'rgba(255,255,255,0.08)', color: 'var(--color-text)', cursor: 'pointer', fontFamily: 'inherit', backdropFilter: 'blur(8px)' }}>Close</button>
     </div>
   )
 }
@@ -932,7 +936,7 @@ function GameResult({ game, seasonAvg, allGames, onDone, onEdit, showToast }) {
   const min = game.minutes_played || 0
 
   const resultColor = game.result === 'Win' ? '#22C55E' : game.result === 'Loss' ? '#EF4444' : '#8B8FAB'
-  const resultGrad = game.result === 'Win' ? 'linear-gradient(135deg, #22C55E, #16A34A)' : game.result === 'Loss' ? 'linear-gradient(135deg, #EF4444, #DC2626)' : 'linear-gradient(135deg, #6B7280, #4B5563)'
+  const resultGrad = game.result === 'Win' ? 'linear-gradient(135deg, var(--color-success), #16A34A)' : game.result === 'Loss' ? 'linear-gradient(135deg, var(--color-danger), #DC2626)' : 'linear-gradient(135deg, #6B7280, #4B5563)'
   const resultText = game.result === 'Win' ? 'VICTORY' : game.result === 'Loss' ? 'TOUGH LOSS' : 'DRAW'
 
   // Advanced metrics
@@ -983,13 +987,13 @@ function GameResult({ game, seasonAvg, allGames, onDone, onEdit, showToast }) {
   return (
     <PageWrapper>
       {/* Top Bar */}
-      <div className="flex items-center justify-between" style={{ marginBottom: '20px' }}>
+      <div className="flex items-center justify-between" style={{ marginBottom: 'var(--space-3)' }}>
         <button type="button" onClick={onDone} className="flex items-center gap-1 text-sm bg-transparent border-0 cursor-pointer" style={{ color: 'var(--color-text-sec)', fontFamily: 'inherit' }}>
           <ArrowLeft className="w-4 h-4" /> Back
         </button>
         <div className="flex items-center gap-2">
           <button type="button" onClick={handleShare} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-transparent border cursor-pointer"
-            style={{ color: shared ? '#22C55E' : 'var(--color-text-sec)', borderColor: shared ? '#22C55E' : 'var(--color-border)', fontFamily: 'inherit' }}>
+            style={{ color: shared ? 'var(--color-success)' : 'var(--color-text-sec)', borderColor: shared ? 'var(--color-success)' : 'var(--color-border)', fontFamily: 'inherit' }}>
             <Share2 className="w-3.5 h-3.5" /> {shared ? 'Copied!' : 'Share'}
           </button>
           {onEdit && (
@@ -1003,42 +1007,42 @@ function GameResult({ game, seasonAvg, allGames, onDone, onEdit, showToast }) {
 
       {/* ===== HERO: Result + Rating ===== */}
       <div style={{
-        textAlign: 'center', padding: '24px 16px', borderRadius: '20px', marginBottom: '16px',
+        textAlign: 'center', padding: 'var(--space-3) var(--space-2)', borderRadius: 'var(--radius-card)', marginBottom: 'var(--space-2)',
         background: 'var(--color-card)', border: '1px solid var(--color-border)',
       }}>
         <div style={{
-          display: 'inline-block', padding: '8px 24px', borderRadius: '12px',
-          background: resultGrad, marginBottom: '12px',
+          display: 'inline-block', padding: 'var(--space-1) var(--space-3)', borderRadius: 'var(--radius-input)',
+          background: resultGrad, marginBottom: 'var(--space-2)',
           boxShadow: `0 4px 16px ${resultColor}40`,
         }}>
-          <span style={{ fontSize: '14px', fontWeight: 900, color: '#fff', letterSpacing: '2px' }}>{resultText}</span>
+          <span className="t-body" style={{ fontWeight: 900, color: '#fff', letterSpacing: '2px' }}>{resultText}</span>
         </div>
-        <p style={{ fontSize: '15px', color: 'var(--color-text-sec)', marginBottom: '20px', fontWeight: 500 }}>
+        <p className="t-body" style={{ color: 'var(--color-text-sec)', marginBottom: 'var(--space-3)' }}>
           {game.is_home_game === true || game.is_home_game === 'true' ? 'vs' : '@'} {game.opponent || 'Unknown'} — {fmtDate(game.game_date)}
         </p>
         <RatingRing rating={rating} />
-        <p style={{ fontSize: '11px', color: 'var(--color-text-sec)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Performance IQ</p>
+        <p className="section-label">Performance IQ</p>
       </div>
 
       {/* ===== STAT HERO ROW ===== */}
       <div style={{
-        display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '12px', marginBottom: '16px',
+        display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 'var(--space-2)', marginBottom: 'var(--space-2)',
       }}>
         {[
-          { val: pts, label: 'PTS', avg: seasonAvg?.ppg, color: '#FF6B35' },
-          { val: reb, label: 'REB', avg: seasonAvg?.rpg, color: '#3B82F6' },
-          { val: ast, label: 'AST', avg: seasonAvg?.apg, color: '#22C55E' },
+          { val: pts, label: 'PTS', avg: seasonAvg?.ppg, color: 'var(--color-accent)' },
+          { val: reb, label: 'REB', avg: seasonAvg?.rpg, color: 'var(--color-info)' },
+          { val: ast, label: 'AST', avg: seasonAvg?.apg, color: 'var(--color-success)' },
         ].map((s) => {
           const diff = s.avg && seasonAvg?.gamesPlayed > 1 ? +(s.val - s.avg).toFixed(1) : null
           return (
             <div key={s.label} style={{
-              textAlign: 'center', padding: '16px 8px', borderRadius: '16px',
+              textAlign: 'center', padding: 'var(--space-2) var(--space-1)', borderRadius: 'var(--radius-btn)',
               background: 'var(--color-card)', border: '1px solid var(--color-border)',
             }}>
-              <div style={{ fontSize: '36px', fontWeight: 900, color: s.color, letterSpacing: '-1px', lineHeight: 1 }}>{s.val}</div>
-              <div style={{ fontSize: '11px', fontWeight: 700, color: 'var(--color-text-sec)', textTransform: 'uppercase', letterSpacing: '0.5px', marginTop: '4px' }}>{s.label}</div>
+              <div className="t-title1" style={{ fontSize: '36px', color: s.color, letterSpacing: '-1px', lineHeight: 1 }}>{s.val}</div>
+              <div className="section-label" style={{ marginTop: '4px' }}>{s.label}</div>
               {diff !== null && diff !== 0 && (
-                <div style={{ fontSize: '11px', fontWeight: 700, color: diff > 0 ? '#22C55E' : '#EF4444', marginTop: '4px' }}>
+                <div className="t-caption" style={{ fontWeight: 700, color: diff > 0 ? 'var(--color-success)' : 'var(--color-danger)', marginTop: '4px' }}>
                   {diff > 0 ? '▲' : '▼'} {Math.abs(diff)}
                 </div>
               )}
@@ -1058,37 +1062,37 @@ function GameResult({ game, seasonAvg, allGames, onDone, onEdit, showToast }) {
       )}
 
       {/* ===== ADVANCED METRICS ===== */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginTop: '16px' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-2)', marginTop: 'var(--space-2)' }}>
         {tsRaw !== null && (
           <MetricCard label="True Shooting" value={tsRaw.toFixed(1)} unit="%"
-            color={tsRaw >= 58 ? '#22C55E' : tsRaw >= 50 ? '#FF6B35' : '#EF4444'} />
+            color={tsRaw >= 58 ? 'var(--color-success)' : tsRaw >= 50 ? 'var(--color-accent)' : 'var(--color-danger)'} />
         )}
         {efgRaw !== null && (
           <MetricCard label="Effective FG" value={efgRaw.toFixed(1)} unit="%"
-            color={efgRaw >= 55 ? '#22C55E' : efgRaw >= 47 ? '#FF6B35' : '#EF4444'} />
+            color={efgRaw >= 55 ? 'var(--color-success)' : efgRaw >= 47 ? 'var(--color-accent)' : 'var(--color-danger)'} />
         )}
         <MetricCard label="AST / TO" value={typeof atr === 'number' ? atr : atr}
-          color={typeof atr === 'number' && atr >= 2 ? '#22C55E' : typeof atr === 'number' && atr >= 1 ? '#FF6B35' : 'var(--color-text-sec)'} />
+          color={typeof atr === 'number' && atr >= 2 ? 'var(--color-success)' : typeof atr === 'number' && atr >= 1 ? 'var(--color-accent)' : 'var(--color-text-sec)'} />
         {ppm !== null && (
-          <MetricCard label="PTS / MIN" value={ppm} color={ppm >= 0.7 ? '#22C55E' : ppm >= 0.4 ? '#FF6B35' : 'var(--color-text-sec)'} />
+          <MetricCard label="PTS / MIN" value={ppm} color={ppm >= 0.7 ? 'var(--color-success)' : ppm >= 0.4 ? 'var(--color-accent)' : 'var(--color-text-sec)'} />
         )}
       </div>
 
       {/* ===== SHOT TYPE BREAKDOWN ===== */}
       {(csTotal.attempted > 0 || odTotal.attempted > 0) && (
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginTop: '16px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-2)', marginTop: 'var(--space-2)' }}>
           {csTotal.attempted > 0 && (
-            <div style={{ background: 'var(--color-info-tint)', borderRadius: '14px', padding: '14px', textAlign: 'center', border: '1px solid rgba(59,130,246,0.15)' }}>
+            <div style={{ background: 'var(--color-info-tint)', borderRadius: 'var(--radius-input)', padding: 'var(--space-2)', textAlign: 'center', border: '1px solid rgba(59,130,246,0.15)' }}>
               <div className="t-title3" style={{ color: 'var(--color-info)' }}>{csTotal.attempted > 0 ? Math.round((csTotal.made / csTotal.attempted) * 100) : 0}%</div>
               <div className="t-caption" style={{ color: 'var(--color-text-sec)', marginTop: '2px' }}>{csTotal.made}/{csTotal.attempted}</div>
-              <div className="section-label" style={{ color: 'var(--color-info)', marginTop: '4px', fontSize: '10px' }}>Catch & Shoot</div>
+              <div className="section-label" style={{ color: 'var(--color-info)', marginTop: '4px' }}>Catch & Shoot</div>
             </div>
           )}
           {odTotal.attempted > 0 && (
-            <div style={{ background: 'var(--color-purple-tint)', borderRadius: '14px', padding: '14px', textAlign: 'center', border: '1px solid rgba(139,92,246,0.15)' }}>
+            <div style={{ background: 'var(--color-purple-tint)', borderRadius: 'var(--radius-input)', padding: 'var(--space-2)', textAlign: 'center', border: '1px solid rgba(139,92,246,0.15)' }}>
               <div className="t-title3" style={{ color: 'var(--color-purple)' }}>{odTotal.attempted > 0 ? Math.round((odTotal.made / odTotal.attempted) * 100) : 0}%</div>
               <div className="t-caption" style={{ color: 'var(--color-text-sec)', marginTop: '2px' }}>{odTotal.made}/{odTotal.attempted}</div>
-              <div className="section-label" style={{ color: 'var(--color-purple)', marginTop: '4px', fontSize: '10px' }}>Off Dribble</div>
+              <div className="section-label" style={{ color: 'var(--color-purple)', marginTop: '4px' }}>Off Dribble</div>
             </div>
           )}
         </div>
@@ -1096,7 +1100,7 @@ function GameResult({ game, seasonAvg, allGames, onDone, onEdit, showToast }) {
 
       {/* ===== SHOT CHART (if zone data) ===== */}
       {Object.keys(shotData).length > 0 && (
-        <Card style={{ marginTop: '16px' }}>
+        <Card style={{ marginTop: 'var(--space-2)' }}>
           <p className="section-label" style={{ marginBottom: 'var(--space-2)' }}>Shot Chart</p>
           <MiniCourtSVG shotData={shotData} />
         </Card>
@@ -1104,9 +1108,9 @@ function GameResult({ game, seasonAvg, allGames, onDone, onEdit, showToast }) {
 
       {/* ===== DEFENSE & EXTRA STATS ===== */}
       {(game.steals > 0 || game.blocks > 0 || game.turnovers > 0 || game.paint_touches > 0 || game.drives > 0 || min > 0) && (
-        <Card style={{ marginTop: '16px' }}>
+        <Card style={{ marginTop: 'var(--space-2)' }}>
           <p className="section-label" style={{ marginBottom: 'var(--space-2)' }}>Box Score</p>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(60px, 1fr))', gap: '12px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(60px, 1fr))', gap: 'var(--space-2)' }}>
             {game.steals > 0 && <StatBox value={game.steals} label="STL" />}
             {game.blocks > 0 && <StatBox value={game.blocks} label="BLK" />}
             {game.turnovers > 0 && <StatBox value={game.turnovers} label="TO" />}
@@ -1119,29 +1123,29 @@ function GameResult({ game, seasonAvg, allGames, onDone, onEdit, showToast }) {
       )}
 
       {/* ===== SCORING TREND ===== */}
-      <div style={{ marginTop: '16px' }}>
+      <div style={{ marginTop: 'var(--space-2)' }}>
         <TrendBars games={allGames} currentPts={pts} />
       </div>
 
       {/* ===== INTELLIGENCE CALLOUTS ===== */}
       {feedback.length > 0 && (
-        <Card style={{ marginTop: '16px' }}>
+        <Card style={{ marginTop: 'var(--space-2)' }}>
           <p className="section-label" style={{ marginBottom: 'var(--space-2)' }}>Game Intelligence</p>
           {Object.entries(categories).map(([cat, items]) => (
-            <div key={cat} style={{ marginBottom: '14px' }}>
+            <div key={cat} style={{ marginBottom: 'var(--space-2)' }}>
               <p className="section-label" style={{ color: cat === 'Improve' ? 'var(--color-danger)' : 'var(--color-accent)', marginBottom: 'var(--space-1)' }}>{cat === 'Improve' ? 'Areas to Improve' : cat}</p>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-1)' }}>
                 {items.map((item, i) => {
                   const Icon = item.icon
                   return (
                     <div key={i} style={{
-                      display: 'flex', alignItems: 'center', gap: '10px',
-                      padding: '10px 12px', borderRadius: '12px',
+                      display: 'flex', alignItems: 'center', gap: 'var(--space-1)',
+                      padding: 'var(--space-1) var(--space-2)', borderRadius: 'var(--radius-input)',
                       background: toneBg[item.tone],
                       border: `1px solid ${toneColors[item.tone]}15`,
                     }}>
                       <Icon size={14} style={{ color: toneColors[item.tone], flexShrink: 0 }} />
-                      <span style={{ fontSize: '13px', fontWeight: 600, color: 'var(--color-text)', lineHeight: 1.3 }}>{item.text}</span>
+                      <span className="t-body" style={{ fontWeight: 600, color: 'var(--color-text)', lineHeight: 1.3 }}>{item.text}</span>
                     </div>
                   )
                 })}
@@ -1152,18 +1156,18 @@ function GameResult({ game, seasonAvg, allGames, onDone, onEdit, showToast }) {
       )}
 
       {/* ===== RADAR CHART ===== */}
-      <div style={{ marginTop: '16px' }}><RadarChart data={radarData} /></div>
+      <div style={{ marginTop: 'var(--space-2)' }}><RadarChart data={radarData} /></div>
 
       {/* ===== PLAYER ARCHETYPE ===== */}
-      <div style={{ marginTop: '16px' }}><ArchetypeCard game={game} /></div>
+      <div style={{ marginTop: 'var(--space-2)' }}><ArchetypeCard game={game} /></div>
 
       {/* ===== STREAK & CONSISTENCY ===== */}
-      <div style={{ marginTop: '16px' }}><StreakConsistency allGames={allGames} /></div>
+      <div style={{ marginTop: 'var(--space-2)' }}><StreakConsistency allGames={allGames} /></div>
 
       {showShareCard && <ShareCardModal game={game} rating={rating} onClose={() => setShowShareCard(false)} />}
 
       {/* Action buttons */}
-      <div style={{ marginTop: '20px', marginBottom: '16px', display: 'flex', gap: 'var(--space-1)' }}>
+      <div style={{ marginTop: 'var(--space-3)', marginBottom: 'var(--space-2)', display: 'flex', gap: 'var(--space-1)' }}>
         <button type="button" onClick={() => setShowShareCard(true)} className="btn-outline" style={{ flex: 1 }}>
           <Share2 size={16} /> Share Card
         </button>

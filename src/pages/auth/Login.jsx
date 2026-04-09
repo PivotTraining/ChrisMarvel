@@ -131,10 +131,9 @@ export default function Login() {
 
           {error && (
             <p
-              className="t-body"
+              className="t-label"
               style={{
                 color: 'var(--color-danger)',
-                fontSize: '13px',
                 marginBottom: 'var(--space-2)',
                 padding: 'var(--space-2)',
                 borderRadius: 'var(--radius-input)',
@@ -151,7 +150,7 @@ export default function Login() {
           </button>
         </form>
 
-        <p className="t-body" style={{ textAlign: 'center', marginTop: 'var(--space-3)', color: 'var(--color-text-sec)', fontSize: '14px' }}>
+        <p className="t-body" style={{ textAlign: 'center', marginTop: 'var(--space-3)', color: 'var(--color-text-sec)' }}>
           Don&apos;t have an account?{' '}
           <Link to="/signup" style={{ color: 'var(--color-accent)', textDecoration: 'none', fontWeight: 700 }}>
             Sign Up

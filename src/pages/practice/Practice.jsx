@@ -166,7 +166,7 @@ function ShootingExercise({ exercise, onComplete }) {
           width: '140px',
           height: '140px',
           borderRadius: '50%',
-          border: '4px solid rgba(255,255,255,0.06)',
+          border: '4px solid rgba(255,255,255,0.08)',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
@@ -220,7 +220,7 @@ function ShootingExercise({ exercise, onComplete }) {
               padding: '20px',
               borderRadius: '16px',
               border: '2px solid var(--color-danger)',
-              backgroundColor: 'rgba(239,68,68,0.1)',
+              backgroundColor: 'var(--color-danger-tint)',
               color: 'var(--color-danger)',
               fontSize: '18px',
               fontWeight: 900,
@@ -239,7 +239,7 @@ function ShootingExercise({ exercise, onComplete }) {
               padding: '20px',
               borderRadius: '16px',
               border: '2px solid var(--color-success)',
-              backgroundColor: 'rgba(34,197,94,0.1)',
+              backgroundColor: 'var(--color-success-tint)',
               color: 'var(--color-success)',
               fontSize: '18px',
               fontWeight: 900,
@@ -282,7 +282,7 @@ function RepExercise({ exercise, setIndex, totalSets, onComplete }) {
           width: '140px',
           height: '140px',
           borderRadius: '50%',
-          border: '4px solid rgba(255,255,255,0.06)',
+          border: '4px solid rgba(255,255,255,0.08)',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
@@ -541,7 +541,7 @@ function PracticeContent() {
               className="flex items-center justify-between"
               style={{
                 padding: '8px 0',
-                borderBottom: i < results.length - 1 ? '1px solid rgba(255,255,255,0.06)' : 'none',
+                borderBottom: i < results.length - 1 ? '1px solid rgba(255,255,255,0.08)' : 'none',
               }}
             >
               <span className="t-body" style={{ color: 'var(--color-text)' }}>{r.exercise}</span>
@@ -598,7 +598,7 @@ function PracticeContent() {
         style={{
           height: '4px',
           borderRadius: '2px',
-          backgroundColor: 'rgba(255,255,255,0.06)',
+          backgroundColor: 'rgba(255,255,255,0.08)',
           marginBottom: 'var(--space-3)',
           overflow: 'hidden',
         }}

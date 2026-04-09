@@ -276,7 +276,7 @@ function QuickGameContent() {
                   border: 'none',
                   cursor: 'pointer',
                   fontWeight: 700,
-                  backgroundColor: i === quarter ? 'var(--color-accent)' : 'rgba(255,255,255,0.06)',
+                  backgroundColor: i === quarter ? 'var(--color-accent)' : 'rgba(255,255,255,0.08)',
                   color: i === quarter ? '#fff' : 'var(--color-text-sec)',
                 }}
               >

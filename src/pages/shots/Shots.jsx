@@ -6,6 +6,7 @@ import Select from '../../components/ui/Select'
 import Badge from '../../components/ui/Badge'
 import EmptyState from '../../components/ui/EmptyState'
 import SkeletonLoader from '../../components/ui/SkeletonLoader'
+import HeatMap from '../../components/ui/HeatMap'
 import PageWrapper from '../../components/layout/PageWrapper'
 import { useToast } from '../../context/ToastContext'
 import useShots, { COURT_ZONES } from '../../hooks/useShots'
@@ -292,10 +293,9 @@ export default function Shots() {
 
       {!sessionActive && (
         <div style={{ marginTop: 'var(--space-3)' }}>
-          <p className="section-label" style={{ marginBottom: 'var(--space-1)' }}>All-Time Shooting</p>
           {overallZoneStats.size > 0 ? (
-            <Card padding="sm">
-              <CourtSVG zones={COURT_ZONES} zoneStats={overallZoneStats} onZoneClick={() => {}} interactive={false} />
+            <Card padding="md">
+              <HeatMap zoneStats={overallZoneStats} title="All-Time Heat Map" />
             </Card>
           ) : (
             <EmptyState icon={Activity} title="No Shot Data Yet" description="Start a shooting session to begin tracking your shots on the court." />

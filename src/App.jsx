@@ -3,6 +3,7 @@ import { Routes, Route, Navigate } from 'react-router-dom'
 import { AuthProvider, useAuth } from './context/AuthContext'
 import { ToastProvider } from './context/ToastContext'
 import { OfflineProvider } from './context/OfflineContext'
+import { PremiumProvider } from './context/PremiumContext'
 import Header from './components/layout/Header'
 import BottomNav from './components/layout/BottomNav'
 import SplashScreen from './components/SplashScreen'
@@ -16,6 +17,9 @@ import Shots from './pages/shots/Shots'
 import Games from './pages/games/Games'
 import Journal from './pages/journal/Journal'
 import Settings from './pages/settings/Settings'
+import QuickGame from './pages/quickgame/QuickGame'
+import Practice from './pages/practice/Practice'
+import Premium from './pages/premium/Premium'
 
 function AppContent() {
   const { user, loading, profile } = useAuth()
@@ -82,8 +86,11 @@ function AppContent() {
         <Route path="/drills" element={<Drills />} />
         <Route path="/shots" element={<Shots />} />
         <Route path="/games" element={<Games />} />
+        <Route path="/quick-game" element={<QuickGame />} />
+        <Route path="/practice" element={<Practice />} />
         <Route path="/journal" element={<Journal />} />
         <Route path="/settings" element={<Settings />} />
+        <Route path="/premium" element={<Premium />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
       <BottomNav />
@@ -94,11 +101,13 @@ function AppContent() {
 export default function App() {
   return (
     <AuthProvider>
-      <ToastProvider>
-        <OfflineProvider>
-          <AppContent />
-        </OfflineProvider>
-      </ToastProvider>
+      <PremiumProvider>
+        <ToastProvider>
+          <OfflineProvider>
+            <AppContent />
+          </OfflineProvider>
+        </ToastProvider>
+      </PremiumProvider>
     </AuthProvider>
   )
 }

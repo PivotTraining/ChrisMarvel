@@ -71,9 +71,16 @@ export default function Signup() {
         metadata.parent_email = parentEmail
         metadata.parental_consent_required = true
       }
-      await signUp(email, password, metadata)
-      showToast('Account created! Check your email to verify.', 'success')
-      navigate('/onboarding')
+      const result = await signUp(email, password, metadata)
+      // If session exists, user is auto-confirmed — go to onboarding
+      if (result?.session || result?.user?.email_confirmed_at) {
+        showToast('Account created!', 'success')
+        navigate('/onboarding')
+      } else {
+        // Email confirmation required — stay on page
+        showToast('Account created! Check your email to verify, then sign in.', 'success')
+        navigate('/login')
+      }
     } catch (err) {
       setError(err.message || 'Failed to create account. Please try again.')
     } finally {

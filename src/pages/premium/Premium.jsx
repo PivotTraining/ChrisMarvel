@@ -5,7 +5,8 @@ import { usePremium, PLANS } from '../../context/PremiumContext'
 import PageWrapper from '../../components/layout/PageWrapper'
 import Card from '../../components/ui/Card'
 import { useToast } from '../../context/ToastContext'
-import { stripePromise } from '../../lib/stripe'
+
+const STRIPE_PAYMENT_LINK = 'https://buy.stripe.com/9B6cN56JT5bq5nh577a3u0r'
 
 const PRO_FEATURES = [
   { icon: Flame, title: 'Quick Game', desc: 'Tap stats live from the sideline — real-time play-by-play', color: 'var(--color-accent)' },
@@ -37,34 +38,8 @@ export default function Premium() {
     }
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
-  const handleUpgrade = async () => {
-    const stripeKey = import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY
-    const priceId = import.meta.env.VITE_STRIPE_PRICE_ID
-    if (!stripeKey || !priceId) {
-      showToast('Stripe is not configured. Add your keys to .env', 'error')
-      return
-    }
-    setProcessing(true)
-    try {
-      const stripe = await stripePromise
-      if (!stripe) {
-        showToast('Could not load Stripe. Check your publishable key.', 'error')
-        return
-      }
-      const { error } = await stripe.redirectToCheckout({
-        lineItems: [{ price: priceId, quantity: 1 }],
-        mode: 'subscription',
-        successUrl: `${window.location.origin}/premium?success=true`,
-        cancelUrl: `${window.location.origin}/premium`,
-      })
-      if (error) {
-        showToast(error.message, 'error')
-      }
-    } catch (err) {
-      showToast('Payment failed. Please try again.', 'error')
-    } finally {
-      setProcessing(false)
-    }
+  const handleUpgrade = () => {
+    window.location.href = STRIPE_PAYMENT_LINK
   }
 
   const handleDowngrade = () => {

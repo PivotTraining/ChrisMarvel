@@ -1,14 +1,12 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect } from 'react'
 import { useSearchParams } from 'react-router-dom'
-import { loadStripe } from '@stripe/stripe-js'
-import { EmbeddedCheckoutProvider, EmbeddedCheckout } from '@stripe/react-stripe-js'
-import { Zap, Check, Crown, Lock, Flame, Target, Timer, BarChart3, Share2, Crosshair, Dumbbell, ChevronRight, Star, X } from 'lucide-react'
+import { Zap, Check, Crown, Lock, Flame, Target, Timer, BarChart3, Share2, Crosshair, Dumbbell, ChevronRight, Star } from 'lucide-react'
 import { usePremium, PLANS } from '../../context/PremiumContext'
 import PageWrapper from '../../components/layout/PageWrapper'
 import Card from '../../components/ui/Card'
 import { useToast } from '../../context/ToastContext'
 
-const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY)
+const STRIPE_PAYMENT_LINK = 'https://buy.stripe.com/9B6cN56JT5bq5nh577a3u0r'
 
 const PRO_FEATURES = [
   { icon: Flame, title: 'Quick Game', desc: 'Tap stats live from the sideline — real-time play-by-play', color: 'var(--color-accent)' },
@@ -28,10 +26,9 @@ const TESTIMONIALS = [
 export default function Premium() {
   const { isPro, upgrade, downgrade } = usePremium()
   const { showToast } = useToast()
-  const [showCheckout, setShowCheckout] = useState(false)
   const [searchParams, setSearchParams] = useSearchParams()
 
-  // Handle return from Stripe Checkout
+  // Handle return from Stripe after successful payment
   useEffect(() => {
     if (searchParams.get('success') === 'true' && !isPro) {
       upgrade()
@@ -40,15 +37,8 @@ export default function Premium() {
     }
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
-  const fetchClientSecret = useCallback(async () => {
-    const res = await fetch('/api/create-checkout-session', { method: 'POST' })
-    const data = await res.json()
-    if (data.error) throw new Error(data.error)
-    return data.clientSecret
-  }, [])
-
   const handleUpgrade = () => {
-    setShowCheckout(true)
+    window.location.href = STRIPE_PAYMENT_LINK
   }
 
   const handleDowngrade = () => {
@@ -125,34 +115,8 @@ export default function Premium() {
         </Card>
       )}
 
-      {/* Embedded Stripe Checkout */}
-      {!isPro && showCheckout && (
-        <div style={{ marginBottom: 'var(--space-3)' }}>
-          <div className="flex items-center justify-between" style={{ marginBottom: 'var(--space-2)' }}>
-            <h2 className="t-title3">Complete Payment</h2>
-            <button
-              onClick={() => setShowCheckout(false)}
-              style={{
-                background: 'none',
-                border: 'none',
-                color: 'var(--color-text-sec)',
-                cursor: 'pointer',
-                padding: '4px',
-              }}
-            >
-              <X size={20} />
-            </button>
-          </div>
-          <div style={{ borderRadius: 'var(--radius-card)', overflow: 'hidden' }}>
-            <EmbeddedCheckoutProvider stripe={stripePromise} options={{ fetchClientSecret }}>
-              <EmbeddedCheckout />
-            </EmbeddedCheckoutProvider>
-          </div>
-        </div>
-      )}
-
       {/* Pricing cards */}
-      {!isPro && !showCheckout && (
+      {!isPro && (
         <div style={{ marginBottom: 'var(--space-3)' }}>
           {/* Free plan */}
           <Card padding="md" style={{ marginBottom: 'var(--space-1)' }}>

@@ -5,4 +5,6 @@ const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || 'placeholder-k
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey)
 
-export const BYPASS_AUTH = import.meta.env.VITE_BYPASS_AUTH === 'true'
+// Default to demo mode unless a real Supabase URL is configured
+const hasRealSupabase = supabaseUrl !== 'https://placeholder.supabase.co' && supabaseAnonKey !== 'placeholder-key'
+export const BYPASS_AUTH = import.meta.env.VITE_BYPASS_AUTH === 'true' || !hasRealSupabase

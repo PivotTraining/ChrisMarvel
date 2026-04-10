@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom'
-import { Trophy, Target, BookHeart, Crosshair, Flame, TrendingUp, Award, Zap, Plus, ChevronRight, BookOpen, Crown, Timer, Dumbbell } from 'lucide-react'
+import { Trophy, Target, BookHeart, Flame, TrendingUp, Award, Zap, Plus, ChevronRight, BookOpen, Crown, Timer } from 'lucide-react'
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, BarChart, Bar } from 'recharts'
 import { useAuth } from '../../context/AuthContext'
 import { usePremium } from '../../context/PremiumContext'
@@ -152,10 +152,8 @@ export default function Home() {
       <SectionHeader icon={Zap} title="Quick Actions" />
       <div className="grid grid-cols-3 gap-2.5">
         <QuickAction icon={Timer} label="Quick Game" onClick={() => navigate('/quick-game')} />
-        <QuickAction icon={Dumbbell} label="Practice" onClick={() => navigate('/practice')} />
         <QuickAction icon={Trophy} label="Log Game" onClick={() => navigate('/games')} />
         <QuickAction icon={Target} label="Drill" onClick={() => navigate('/drills')} />
-        <QuickAction icon={Crosshair} label="Shots" onClick={() => navigate('/shots')} />
         <QuickAction icon={BookHeart} label="Journal" onClick={() => navigate('/journal')} />
       </div>
 
@@ -179,7 +177,7 @@ export default function Home() {
             </div>
             <div className="flex-1">
               <p className="t-body" style={{ fontWeight: 700, color: '#FBBF24' }}>Upgrade to Pro</p>
-              <p className="t-caption" style={{ color: 'var(--color-text-sec)' }}>Quick Game, Practice Mode, heat maps & more</p>
+              <p className="t-caption" style={{ color: 'var(--color-text-sec)' }}>Practice Mode, training packs, heat maps & more</p>
             </div>
             <ChevronRight className="w-4 h-4" style={{ color: '#FBBF24' }} />
           </div>

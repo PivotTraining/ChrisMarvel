@@ -9,7 +9,9 @@ import Badge from '../../components/ui/Badge';
 import EmptyState from '../../components/ui/EmptyState';
 import SkeletonLoader from '../../components/ui/SkeletonLoader';
 import { useToast } from '../../context/ToastContext';
+import { usePremium } from '../../context/PremiumContext';
 import useDrills from '../../hooks/useDrills';
+import UpgradePrompt from '../../components/ui/UpgradePrompt';
 
 const CATEGORIES = ['Shooting', 'Ball Handling', 'Passing', 'Defense', 'Conditioning', 'Agility', 'Custom'];
 const CATEGORY_OPTIONS = CATEGORIES.map(c => ({ value: c, label: c }));
@@ -43,6 +45,7 @@ const emptyForm = () => ({
 export default function Drills() {
   const { drills, loading, addDrill, updateDrill, deleteDrill, loadMore, hasMore, categoryStats, recentStreak } = useDrills();
   const { showToast } = useToast();
+  const { isPro } = usePremium();
   const [view, setView] = useState('list');
   const [filter, setFilter] = useState('All');
   const [form, setForm] = useState(emptyForm());
@@ -50,6 +53,7 @@ export default function Drills() {
   const [editId, setEditId] = useState(null);
   const [saving, setSaving] = useState(false);
   const [lastSaved, setLastSaved] = useState(null);
+  const [showUpgrade, setShowUpgrade] = useState(false);
 
   const filtered = useMemo(() => {
     if (filter === 'All') return drills;
@@ -94,7 +98,12 @@ export default function Drills() {
         else showToast('Failed to update', 'error');
       } else {
         const res = await addDrill(payload);
-        if (res) { setLastSaved(res); showToast('Drill logged', 'success'); setView('result'); }
+        if (res) {
+          setLastSaved(res);
+          showToast('Drill logged', 'success');
+          setView('result');
+          if (!isPro) setShowUpgrade(true);
+        }
         else showToast('Failed to save', 'error');
       }
     } catch { showToast('Something went wrong', 'error'); }
@@ -136,6 +145,13 @@ export default function Drills() {
           </Card>
           <Button variant="primary" onClick={() => setView('list')}>Done</Button>
         </div>
+        {showUpgrade && (
+          <UpgradePrompt
+            title="Nice work!"
+            subtitle="You just logged a drill. Unlock custom templates, training packs & advanced analytics with Pro."
+            onClose={() => setShowUpgrade(false)}
+          />
+        )}
       </PageWrapper>
     );
   }

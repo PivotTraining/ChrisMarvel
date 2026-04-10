@@ -1,8 +1,10 @@
-import { useState, useCallback, useRef, useEffect } from 'react'
+import { useState, useCallback, useRef } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
-import { Undo2, Share2, Trash2, Check, X, ChevronLeft } from 'lucide-react'
+import { Undo2, Share2, Trash2, Check, ChevronLeft } from 'lucide-react'
 import useGames from '../../hooks/useGames'
 import { useToast } from '../../context/ToastContext'
+import { usePremium } from '../../context/PremiumContext'
+import UpgradePrompt from '../../components/ui/UpgradePrompt'
 
 // ─── Half-Court SVG ─────────────────────────────────────────────────────────
 // viewBox: 500 wide × 470 tall (half court, basket at bottom)
@@ -214,12 +216,13 @@ export default function QuickGame() {
   const location = useLocation()
   const { addGame, updateGame } = useGames()
   const { showToast } = useToast()
+  const { isPro } = usePremium()
 
   // Support resuming existing game via location state
   const resumeGame = location.state?.game || null
 
   const [opponent, setOpponent] = useState(resumeGame?.opponent || '')
-  const [started, setStarted] = useState(!!resumeGame)
+  const [showUpgrade, setShowUpgrade] = useState(false)
   const [shots, setShots] = useState(resumeGame?._shots || [])
   const [stats, setStats] = useState({
     assists: resumeGame?.assists || 0,
@@ -248,10 +251,9 @@ export default function QuickGame() {
   }, [])
 
   const handleCourtTap = useCallback((x, y) => {
-    if (!started) return
     const is3 = is3Pointer(x, y)
     setPending({ x, y, is3 })
-  }, [started])
+  }, [])
 
   const handleShotResult = useCallback((made) => {
     if (!pending) return
@@ -338,69 +340,25 @@ export default function QuickGame() {
       _shots: shots,
     }
     try {
-      let saved
       if (resumeGame?.id) {
-        saved = await updateGame(resumeGame.id, gameData)
+        await updateGame(resumeGame.id, gameData)
         showToast('Game updated!', 'success')
       } else {
-        saved = await addGame(gameData)
+        await addGame(gameData)
         showToast('Game saved!', 'success')
       }
-      navigate('/games')
+      // Post-save: Pro upsell for free users, else head to the game log
+      if (!isPro) {
+        setShowUpgrade(true)
+      } else {
+        navigate('/games')
+      }
     } catch {
       showToast('Failed to save', 'error')
     } finally {
       setSaving(false)
     }
-  }, [pts, stats, fgm, fga, tpm, tpa, shots, opponent, resumeGame, addGame, updateGame, navigate, showToast])
-
-  // Pre-game setup screen
-  if (!started) {
-    return (
-      <div style={{
-        minHeight: '100dvh', display: 'flex', flexDirection: 'column', alignItems: 'center',
-        justifyContent: 'center', backgroundColor: '#0D0D1A', padding: '24px',
-      }}>
-        <div style={{ textAlign: 'center', marginBottom: '40px' }}>
-          <div style={{
-            width: '80px', height: '80px', borderRadius: '24px', margin: '0 auto 16px',
-            background: 'linear-gradient(135deg, #FF6B35, #C8490A)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            boxShadow: '0 12px 40px rgba(255,107,53,0.4)',
-          }}>
-            <span style={{ fontSize: '36px' }}>🏀</span>
-          </div>
-          <h1 style={{ color: '#fff', fontSize: '28px', fontWeight: 900, margin: '0 0 8px', letterSpacing: '-0.5px' }}>Quick Game</h1>
-          <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '15px', margin: 0 }}>Tap the court. Track live.</p>
-        </div>
-
-        <div style={{ width: '100%', maxWidth: '360px' }}>
-          <label style={{ color: 'rgba(255,255,255,0.6)', fontSize: '12px', fontWeight: 700, letterSpacing: '1px', textTransform: 'uppercase', display: 'block', marginBottom: '8px' }}>
-            Opponent (optional)
-          </label>
-          <input
-            value={opponent}
-            onChange={e => setOpponent(e.target.value)}
-            placeholder="Who are you playing?"
-            style={{
-              width: '100%', padding: '16px', borderRadius: '14px', border: '1.5px solid rgba(255,255,255,0.12)',
-              background: 'rgba(255,255,255,0.06)', color: '#fff', fontSize: '16px',
-              outline: 'none', boxSizing: 'border-box', fontFamily: 'inherit', marginBottom: '16px',
-            }}
-            onKeyDown={e => { if (e.key === 'Enter') setStarted(true) }}
-          />
-          <button onClick={() => setStarted(true)} style={{
-            width: '100%', padding: '18px', borderRadius: '16px', border: 'none', cursor: 'pointer',
-            background: 'linear-gradient(135deg, #FF6B35, #C8490A)',
-            color: '#fff', fontSize: '18px', fontWeight: 900, fontFamily: 'inherit',
-            boxShadow: '0 8px 32px rgba(255,107,53,0.45)', letterSpacing: '-0.3px',
-          }}>
-            Start Game →
-          </button>
-        </div>
-      </div>
-    )
-  }
+  }, [pts, stats, fgm, fga, tpm, tpa, shots, opponent, resumeGame, addGame, updateGame, navigate, showToast, isPro])
 
   const fgPct = fga > 0 ? Math.round((fgm / fga) * 100) : 0
 
@@ -410,14 +368,24 @@ export default function QuickGame() {
       <div style={{
         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
         padding: '12px 16px', background: 'rgba(255,255,255,0.03)', borderBottom: '1px solid rgba(255,255,255,0.06)',
+        gap: '10px',
       }}>
-        <button onClick={() => navigate(-1)} style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,0.5)', cursor: 'pointer', padding: '4px', display: 'flex', alignItems: 'center', gap: '4px' }}>
+        <button onClick={() => navigate('/')} style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,0.5)', cursor: 'pointer', padding: '4px', display: 'flex', alignItems: 'center', gap: '4px' }}>
           <ChevronLeft size={20} />
         </button>
-        <div style={{ textAlign: 'center' }}>
-          <div style={{ color: '#fff', fontWeight: 800, fontSize: '16px' }}>{opponent || 'Game'}</div>
-          <div style={{ color: 'rgba(255,255,255,0.4)', fontSize: '11px', letterSpacing: '0.5px' }}>TAP COURT TO RECORD SHOTS</div>
-        </div>
+        <input
+          value={opponent}
+          onChange={e => setOpponent(e.target.value)}
+          placeholder="Opponent (optional)"
+          style={{
+            flex: 1, maxWidth: '220px', textAlign: 'center',
+            background: 'rgba(255,255,255,0.05)',
+            border: '1px solid rgba(255,255,255,0.08)',
+            borderRadius: '10px', padding: '8px 12px',
+            color: '#fff', fontSize: '14px', fontWeight: 700,
+            outline: 'none', fontFamily: 'inherit',
+          }}
+        />
         <button onClick={handleShare} style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,0.5)', cursor: 'pointer', padding: '4px' }}>
           <Share2 size={18} />
         </button>
@@ -567,6 +535,15 @@ export default function QuickGame() {
           x={pending.x} y={pending.y} is3={pending.is3}
           onResult={handleShotResult}
           onClose={() => setPending(null)}
+        />
+      )}
+
+      {/* Post-save Pro upsell */}
+      {showUpgrade && (
+        <UpgradePrompt
+          title="Great game!"
+          subtitle={`You logged ${pts} points. Unlock advanced analytics, heat maps & more with Pro.`}
+          onClose={() => { setShowUpgrade(false); navigate('/games') }}
         />
       )}
     </div>

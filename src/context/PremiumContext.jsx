@@ -7,7 +7,7 @@ const FREE_LIMITS = {
   shotsSessionsPerMonth: 10,
   drillsPerMonth: 15,
   journalEntriesPerMonth: 10,
-  quickGame: false,
+  quickGame: true, // Quick Game is a core free feature
   practiceMode: false,
   advancedAnalytics: false,
   trainingPacks: false,

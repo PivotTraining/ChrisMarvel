@@ -28,8 +28,51 @@ export default function Header() {
         padding: 'var(--space-2) var(--space-3)',
       }}
     >
-      <Link to="/" style={{ textDecoration: 'none' }}>
-        <h1 className="t-title3" style={{ color: 'var(--color-text)' }}>
+      <Link
+        to="/"
+        style={{
+          textDecoration: 'none',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '10px',
+          WebkitTapHighlightColor: 'transparent',
+        }}
+      >
+        {/* Basketball mark */}
+        <svg
+          width="32"
+          height="32"
+          viewBox="0 0 32 32"
+          style={{ flexShrink: 0, filter: 'drop-shadow(0 2px 6px rgba(255,107,53,0.5))' }}
+        >
+          <defs>
+            <radialGradient id="hdrBall" cx="38%" cy="32%" r="60%">
+              <stop offset="0%" stopColor="#FF9258" />
+              <stop offset="55%" stopColor="#FF6B35" />
+              <stop offset="100%" stopColor="#B8401A" />
+            </radialGradient>
+            <radialGradient id="hdrBallHi" cx="35%" cy="28%" r="28%">
+              <stop offset="0%" stopColor="rgba(255,255,255,0.4)" />
+              <stop offset="100%" stopColor="rgba(255,255,255,0)" />
+            </radialGradient>
+          </defs>
+          <circle cx="16" cy="16" r="14" fill="url(#hdrBall)" />
+          <g stroke="#2A0F05" strokeWidth="1.4" fill="none" opacity="0.7" strokeLinecap="round">
+            <path d="M16,2 Q11,9 11,16 Q11,23 16,30" />
+            <path d="M16,2 Q21,9 21,16 Q21,23 16,30" />
+            <path d="M2,16 Q9,11 16,11 Q23,11 30,16" />
+            <path d="M2,16 Q9,21 16,21 Q23,21 30,16" />
+          </g>
+          <circle cx="16" cy="16" r="14" fill="url(#hdrBallHi)" />
+        </svg>
+        <h1
+          className="t-title3"
+          style={{
+            color: 'var(--color-text)',
+            letterSpacing: '-0.5px',
+            margin: 0,
+          }}
+        >
           Court<span style={{ color: 'var(--color-accent)' }}>IQ</span>
         </h1>
       </Link>

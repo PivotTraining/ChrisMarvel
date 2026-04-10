@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
 import { useToast } from '../../context/ToastContext'
-import { Play, Mail, Lock, Calendar, ShieldCheck } from 'lucide-react'
+import { Mail, Lock, Calendar, ShieldCheck } from 'lucide-react'
 
 function calculateAge(dob) {
   const today = new Date()
@@ -24,7 +24,7 @@ export default function Signup() {
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
 
-  const { signUp, demoSignIn } = useAuth()
+  const { signUp } = useAuth()
   const { showToast } = useToast()
   const navigate = useNavigate()
 
@@ -88,12 +88,6 @@ export default function Signup() {
     }
   }
 
-  function handleDemoLogin() {
-    demoSignIn()
-    showToast('Welcome to CourtIQ!', 'success')
-    navigate('/')
-  }
-
   const iconStyle = { position: 'absolute', left: 'var(--space-2)', top: '50%', transform: 'translateY(-50%)', color: 'var(--color-text-sec)', pointerEvents: 'none' }
 
   return (
@@ -118,20 +112,6 @@ export default function Signup() {
       </div>
 
       <div className="glass-card" style={{ width: '100%', maxWidth: '400px', padding: 'var(--space-4) var(--space-3)' }}>
-        {/* Demo button */}
-        <button onClick={handleDemoLogin} className="btn-ghost" style={{ width: '100%', marginBottom: 'var(--space-3)', color: 'var(--color-accent)', borderColor: 'rgba(255, 107, 53, 0.3)' }}>
-          <Play size={18} fill="currentColor" />
-          Try Demo Instead
-        </button>
-
-        <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)', marginBottom: 'var(--space-3)' }}>
-          <div style={{ flex: 1, height: '1px', backgroundColor: 'var(--color-border)' }} />
-          <span className="t-caption" style={{ color: 'var(--color-text-sec)', textTransform: 'uppercase', fontWeight: 600 }}>
-            or create account
-          </span>
-          <div style={{ flex: 1, height: '1px', backgroundColor: 'var(--color-border)' }} />
-        </div>
-
         <form onSubmit={handleSubmit}>
           <div style={{ marginBottom: 'var(--space-2)' }}>
             <label htmlFor="email" className="t-label" style={{ display: 'block', marginBottom: 'var(--space-1)' }}>Email</label>

@@ -91,36 +91,6 @@ function findUserById(id) {
   return null
 }
 
-/* ---------- Demo seed user ---------- */
-
-const DEMO_EMAIL = 'demo@courtiq.app'
-
-function ensureDemoUser() {
-  const users = getStoredUsers()
-  if (!users[DEMO_EMAIL]) {
-    const id = 'demo-user-001'
-    users[DEMO_EMAIL] = {
-      user: { id, email: DEMO_EMAIL, password: 'demo', created_at: new Date().toISOString() },
-      profile: {
-        id,
-        email: DEMO_EMAIL,
-        full_name: 'Demo Player',
-        position: 'SG',
-        skill_level: 'Intermediate',
-        onboarding_completed: true,
-        date_of_birth: '2005-06-15',
-        xp: 450,
-        level: 3,
-        streak_count: 5,
-        created_at: new Date().toISOString(),
-        notification_preferences: { streak_reminder: true, weekly_summary: true },
-      },
-    }
-    saveStoredUsers(users)
-  }
-  return users[DEMO_EMAIL]
-}
-
 /* ---------- Provider ---------- */
 
 export function AuthProvider({ children }) {
@@ -132,7 +102,6 @@ export function AuthProvider({ children }) {
   // On mount: restore active session from localStorage (bypass mode)
   useEffect(() => {
     if (BYPASS_AUTH) {
-      ensureDemoUser()
       const activeId = getActiveUserId()
       if (activeId) {
         const entry = findUserById(activeId)
@@ -239,15 +208,6 @@ export function AuthProvider({ children }) {
     return data
   }
 
-  function demoSignIn() {
-    const demo = ensureDemoUser()
-    setUser(demo.user)
-    setSession({ user: demo.user })
-    setProfile(demo.profile)
-    setActiveUserId(demo.user.id)
-    return { user: demo.user }
-  }
-
   async function signOut() {
     if (BYPASS_AUTH) {
       setUser(null)
@@ -311,7 +271,6 @@ export function AuthProvider({ children }) {
     signUp,
     signIn,
     signOut,
-    demoSignIn,
     updateProfile,
     deleteAccount,
   }

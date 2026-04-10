@@ -23,8 +23,14 @@ import Premium from './pages/premium/Premium'
 
 function AppContent() {
   const { user, loading, profile } = useAuth()
-  const [splashDone, setSplashDone] = useState(false)
-  const handleSplashFinish = useCallback(() => setSplashDone(true), [])
+  // Only play the splash once per browser session — refreshes skip it
+  const [splashDone, setSplashDone] = useState(() => {
+    try { return sessionStorage.getItem('courtiq_splash_shown') === '1' } catch { return false }
+  })
+  const handleSplashFinish = useCallback(() => {
+    try { sessionStorage.setItem('courtiq_splash_shown', '1') } catch { /* noop */ }
+    setSplashDone(true)
+  }, [])
 
   // Show splash on first load (covers auth loading too)
   if (!splashDone) {

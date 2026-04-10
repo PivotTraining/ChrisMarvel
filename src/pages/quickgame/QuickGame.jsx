@@ -1,443 +1,566 @@
-import { useState, useEffect, useCallback, useRef } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { Undo2, Clock, Pause, Play, X, Check, ChevronUp } from 'lucide-react'
-import PageWrapper from '../../components/layout/PageWrapper'
-import Card from '../../components/ui/Card'
-import Button from '../../components/ui/Button'
-import ProGate from '../../components/ui/ProGate'
+import { useState, useCallback, useRef, useEffect } from 'react'
+import { useNavigate, useLocation } from 'react-router-dom'
+import { Undo2, Share2, Trash2, Check, X, ChevronLeft } from 'lucide-react'
 import useGames from '../../hooks/useGames'
 import { useToast } from '../../context/ToastContext'
 
-const QUARTERS = ['1st', '2nd', '3rd', '4th', 'OT']
+// ─── Half-Court SVG ─────────────────────────────────────────────────────────
+// viewBox: 500 wide × 470 tall (half court, basket at bottom)
+const W = 500, H = 470
+const BASKET_X = W / 2, BASKET_Y = H - 52
+const PAINT_LEFT = 178, PAINT_RIGHT = 322, PAINT_TOP = H - 190, PAINT_BOTTOM = H - 20
+const FT_Y = H - 190
+const ARC_RADIUS = 238 // 3-pt arc radius in our coordinate system
+const CORNER_3_Y = H - 40
+const CORNER_3_X_LEFT = 60, CORNER_3_X_RIGHT = 440
 
-const STAT_BUTTONS = [
-  { key: '+2', label: '+2', stat: 'points', value: 2, fg: true, color: 'var(--color-success)' },
-  { key: '+3', label: '+3', stat: 'points', value: 3, three: true, color: 'var(--color-info)' },
-  { key: 'ft_make', label: 'FT', stat: 'points', value: 1, ft: true, color: 'var(--color-accent)' },
-  { key: 'ft_miss', label: 'FT Miss', stat: null, ftMiss: true, color: 'var(--color-danger)' },
-  { key: 'fg_miss', label: 'Miss 2', stat: null, fgMiss: true, color: 'var(--color-danger)' },
-  { key: '3_miss', label: 'Miss 3', stat: null, threeMiss: true, color: 'var(--color-danger)' },
-  { key: 'reb', label: 'REB', stat: 'rebounds', value: 1, color: 'var(--color-purple)' },
-  { key: 'ast', label: 'AST', stat: 'assists', value: 1, color: 'var(--color-success)' },
-  { key: 'stl', label: 'STL', stat: 'steals', value: 1, color: 'var(--color-info)' },
-  { key: 'blk', label: 'BLK', stat: 'blocks', value: 1, color: 'var(--color-warning)' },
-  { key: 'to', label: 'TO', stat: 'turnovers', value: 1, color: 'var(--color-danger)' },
-  { key: 'foul', label: 'FOUL', stat: 'fouls', value: 1, color: 'var(--color-danger)' },
-]
-
-function formatTime(seconds) {
-  const m = Math.floor(seconds / 60)
-  const s = seconds % 60
-  return `${m}:${s.toString().padStart(2, '0')}`
+function is3Pointer(x, y) {
+  const dx = x - BASKET_X, dy = y - BASKET_Y
+  const dist = Math.sqrt(dx * dx + dy * dy)
+  // Corner 3s
+  if (x < CORNER_3_X_LEFT || x > CORNER_3_X_RIGHT) return true
+  // Arc 3
+  return dist > ARC_RADIUS * 0.72
 }
 
-function LiveStatLine({ stats }) {
-  const entries = [
-    { label: 'PTS', value: stats.points },
-    { label: 'REB', value: stats.rebounds },
-    { label: 'AST', value: stats.assists },
-    { label: 'STL', value: stats.steals },
-    { label: 'BLK', value: stats.blocks },
-  ]
-  return (
-    <div className="flex justify-around" style={{ padding: '8px 0' }}>
-      {entries.map((e) => (
-        <div key={e.label} style={{ textAlign: 'center' }}>
-          <div className="t-title3" style={{ color: 'var(--color-text)' }}>{e.value}</div>
-          <div className="section-label">{e.label}</div>
-        </div>
-      ))}
-    </div>
-  )
-}
+function CourtSVG({ shots, onCourtTap }) {
+  const svgRef = useRef(null)
 
-function PlayByPlayItem({ event, index }) {
-  return (
-    <div
-      className="flex items-center gap-2"
-      style={{
-        padding: '8px 12px',
-        backgroundColor: index % 2 === 0 ? 'rgba(255,255,255,0.02)' : 'transparent',
-        borderRadius: '8px',
-      }}
-    >
-      <span className="t-caption" style={{ color: 'var(--color-text-sec)', minWidth: '32px' }}>{event.quarter}</span>
-      <span className="t-caption" style={{ color: 'var(--color-text-sec)', minWidth: '40px' }}>{event.time}</span>
-      <div
-        style={{
-          width: '6px',
-          height: '6px',
-          borderRadius: '50%',
-          backgroundColor: event.color,
-          flexShrink: 0,
-        }}
-      />
-      <span className="t-body" style={{ color: 'var(--color-text)', fontWeight: 600, flex: 1 }}>{event.label}</span>
-    </div>
-  )
-}
-
-function QuickGameContent() {
-  const navigate = useNavigate()
-  const { addGame } = useGames()
-  const { showToast } = useToast()
-
-  const [gameActive, setGameActive] = useState(false)
-  const [quarter, setQuarter] = useState(0)
-  const [timer, setTimer] = useState(0)
-  const [timerRunning, setTimerRunning] = useState(false)
-  const [teamScore, setTeamScore] = useState(0)
-  const [opponentScore, setOpponentScore] = useState(0)
-  const [opponent, setOpponent] = useState('')
-
-  const [stats, setStats] = useState({
-    points: 0, rebounds: 0, assists: 0, steals: 0, blocks: 0,
-    turnovers: 0, fouls: 0,
-    field_goals_made: 0, field_goals_attempted: 0,
-    three_pointers_made: 0, three_pointers_attempted: 0,
-    free_throws_made: 0, free_throws_attempted: 0,
-  })
-
-  const [playByPlay, setPlayByPlay] = useState([])
-  const [showPBP, setShowPBP] = useState(false)
-  const timerRef = useRef(null)
-
-  // Timer
-  useEffect(() => {
-    if (timerRunning) {
-      timerRef.current = setInterval(() => setTimer((t) => t + 1), 1000)
-    } else {
-      clearInterval(timerRef.current)
-    }
-    return () => clearInterval(timerRef.current)
-  }, [timerRunning])
-
-  const addEvent = useCallback((label, color) => {
-    setPlayByPlay((prev) => [
-      { quarter: QUARTERS[quarter], time: formatTime(timer), label, color, ts: Date.now() },
-      ...prev,
-    ])
-  }, [quarter, timer])
-
-  const handleStat = useCallback((btn) => {
-    let label = ''
-
-    setStats((prev) => {
-      const next = { ...prev }
-
-      if (btn.fg) {
-        next.points += btn.value
-        next.field_goals_made += 1
-        next.field_goals_attempted += 1
-        label = `+${btn.value} PTS (FG)`
-        setTeamScore((s) => s + btn.value)
-      } else if (btn.three) {
-        next.points += 3
-        next.three_pointers_made += 1
-        next.three_pointers_attempted += 1
-        next.field_goals_made += 1
-        next.field_goals_attempted += 1
-        label = '+3 PTS (3PT)'
-        setTeamScore((s) => s + 3)
-      } else if (btn.ft) {
-        next.points += 1
-        next.free_throws_made += 1
-        next.free_throws_attempted += 1
-        label = 'FT Made'
-        setTeamScore((s) => s + 1)
-      } else if (btn.ftMiss) {
-        next.free_throws_attempted += 1
-        label = 'FT Missed'
-      } else if (btn.fgMiss) {
-        next.field_goals_attempted += 1
-        label = 'FG Missed (2PT)'
-      } else if (btn.threeMiss) {
-        next.field_goals_attempted += 1
-        next.three_pointers_attempted += 1
-        label = '3PT Missed'
-      } else if (btn.stat) {
-        next[btn.stat] += btn.value
-        label = `${btn.label}`
-      }
-
-      return next
-    })
-
-    addEvent(label || btn.label, btn.color)
-  }, [addEvent])
-
-  const undoLast = useCallback(() => {
-    if (playByPlay.length === 0) return
-    // Simple undo: remove last event — in production would reverse the stat
-    setPlayByPlay((prev) => prev.slice(1))
-    showToast('Last action undone', 'info')
-  }, [playByPlay, showToast])
-
-  const startGame = () => {
-    setGameActive(true)
-    setTimerRunning(true)
+  function handleTap(e) {
+    e.preventDefault()
+    const svg = svgRef.current
+    if (!svg) return
+    const rect = svg.getBoundingClientRect()
+    const clientX = e.touches ? e.touches[0].clientX : e.clientX
+    const clientY = e.touches ? e.touches[0].clientY : e.clientY
+    const scaleX = W / rect.width
+    const scaleY = H / rect.height
+    const x = (clientX - rect.left) * scaleX
+    const y = (clientY - rect.top) * scaleY
+    onCourtTap(x, y)
   }
 
-  const endGame = async () => {
-    setTimerRunning(false)
+  return (
+    <svg
+      ref={svgRef}
+      viewBox={`0 0 ${W} ${H}`}
+      style={{ width: '100%', display: 'block', cursor: 'crosshair', touchAction: 'none', userSelect: 'none' }}
+      onClick={handleTap}
+      onTouchEnd={handleTap}
+    >
+      {/* Court background */}
+      <defs>
+        <radialGradient id="courtGrad" cx="50%" cy="85%" r="70%">
+          <stop offset="0%" stopColor="#C8860A" />
+          <stop offset="100%" stopColor="#8B5E0A" />
+        </radialGradient>
+        <radialGradient id="glowBasket" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stopColor="#FF6B35" stopOpacity="0.5" />
+          <stop offset="100%" stopColor="#FF6B35" stopOpacity="0" />
+        </radialGradient>
+        <filter id="glow">
+          <feGaussianBlur stdDeviation="3" result="blur" />
+          <feComposite in="SourceGraphic" in2="blur" operator="over" />
+        </filter>
+      </defs>
 
-    const result = teamScore > opponentScore ? 'Win' : teamScore < opponentScore ? 'Loss' : 'Draw'
+      {/* Wood floor */}
+      <rect x="0" y="0" width={W} height={H} rx="8" fill="url(#courtGrad)" />
+      {/* Wood grain lines */}
+      {Array.from({ length: 20 }, (_, i) => (
+        <line key={i} x1="0" y1={i * 25} x2={W} y2={i * 25} stroke="rgba(0,0,0,0.06)" strokeWidth="1" />
+      ))}
 
+      {/* Court lines color */}
+      {(() => {
+        const L = 'rgba(255,255,255,0.85)'
+        const lw = 2.5
+        return (
+          <g stroke={L} strokeWidth={lw} fill="none">
+            {/* Boundary */}
+            <rect x="18" y="10" width={W - 36} height={H - 20} rx="4" />
+            {/* Paint / lane */}
+            <rect x={PAINT_LEFT} y={PAINT_TOP} width={PAINT_RIGHT - PAINT_LEFT} height={PAINT_BOTTOM - PAINT_TOP} />
+            {/* Free throw circle - top half */}
+            <path d={`M ${PAINT_LEFT} ${FT_Y} A 72 72 0 0 1 ${PAINT_RIGHT} ${FT_Y}`} />
+            {/* Free throw circle - bottom half dashed */}
+            <path d={`M ${PAINT_LEFT} ${FT_Y} A 72 72 0 0 0 ${PAINT_RIGHT} ${FT_Y}`} strokeDasharray="8 6" />
+            {/* 3-point arc */}
+            <path
+              d={`M ${CORNER_3_X_LEFT} ${CORNER_3_Y}
+                  L ${CORNER_3_X_LEFT} ${H - 185}
+                  A ${ARC_RADIUS * 0.72} ${ARC_RADIUS * 0.72} 0 0 1 ${CORNER_3_X_RIGHT} ${H - 185}
+                  L ${CORNER_3_X_RIGHT} ${CORNER_3_Y}`}
+            />
+            {/* Restricted area arc */}
+            <path d={`M ${BASKET_X - 48} ${H - 20} A 48 48 0 0 1 ${BASKET_X + 48} ${H - 20}`} />
+            {/* Backboard */}
+            <line x1={BASKET_X - 55} y1={H - 28} x2={BASKET_X + 55} y2={H - 28} strokeWidth={4} stroke="rgba(255,255,255,0.9)" />
+          </g>
+        )
+      })()}
+
+      {/* Basket glow */}
+      <circle cx={BASKET_X} cy={BASKET_Y} r="40" fill="url(#glowBasket)" />
+      {/* Basket rim */}
+      <circle cx={BASKET_X} cy={BASKET_Y} r="14" fill="none" stroke="#FF6B35" strokeWidth="3.5" />
+      <circle cx={BASKET_X} cy={BASKET_Y} r="3" fill="#FF6B35" />
+
+      {/* Shot markers */}
+      {shots.map((s, i) => (
+        <g key={i}>
+          {s.made ? (
+            <g filter="url(#glow)">
+              <circle cx={s.x} cy={s.y} r="10" fill={s.is3 ? '#3B82F6' : '#22C55E'} opacity="0.9" />
+              <text x={s.x} y={s.y} textAnchor="middle" dominantBaseline="central" fill="#fff" fontSize="10" fontWeight="bold">
+                {s.is3 ? '3' : '2'}
+              </text>
+            </g>
+          ) : (
+            <g opacity="0.75">
+              <line x1={s.x - 7} y1={s.y - 7} x2={s.x + 7} y2={s.y + 7} stroke="#EF4444" strokeWidth="2.5" strokeLinecap="round" />
+              <line x1={s.x + 7} y1={s.y - 7} x2={s.x - 7} y2={s.y + 7} stroke="#EF4444" strokeWidth="2.5" strokeLinecap="round" />
+            </g>
+          )}
+        </g>
+      ))}
+    </svg>
+  )
+}
+
+// ─── Shot Popup ──────────────────────────────────────────────────────────────
+function ShotPopup({ x, y, is3, onResult, onClose }) {
+  return (
+    <div style={{
+      position: 'fixed', inset: 0, zIndex: 50,
+      display: 'flex', alignItems: 'center', justifyContent: 'center',
+      background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(6px)',
+    }} onClick={onClose}>
+      <div onClick={e => e.stopPropagation()} style={{
+        background: 'linear-gradient(160deg, #1a1a2e, #16213e)',
+        border: `1px solid ${is3 ? '#3B82F6' : '#22C55E'}40`,
+        borderRadius: '20px', padding: '28px 24px', textAlign: 'center',
+        minWidth: '260px', boxShadow: `0 24px 64px rgba(0,0,0,0.5), 0 0 32px ${is3 ? '#3B82F6' : '#22C55E'}20`,
+      }}>
+        <div style={{
+          display: 'inline-block', padding: '6px 18px', borderRadius: '20px',
+          background: is3 ? 'rgba(59,130,246,0.2)' : 'rgba(34,197,94,0.2)',
+          border: `1px solid ${is3 ? '#3B82F6' : '#22C55E'}50`,
+          marginBottom: '16px',
+        }}>
+          <span style={{ color: is3 ? '#3B82F6' : '#22C55E', fontWeight: 800, fontSize: '14px', letterSpacing: '1px' }}>
+            {is3 ? '3-POINTER' : '2-POINTER'}
+          </span>
+        </div>
+        <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: '14px', marginBottom: '20px' }}>Did it go in?</p>
+        <div style={{ display: 'flex', gap: '12px' }}>
+          <button onClick={() => onResult(true)} style={{
+            flex: 1, padding: '16px', borderRadius: '14px', border: 'none', cursor: 'pointer',
+            background: 'linear-gradient(135deg, #22C55E, #16A34A)',
+            color: '#fff', fontWeight: 900, fontSize: '17px',
+            boxShadow: '0 4px 20px rgba(34,197,94,0.4)',
+          }}>MADE</button>
+          <button onClick={() => onResult(false)} style={{
+            flex: 1, padding: '16px', borderRadius: '14px', border: 'none', cursor: 'pointer',
+            background: 'linear-gradient(135deg, #EF4444, #DC2626)',
+            color: '#fff', fontWeight: 900, fontSize: '17px',
+            boxShadow: '0 4px 20px rgba(239,68,68,0.4)',
+          }}>MISS</button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// ─── Stat Button ─────────────────────────────────────────────────────────────
+function StatBtn({ label, value, color, onClick }) {
+  const ref = useRef(null)
+  return (
+    <button
+      ref={ref}
+      onClick={() => {
+        if (ref.current) {
+          ref.current.style.transform = 'scale(0.9)'
+          setTimeout(() => { if (ref.current) ref.current.style.transform = 'scale(1)' }, 120)
+        }
+        onClick()
+      }}
+      style={{
+        display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+        padding: '12px 4px', borderRadius: '16px', border: `2px solid ${color}60`,
+        background: `linear-gradient(160deg, ${color}18, ${color}08)`,
+        cursor: 'pointer', transition: 'transform 0.12s ease',
+        WebkitTapHighlightColor: 'transparent', touchAction: 'manipulation',
+        gap: '4px',
+      }}
+    >
+      <span style={{ fontSize: '24px', fontWeight: 900, color, letterSpacing: '-1px', lineHeight: 1 }}>{value}</span>
+      <span style={{ fontSize: '10px', fontWeight: 700, color: 'rgba(255,255,255,0.5)', letterSpacing: '0.8px', textTransform: 'uppercase' }}>{label}</span>
+    </button>
+  )
+}
+
+// ─── Main Component ───────────────────────────────────────────────────────────
+export default function QuickGame() {
+  const navigate = useNavigate()
+  const location = useLocation()
+  const { addGame, updateGame } = useGames()
+  const { showToast } = useToast()
+
+  // Support resuming existing game via location state
+  const resumeGame = location.state?.game || null
+
+  const [opponent, setOpponent] = useState(resumeGame?.opponent || '')
+  const [started, setStarted] = useState(!!resumeGame)
+  const [shots, setShots] = useState(resumeGame?._shots || [])
+  const [stats, setStats] = useState({
+    assists: resumeGame?.assists || 0,
+    blocks: resumeGame?.blocks || 0,
+    steals: resumeGame?.steals || 0,
+    turnovers: resumeGame?.turnovers || 0,
+    free_throws_made: resumeGame?.free_throws_made || 0,
+    free_throws_attempted: resumeGame?.free_throws_attempted || 0,
+    rebounds: resumeGame?.rebounds || 0,
+    fouls: resumeGame?.fouls || 0,
+  })
+  const [history, setHistory] = useState([])
+  const [pending, setPending] = useState(null) // { x, y, is3 }
+  const [saving, setSaving] = useState(false)
+  const [showFT, setShowFT] = useState(false)
+
+  // Derived shooting stats from shots array
+  const fgm = shots.filter(s => s.made && !s.is3).length
+  const fga = shots.filter(s => !s.is3).length
+  const tpm = shots.filter(s => s.made && s.is3).length
+  const tpa = shots.filter(s => s.is3).length
+  const pts = fgm * 2 + tpm * 3 + stats.free_throws_made
+
+  const push = useCallback((action) => {
+    setHistory(h => [...h, action])
+  }, [])
+
+  const handleCourtTap = useCallback((x, y) => {
+    if (!started) return
+    const is3 = is3Pointer(x, y)
+    setPending({ x, y, is3 })
+  }, [started])
+
+  const handleShotResult = useCallback((made) => {
+    if (!pending) return
+    const shot = { ...pending, made }
+    setShots(s => [...s, shot])
+    push({ type: 'shot', shot })
+    setPending(null)
+  }, [pending, push])
+
+  const handleStat = useCallback((key, delta = 1) => {
+    setStats(prev => {
+      const next = { ...prev, [key]: Math.max(0, (prev[key] || 0) + delta) }
+      push({ type: 'stat', key, delta })
+      return next
+    })
+  }, [push])
+
+  const handleFT = useCallback((made) => {
+    setStats(prev => ({
+      ...prev,
+      free_throws_made: prev.free_throws_made + (made ? 1 : 0),
+      free_throws_attempted: prev.free_throws_attempted + 1,
+    }))
+    push({ type: 'ft', made })
+    setShowFT(false)
+  }, [push])
+
+  const handleUndo = useCallback(() => {
+    if (history.length === 0) return
+    const last = history[history.length - 1]
+    setHistory(h => h.slice(0, -1))
+    if (last.type === 'shot') {
+      setShots(s => s.filter((_, i) => i !== s.length - 1))
+    } else if (last.type === 'stat') {
+      setStats(prev => ({ ...prev, [last.key]: Math.max(0, (prev[last.key] || 0) - last.delta) }))
+    } else if (last.type === 'ft') {
+      setStats(prev => ({
+        ...prev,
+        free_throws_made: Math.max(0, prev.free_throws_made - (last.made ? 1 : 0)),
+        free_throws_attempted: Math.max(0, prev.free_throws_attempted - 1),
+      }))
+    }
+    showToast('Undone', 'info')
+  }, [history, showToast])
+
+  const handleClear = useCallback(() => {
+    if (!window.confirm('Clear all stats for this game?')) return
+    setShots([])
+    setStats({ assists: 0, blocks: 0, steals: 0, turnovers: 0, free_throws_made: 0, free_throws_attempted: 0, rebounds: 0, fouls: 0 })
+    setHistory([])
+    showToast('Stats cleared', 'info')
+  }, [showToast])
+
+  const handleShare = useCallback(async () => {
+    const fgPct = fga > 0 ? Math.round((fgm / fga) * 100) : 0
+    const text = `🏀 ${opponent || 'Game'} — CourtIQ\n${pts} PTS | ${stats.rebounds} REB | ${stats.assists} AST\n${stats.steals} STL | ${stats.blocks} BLK | ${stats.turnovers} TO\nFG: ${fgm}/${fga} (${fgPct}%) | 3PT: ${tpm}/${tpa} | FT: ${stats.free_throws_made}/${stats.free_throws_attempted}`
+    if (navigator.share) {
+      try { await navigator.share({ title: 'My Game Stats', text }); return } catch {}
+    }
+    try { await navigator.clipboard.writeText(text); showToast('Copied to clipboard!', 'success') } catch { showToast('Could not share', 'info') }
+  }, [pts, stats, fgm, fga, tpm, tpa, opponent, showToast])
+
+  const handleSave = useCallback(async () => {
+    setSaving(true)
     const gameData = {
       game_date: new Date().toISOString().split('T')[0],
       opponent: opponent || 'Opponent',
-      game_type: 'League',
-      result,
+      game_type: 'Pickup',
+      result: 'Win',
       is_home_game: true,
-      minutes_played: Math.round(timer / 60),
-      ...stats,
-      notes: `Quick Game — Team: ${teamScore}, Opponent: ${opponentScore}. Play-by-play: ${playByPlay.length} events.`,
+      points: pts,
+      rebounds: stats.rebounds,
+      assists: stats.assists,
+      steals: stats.steals,
+      blocks: stats.blocks,
+      turnovers: stats.turnovers,
+      fouls: stats.fouls,
+      field_goals_made: fgm,
+      field_goals_attempted: fga,
+      three_pointers_made: tpm,
+      three_pointers_attempted: tpa,
+      free_throws_made: stats.free_throws_made,
+      free_throws_attempted: stats.free_throws_attempted,
+      _shots: shots,
     }
-
-    const saved = await addGame(gameData)
-    if (saved) {
-      showToast('Game saved!', 'success')
+    try {
+      let saved
+      if (resumeGame?.id) {
+        saved = await updateGame(resumeGame.id, gameData)
+        showToast('Game updated!', 'success')
+      } else {
+        saved = await addGame(gameData)
+        showToast('Game saved!', 'success')
+      }
       navigate('/games')
-    } else {
-      showToast('Failed to save game', 'error')
+    } catch {
+      showToast('Failed to save', 'error')
+    } finally {
+      setSaving(false)
     }
-  }
+  }, [pts, stats, fgm, fga, tpm, tpa, shots, opponent, resumeGame, addGame, updateGame, navigate, showToast])
 
-  // Pre-game setup
-  if (!gameActive) {
+  // Pre-game setup screen
+  if (!started) {
     return (
-      <PageWrapper>
-        <h1 className="t-title1" style={{ marginBottom: 'var(--space-3)' }}>Quick Game</h1>
-        <p className="t-body" style={{ color: 'var(--color-text-sec)', marginBottom: 'var(--space-3)' }}>
-          Tap stats in real time while watching the game. Every event builds a play-by-play log.
-        </p>
+      <div style={{
+        minHeight: '100dvh', display: 'flex', flexDirection: 'column', alignItems: 'center',
+        justifyContent: 'center', backgroundColor: '#0D0D1A', padding: '24px',
+      }}>
+        <div style={{ textAlign: 'center', marginBottom: '40px' }}>
+          <div style={{
+            width: '80px', height: '80px', borderRadius: '24px', margin: '0 auto 16px',
+            background: 'linear-gradient(135deg, #FF6B35, #C8490A)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            boxShadow: '0 12px 40px rgba(255,107,53,0.4)',
+          }}>
+            <span style={{ fontSize: '36px' }}>🏀</span>
+          </div>
+          <h1 style={{ color: '#fff', fontSize: '28px', fontWeight: 900, margin: '0 0 8px', letterSpacing: '-0.5px' }}>Quick Game</h1>
+          <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '15px', margin: 0 }}>Tap the court. Track live.</p>
+        </div>
 
-        <Card padding="md">
-          <label className="t-label" style={{ display: 'block', marginBottom: '6px' }}>Opponent</label>
+        <div style={{ width: '100%', maxWidth: '360px' }}>
+          <label style={{ color: 'rgba(255,255,255,0.6)', fontSize: '12px', fontWeight: 700, letterSpacing: '1px', textTransform: 'uppercase', display: 'block', marginBottom: '8px' }}>
+            Opponent (optional)
+          </label>
           <input
-            className="input-base"
-            placeholder="Who are you playing?"
             value={opponent}
-            onChange={(e) => setOpponent(e.target.value)}
-            style={{ marginBottom: 'var(--space-3)' }}
+            onChange={e => setOpponent(e.target.value)}
+            placeholder="Who are you playing?"
+            style={{
+              width: '100%', padding: '16px', borderRadius: '14px', border: '1.5px solid rgba(255,255,255,0.12)',
+              background: 'rgba(255,255,255,0.06)', color: '#fff', fontSize: '16px',
+              outline: 'none', boxSizing: 'border-box', fontFamily: 'inherit', marginBottom: '16px',
+            }}
+            onKeyDown={e => { if (e.key === 'Enter') setStarted(true) }}
           />
-          <Button variant="primary" onClick={startGame} fullWidth>
-            <Play size={18} /> Start Game
-          </Button>
-        </Card>
-      </PageWrapper>
+          <button onClick={() => setStarted(true)} style={{
+            width: '100%', padding: '18px', borderRadius: '16px', border: 'none', cursor: 'pointer',
+            background: 'linear-gradient(135deg, #FF6B35, #C8490A)',
+            color: '#fff', fontSize: '18px', fontWeight: 900, fontFamily: 'inherit',
+            boxShadow: '0 8px 32px rgba(255,107,53,0.45)', letterSpacing: '-0.3px',
+          }}>
+            Start Game →
+          </button>
+        </div>
+      </div>
     )
   }
 
-  // Live game UI
-  const fgPct = stats.field_goals_attempted > 0
-    ? Math.round((stats.field_goals_made / stats.field_goals_attempted) * 100)
-    : 0
+  const fgPct = fga > 0 ? Math.round((fgm / fga) * 100) : 0
 
   return (
-    <div
-      style={{
-        minHeight: '100dvh',
-        backgroundColor: 'var(--color-bg)',
-        padding: 'var(--space-2)',
-        paddingBottom: '32px',
-      }}
-    >
-      {/* Scoreboard */}
-      <div
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          padding: 'var(--space-2)',
-          marginBottom: 'var(--space-2)',
-          backgroundColor: 'var(--color-card)',
-          borderRadius: 'var(--radius-card)',
-          border: '1px solid var(--color-border)',
-        }}
-      >
-        {/* Team score */}
-        <div style={{ textAlign: 'center', flex: 1 }}>
-          <div className="t-caption" style={{ color: 'var(--color-accent)', fontWeight: 700, marginBottom: '2px' }}>YOU</div>
-          <div className="t-stat" style={{ color: 'var(--color-text)' }}>{teamScore}</div>
+    <div style={{ minHeight: '100dvh', backgroundColor: '#0D0D1A', display: 'flex', flexDirection: 'column' }}>
+      {/* Top bar */}
+      <div style={{
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+        padding: '12px 16px', background: 'rgba(255,255,255,0.03)', borderBottom: '1px solid rgba(255,255,255,0.06)',
+      }}>
+        <button onClick={() => navigate(-1)} style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,0.5)', cursor: 'pointer', padding: '4px', display: 'flex', alignItems: 'center', gap: '4px' }}>
+          <ChevronLeft size={20} />
+        </button>
+        <div style={{ textAlign: 'center' }}>
+          <div style={{ color: '#fff', fontWeight: 800, fontSize: '16px' }}>{opponent || 'Game'}</div>
+          <div style={{ color: 'rgba(255,255,255,0.4)', fontSize: '11px', letterSpacing: '0.5px' }}>TAP COURT TO RECORD SHOTS</div>
         </div>
-
-        {/* Center: quarter + timer */}
-        <div style={{ textAlign: 'center', padding: '0 var(--space-2)' }}>
-          <div className="flex items-center gap-1 justify-center" style={{ marginBottom: '4px' }}>
-            {QUARTERS.map((q, i) => (
-              <button
-                key={q}
-                onClick={() => setQuarter(i)}
-                className="t-caption"
-                style={{
-                  padding: '2px 8px',
-                  borderRadius: '6px',
-                  border: 'none',
-                  cursor: 'pointer',
-                  fontWeight: 700,
-                  backgroundColor: i === quarter ? 'var(--color-accent)' : 'rgba(255,255,255,0.08)',
-                  color: i === quarter ? '#fff' : 'var(--color-text-sec)',
-                }}
-              >
-                {q}
-              </button>
-            ))}
-          </div>
-          <div className="flex items-center justify-center gap-2">
-            <Clock size={14} style={{ color: 'var(--color-text-sec)' }} />
-            <span className="t-body" style={{ fontWeight: 700, fontVariantNumeric: 'tabular-nums' }}>{formatTime(timer)}</span>
-            <button
-              onClick={() => setTimerRunning(!timerRunning)}
-              style={{
-                background: 'none',
-                border: 'none',
-                cursor: 'pointer',
-                color: timerRunning ? 'var(--color-warning)' : 'var(--color-success)',
-                padding: '4px',
-              }}
-            >
-              {timerRunning ? <Pause size={16} /> : <Play size={16} />}
-            </button>
-          </div>
-        </div>
-
-        {/* Opponent score */}
-        <div style={{ textAlign: 'center', flex: 1 }}>
-          <div className="t-caption" style={{ color: 'var(--color-text-sec)', fontWeight: 700, marginBottom: '2px' }}>
-            {opponent || 'OPP'}
-          </div>
-          <div className="t-stat" style={{ color: 'var(--color-text)' }}>{opponentScore}</div>
-          <div className="flex justify-center gap-1" style={{ marginTop: '4px' }}>
-            <button
-              onClick={() => setOpponentScore((s) => Math.max(0, s - 1))}
-              style={{
-                width: '28px', height: '28px', borderRadius: '8px', border: '1px solid var(--color-border)',
-                background: 'var(--color-input-bg)', color: 'var(--color-text-sec)', cursor: 'pointer',
-                display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '16px', fontWeight: 700,
-              }}
-            >
-              −
-            </button>
-            <button
-              onClick={() => setOpponentScore((s) => s + 1)}
-              style={{
-                width: '28px', height: '28px', borderRadius: '8px', border: '1px solid var(--color-border)',
-                background: 'var(--color-input-bg)', color: 'var(--color-text-sec)', cursor: 'pointer',
-                display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '16px', fontWeight: 700,
-              }}
-            >
-              +
-            </button>
-          </div>
-        </div>
+        <button onClick={handleShare} style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,0.5)', cursor: 'pointer', padding: '4px' }}>
+          <Share2 size={18} />
+        </button>
       </div>
 
-      {/* Live stat line */}
-      <LiveStatLine stats={stats} />
-
-      {/* Shooting line */}
-      <div className="flex justify-center gap-4" style={{ marginBottom: 'var(--space-2)' }}>
-        <span className="t-caption" style={{ color: 'var(--color-text-sec)' }}>
-          FG: {stats.field_goals_made}/{stats.field_goals_attempted} ({fgPct}%)
-        </span>
-        <span className="t-caption" style={{ color: 'var(--color-text-sec)' }}>
-          3PT: {stats.three_pointers_made}/{stats.three_pointers_attempted}
-        </span>
-        <span className="t-caption" style={{ color: 'var(--color-text-sec)' }}>
-          FT: {stats.free_throws_made}/{stats.free_throws_attempted}
-        </span>
-      </div>
-
-      {/* Stat buttons grid */}
-      <div
-        style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(3, 1fr)',
-          gap: '8px',
-          marginBottom: 'var(--space-2)',
-        }}
-      >
-        {STAT_BUTTONS.map((btn) => (
-          <button
-            key={btn.key}
-            onClick={() => handleStat(btn)}
-            style={{
-              padding: '16px 8px',
-              borderRadius: '16px',
-              border: `2px solid ${btn.color}`,
-              backgroundColor: 'rgba(0,0,0,0.2)',
-              color: btn.color,
-              fontSize: '16px',
-              fontWeight: 900,
-              fontFamily: 'inherit',
-              cursor: 'pointer',
-              transition: 'transform 0.1s ease, background-color 0.1s ease',
-              WebkitTapHighlightColor: 'transparent',
-              touchAction: 'manipulation',
-              userSelect: 'none',
-            }}
-            onTouchStart={(e) => { e.currentTarget.style.transform = 'scale(0.92)'; e.currentTarget.style.backgroundColor = `${btn.color}22` }}
-            onTouchEnd={(e) => { e.currentTarget.style.transform = 'scale(1)'; e.currentTarget.style.backgroundColor = 'rgba(0,0,0,0.2)' }}
-          >
-            {btn.label}
-          </button>
+      {/* Live stat bar */}
+      <div style={{
+        display: 'flex', justifyContent: 'space-around', padding: '10px 16px',
+        background: 'linear-gradient(90deg, rgba(255,107,53,0.12), rgba(59,130,246,0.08), rgba(34,197,94,0.08))',
+        borderBottom: '1px solid rgba(255,255,255,0.05)',
+      }}>
+        {[
+          { label: 'PTS', value: pts, color: '#FF6B35' },
+          { label: 'REB', value: stats.rebounds, color: '#3B82F6' },
+          { label: 'AST', value: stats.assists, color: '#22C55E' },
+          { label: 'STL', value: stats.steals, color: '#A78BFA' },
+          { label: 'BLK', value: stats.blocks, color: '#F59E0B' },
+        ].map(s => (
+          <div key={s.label} style={{ textAlign: 'center' }}>
+            <div style={{ fontSize: '22px', fontWeight: 900, color: s.color, letterSpacing: '-0.5px', lineHeight: 1 }}>{s.value}</div>
+            <div style={{ fontSize: '9px', fontWeight: 700, color: 'rgba(255,255,255,0.4)', letterSpacing: '0.8px', marginTop: '2px' }}>{s.label}</div>
+          </div>
         ))}
       </div>
 
+      {/* Shooting line */}
+      <div style={{
+        display: 'flex', justifyContent: 'center', gap: '16px', padding: '6px 16px',
+        background: 'rgba(0,0,0,0.2)',
+      }}>
+        <span style={{ color: 'rgba(255,255,255,0.45)', fontSize: '12px' }}>FG <strong style={{ color: '#fff' }}>{fgm}/{fga}</strong> ({fgPct}%)</span>
+        <span style={{ color: 'rgba(255,255,255,0.45)', fontSize: '12px' }}>3PT <strong style={{ color: '#3B82F6' }}>{tpm}/{tpa}</strong></span>
+        <span style={{ color: 'rgba(255,255,255,0.45)', fontSize: '12px' }}>FT <strong style={{ color: '#F59E0B' }}>{stats.free_throws_made}/{stats.free_throws_attempted}</strong></span>
+      </div>
+
+      {/* Half court */}
+      <div style={{ padding: '8px 12px', flex: '0 0 auto' }}>
+        <div style={{
+          borderRadius: '16px', overflow: 'hidden',
+          boxShadow: '0 8px 40px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.08)',
+        }}>
+          <CourtSVG shots={shots} onCourtTap={handleCourtTap} />
+        </div>
+      </div>
+
+      {/* Stat buttons */}
+      <div style={{
+        display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '8px',
+        padding: '8px 12px',
+      }}>
+        <StatBtn label="AST" value={stats.assists} color="#22C55E" onClick={() => handleStat('assists')} />
+        <StatBtn label="REB" value={stats.rebounds} color="#3B82F6" onClick={() => handleStat('rebounds')} />
+        <StatBtn label="STL" value={stats.steals} color="#A78BFA" onClick={() => handleStat('steals')} />
+        <StatBtn label="BLK" value={stats.blocks} color="#F59E0B" onClick={() => handleStat('blocks')} />
+        <StatBtn label="TO" value={stats.turnovers} color="#EF4444" onClick={() => handleStat('turnovers')} />
+        <StatBtn label="PF" value={stats.fouls} color="#F97316" onClick={() => handleStat('fouls')} />
+        <div style={{ gridColumn: 'span 2' }}>
+          <button
+            onClick={() => setShowFT(true)}
+            style={{
+              width: '100%', height: '100%', display: 'flex', flexDirection: 'column',
+              alignItems: 'center', justifyContent: 'center',
+              padding: '12px', borderRadius: '16px', border: '2px solid #F59E0B60',
+              background: 'linear-gradient(160deg, #F59E0B18, #F59E0B08)',
+              cursor: 'pointer', gap: '4px',
+              WebkitTapHighlightColor: 'transparent',
+            }}
+          >
+            <span style={{ fontSize: '13px', fontWeight: 900, color: '#F59E0B', letterSpacing: '0.5px' }}>
+              {stats.free_throws_made}/{stats.free_throws_attempted}
+            </span>
+            <span style={{ fontSize: '10px', fontWeight: 700, color: 'rgba(255,255,255,0.5)', letterSpacing: '0.8px', textTransform: 'uppercase' }}>Free Throw</span>
+          </button>
+        </div>
+      </div>
+
       {/* Action bar */}
-      <div className="flex gap-2" style={{ marginBottom: 'var(--space-2)' }}>
-        <button onClick={undoLast} className="btn-ghost" style={{ flex: 1 }}>
-          <Undo2 size={16} /> Undo
+      <div style={{ display: 'flex', gap: '8px', padding: '8px 12px', marginTop: 'auto' }}>
+        <button onClick={handleClear} style={{
+          flex: 1, padding: '14px', borderRadius: '14px', border: '1px solid rgba(239,68,68,0.3)',
+          background: 'rgba(239,68,68,0.08)', color: '#EF4444', cursor: 'pointer',
+          display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px',
+          fontSize: '13px', fontWeight: 700, fontFamily: 'inherit',
+        }}>
+          <Trash2 size={15} /> Clear
         </button>
-        <button
-          onClick={() => setShowPBP(!showPBP)}
-          className="btn-ghost"
-          style={{ flex: 1 }}
-        >
-          <ChevronUp size={16} style={{ transform: showPBP ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }} />
-          PBP ({playByPlay.length})
+        <button onClick={handleUndo} disabled={history.length === 0} style={{
+          flex: 1, padding: '14px', borderRadius: '14px', border: '1px solid rgba(255,255,255,0.1)',
+          background: 'rgba(255,255,255,0.05)', color: history.length > 0 ? '#fff' : 'rgba(255,255,255,0.25)',
+          cursor: history.length > 0 ? 'pointer' : 'default',
+          display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px',
+          fontSize: '13px', fontWeight: 700, fontFamily: 'inherit',
+        }}>
+          <Undo2 size={15} /> Undo
+        </button>
+        <button onClick={handleSave} disabled={saving} style={{
+          flex: 2, padding: '14px', borderRadius: '14px', border: 'none',
+          background: saving ? 'rgba(255,107,53,0.4)' : 'linear-gradient(135deg, #FF6B35, #C8490A)',
+          color: '#fff', cursor: saving ? 'default' : 'pointer',
+          display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px',
+          fontSize: '15px', fontWeight: 900, fontFamily: 'inherit',
+          boxShadow: saving ? 'none' : '0 4px 20px rgba(255,107,53,0.35)',
+        }}>
+          <Check size={17} /> {saving ? 'Saving...' : 'Save Game'}
         </button>
       </div>
 
-      {/* Play-by-play log */}
-      {showPBP && (
-        <Card padding="sm" style={{ marginBottom: 'var(--space-2)', maxHeight: '200px', overflowY: 'auto' }}>
-          {playByPlay.length === 0 ? (
-            <p className="t-caption" style={{ color: 'var(--color-text-sec)', textAlign: 'center', padding: '12px' }}>
-              Tap a stat button to start recording
-            </p>
-          ) : (
-            playByPlay.map((event, i) => <PlayByPlayItem key={event.ts} event={event} index={i} />)
-          )}
-        </Card>
+      {/* Free throw popup */}
+      {showFT && (
+        <div style={{
+          position: 'fixed', inset: 0, zIndex: 50,
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(6px)',
+        }} onClick={() => setShowFT(false)}>
+          <div onClick={e => e.stopPropagation()} style={{
+            background: 'linear-gradient(160deg, #1a1a2e, #16213e)',
+            border: '1px solid #F59E0B40', borderRadius: '20px',
+            padding: '28px 24px', textAlign: 'center', minWidth: '260px',
+            boxShadow: '0 24px 64px rgba(0,0,0,0.5), 0 0 32px #F59E0B20',
+          }}>
+            <div style={{
+              display: 'inline-block', padding: '6px 18px', borderRadius: '20px',
+              background: 'rgba(245,158,11,0.2)', border: '1px solid #F59E0B50', marginBottom: '16px',
+            }}>
+              <span style={{ color: '#F59E0B', fontWeight: 800, fontSize: '14px', letterSpacing: '1px' }}>FREE THROW</span>
+            </div>
+            <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: '14px', marginBottom: '20px' }}>Did it go in?</p>
+            <div style={{ display: 'flex', gap: '12px' }}>
+              <button onClick={() => handleFT(true)} style={{
+                flex: 1, padding: '16px', borderRadius: '14px', border: 'none', cursor: 'pointer',
+                background: 'linear-gradient(135deg, #22C55E, #16A34A)', color: '#fff',
+                fontWeight: 900, fontSize: '17px', boxShadow: '0 4px 20px rgba(34,197,94,0.4)',
+              }}>MADE</button>
+              <button onClick={() => handleFT(false)} style={{
+                flex: 1, padding: '16px', borderRadius: '14px', border: 'none', cursor: 'pointer',
+                background: 'linear-gradient(135deg, #EF4444, #DC2626)', color: '#fff',
+                fontWeight: 900, fontSize: '17px', boxShadow: '0 4px 20px rgba(239,68,68,0.4)',
+              }}>MISS</button>
+            </div>
+          </div>
+        </div>
       )}
 
-      {/* End game */}
-      <div className="flex gap-2">
-        <button
-          onClick={() => { if (window.confirm('Discard this game?')) navigate('/games') }}
-          className="btn-ghost"
-          style={{ flex: 1 }}
-        >
-          <X size={16} /> Discard
-        </button>
-        <button
-          onClick={endGame}
-          className="btn-primary"
-          style={{ flex: 2 }}
-        >
-          <Check size={18} /> End Game & Save
-        </button>
-      </div>
+      {/* Shot popup */}
+      {pending && (
+        <ShotPopup
+          x={pending.x} y={pending.y} is3={pending.is3}
+          onResult={handleShotResult}
+          onClose={() => setPending(null)}
+        />
+      )}
     </div>
-  )
-}
-
-export default function QuickGame() {
-  return (
-    <ProGate feature="quickGame">
-      <QuickGameContent />
-    </ProGate>
   )
 }

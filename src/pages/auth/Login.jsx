@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
 import { useToast } from '../../context/ToastContext'
-import { Play, Mail, Lock } from 'lucide-react'
+import { Mail, Lock } from 'lucide-react'
 
 export default function Login() {
   const [email, setEmail] = useState('')
@@ -10,7 +10,7 @@ export default function Login() {
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
 
-  const { signIn, demoSignIn } = useAuth()
+  const { signIn } = useAuth()
   const { showToast } = useToast()
   const navigate = useNavigate()
 
@@ -31,12 +31,6 @@ export default function Login() {
     } finally {
       setLoading(false)
     }
-  }
-
-  function handleDemoLogin() {
-    demoSignIn()
-    showToast('Welcome to CourtIQ!', 'success')
-    navigate('/')
   }
 
   return (
@@ -89,21 +83,6 @@ export default function Login() {
           padding: 'var(--space-4) var(--space-3)',
         }}
       >
-        {/* Demo button */}
-        <button onClick={handleDemoLogin} className="btn-primary" style={{ marginBottom: 'var(--space-3)' }}>
-          <Play size={18} fill="currentColor" />
-          Try Demo
-        </button>
-
-        {/* Divider */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)', marginBottom: 'var(--space-3)' }}>
-          <div style={{ flex: 1, height: '1px', backgroundColor: 'var(--color-border)' }} />
-          <span className="t-caption" style={{ color: 'var(--color-text-sec)', textTransform: 'uppercase', fontWeight: 600 }}>
-            or sign in
-          </span>
-          <div style={{ flex: 1, height: '1px', backgroundColor: 'var(--color-border)' }} />
-        </div>
-
         <form onSubmit={handleSubmit}>
           <div style={{ position: 'relative', marginBottom: 'var(--space-2)' }}>
             <Mail size={18} style={{ position: 'absolute', left: 'var(--space-2)', top: '50%', transform: 'translateY(-50%)', color: 'var(--color-text-sec)', pointerEvents: 'none' }} />

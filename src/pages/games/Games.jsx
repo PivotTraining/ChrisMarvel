@@ -1,4 +1,5 @@
 import { useState, useMemo } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { Trophy, ArrowLeft, ChevronRight, TrendingUp, TrendingDown, Target, Shield, Zap, Pencil, Share2, Crosshair, BarChart3, Info, Plus, Minus, X, Copy } from 'lucide-react'
 import PageWrapper from '../../components/layout/PageWrapper'
 import Button from '../../components/ui/Button'
@@ -918,7 +919,7 @@ function ShareCardModal({ game, rating, onClose }) {
 
 /* ===== NBA-LEVEL POST-GAME IQ SCREEN ===== */
 
-function GameResult({ game, seasonAvg, allGames, onDone, onEdit, showToast }) {
+function GameResult({ game, seasonAvg, allGames, onDone, onEdit, showToast, onResume }) {
   const feedback = useMemo(() => generateFeedback(game, seasonAvg), [game, seasonAvg])
   const rating = useMemo(() => calcPerformanceRating(game, seasonAvg), [game, seasonAvg])
   const [shared, setShared] = useState(false)
@@ -1171,6 +1172,11 @@ function GameResult({ game, seasonAvg, allGames, onDone, onEdit, showToast }) {
         <button type="button" onClick={() => setShowShareCard(true)} className="btn-outline" style={{ flex: 1 }}>
           <Share2 size={16} /> Share Card
         </button>
+        {onResume && (
+          <button type="button" onClick={() => onResume(game)} className="btn-outline" style={{ flex: 1 }}>
+            🏀 Resume
+          </button>
+        )}
         <button type="button" onClick={onDone} className="btn-primary" style={{ flex: 1 }}>
           Done
         </button>
@@ -1182,6 +1188,7 @@ function GameResult({ game, seasonAvg, allGames, onDone, onEdit, showToast }) {
 /* ===== MAIN GAMES PAGE ===== */
 
 export default function Games() {
+  const navigate = useNavigate()
   const { games, loading, addGame, updateGame, deleteGame, seasonAverages, loadMore, hasMore } = useGames()
   const { showToast } = useToast()
   const [view, setView] = useState('list')
@@ -1232,8 +1239,12 @@ export default function Games() {
     }
   }
 
+  const handleResume = (game) => {
+    navigate('/quick-game', { state: { game } })
+  }
+
   if (view === 'result' && savedGame) {
-    return <GameResult game={savedGame} seasonAvg={seasonAverages} allGames={games} onDone={backToList} onEdit={editFromReview} showToast={showToast} />
+    return <GameResult game={savedGame} seasonAvg={seasonAverages} allGames={games} onDone={backToList} onEdit={editFromReview} onResume={handleResume} showToast={showToast} />
   }
 
   if (view === 'form') {

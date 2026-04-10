@@ -259,7 +259,7 @@ Tracked with CourtIQ 🏀
           {/* Footer */}
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             <p style={{ fontSize: '9px', color: 'rgba(255,255,255,0.2)', fontWeight: 600, letterSpacing: '0.5px', margin: 0 }}>
-              courtiq.app
+              getcourtiq.com
             </p>
             <p style={{ fontSize: '9px', color: 'rgba(255,255,255,0.2)', fontWeight: 600, margin: 0 }}>
               {to} TO

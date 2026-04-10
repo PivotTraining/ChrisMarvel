@@ -150,10 +150,10 @@ export default function Home() {
 
       {/* === Quick Actions === */}
       <SectionHeader icon={Zap} title="Quick Actions" />
-      <div className="grid grid-cols-3 gap-2.5">
+      <div className="grid grid-cols-2 gap-2.5">
         <QuickAction icon={Timer} label="Quick Game" onClick={() => navigate('/quick-game')} />
         <QuickAction icon={Trophy} label="Log Game" onClick={() => navigate('/games')} />
-        <QuickAction icon={Target} label="Drill" onClick={() => navigate('/drills')} />
+        <QuickAction icon={Target} label="Drills" onClick={() => navigate('/drills')} />
         <QuickAction icon={BookHeart} label="Journal" onClick={() => navigate('/journal')} />
       </div>
 
@@ -364,16 +364,38 @@ export default function Home() {
 
       {/* === Empty state if nothing logged === */}
       {games.length === 0 && entries.length === 0 && (
-        <Card padding="lg" glass className="text-center" style={{ marginTop: 'var(--space-3)' }}>
-          <h3 className="t-title3" style={{ marginBottom: 'var(--space-1)' }}>Welcome to CourtIQ</h3>
-          <p className="t-body" style={{ color: 'var(--color-text-sec)', marginBottom: 'var(--space-3)' }}>
-            Start by logging your first game or journal entry to see your stats here.
-          </p>
-          <div className="flex gap-3 justify-center">
-            <Button onClick={() => navigate('/games')}>
-              <Plus size={16} /> Log a Game
+        <Card padding="lg" glass style={{ marginTop: 'var(--space-2)' }}>
+          <div style={{ textAlign: 'center', marginBottom: 'var(--space-3)' }}>
+            <div
+              style={{
+                width: '64px',
+                height: '64px',
+                borderRadius: '50%',
+                background: 'linear-gradient(135deg, var(--color-accent), var(--color-accent-dark))',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                margin: '0 auto var(--space-2)',
+                boxShadow: '0 6px 24px rgba(255,107,53,0.3)',
+                fontSize: '28px',
+              }}
+            >
+              🏀
+            </div>
+            <h3 className="t-title3" style={{ marginBottom: '8px' }}>
+              {profile?.full_name ? `${profile.full_name}'s story starts here` : "Your player's story starts here"}
+            </h3>
+            <p className="t-body" style={{ color: 'var(--color-text-sec)', lineHeight: 1.6 }}>
+              Log your first game and CourtIQ will start building stats, trends, and insights automatically.
+            </p>
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+            <Button onClick={() => navigate('/quick-game')}>
+              <Timer size={16} /> Start a Quick Game
             </Button>
-            <Button variant="outline" onClick={() => navigate('/journal')}>Journal</Button>
+            <Button variant="outline" onClick={() => navigate('/games')}>
+              <Plus size={16} /> Log a Past Game
+            </Button>
           </div>
         </Card>
       )}

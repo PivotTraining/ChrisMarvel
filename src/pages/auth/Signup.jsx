@@ -107,7 +107,7 @@ export default function Signup() {
           Join Court<span style={{ color: 'var(--color-accent)' }}>IQ</span>
         </h1>
         <p className="t-body" style={{ color: 'var(--color-text-sec)', marginTop: 'var(--space-1)' }}>
-          Create your player profile
+          Start tracking your player's growth
         </p>
       </div>
 

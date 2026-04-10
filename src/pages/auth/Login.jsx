@@ -68,7 +68,7 @@ export default function Login() {
           Court<span style={{ color: 'var(--color-accent)' }}>IQ</span>
         </h1>
         <p className="t-body" style={{ color: 'var(--color-text-sec)', marginTop: 'var(--space-1)' }}>
-          Your basketball performance tracker
+          Track your player's journey
         </p>
       </div>
 

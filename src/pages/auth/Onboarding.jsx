@@ -2,29 +2,32 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
 import { useToast } from '../../context/ToastContext'
-import Button from '../../components/ui/Button'
 
 const POSITIONS = ['PG', 'SG', 'SF', 'PF', 'C']
-const SKILL_LEVELS = ['Beginner', 'Intermediate', 'Advanced']
+const SKILL_LEVELS = ['Beginner', 'Intermediate', 'Advanced', 'Elite']
 const TOTAL_STEPS = 3
 
 const TOUR_CARDS = [
   {
-    title: 'Track Your Shots',
-    description: 'Log every shot with location, type, and result to build a detailed picture of your game.',
+    emoji: '📊',
+    title: 'Track Every Game',
+    description: 'Log stats after each game. Watch growth week by week, season by season.',
   },
   {
-    title: 'Smart Analytics',
-    description: 'Get AI-powered insights that highlight patterns and help you focus on what matters most.',
+    emoji: '🔍',
+    title: 'Spot Weaknesses Early',
+    description: 'Analytics surface exactly where your player needs work — before the coach has to say it.',
   },
   {
-    title: 'Personalized Drills',
-    description: 'Receive custom drill recommendations based on your weaknesses and goals.',
+    emoji: '🏆',
+    title: 'Keep Them Motivated',
+    description: 'XP, streaks, and milestone badges make improvement feel rewarding and fun.',
   },
 ]
 
 export default function Onboarding() {
   const [step, setStep] = useState(0)
+  const [direction, setDirection] = useState('forward')
   const [name, setName] = useState('')
   const [position, setPosition] = useState('')
   const [skillLevel, setSkillLevel] = useState('')
@@ -43,7 +46,7 @@ export default function Onboarding() {
         skill_level: skillLevel,
         onboarding_completed: true,
       })
-      showToast('You\'re all set! Welcome to CourtIQ.', 'success')
+      showToast(`Welcome! Let's get ${name || 'your player'} to the next level.`, 'success')
       navigate('/')
     } catch (err) {
       showToast(err.message || 'Failed to save profile.', 'error')
@@ -55,108 +58,134 @@ export default function Onboarding() {
   function handleNext() {
     if (step === 0) {
       if (!name.trim() || !position || !skillLevel) {
-        showToast('Please fill in all fields.', 'error')
+        showToast('Please fill in all fields to continue.', 'error')
         return
       }
     }
     if (step < TOTAL_STEPS - 1) {
+      setDirection('forward')
       setStep(step + 1)
     }
   }
 
-  function renderProgressDots() {
-    return (
-      <div style={{ display: 'flex', justifyContent: 'center', gap: 'var(--space-1)', marginTop: 'var(--space-4)' }}>
-        {Array.from({ length: TOTAL_STEPS }).map((_, i) => (
-          <div
-            key={i}
-            style={{
-              width: 'var(--space-1)',
-              height: 'var(--space-1)',
-              borderRadius: '50%',
-              backgroundColor: i === step ? 'var(--color-accent)' : 'var(--color-border)',
-              transition: 'background-color 0.2s',
-            }}
-          />
-        ))}
-      </div>
-    )
+  function handleBack() {
+    if (step > 0) {
+      setDirection('back')
+      setStep(step - 1)
+    }
   }
+
+  const progressPct = Math.round(((step + 1) / TOTAL_STEPS) * 100)
 
   function renderStep() {
     switch (step) {
       case 0:
         return (
-          <>
-            <h2 className="t-title2" style={{ textAlign: 'center', marginBottom: 'var(--space-1)' }}>
-              Tell Us About Yourself
-            </h2>
-            <p className="t-body" style={{ color: 'var(--color-text-sec)', textAlign: 'center', marginBottom: 'var(--space-3)' }}>
-              We&apos;ll use this to personalize your experience.
-            </p>
+          <div key="step-0" style={{ animation: 'fadeUp 0.35s ease' }}>
+            <div style={{ textAlign: 'center', marginBottom: 'var(--space-3)' }}>
+              <div style={{ fontSize: '40px', marginBottom: 'var(--space-1)' }}>🏀</div>
+              <h2 className="t-title2" style={{ marginBottom: '8px' }}>
+                Set up your player's profile
+              </h2>
+              <p className="t-body" style={{ color: 'var(--color-text-sec)' }}>
+                Tell us who you're tracking so we can personalize everything.
+              </p>
+            </div>
 
             <div style={{ marginBottom: 'var(--space-2)' }}>
-              <label htmlFor="name" className="t-label" style={{ display: 'block', marginBottom: 'var(--space-1)' }}>Name</label>
+              <label htmlFor="name" className="t-label" style={{ display: 'block', marginBottom: '6px', color: 'var(--color-text-sec)', fontWeight: 600 }}>
+                Player's Name
+              </label>
               <input
                 id="name"
                 type="text"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                placeholder="Your name"
+                placeholder="e.g. Marcus"
                 className="input-base"
                 style={{ width: '100%' }}
+                autoFocus
               />
             </div>
 
             <div style={{ marginBottom: 'var(--space-2)' }}>
-              <label htmlFor="position" className="t-label" style={{ display: 'block', marginBottom: 'var(--space-1)' }}>Position</label>
-              <select
-                id="position"
-                value={position}
-                onChange={(e) => setPosition(e.target.value)}
-                className="input-base"
-                style={{ width: '100%', colorScheme: 'dark', cursor: 'pointer', appearance: 'none' }}
-              >
-                <option value="">Select position</option>
+              <label className="t-label" style={{ display: 'block', marginBottom: '6px', color: 'var(--color-text-sec)', fontWeight: 600 }}>
+                Position
+              </label>
+              <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
                 {POSITIONS.map((p) => (
-                  <option key={p} value={p}>{p}</option>
+                  <button
+                    key={p}
+                    type="button"
+                    onClick={() => setPosition(p)}
+                    style={{
+                      padding: '10px 18px',
+                      borderRadius: '12px',
+                      border: position === p ? '2px solid var(--color-accent)' : '1px solid var(--color-border)',
+                      background: position === p ? 'var(--color-accent-tint)' : 'var(--color-input-bg)',
+                      color: position === p ? 'var(--color-accent)' : 'var(--color-text-sec)',
+                      fontWeight: 700,
+                      fontSize: '14px',
+                      cursor: 'pointer',
+                      fontFamily: 'inherit',
+                      transition: 'all 0.15s ease',
+                    }}
+                  >
+                    {p}
+                  </button>
                 ))}
-              </select>
+              </div>
             </div>
 
             <div style={{ marginBottom: 'var(--space-3)' }}>
-              <label htmlFor="skillLevel" className="t-label" style={{ display: 'block', marginBottom: 'var(--space-1)' }}>Skill Level</label>
-              <select
-                id="skillLevel"
-                value={skillLevel}
-                onChange={(e) => setSkillLevel(e.target.value)}
-                className="input-base"
-                style={{ width: '100%', colorScheme: 'dark', cursor: 'pointer', appearance: 'none' }}
-              >
-                <option value="">Select level</option>
+              <label className="t-label" style={{ display: 'block', marginBottom: '6px', color: 'var(--color-text-sec)', fontWeight: 600 }}>
+                Skill Level
+              </label>
+              <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
                 {SKILL_LEVELS.map((s) => (
-                  <option key={s} value={s}>{s}</option>
+                  <button
+                    key={s}
+                    type="button"
+                    onClick={() => setSkillLevel(s)}
+                    style={{
+                      padding: '10px 16px',
+                      borderRadius: '12px',
+                      border: skillLevel === s ? '2px solid var(--color-accent)' : '1px solid var(--color-border)',
+                      background: skillLevel === s ? 'var(--color-accent-tint)' : 'var(--color-input-bg)',
+                      color: skillLevel === s ? 'var(--color-accent)' : 'var(--color-text-sec)',
+                      fontWeight: 700,
+                      fontSize: '13px',
+                      cursor: 'pointer',
+                      fontFamily: 'inherit',
+                      transition: 'all 0.15s ease',
+                    }}
+                  >
+                    {s}
+                  </button>
                 ))}
-              </select>
+              </div>
             </div>
 
-            <Button fullWidth onClick={handleNext}>
-              Next
-            </Button>
-          </>
+            <button type="button" onClick={handleNext} className="btn-primary">
+              Continue
+            </button>
+          </div>
         )
 
       case 1:
         return (
-          <>
-            <h2 className="t-title2" style={{ textAlign: 'center', marginBottom: 'var(--space-1)' }}>
-              What You Can Do
-            </h2>
-            <p className="t-body" style={{ color: 'var(--color-text-sec)', textAlign: 'center', marginBottom: 'var(--space-3)' }}>
-              Here&apos;s a quick look at CourtIQ&apos;s key features.
-            </p>
+          <div key="step-1" style={{ animation: 'fadeUp 0.35s ease' }}>
+            <div style={{ textAlign: 'center', marginBottom: 'var(--space-3)' }}>
+              <div style={{ fontSize: '40px', marginBottom: 'var(--space-1)' }}>💡</div>
+              <h2 className="t-title2" style={{ marginBottom: '8px' }}>
+                Here's what CourtIQ does
+              </h2>
+              <p className="t-body" style={{ color: 'var(--color-text-sec)' }}>
+                Built for parents and coaches who want to see real growth.
+              </p>
+            </div>
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-1)', marginBottom: 'var(--space-3)' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginBottom: 'var(--space-3)' }}>
               {TOUR_CARDS.map((card, i) => (
                 <div
                   key={i}
@@ -165,38 +194,107 @@ export default function Onboarding() {
                     borderRadius: 'var(--radius-card)',
                     backgroundColor: 'var(--color-card)',
                     border: '1px solid var(--color-border)',
+                    display: 'flex',
+                    alignItems: 'flex-start',
+                    gap: '14px',
+                    animation: `fadeUp 0.35s ease ${i * 0.08}s both`,
                   }}
                 >
-                  <h3 className="t-title3" style={{ color: 'var(--color-accent)', marginBottom: '4px' }}>
-                    {card.title}
-                  </h3>
-                  <p className="t-body" style={{ color: 'var(--color-text-sec)', lineHeight: 1.5 }}>
-                    {card.description}
-                  </p>
+                  <span style={{ fontSize: '28px', lineHeight: 1, flexShrink: 0, marginTop: '2px' }}>{card.emoji}</span>
+                  <div>
+                    <h3 style={{ fontSize: '15px', fontWeight: 800, color: 'var(--color-text)', marginBottom: '4px' }}>
+                      {card.title}
+                    </h3>
+                    <p className="t-body" style={{ color: 'var(--color-text-sec)', lineHeight: 1.5 }}>
+                      {card.description}
+                    </p>
+                  </div>
                 </div>
               ))}
             </div>
 
-            <Button fullWidth onClick={handleNext}>
-              Next
-            </Button>
-          </>
+            <div style={{ display: 'flex', gap: '10px' }}>
+              <button
+                type="button"
+                onClick={handleBack}
+                style={{
+                  flex: '0 0 auto',
+                  padding: '16px 20px',
+                  borderRadius: '16px',
+                  border: '1px solid var(--color-border)',
+                  background: 'transparent',
+                  color: 'var(--color-text-sec)',
+                  fontWeight: 700,
+                  fontSize: '15px',
+                  cursor: 'pointer',
+                  fontFamily: 'inherit',
+                }}
+              >
+                Back
+              </button>
+              <button type="button" onClick={handleNext} className="btn-primary">
+                Continue
+              </button>
+            </div>
+          </div>
         )
 
       case 2:
         return (
-          <>
-            <h2 className="t-title1" style={{ textAlign: 'center', marginBottom: 'var(--space-1)' }}>
-              You&apos;re Ready!
+          <div key="step-2" style={{ animation: 'fadeUp 0.35s ease', textAlign: 'center' }}>
+            <div
+              style={{
+                width: '80px',
+                height: '80px',
+                borderRadius: '50%',
+                background: 'linear-gradient(135deg, var(--color-accent), var(--color-accent-dark))',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                margin: '0 auto var(--space-3)',
+                boxShadow: '0 8px 32px rgba(255, 107, 53, 0.4)',
+                fontSize: '36px',
+              }}
+            >
+              🏀
+            </div>
+
+            <h2 className="t-title1" style={{ marginBottom: '12px' }}>
+              {name ? `${name}'s ready!` : "You're all set!"}
             </h2>
-            <p className="t-body" style={{ color: 'var(--color-text-sec)', textAlign: 'center', marginBottom: 'var(--space-4)', lineHeight: 1.6 }}>
-              Your profile is set up. Start tracking your game, get insights, and level up your basketball skills.
+            <p className="t-body" style={{ color: 'var(--color-text-sec)', lineHeight: 1.7, marginBottom: 'var(--space-4)', maxWidth: '280px', margin: '0 auto var(--space-4)' }}>
+              Start by logging a game after practice, and CourtIQ will begin building {name ? `${name}'s` : "your player's"} story.
             </p>
 
-            <Button fullWidth loading={loading} onClick={handleFinish}>
-              Let&apos;s Go
-            </Button>
-          </>
+            <button
+              type="button"
+              onClick={handleFinish}
+              disabled={loading}
+              className="btn-primary"
+              style={{ marginBottom: '12px' }}
+            >
+              {loading ? 'Setting up…' : 'Start Tracking'}
+            </button>
+
+            <button
+              type="button"
+              onClick={handleBack}
+              style={{
+                width: '100%',
+                padding: '14px',
+                borderRadius: '16px',
+                border: 'none',
+                background: 'transparent',
+                color: 'var(--color-text-sec)',
+                fontWeight: 600,
+                fontSize: '14px',
+                cursor: 'pointer',
+                fontFamily: 'inherit',
+              }}
+            >
+              Go back
+            </button>
+          </div>
         )
 
       default:
@@ -207,17 +305,45 @@ export default function Onboarding() {
   return (
     <div
       style={{
-        minHeight: '100vh',
+        minHeight: '100dvh',
         display: 'flex',
+        flexDirection: 'column',
         alignItems: 'center',
         justifyContent: 'center',
         backgroundColor: 'var(--color-bg)',
-        padding: 'var(--space-2)',
+        padding: 'var(--space-3)',
       }}
     >
-      <div className="glass-card" style={{ width: '100%', maxWidth: '420px', padding: 'var(--space-5) var(--space-4)' }}>
+      <div
+        className="glass-card"
+        style={{ width: '100%', maxWidth: '420px', padding: 'var(--space-4)' }}
+      >
+        {/* Progress bar */}
+        <div style={{ marginBottom: 'var(--space-4)' }}>
+          <div
+            style={{
+              height: '4px',
+              borderRadius: '99px',
+              backgroundColor: 'rgba(255,255,255,0.08)',
+              overflow: 'hidden',
+            }}
+          >
+            <div
+              style={{
+                height: '100%',
+                width: `${progressPct}%`,
+                borderRadius: '99px',
+                background: 'linear-gradient(90deg, var(--color-accent), var(--color-accent-dark))',
+                transition: 'width 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)',
+              }}
+            />
+          </div>
+          <p className="t-caption" style={{ color: 'var(--color-text-sec)', marginTop: '6px', textAlign: 'right' }}>
+            Step {step + 1} of {TOTAL_STEPS}
+          </p>
+        </div>
+
         {renderStep()}
-        {renderProgressDots()}
       </div>
     </div>
   )

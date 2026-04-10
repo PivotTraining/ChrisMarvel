@@ -208,6 +208,20 @@ export function AuthProvider({ children }) {
     return data
   }
 
+  async function signInWithGoogle() {
+    if (BYPASS_AUTH) {
+      throw new Error('Google sign-in requires Supabase to be configured.')
+    }
+    const { data, error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: `${window.location.origin}/`,
+      },
+    })
+    if (error) throw error
+    return data
+  }
+
   async function signOut() {
     if (BYPASS_AUTH) {
       setUser(null)
@@ -270,6 +284,7 @@ export function AuthProvider({ children }) {
     profile,
     signUp,
     signIn,
+    signInWithGoogle,
     signOut,
     updateProfile,
     deleteAccount,

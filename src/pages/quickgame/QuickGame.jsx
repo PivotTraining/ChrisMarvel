@@ -33,8 +33,10 @@ function CourtSVG({ shots, onCourtTap }) {
     const svg = svgRef.current
     if (!svg) return
     const rect = svg.getBoundingClientRect()
-    const clientX = e.touches ? e.touches[0].clientX : e.clientX
-    const clientY = e.touches ? e.touches[0].clientY : e.clientY
+    // changedTouches is populated at touchEnd; touches is empty at that point
+    const touch = e.changedTouches?.[0] || e.touches?.[0]
+    const clientX = touch ? touch.clientX : e.clientX
+    const clientY = touch ? touch.clientY : e.clientY
     const scaleX = W / rect.width
     const scaleY = H / rect.height
     const x = (clientX - rect.left) * scaleX

@@ -25,3 +25,8 @@ dist-ssr
 *.sw?
 .netlify/
 supabase/.temp/
+
+# Capacitor
+ios/App/Pods/
+ios/.DS_Store
+android/

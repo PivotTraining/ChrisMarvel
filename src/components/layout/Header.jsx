@@ -26,6 +26,7 @@ export default function Header() {
         borderRight: 'none',
         borderBottom: '1px solid var(--color-border)',
         padding: 'var(--space-2) var(--space-3)',
+        paddingTop: 'calc(var(--space-2) + env(safe-area-inset-top, 0px))',
       }}
     >
       <Link

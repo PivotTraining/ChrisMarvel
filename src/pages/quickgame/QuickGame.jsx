@@ -5,6 +5,7 @@ import useGames from '../../hooks/useGames'
 import { useToast } from '../../context/ToastContext'
 import { usePremium } from '../../context/PremiumContext'
 import { useAuth } from '../../context/AuthContext'
+import { useHaptics } from '../../hooks/useHaptics'
 import UpgradePrompt from '../../components/ui/UpgradePrompt'
 import GameShareCard from '../../components/ui/GameShareCard'
 
@@ -222,6 +223,7 @@ export default function QuickGame() {
   const { showToast } = useToast()
   const { isPro } = usePremium()
   const { profile } = useAuth()
+  const { impact, notification, selection } = useHaptics()
 
   // Support resuming existing game via location state
   const resumeGame = location.state?.game || null
@@ -258,8 +260,9 @@ export default function QuickGame() {
 
   const handleCourtTap = useCallback((x, y) => {
     const is3 = is3Pointer(x, y)
+    impact('light')
     setPending({ x, y, is3 })
-  }, [])
+  }, [impact])
 
   const handleShotResult = useCallback((made) => {
     if (!pending) return
@@ -267,15 +270,18 @@ export default function QuickGame() {
     setShots(s => [...s, shot])
     push({ type: 'shot', shot })
     setPending(null)
-  }, [pending, push])
+    if (made) notification('success')
+    else impact('medium')
+  }, [pending, push, notification, impact])
 
   const handleStat = useCallback((key, delta = 1) => {
+    impact('light')
     setStats(prev => {
       const next = { ...prev, [key]: Math.max(0, (prev[key] || 0) + delta) }
       push({ type: 'stat', key, delta })
       return next
     })
-  }, [push])
+  }, [push, impact])
 
   const handleFT = useCallback((made) => {
     setStats(prev => ({
@@ -285,7 +291,9 @@ export default function QuickGame() {
     }))
     push({ type: 'ft', made })
     setShowFT(false)
-  }, [push])
+    if (made) notification('success')
+    else impact('medium')
+  }, [push, notification, impact])
 
   const handleUndo = useCallback(() => {
     if (history.length === 0) return
@@ -379,7 +387,9 @@ export default function QuickGame() {
       {/* Top bar */}
       <div style={{
         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-        padding: '12px 16px', background: 'rgba(255,255,255,0.03)', borderBottom: '1px solid rgba(255,255,255,0.06)',
+        padding: '12px 16px',
+        paddingTop: 'calc(12px + env(safe-area-inset-top, 0px))',
+        background: 'rgba(255,255,255,0.03)', borderBottom: '1px solid rgba(255,255,255,0.06)',
         gap: '10px',
       }}>
         <button onClick={() => navigate('/')} style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,0.5)', cursor: 'pointer', padding: '4px', display: 'flex', alignItems: 'center', gap: '4px' }}>
@@ -475,7 +485,7 @@ export default function QuickGame() {
       </div>
 
       {/* Action bar */}
-      <div style={{ display: 'flex', gap: '8px', padding: '8px 12px 96px', marginTop: 'auto' }}>
+      <div style={{ display: 'flex', gap: '8px', padding: '8px 12px', paddingBottom: 'calc(96px + env(safe-area-inset-bottom, 0px))', marginTop: 'auto' }}>
         <button onClick={handleClear} style={{
           flex: 1, padding: '14px', borderRadius: '14px', border: '1px solid rgba(239,68,68,0.3)',
           background: 'rgba(239,68,68,0.08)', color: '#EF4444', cursor: 'pointer',

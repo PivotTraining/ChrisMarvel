@@ -2,6 +2,19 @@ import { createContext, useContext, useState, useCallback } from 'react'
 
 const STORAGE_KEY = 'courtiq_premium'
 
+// Whitelist of local promo codes that unlock Pro instantly (for friends,
+// family, beta testers, marketing campaigns). Real Stripe discounts are
+// handled separately via allow_promotion_codes on the checkout session.
+// Codes are compared case-insensitively.
+const LOCAL_PROMO_CODES = [
+  'COURTIQ100',
+  'FRIENDS',
+  'FAMILY',
+  'BETA',
+  'LAUNCH',
+  'HOOPS',
+]
+
 const FREE_LIMITS = {
   gamesPerMonth: 5,
   shotsSessionsPerMonth: 10,
@@ -107,6 +120,18 @@ export function PremiumProvider({ children }) {
     setPlan('free')
   }, [setPlan])
 
+  // Redeem a local promo code. Returns true if the code was valid and
+  // Pro was unlocked; false otherwise. Case-insensitive.
+  const redeemPromoCode = useCallback((code) => {
+    if (!code) return false
+    const normalized = code.trim().toUpperCase()
+    if (LOCAL_PROMO_CODES.includes(normalized)) {
+      setPlan('pro')
+      return true
+    }
+    return false
+  }, [setPlan])
+
   const canAccess = useCallback((feature) => {
     return limits[feature] === true || limits[feature] === Infinity
   }, [limits])
@@ -116,7 +141,7 @@ export function PremiumProvider({ children }) {
   }, [limits])
 
   return (
-    <PremiumContext.Provider value={{ plan, isPro, currentPlan, limits, upgrade, downgrade, canAccess, getLimit }}>
+    <PremiumContext.Provider value={{ plan, isPro, currentPlan, limits, upgrade, downgrade, redeemPromoCode, canAccess, getLimit }}>
       {children}
     </PremiumContext.Provider>
   )

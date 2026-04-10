@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { loadStripe } from '@stripe/stripe-js'
 import { EmbeddedCheckoutProvider, EmbeddedCheckout } from '@stripe/react-stripe-js'
-import { Zap, Check, Crown, Lock, Flame, Target, Timer, BarChart3, Share2, Crosshair, Dumbbell, ChevronRight, Star, X } from 'lucide-react'
+import { Zap, Check, Crown, Lock, Flame, Target, Timer, BarChart3, Share2, Crosshair, Dumbbell, ChevronRight, Star, X, Tag } from 'lucide-react'
 import { usePremium, PLANS } from '../../context/PremiumContext'
 import PageWrapper from '../../components/layout/PageWrapper'
 import Card from '../../components/ui/Card'
@@ -29,11 +29,13 @@ const TESTIMONIALS = [
 ]
 
 export default function Premium() {
-  const { isPro, upgrade, downgrade } = usePremium()
+  const { isPro, upgrade, downgrade, redeemPromoCode } = usePremium()
   const { showToast } = useToast()
   const [showCheckout, setShowCheckout] = useState(false)
   const [checkoutError, setCheckoutError] = useState(false)
   const [searchParams, setSearchParams] = useSearchParams()
+  const [promoCode, setPromoCode] = useState('')
+  const [promoError, setPromoError] = useState('')
 
   // Handle return from Stripe after successful payment
   useEffect(() => {
@@ -83,6 +85,22 @@ export default function Premium() {
     if (window.confirm('Have you already completed payment through Stripe? This will activate your Pro access.')) {
       upgrade()
       showToast('Welcome to CourtIQ Pro!', 'success')
+    }
+  }
+
+  const handleApplyPromo = (e) => {
+    e.preventDefault()
+    setPromoError('')
+    const code = promoCode.trim()
+    if (!code) {
+      setPromoError('Enter a code')
+      return
+    }
+    if (redeemPromoCode(code)) {
+      showToast('Promo code applied! Welcome to Pro.', 'success')
+      setPromoCode('')
+    } else {
+      setPromoError('Invalid or expired code')
     }
   }
 
@@ -275,6 +293,70 @@ export default function Premium() {
                 <Zap size={20} />
                 Upgrade to Pro
               </button>
+
+              {/* Promo code */}
+              <form onSubmit={handleApplyPromo} style={{ marginTop: '14px' }}>
+                <label
+                  className="t-caption"
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                    color: 'var(--color-text-sec)',
+                    marginBottom: '6px',
+                    fontWeight: 700,
+                  }}
+                >
+                  <Tag size={13} />
+                  Have a promo code?
+                </label>
+                <div style={{ display: 'flex', gap: '8px' }}>
+                  <input
+                    type="text"
+                    value={promoCode}
+                    onChange={(e) => { setPromoCode(e.target.value); setPromoError('') }}
+                    placeholder="Enter code"
+                    autoCapitalize="characters"
+                    autoCorrect="off"
+                    spellCheck="false"
+                    style={{
+                      flex: 1,
+                      padding: '10px 12px',
+                      borderRadius: '10px',
+                      border: `1px solid ${promoError ? 'var(--color-danger)' : 'rgba(255,255,255,0.1)'}`,
+                      background: 'rgba(0,0,0,0.25)',
+                      color: 'var(--color-text)',
+                      fontSize: '13px',
+                      fontWeight: 700,
+                      fontFamily: 'inherit',
+                      textTransform: 'uppercase',
+                      letterSpacing: '1px',
+                      outline: 'none',
+                    }}
+                  />
+                  <button
+                    type="submit"
+                    style={{
+                      padding: '10px 18px',
+                      borderRadius: '10px',
+                      border: '1px solid rgba(251, 191, 36, 0.4)',
+                      background: 'rgba(251, 191, 36, 0.12)',
+                      color: '#FBBF24',
+                      fontSize: '13px',
+                      fontWeight: 800,
+                      fontFamily: 'inherit',
+                      cursor: 'pointer',
+                    }}
+                  >
+                    Apply
+                  </button>
+                </div>
+                {promoError && (
+                  <p className="t-caption" style={{ color: 'var(--color-danger)', marginTop: '6px' }}>
+                    {promoError}
+                  </p>
+                )}
+              </form>
             </div>
           </div>
         </div>

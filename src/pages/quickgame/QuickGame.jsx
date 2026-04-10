@@ -4,7 +4,9 @@ import { Undo2, Share2, Trash2, Check, ChevronLeft } from 'lucide-react'
 import useGames from '../../hooks/useGames'
 import { useToast } from '../../context/ToastContext'
 import { usePremium } from '../../context/PremiumContext'
+import { useAuth } from '../../context/AuthContext'
 import UpgradePrompt from '../../components/ui/UpgradePrompt'
+import GameShareCard from '../../components/ui/GameShareCard'
 
 // ─── Half-Court SVG ─────────────────────────────────────────────────────────
 // viewBox: 500 wide × 470 tall (half court, basket at bottom)
@@ -219,12 +221,14 @@ export default function QuickGame() {
   const { addGame, updateGame } = useGames()
   const { showToast } = useToast()
   const { isPro } = usePremium()
+  const { profile } = useAuth()
 
   // Support resuming existing game via location state
   const resumeGame = location.state?.game || null
 
   const [opponent, setOpponent] = useState(resumeGame?.opponent || '')
   const [showUpgrade, setShowUpgrade] = useState(false)
+  const [savedGame, setSavedGame] = useState(null) // triggers GameShareCard after save
   const [shots, setShots] = useState(resumeGame?._shots || [])
   const [stats, setStats] = useState({
     assists: resumeGame?.assists || 0,
@@ -349,18 +353,24 @@ export default function QuickGame() {
         await addGame(gameData)
         showToast('Game saved!', 'success')
       }
-      // Post-save: Pro upsell for free users, else head to the game log
-      if (!isPro) {
-        setShowUpgrade(true)
-      } else {
-        navigate('/games')
-      }
+      // Post-save: show shareable game card. The card's onClose handler
+      // chains to the Pro upsell (free users) or navigates to /games (Pro).
+      setSavedGame(gameData)
     } catch {
       showToast('Failed to save', 'error')
     } finally {
       setSaving(false)
     }
-  }, [pts, stats, fgm, fga, tpm, tpa, shots, opponent, resumeGame, addGame, updateGame, navigate, showToast, isPro])
+  }, [pts, stats, fgm, fga, tpm, tpa, shots, opponent, resumeGame, addGame, updateGame, showToast])
+
+  const handleShareCardClose = useCallback(() => {
+    setSavedGame(null)
+    if (!isPro) {
+      setShowUpgrade(true)
+    } else {
+      navigate('/games')
+    }
+  }, [isPro, navigate])
 
   const fgPct = fga > 0 ? Math.round((fgm / fga) * 100) : 0
 
@@ -540,7 +550,16 @@ export default function QuickGame() {
         />
       )}
 
-      {/* Post-save Pro upsell */}
+      {/* Post-save shareable game card */}
+      {savedGame && (
+        <GameShareCard
+          player={profile}
+          game={savedGame}
+          onClose={handleShareCardClose}
+        />
+      )}
+
+      {/* Post-save Pro upsell (shown after the user dismisses the share card) */}
       {showUpgrade && (
         <UpgradePrompt
           title="Great game!"

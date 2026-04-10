@@ -61,8 +61,10 @@ export default function Premium() {
     if (stripePromise && !checkoutError) {
       setShowCheckout(true)
     } else {
-      // Fallback to Payment Link
-      window.location.href = STRIPE_PAYMENT_LINK
+      // Fallback to Payment Link — open in new tab so the user doesn't lose
+      // app state, and tell them how to activate Pro once they're done.
+      window.open(STRIPE_PAYMENT_LINK, '_blank', 'noopener,noreferrer')
+      showToast('After paying, tap "Restore Pro Access" below', 'info')
     }
   }
 
@@ -70,6 +72,15 @@ export default function Premium() {
     if (window.confirm('Are you sure you want to downgrade? You\'ll lose access to Pro features.')) {
       downgrade()
       showToast('Downgraded to Free plan', 'info')
+    }
+  }
+
+  const handleRestore = () => {
+    // Recovery path for users who completed Stripe payment but weren't
+    // auto-activated (e.g. Payment Link didn't redirect back with ?success=true).
+    if (window.confirm('Have you already completed payment through Stripe? This will activate your Pro access.')) {
+      upgrade()
+      showToast('Welcome to CourtIQ Pro!', 'success')
     }
   }
 
@@ -329,6 +340,30 @@ export default function Premium() {
           </div>
         </Card>
       ))}
+
+      {/* Restore purchase — for users who paid but weren't auto-activated */}
+      {!isPro && (
+        <div style={{ marginTop: 'var(--space-4)', textAlign: 'center' }}>
+          <p className="t-caption" style={{ color: 'var(--color-text-sec)', marginBottom: '6px' }}>
+            Already paid but not showing as Pro?
+          </p>
+          <button
+            onClick={handleRestore}
+            className="t-caption"
+            style={{
+              background: 'none',
+              border: 'none',
+              color: 'var(--color-accent)',
+              cursor: 'pointer',
+              textDecoration: 'underline',
+              fontFamily: 'inherit',
+              fontWeight: 700,
+            }}
+          >
+            Restore Pro Access
+          </button>
+        </div>
+      )}
 
       {/* Manage subscription */}
       {isPro && (

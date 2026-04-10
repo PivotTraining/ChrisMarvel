@@ -274,6 +274,10 @@ export default function Settings() {
       showToast('Signed out', 'info')
     } catch {
       showToast('Failed to sign out', 'error')
+    } finally {
+      // Force navigation to login regardless — covers edge cases where the
+      // auth state change doesn't trigger an immediate re-render.
+      navigate('/login', { replace: true })
     }
   }
 

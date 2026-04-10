@@ -47,15 +47,17 @@ export default function Premium() {
   const fetchClientSecret = useCallback(async () => {
     try {
       const res = await fetch('/api/create-checkout-session', { method: 'POST' })
-      if (!res.ok) throw new Error('API error')
-      const data = await res.json()
-      if (data.error) throw new Error(data.error)
+      const data = await res.json().catch(() => ({}))
+      if (!res.ok || data.error) {
+        throw new Error(data.error || `API ${res.status}`)
+      }
       return data.clientSecret
-    } catch {
+    } catch (err) {
       setCheckoutError(true)
+      showToast(`Checkout unavailable: ${err.message}`, 'error')
       throw new Error('checkout_failed')
     }
-  }, [])
+  }, [showToast])
 
   const handleUpgrade = () => {
     if (stripePromise && !checkoutError) {

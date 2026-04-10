@@ -591,82 +591,81 @@ export default function Training() {
     )
   }
 
-  // Main training hub
+  // Main training hub — library + packs grouped by difficulty
+  const DIFF_COLORS = {
+    Beginner: '#22C55E',
+    Intermediate: '#F59E0B',
+    Advanced: '#EF4444',
+    Elite: '#8B5CF6',
+  }
+  const DIFF_ORDER = ['Beginner', 'Intermediate', 'Advanced', 'Elite']
+
+  const drillContent = content.filter((c) => c.content_type === 'Drill')
+  const packsByDifficulty = DIFF_ORDER.map((d) => ({
+    difficulty: d,
+    packs: TRAINING_PACKS.filter((p) => p.difficulty === d),
+  })).filter((g) => g.packs.length > 0)
+  const drillsByDifficulty = DIFF_ORDER.map((d) => ({
+    difficulty: d,
+    drills: drillContent.filter((c) => c.difficulty === d),
+  })).filter((g) => g.drills.length > 0)
+
   return (
     <PageWrapper>
-      <h1 className="t-title1" style={{ marginBottom: 'var(--space-3)' }}>Training</h1>
-
-      {/* Quick Actions */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-2)', marginBottom: 'var(--space-3)' }}>
-        <div onClick={() => setView('packs')} role="button" tabIndex={0}
-          style={{
-            background: 'linear-gradient(135deg, rgba(255,107,53,0.08), rgba(255,107,53,0.04))',
-            border: '1px solid rgba(255,107,53,0.15)', borderRadius: 'var(--radius-card)', padding: 'var(--space-3)',
-            cursor: 'pointer', transition: 'all 0.2s',
-          }}>
-          <Zap size={24} style={{ color: 'var(--color-accent)', marginBottom: 'var(--space-1)' }} />
-          <h3 className="t-body-bold" style={{ marginBottom: '4px' }}>Training Packs</h3>
-          <p className="t-caption" style={{ color: 'var(--color-text-sec)' }}>Structured programs</p>
-        </div>
-        <div onClick={() => { setView('library'); fetchContent({ contentType: 'All', difficulty: 'All', searchQuery: '' }) }} role="button" tabIndex={0}
-          style={{
-            background: 'linear-gradient(135deg, rgba(59,130,246,0.08), rgba(59,130,246,0.04))',
-            border: '1px solid rgba(59,130,246,0.15)', borderRadius: 'var(--radius-card)', padding: 'var(--space-3)',
-            cursor: 'pointer', transition: 'all 0.2s',
-          }}>
-          <BookOpen size={24} style={{ color: 'var(--color-info)', marginBottom: 'var(--space-1)' }} />
-          <h3 className="t-body-bold" style={{ marginBottom: '4px' }}>Drill Library</h3>
-          <p className="t-caption" style={{ color: 'var(--color-text-sec)' }}>Browse all content</p>
-        </div>
+      <div style={{ marginBottom: 'var(--space-3)' }}>
+        <h1 className="t-title1" style={{ marginBottom: '4px' }}>Drills</h1>
+        <p className="t-body" style={{ color: 'var(--color-text-sec)' }}>Training packs & drill library — by difficulty</p>
       </div>
 
-      {/* Recommended Packs */}
-      {recommendedPacks.length > 0 && (
-        <>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-2)' }}>
-            <h2 className="section-label">For You</h2>
-            <button onClick={() => setView('packs')} className="t-label" style={{ background: 'none', border: 'none', color: 'var(--color-accent)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px' }}>
-              See All <ChevronRight size={14} />
-            </button>
+      {/* Training Packs grouped by difficulty */}
+      <h2 className="section-label" style={{ marginBottom: 'var(--space-2)' }}>
+        <Zap size={14} style={{ display: 'inline', verticalAlign: '-2px', color: 'var(--color-accent)', marginRight: '4px' }} />
+        Training Packs
+      </h2>
+      {packsByDifficulty.map(({ difficulty, packs }) => {
+        const color = DIFF_COLORS[difficulty]
+        return (
+          <div key={difficulty} style={{ marginBottom: 'var(--space-3)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: 'var(--space-1)' }}>
+              <div style={{ width: '4px', height: '18px', borderRadius: '2px', background: color, boxShadow: `0 0 12px ${color}80` }} />
+              <span className="t-label" style={{ color, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '1px' }}>{difficulty}</span>
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-1)' }}>
+              {packs.map((p) => (
+                <PackCard key={p.id} pack={p} progress={packProgress[p.id]}
+                  onTap={() => { setSelectedPack(p); setView('pack-detail') }} />
+              ))}
+            </div>
           </div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-2)', marginBottom: 'var(--space-3)' }}>
-            {recommendedPacks.slice(0, 2).map((p) => (
-              <PackCard key={p.id} pack={p} recommended progress={packProgress[p.id]}
-                onTap={() => { setSelectedPack(p); setView('pack-detail') }} />
-            ))}
-          </div>
-        </>
-      )}
+        )
+      })}
 
-      {/* Active Packs (in progress) */}
-      {Object.keys(packProgress).length > 0 && (
-        <>
-          <h2 className="section-label" style={{ marginBottom: 'var(--space-2)' }}>In Progress</h2>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-2)', marginBottom: 'var(--space-3)' }}>
-            {TRAINING_PACKS.filter((p) => packProgress[p.id]?.completedDays?.length > 0 && packProgress[p.id].completedDays.length < p.drills.length).map((p) => (
-              <PackCard key={p.id} pack={p} progress={packProgress[p.id]}
-                onTap={() => { setSelectedPack(p); setView('pack-detail') }} />
-            ))}
-          </div>
-        </>
-      )}
-
-      {/* Quick Drills */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-2)' }}>
-        <h2 className="section-label">Quick Drills</h2>
-        <button onClick={() => { setView('library'); fetchContent({ contentType: 'Drill', difficulty: 'All', searchQuery: '' }) }}
-          className="t-label" style={{ background: 'none', border: 'none', color: 'var(--color-accent)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px' }}>
-          All Drills <ChevronRight size={14} />
-        </button>
-      </div>
-      {loading ? <SkeletonLoader variant="card" count={3} /> : (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-1)' }}>
-          {content.filter((c) => c.content_type === 'Drill').slice(0, 3).map((item) => (
-            <ContentCard key={item.id} item={item} saved={savedIds.has(item.id)} completed={completedIds.has(item.id)}
-              onTap={() => { setSelected(item); setView('detail') }}
-              onToggleSave={() => toggleSave(item.id)} />
-          ))}
-        </div>
+      {/* Drill Library grouped by difficulty */}
+      <h2 className="section-label" style={{ marginBottom: 'var(--space-2)', marginTop: 'var(--space-3)' }}>
+        <BookOpen size={14} style={{ display: 'inline', verticalAlign: '-2px', color: 'var(--color-info)', marginRight: '4px' }} />
+        Drill Library
+      </h2>
+      {loading && drillContent.length === 0 ? (
+        <SkeletonLoader variant="card" count={3} />
+      ) : (
+        drillsByDifficulty.map(({ difficulty, drills }) => {
+          const color = DIFF_COLORS[difficulty]
+          return (
+            <div key={difficulty} style={{ marginBottom: 'var(--space-3)' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: 'var(--space-1)' }}>
+                <div style={{ width: '4px', height: '18px', borderRadius: '2px', background: color, boxShadow: `0 0 12px ${color}80` }} />
+                <span className="t-label" style={{ color, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '1px' }}>{difficulty}</span>
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-1)' }}>
+                {drills.map((item) => (
+                  <ContentCard key={item.id} item={item} saved={savedIds.has(item.id)} completed={completedIds.has(item.id)}
+                    onTap={() => { setSelected(item); setView('detail') }}
+                    onToggleSave={() => toggleSave(item.id)} />
+                ))}
+              </div>
+            </div>
+          )
+        })
       )}
     </PageWrapper>
   )

@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { BookHeart, ArrowLeft, Trash2, Heart } from 'lucide-react'
 import PageWrapper from '../../components/layout/PageWrapper'
 import Button from '../../components/ui/Button'
@@ -143,6 +143,14 @@ export default function Journal() {
   const openNew = () => { setEditingEntry(null); setView('form') }
   const openEdit = entry => { setEditingEntry(entry); setView('form') }
   const backToList = () => setView('list')
+
+  // Auto-open form when there are no entries yet (skip empty state)
+  useEffect(() => {
+    if (!loading && (!entries || entries.length === 0) && view === 'list') {
+      setEditingEntry(null)
+      setView('form')
+    }
+  }, [loading, entries, view])
 
   const handleSave = async data => {
     setSaving(true)

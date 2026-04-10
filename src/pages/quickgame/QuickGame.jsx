@@ -50,30 +50,38 @@ function CourtSVG({ shots, onCourtTap }) {
     >
       {/* Court background */}
       <defs>
-        <radialGradient id="courtGrad" cx="50%" cy="85%" r="70%">
-          <stop offset="0%" stopColor="#C8860A" />
-          <stop offset="100%" stopColor="#8B5E0A" />
+        <radialGradient id="courtGrad" cx="50%" cy="85%" r="75%">
+          <stop offset="0%" stopColor="#0F1524" />
+          <stop offset="100%" stopColor="#05070E" />
         </radialGradient>
         <radialGradient id="glowBasket" cx="50%" cy="50%" r="50%">
           <stop offset="0%" stopColor="#FF6B35" stopOpacity="0.5" />
           <stop offset="100%" stopColor="#FF6B35" stopOpacity="0" />
         </radialGradient>
-        <filter id="glow">
+        <filter id="neonGreen" x="-50%" y="-50%" width="200%" height="200%">
           <feGaussianBlur stdDeviation="3" result="blur" />
-          <feComposite in="SourceGraphic" in2="blur" operator="over" />
+          <feFlood floodColor="#39FF88" floodOpacity="1" />
+          <feComposite in2="blur" operator="in" result="glow" />
+          <feMerge><feMergeNode in="glow" /><feMergeNode in="SourceGraphic" /></feMerge>
+        </filter>
+        <filter id="neonRed" x="-50%" y="-50%" width="200%" height="200%">
+          <feGaussianBlur stdDeviation="3" result="blur" />
+          <feFlood floodColor="#FF2D55" floodOpacity="1" />
+          <feComposite in2="blur" operator="in" result="glow" />
+          <feMerge><feMergeNode in="glow" /><feMergeNode in="SourceGraphic" /></feMerge>
         </filter>
       </defs>
 
-      {/* Wood floor */}
+      {/* Dark floor */}
       <rect x="0" y="0" width={W} height={H} rx="8" fill="url(#courtGrad)" />
-      {/* Wood grain lines */}
+      {/* Subtle ambient grid */}
       {Array.from({ length: 20 }, (_, i) => (
-        <line key={i} x1="0" y1={i * 25} x2={W} y2={i * 25} stroke="rgba(0,0,0,0.06)" strokeWidth="1" />
+        <line key={i} x1="0" y1={i * 25} x2={W} y2={i * 25} stroke="rgba(255,255,255,0.015)" strokeWidth="1" />
       ))}
 
       {/* Court lines color */}
       {(() => {
-        const L = 'rgba(255,255,255,0.85)'
+        const L = 'rgba(100,200,255,0.55)'
         const lw = 2.5
         return (
           <g stroke={L} strokeWidth={lw} fill="none">
@@ -95,7 +103,7 @@ function CourtSVG({ shots, onCourtTap }) {
             {/* Restricted area arc */}
             <path d={`M ${BASKET_X - 48} ${H - 20} A 48 48 0 0 1 ${BASKET_X + 48} ${H - 20}`} />
             {/* Backboard */}
-            <line x1={BASKET_X - 55} y1={H - 28} x2={BASKET_X + 55} y2={H - 28} strokeWidth={4} stroke="rgba(255,255,255,0.9)" />
+            <line x1={BASKET_X - 55} y1={H - 28} x2={BASKET_X + 55} y2={H - 28} strokeWidth={4} stroke="rgba(100,200,255,0.65)" />
           </g>
         )
       })()}
@@ -110,16 +118,16 @@ function CourtSVG({ shots, onCourtTap }) {
       {shots.map((s, i) => (
         <g key={i}>
           {s.made ? (
-            <g filter="url(#glow)">
-              <circle cx={s.x} cy={s.y} r="10" fill={s.is3 ? '#3B82F6' : '#22C55E'} opacity="0.9" />
-              <text x={s.x} y={s.y} textAnchor="middle" dominantBaseline="central" fill="#fff" fontSize="10" fontWeight="bold">
+            <g filter="url(#neonGreen)">
+              <circle cx={s.x} cy={s.y} r="11" fill="#39FF88" stroke="#C8FFE0" strokeWidth="1.5" />
+              <text x={s.x} y={s.y} textAnchor="middle" dominantBaseline="central" fill="#05070E" fontSize="11" fontWeight="900">
                 {s.is3 ? '3' : '2'}
               </text>
             </g>
           ) : (
-            <g opacity="0.75">
-              <line x1={s.x - 7} y1={s.y - 7} x2={s.x + 7} y2={s.y + 7} stroke="#EF4444" strokeWidth="2.5" strokeLinecap="round" />
-              <line x1={s.x + 7} y1={s.y - 7} x2={s.x - 7} y2={s.y + 7} stroke="#EF4444" strokeWidth="2.5" strokeLinecap="round" />
+            <g filter="url(#neonRed)">
+              <line x1={s.x - 8} y1={s.y - 8} x2={s.x + 8} y2={s.y + 8} stroke="#FF2D55" strokeWidth="3.5" strokeLinecap="round" />
+              <line x1={s.x + 8} y1={s.y - 8} x2={s.x - 8} y2={s.y + 8} stroke="#FF2D55" strokeWidth="3.5" strokeLinecap="round" />
             </g>
           )}
         </g>
@@ -487,7 +495,7 @@ export default function QuickGame() {
       </div>
 
       {/* Action bar */}
-      <div style={{ display: 'flex', gap: '8px', padding: '8px 12px', marginTop: 'auto' }}>
+      <div style={{ display: 'flex', gap: '8px', padding: '8px 12px 96px', marginTop: 'auto' }}>
         <button onClick={handleClear} style={{
           flex: 1, padding: '14px', borderRadius: '14px', border: '1px solid rgba(239,68,68,0.3)',
           background: 'rgba(239,68,68,0.08)', color: '#EF4444', cursor: 'pointer',

@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Trophy, ArrowLeft, ChevronRight, TrendingUp, TrendingDown, Target, Shield, Zap, Pencil, Share2, Crosshair, BarChart3, Info, Plus, Minus, X, Copy } from 'lucide-react'
 import PageWrapper from '../../components/layout/PageWrapper'
@@ -1242,6 +1242,14 @@ export default function Games() {
   const handleResume = (game) => {
     navigate('/quick-game', { state: { game } })
   }
+
+  // Auto-open form when there are no games yet (skip empty state)
+  useEffect(() => {
+    if (!loading && games.length === 0 && view === 'list') {
+      setEditGame(null)
+      setView('form')
+    }
+  }, [loading, games.length, view])
 
   if (view === 'result' && savedGame) {
     return <GameResult game={savedGame} seasonAvg={seasonAverages} allGames={games} onDone={backToList} onEdit={editFromReview} onResume={handleResume} showToast={showToast} />

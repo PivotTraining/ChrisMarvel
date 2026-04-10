@@ -3,7 +3,7 @@ import { Home, Target, Crosshair, Trophy, BookHeart } from 'lucide-react'
 
 const tabs = [
   { to: '/', icon: Home, label: 'Home' },
-  { to: '/drills', icon: Target, label: 'Drills' },
+  { to: '/training', icon: Target, label: 'Drills' },
   { to: '/shots', icon: Crosshair, label: 'Shot Tracking' },
   { to: '/games', icon: Trophy, label: 'Game Log' },
   { to: '/journal', icon: BookHeart, label: 'Journal' },

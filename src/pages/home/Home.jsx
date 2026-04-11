@@ -151,10 +151,10 @@ export default function Home() {
       {/* === Quick Actions === */}
       <SectionHeader icon={Zap} title="Quick Actions" />
       <div className="grid grid-cols-2 gap-2.5">
-        <QuickAction icon={Timer} label="Quick Game" onClick={() => navigate('/quick-game')} />
-        <QuickAction icon={Trophy} label="Log Game" onClick={() => navigate('/games')} />
+        <QuickAction icon={Timer} label="Gametime" onClick={() => navigate('/gametime')} />
+        <QuickAction icon={Trophy} label="Game Log" onClick={() => navigate('/games')} />
         <QuickAction icon={Target} label="Drills" onClick={() => navigate('/drills')} />
-        <QuickAction icon={BookHeart} label="Journal" onClick={() => navigate('/journal')} />
+        <QuickAction icon={BookHeart} label="My IQ" onClick={() => navigate('/shots')} />
       </div>
 
       {/* === Pro Upsell === */}
@@ -390,8 +390,8 @@ export default function Home() {
             </p>
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-            <Button onClick={() => navigate('/quick-game')}>
-              <Timer size={16} /> Start a Quick Game
+            <Button onClick={() => navigate('/gametime')}>
+              <Timer size={16} /> Start Gametime
             </Button>
             <Button variant="outline" onClick={() => navigate('/games')}>
               <Plus size={16} /> Log a Past Game

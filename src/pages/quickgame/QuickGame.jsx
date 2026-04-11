@@ -12,20 +12,28 @@ import GameShareCard from '../../components/ui/GameShareCard'
 // ─── Half-Court SVG ─────────────────────────────────────────────────────────
 // viewBox: 500 wide × 470 tall (half court, basket at bottom)
 const W = 500, H = 470
-const BASKET_X = W / 2, BASKET_Y = H - 52
+const BASKET_X = W / 2, BASKET_Y = H - 52  // (250, 418)
 const PAINT_LEFT = 178, PAINT_RIGHT = 322, PAINT_TOP = H - 190, PAINT_BOTTOM = H - 20
 const FT_Y = H - 190
-const ARC_RADIUS = 238 // 3-pt arc radius in our coordinate system
-const CORNER_3_Y = H - 40
+// True circular arc centered on the basket. Visual rendering and the
+// is3Pointer() check MUST share this radius so shots never misclassify.
+const ARC_R = 232
 const CORNER_3_X_LEFT = 60, CORNER_3_X_RIGHT = 440
+const CORNER_3_Y = H - 40  // 430 — baseline of corner-3 lines
+// Where the arc meets the vertical corner-3 lines (derived from basket + ARC_R):
+// (BASKET_X - CORNER_3_X_LEFT)² + (BASKET_Y - BREAK_Y)² = ARC_R²
+const CORNER_BREAK_Y = BASKET_Y - Math.sqrt(
+  ARC_R * ARC_R - (BASKET_X - CORNER_3_X_LEFT) * (BASKET_X - CORNER_3_X_LEFT)
+) // ≈ 285
 
 function is3Pointer(x, y) {
+  // Corner 3: outside the vertical corner lines and below the arc-break
+  if (x <= CORNER_3_X_LEFT || x >= CORNER_3_X_RIGHT) {
+    return y >= CORNER_BREAK_Y
+  }
+  // Arc 3: strictly beyond the arc radius from the basket
   const dx = x - BASKET_X, dy = y - BASKET_Y
-  const dist = Math.sqrt(dx * dx + dy * dy)
-  // Corner 3s
-  if (x < CORNER_3_X_LEFT || x > CORNER_3_X_RIGHT) return true
-  // Arc 3
-  return dist > ARC_RADIUS * 0.72
+  return (dx * dx + dy * dy) > ARC_R * ARC_R
 }
 
 function CourtSVG({ shots, onCourtTap }) {
@@ -100,11 +108,11 @@ function CourtSVG({ shots, onCourtTap }) {
             <path d={`M ${PAINT_LEFT} ${FT_Y} A 72 72 0 0 1 ${PAINT_RIGHT} ${FT_Y}`} />
             {/* Free throw circle - bottom half dashed */}
             <path d={`M ${PAINT_LEFT} ${FT_Y} A 72 72 0 0 0 ${PAINT_RIGHT} ${FT_Y}`} strokeDasharray="8 6" />
-            {/* 3-point arc */}
+            {/* 3-point arc — circular, centered on the basket (matches is3Pointer) */}
             <path
               d={`M ${CORNER_3_X_LEFT} ${CORNER_3_Y}
-                  L ${CORNER_3_X_LEFT} ${H - 185}
-                  A ${ARC_RADIUS * 0.72} ${ARC_RADIUS * 0.72} 0 0 1 ${CORNER_3_X_RIGHT} ${H - 185}
+                  L ${CORNER_3_X_LEFT} ${CORNER_BREAK_Y}
+                  A ${ARC_R} ${ARC_R} 0 0 1 ${CORNER_3_X_RIGHT} ${CORNER_BREAK_Y}
                   L ${CORNER_3_X_RIGHT} ${CORNER_3_Y}`}
             />
             {/* Restricted area arc */}
@@ -216,7 +224,7 @@ function StatBtn({ label, value, color, onClick }) {
 }
 
 // ─── Main Component ───────────────────────────────────────────────────────────
-export default function QuickGame() {
+export default function Gametime() {
   const navigate = useNavigate()
   const location = useLocation()
   const { addGame, updateGame } = useGames()

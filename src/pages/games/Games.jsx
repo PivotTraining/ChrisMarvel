@@ -1240,7 +1240,7 @@ export default function Games() {
   }
 
   const handleResume = (game) => {
-    navigate('/quick-game', { state: { game } })
+    navigate('/gametime', { state: { game } })
   }
 
   // Auto-open form when there are no games yet (skip empty state)

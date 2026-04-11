@@ -21,7 +21,7 @@ if (!STRIPE_PK && import.meta.env.DEV) {
 }
 
 const PRO_FEATURES = [
-  { icon: Flame, title: 'Quick Game', desc: 'Tap stats live from the sideline — real-time play-by-play', color: 'var(--color-accent)' },
+  { icon: Flame, title: 'Gametime', desc: 'Tap stats live from the sideline — real-time play-by-play', color: 'var(--color-accent)' },
   { icon: Target, title: 'Practice Mode', desc: 'Structured workouts with targets, rest timers, and rep counters', color: 'var(--color-success)' },
   { icon: BarChart3, title: 'Advanced Analytics', desc: 'Radar charts, heat maps, shooting trends, and archetype detection', color: 'var(--color-info)' },
   { icon: Crosshair, title: 'Unlimited Tracking', desc: 'No limits on games, shots, drills, or journal entries', color: 'var(--color-purple)' },
@@ -30,7 +30,7 @@ const PRO_FEATURES = [
 ]
 
 const TESTIMONIALS = [
-  { name: 'Marcus J.', role: 'HS Varsity Guard', quote: 'Quick Game changed how my dad tracks my stats. We review play-by-play after every game now.' },
+  { name: 'Marcus J.', role: 'HS Varsity Guard', quote: 'Gametime changed how my dad tracks my stats. We review play-by-play after every game now.' },
   { name: 'Coach Davis', role: 'AAU Coach', quote: 'Practice Mode lets my players structure their own gym sessions. Accountability goes way up.' },
   { name: 'Aaliyah R.', role: 'D3 Forward', quote: 'The heat map and shooting analytics helped me see I was avoiding the left wing. Shot 40% from there last month.' },
 ]

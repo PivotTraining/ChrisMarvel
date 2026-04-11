@@ -20,7 +20,7 @@ const FREE_LIMITS = {
   shotsSessionsPerMonth: 10,
   drillsPerMonth: 15,
   journalEntriesPerMonth: 10,
-  quickGame: true, // Quick Game is a core free feature
+  quickGame: true, // Gametime is a core free feature
   practiceMode: false,
   advancedAnalytics: false,
   trainingPacks: false,
@@ -68,7 +68,7 @@ export const PLANS = {
     limits: PRO_LIMITS,
     features: [
       'Unlimited game logging',
-      'Quick Game live tracker',
+      'Gametime live tracker',
       'Practice Mode with timers',
       'Advanced analytics & radar chart',
       'All training packs',

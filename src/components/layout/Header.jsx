@@ -1,7 +1,14 @@
 import { Link } from 'react-router-dom'
-import { Settings } from 'lucide-react'
+import { Settings, Crown } from 'lucide-react'
 import { useOffline } from '../../context/OfflineContext'
 import { useAuth } from '../../context/AuthContext'
+import { usePremium } from '../../context/PremiumContext'
+
+// Pro = rich dark emerald. Free/player = traditional dark navy.
+const HEADER_PRO_BG    = 'linear-gradient(180deg, #0A2A1F 0%, #061A12 100%)'
+const HEADER_PRO_BORDER= '1px solid rgba(34, 197, 94, 0.25)'
+const HEADER_FREE_BG   = 'linear-gradient(180deg, #0B1A33 0%, #050C1C 100%)'
+const HEADER_FREE_BORDER='1px solid rgba(59, 130, 246, 0.22)'
 
 function getInitials(name) {
   if (!name) return ''
@@ -14,19 +21,21 @@ function getInitials(name) {
 export default function Header() {
   const { isOnline } = useOffline()
   const { profile } = useAuth()
+  const { isPro } = usePremium()
   const initials = getInitials(profile?.full_name)
 
   return (
     <header
-      className="sticky top-0 z-40 flex items-center justify-between glass-card"
+      className="sticky top-0 z-40 flex items-center justify-between"
       style={{
-        borderRadius: 0,
+        background: isPro ? HEADER_PRO_BG : HEADER_FREE_BG,
         borderTop: 'none',
         borderLeft: 'none',
         borderRight: 'none',
-        borderBottom: '1px solid var(--color-border)',
+        borderBottom: isPro ? HEADER_PRO_BORDER : HEADER_FREE_BORDER,
         padding: 'var(--space-2) var(--space-3)',
         paddingTop: 'calc(var(--space-2) + env(safe-area-inset-top, 0px))',
+        backdropFilter: 'blur(8px)',
       }}
     >
       <Link
@@ -74,8 +83,26 @@ export default function Header() {
             margin: 0,
           }}
         >
-          Court<span style={{ color: 'var(--color-accent)' }}>IQ</span>
+          Court<span style={{ color: isPro ? '#FBBF24' : 'var(--color-accent)' }}>IQ</span>
         </h1>
+        {isPro && (
+          <span
+            className="flex items-center gap-1"
+            style={{
+              padding: '3px 8px',
+              borderRadius: '999px',
+              background: 'linear-gradient(90deg, #D97706, #FBBF24)',
+              color: '#0A2A1F',
+              fontSize: '10px',
+              fontWeight: 900,
+              letterSpacing: '0.6px',
+              textTransform: 'uppercase',
+              boxShadow: '0 2px 10px rgba(251,191,36,0.35)',
+            }}
+          >
+            <Crown size={10} />PRO
+          </span>
+        )}
       </Link>
 
       <div className="flex items-center gap-3">

@@ -1,12 +1,12 @@
 import { NavLink } from 'react-router-dom'
-import { Home, Target, Crosshair, Trophy, BookHeart } from 'lucide-react'
+import { Home, Target, Zap, Trophy, BarChart3 } from 'lucide-react'
 
 const tabs = [
   { to: '/', icon: Home, label: 'Home' },
+  { to: '/gametime', icon: Zap, label: 'Gametime' },
   { to: '/drills', icon: Target, label: 'Drills' },
-  { to: '/shots', icon: Crosshair, label: 'Shot Tracking' },
   { to: '/games', icon: Trophy, label: 'Game Log' },
-  { to: '/journal', icon: BookHeart, label: 'Journal' },
+  { to: '/shots', icon: BarChart3, label: 'My IQ' },
 ]
 
 export default function BottomNav() {

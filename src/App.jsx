@@ -17,7 +17,7 @@ import Shots from './pages/shots/Shots'
 import Games from './pages/games/Games'
 import Journal from './pages/journal/Journal'
 import Settings from './pages/settings/Settings'
-import QuickGame from './pages/quickgame/QuickGame'
+import Gametime from './pages/quickgame/QuickGame'
 import Practice from './pages/practice/Practice'
 import Premium from './pages/premium/Premium'
 
@@ -92,7 +92,9 @@ function AppContent() {
         <Route path="/drills" element={<Drills />} />
         <Route path="/shots" element={<Shots />} />
         <Route path="/games" element={<Games />} />
-        <Route path="/quick-game" element={<QuickGame />} />
+        {/* /gametime is the canonical route. /quick-game is kept for backwards-compat. */}
+        <Route path="/gametime" element={<Gametime />} />
+        <Route path="/quick-game" element={<Navigate to="/gametime" replace />} />
         <Route path="/practice" element={<Practice />} />
         <Route path="/journal" element={<Journal />} />
         <Route path="/settings" element={<Settings />} />

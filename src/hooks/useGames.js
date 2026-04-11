@@ -226,6 +226,7 @@ export default function useGames() {
 
   return {
     games,
+    allGames, // full list (not paginated) — used by My IQ analytics aggregator
     loading,
     fetchGames,
     addGame,

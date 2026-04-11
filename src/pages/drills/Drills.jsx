@@ -1,271 +1,679 @@
-import { useState, useMemo } from 'react';
-import { Target, Flame, ArrowLeft, Star, Clock, CheckCircle } from 'lucide-react';
-import PageWrapper from '../../components/layout/PageWrapper';
-import Button from '../../components/ui/Button';
-import Card from '../../components/ui/Card';
-import Input from '../../components/ui/Input';
-import Select from '../../components/ui/Select';
-import Badge from '../../components/ui/Badge';
-import EmptyState from '../../components/ui/EmptyState';
-import SkeletonLoader from '../../components/ui/SkeletonLoader';
-import { useToast } from '../../context/ToastContext';
-import { usePremium } from '../../context/PremiumContext';
-import useDrills from '../../hooks/useDrills';
-import UpgradePrompt from '../../components/ui/UpgradePrompt';
+// Drills — a curated library of drills with cues, steps, focus points, and
+// a Camera Mode button per drill. Each drill is a teaching unit, not a form.
+// "Log Complete" wires into the existing useDrills hook so the streak, totals,
+// and history still work.
 
-const CATEGORIES = ['Shooting', 'Ball Handling', 'Passing', 'Defense', 'Conditioning', 'Agility', 'Custom'];
-const CATEGORY_OPTIONS = CATEGORIES.map(c => ({ value: c, label: c }));
-const BADGE_MAP = { Shooting: 'elite', 'Ball Handling': 'intermediate', Defense: 'beginner', default: 'default' };
+import { useState, useMemo } from 'react'
+import {
+  Target, Flame, ArrowLeft, Clock, CheckCircle, Camera, X, Play,
+  Crosshair, Activity, Shield, Zap, Dumbbell, Video,
+} from 'lucide-react'
+import PageWrapper from '../../components/layout/PageWrapper'
+import Button from '../../components/ui/Button'
+import Card from '../../components/ui/Card'
+import Badge from '../../components/ui/Badge'
+import { useToast } from '../../context/ToastContext'
+import useDrills from '../../hooks/useDrills'
 
-function Stars({ value, interactive, onChange }) {
+// ─── Drill library ───────────────────────────────────────────────────────────
+// Each drill: id, name, category, difficulty (1-5), duration (minutes),
+// focus tag, short description, numbered step cues, coaching tip.
+const DRILL_LIBRARY = [
+  {
+    id: 'form-shooting',
+    name: 'Form Shooting',
+    category: 'Shooting',
+    icon: Crosshair,
+    difficulty: 1,
+    duration: 10,
+    focus: 'Mechanics',
+    desc: 'Close-range single-hand shooting to groove your form before any session.',
+    steps: [
+      'Start 3 feet from the rim, feet square, ball in shooting pocket.',
+      'Guide hand lifts off the ball — no thumb flick, just a ride.',
+      'Elbow under the ball, snap the wrist, hold the follow-through.',
+      'Swish 10 in a row, take one step back, repeat out to 8 feet.',
+    ],
+    tip: 'If the ball is rotating sideways, your guide hand is still pushing. Relax it.',
+  },
+  {
+    id: 'mikan',
+    name: 'Mikan Drill',
+    category: 'Shooting',
+    icon: Target,
+    difficulty: 2,
+    duration: 5,
+    focus: 'Finishing',
+    desc: 'Right-hand and left-hand finishes at the rim. The original big-man drill, useful for everyone.',
+    steps: [
+      'Stand on the right side of the rim, one foot out.',
+      'Right-hand finish off the glass, rebound with two hands.',
+      'Immediately step across, left-hand finish off the glass.',
+      'Alternate sides for 60 seconds without letting the ball hit the ground.',
+    ],
+    tip: 'Eyes on the top corner of the square, not the rim.',
+  },
+  {
+    id: 'spot-shooting',
+    name: '5-Spot Shooting',
+    category: 'Shooting',
+    icon: Flame,
+    difficulty: 3,
+    duration: 15,
+    focus: 'Mid-Range',
+    desc: 'Shoot from five spots around the mid-range: corner, wing, top, opposite wing, opposite corner.',
+    steps: [
+      'Start at the right corner. Make 5 shots before moving.',
+      'Slide to the right wing — 5 makes.',
+      'Top of the key — 5 makes.',
+      'Left wing — 5 makes.',
+      'Left corner — 5 makes. Track your best time to 25.',
+    ],
+    tip: 'No hesitation between catch and shot. The rep counts, the time builds the pressure.',
+  },
+  {
+    id: 'three-point-rainbow',
+    name: '3-Point Rainbow',
+    category: 'Shooting',
+    icon: Flame,
+    difficulty: 4,
+    duration: 12,
+    focus: 'Range',
+    desc: 'Seven spots beyond the arc — corner, wing, top, wing, corner, plus two trail spots.',
+    steps: [
+      'From each spot, take 3 shots in a row.',
+      'Move to next spot, continue around the arc.',
+      'Log every make. Target: 12/21 your first session.',
+    ],
+    tip: 'Feet set before the catch. Don\'t shoot on the way up from gathering the ball.',
+  },
+  {
+    id: 'pound-dribble',
+    name: 'Pound Dribbles',
+    category: 'Ball Handling',
+    icon: Activity,
+    difficulty: 1,
+    duration: 5,
+    focus: 'Control',
+    desc: 'Two-ball hard pound dribbles to build hand strength and low-dribble control.',
+    steps: [
+      'Athletic stance, one ball in each hand.',
+      'Pound both balls simultaneously, hip-level, hard as you can, 30 seconds.',
+      'Rest 15 seconds. Alternate hands, 30 seconds. Rest.',
+      'Finish with 30 seconds of high-low (one ball hip, one ball ankle).',
+    ],
+    tip: 'Eyes up. If your eyes drop you have to start the rep over.',
+  },
+  {
+    id: 'cone-crossover',
+    name: 'Cone Crossover Series',
+    category: 'Ball Handling',
+    icon: Zap,
+    difficulty: 3,
+    duration: 10,
+    focus: 'Change of Direction',
+    desc: 'Cone-to-cone moves at full speed: crossover, between-the-legs, behind-the-back.',
+    steps: [
+      'Set cones 8 feet apart in a straight line.',
+      'Sprint to first cone, attack crossover, explode to second cone.',
+      'Repeat with between-the-legs, then behind-the-back.',
+      'Finish with a shot or finish at the rim every pass.',
+    ],
+    tip: 'Low and hard on the first dribble after the move. That\'s the separation dribble.',
+  },
+  {
+    id: 'defensive-slides',
+    name: 'Defensive Slides',
+    category: 'Defense',
+    icon: Shield,
+    difficulty: 2,
+    duration: 8,
+    focus: 'Footwork',
+    desc: 'Lateral slides in a Z pattern, keeping a low stance the whole way.',
+    steps: [
+      'Start in a defensive stance at the baseline corner.',
+      'Slide to the free-throw line — never cross your feet.',
+      'Drop-step the other direction, slide to the half-court line.',
+      'Push back, continue the Z. 3 round trips.',
+    ],
+    tip: 'Hands active. Knees over ankles, not past your toes.',
+  },
+  {
+    id: 'closeouts',
+    name: 'Closeout Drill',
+    category: 'Defense',
+    icon: Shield,
+    difficulty: 3,
+    duration: 6,
+    focus: 'Recovery',
+    desc: 'Sprint-to-slide closeouts simulating helping from the paint to a perimeter shooter.',
+    steps: [
+      'Start under the rim.',
+      'Sprint toward the 3-point line with high hands.',
+      'Break down into short choppy steps the last 4 feet.',
+      'Contest with the high hand, recover to stance.',
+      '10 reps total, 5 per side.',
+    ],
+    tip: 'The choppy steps are why you don\'t get blown by. Don\'t skip them.',
+  },
+  {
+    id: 'suicides',
+    name: 'Suicides',
+    category: 'Conditioning',
+    icon: Flame,
+    difficulty: 4,
+    duration: 6,
+    focus: 'Aerobic',
+    desc: 'Classic progressive-distance conditioning run.',
+    steps: [
+      'Baseline to free-throw line and back.',
+      'Baseline to half-court and back.',
+      'Baseline to far free-throw and back.',
+      'Baseline to far baseline and back.',
+      'Target: under 33 seconds for a full suicide.',
+    ],
+    tip: 'Touch the line every time. Cheating a suicide is cheating your game.',
+  },
+  {
+    id: 'line-jumps',
+    name: 'Line Jumps',
+    category: 'Agility',
+    icon: Zap,
+    difficulty: 2,
+    duration: 4,
+    focus: 'Explosiveness',
+    desc: 'Two-foot line jumps — front-back, side-side, and diagonal — for fast-twitch.',
+    steps: [
+      'Stand over a court line.',
+      '30 seconds: jump forward and back as fast as you can.',
+      '30 seconds: jump side to side.',
+      '30 seconds: jump in an X pattern.',
+      'Rest 30 seconds. Repeat once.',
+    ],
+    tip: 'Barely leave the ground. Frequency, not height.',
+  },
+  {
+    id: 'bounce-pass-wall',
+    name: 'Wall Passing',
+    category: 'Passing',
+    icon: Target,
+    difficulty: 1,
+    duration: 5,
+    focus: 'Ball Placement',
+    desc: 'Two-handed and one-handed passes to a wall to groove accuracy.',
+    steps: [
+      'Stand 8 feet from a wall.',
+      '25 chest passes to a target spot the size of a face.',
+      '25 bounce passes to a spot 2 feet from the wall.',
+      '25 right-hand push passes, 25 left-hand push passes.',
+    ],
+    tip: 'A good pass hits the receiver at chest height without them moving their hands.',
+  },
+  {
+    id: 'ladder-inout',
+    name: 'Ladder In-and-Out',
+    category: 'Agility',
+    icon: Activity,
+    difficulty: 3,
+    duration: 6,
+    focus: 'Foot Speed',
+    desc: 'Quick-feet ladder work to prime your first-step explosiveness.',
+    steps: [
+      'Lay an agility ladder on the floor.',
+      'Two feet in every box — down and back.',
+      'One foot in every box — down and back.',
+      'In-in-out-out — down and back.',
+      'Finish with lateral shuffles.',
+    ],
+    tip: 'Quiet feet. If you hear your heels slapping, slow down and clean it up.',
+  },
+  {
+    id: 'pull-up-jumper',
+    name: 'Pull-Up Jumper Series',
+    category: 'Shooting',
+    icon: Crosshair,
+    difficulty: 4,
+    duration: 12,
+    focus: 'Off Dribble',
+    desc: 'Dribble into a jumper from three spots. Builds the most-used scoring move in modern basketball.',
+    steps: [
+      'Start at the top of the key with the ball.',
+      'Two hard dribbles right into a pull-up from the elbow.',
+      'Rebound, reset. Two hard dribbles left into a pull-up.',
+      'Alternate for 10 makes per side.',
+      'Finish with three crossover pull-ups from each wing.',
+    ],
+    tip: 'Rise and shoot over the dribble — don\'t gather and shoot. The gather is what gets blocked.',
+  },
+  {
+    id: 'wind-sprints',
+    name: 'Wind Sprints',
+    category: 'Conditioning',
+    icon: Dumbbell,
+    difficulty: 5,
+    duration: 10,
+    focus: 'Anaerobic',
+    desc: 'Full-court sprint intervals for end-of-game legs.',
+    steps: [
+      'Sprint baseline to baseline.',
+      'Rest 30 seconds.',
+      'Repeat 10 times.',
+      'Track the slowest sprint — if it\'s more than 2 seconds slower than your fastest, you\'re dogging it.',
+    ],
+    tip: 'The last two sprints are where games are won.',
+  },
+]
+
+const CATEGORY_ORDER = ['Shooting', 'Ball Handling', 'Passing', 'Defense', 'Conditioning', 'Agility']
+const CATEGORY_COLOR = {
+  Shooting: '#FF6B35',
+  'Ball Handling': '#A78BFA',
+  Passing: '#22C55E',
+  Defense: '#3B82F6',
+  Conditioning: '#F59E0B',
+  Agility: '#F97316',
+}
+
+function DifficultyDots({ level }) {
   return (
-    <span className="inline-flex gap-0.5">
-      {[1, 2, 3, 4, 5].map(i => (
-        <Star
+    <span style={{ display: 'inline-flex', gap: '3px' }}>
+      {[1, 2, 3, 4, 5].map((i) => (
+        <span
           key={i}
-          className="w-5 h-5"
           style={{
-            color: 'var(--color-accent)',
-            fill: i <= value ? 'var(--color-accent)' : 'none',
-            cursor: interactive ? 'pointer' : 'default',
+            width: '6px', height: '6px', borderRadius: '50%',
+            background: i <= level ? 'var(--color-accent)' : 'rgba(255,255,255,0.15)',
           }}
-          onClick={interactive ? () => onChange(i) : undefined}
         />
       ))}
     </span>
-  );
+  )
 }
 
-const emptyForm = () => ({
-  session_date: new Date().toISOString().split('T')[0],
-  drill_name: '', category: '', duration_minutes: '', reps: '', sets: '',
-  rating: 0, notes: '', is_custom_drill: false,
-});
+function DrillCard({ drill, onOpen }) {
+  const Icon = drill.icon
+  const color = CATEGORY_COLOR[drill.category] || 'var(--color-accent)'
+  return (
+    <button
+      onClick={() => onOpen(drill)}
+      style={{
+        textAlign: 'left',
+        width: '100%',
+        padding: '14px',
+        borderRadius: '16px',
+        background: `linear-gradient(160deg, ${color}14, ${color}04)`,
+        border: `1px solid ${color}28`,
+        cursor: 'pointer',
+        display: 'flex',
+        gap: '14px',
+        alignItems: 'center',
+        fontFamily: 'inherit',
+        WebkitTapHighlightColor: 'transparent',
+      }}
+    >
+      <div
+        style={{
+          width: '48px', height: '48px', borderRadius: '14px', flexShrink: 0,
+          background: `linear-gradient(135deg, ${color}, ${color}CC)`,
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          boxShadow: `0 4px 14px ${color}40`,
+        }}
+      >
+        <Icon size={22} style={{ color: '#fff' }} />
+      </div>
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <div style={{ fontSize: '15px', fontWeight: 800, color: 'var(--color-text)', marginBottom: '3px' }}>
+          {drill.name}
+        </div>
+        <div style={{ fontSize: '12px', color: 'var(--color-text-sec)', marginBottom: '6px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+          {drill.focus} · {drill.duration} min
+        </div>
+        <DifficultyDots level={drill.difficulty} />
+      </div>
+    </button>
+  )
+}
 
+function DrillDetail({ drill, onClose, onLog, onCamera }) {
+  if (!drill) return null
+  const Icon = drill.icon
+  const color = CATEGORY_COLOR[drill.category] || 'var(--color-accent)'
+  return (
+    <div
+      onClick={onClose}
+      style={{
+        position: 'fixed', inset: 0, zIndex: 60,
+        display: 'flex', alignItems: 'flex-end', justifyContent: 'center',
+        background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(6px)',
+      }}
+    >
+      <div
+        onClick={(e) => e.stopPropagation()}
+        style={{
+          width: '100%', maxWidth: '520px',
+          maxHeight: '92dvh', overflowY: 'auto',
+          background: 'linear-gradient(180deg, #141827 0%, #0A0E1A 100%)',
+          borderTop: `2px solid ${color}`,
+          borderRadius: '20px 20px 0 0',
+          padding: '18px 18px calc(18px + env(safe-area-inset-bottom, 0px))',
+          boxShadow: '0 -24px 64px rgba(0,0,0,0.55)',
+        }}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '14px' }}>
+          <div
+            style={{
+              width: '48px', height: '48px', borderRadius: '14px',
+              background: `linear-gradient(135deg, ${color}, ${color}CC)`,
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              flexShrink: 0,
+            }}
+          >
+            <Icon size={22} style={{ color: '#fff' }} />
+          </div>
+          <div style={{ flex: 1 }}>
+            <div style={{ fontSize: '18px', fontWeight: 900, color: '#fff', marginBottom: '2px' }}>{drill.name}</div>
+            <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+              <Badge>{drill.category}</Badge>
+              <span style={{ fontSize: '11px', color: 'rgba(255,255,255,0.5)' }}>
+                <Clock size={10} style={{ display: 'inline', marginRight: '2px' }} /> {drill.duration} min
+              </span>
+            </div>
+          </div>
+          <button
+            onClick={onClose}
+            style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,0.6)', cursor: 'pointer', padding: '4px' }}
+          >
+            <X size={20} />
+          </button>
+        </div>
+
+        <p style={{ fontSize: '14px', lineHeight: 1.55, color: 'rgba(255,255,255,0.78)', marginBottom: '16px' }}>
+          {drill.desc}
+        </p>
+
+        {/* Key focus */}
+        <div
+          style={{
+            padding: '10px 14px', borderRadius: '12px',
+            background: `${color}15`, border: `1px solid ${color}35`,
+            display: 'flex', gap: '10px', alignItems: 'center', marginBottom: '14px',
+          }}
+        >
+          <Target size={14} style={{ color }} />
+          <span style={{ fontSize: '12px', fontWeight: 800, color, letterSpacing: '0.5px', textTransform: 'uppercase' }}>
+            Key Focus:
+          </span>
+          <span style={{ fontSize: '13px', color: '#fff', fontWeight: 600 }}>{drill.focus}</span>
+        </div>
+
+        {/* Steps */}
+        <div style={{ marginBottom: '14px' }}>
+          <div style={{ fontSize: '11px', fontWeight: 800, color: 'rgba(255,255,255,0.55)', letterSpacing: '0.8px', marginBottom: '8px', textTransform: 'uppercase' }}>
+            Steps
+          </div>
+          <ol style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '10px' }}>
+            {drill.steps.map((step, i) => (
+              <li key={i} style={{ display: 'flex', gap: '12px', alignItems: 'flex-start' }}>
+                <div
+                  style={{
+                    flexShrink: 0, width: '22px', height: '22px', borderRadius: '50%',
+                    background: `${color}30`, border: `1px solid ${color}`,
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    fontSize: '11px', fontWeight: 900, color,
+                  }}
+                >
+                  {i + 1}
+                </div>
+                <p style={{ fontSize: '13px', lineHeight: 1.5, color: 'var(--color-text)', margin: 0 }}>
+                  {step}
+                </p>
+              </li>
+            ))}
+          </ol>
+        </div>
+
+        {/* Coach tip */}
+        <div
+          style={{
+            padding: '12px 14px', borderRadius: '12px',
+            background: 'rgba(255, 107, 53, 0.08)',
+            borderLeft: '3px solid #FF6B35',
+            marginBottom: '18px',
+          }}
+        >
+          <div style={{ fontSize: '11px', fontWeight: 800, color: '#FF6B35', letterSpacing: '0.5px', marginBottom: '3px', textTransform: 'uppercase' }}>
+            Coach Tip
+          </div>
+          <p style={{ fontSize: '13px', color: 'var(--color-text)', lineHeight: 1.5, margin: 0 }}>
+            {drill.tip}
+          </p>
+        </div>
+
+        {/* Action buttons */}
+        <div style={{ display: 'flex', gap: '8px' }}>
+          <button
+            onClick={() => onCamera(drill)}
+            style={{
+              flex: 1,
+              padding: '14px',
+              borderRadius: '14px',
+              border: '1px solid rgba(59, 130, 246, 0.4)',
+              background: 'rgba(59, 130, 246, 0.12)',
+              color: '#60A5FA',
+              cursor: 'pointer',
+              fontSize: '13px',
+              fontWeight: 800,
+              fontFamily: 'inherit',
+              display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px',
+            }}
+          >
+            <Camera size={15} /> Camera Mode
+          </button>
+          <button
+            onClick={() => onLog(drill)}
+            style={{
+              flex: 1.3,
+              padding: '14px',
+              borderRadius: '14px',
+              border: 'none',
+              background: 'linear-gradient(135deg, #22C55E, #16A34A)',
+              color: '#fff',
+              cursor: 'pointer',
+              fontSize: '13px',
+              fontWeight: 900,
+              fontFamily: 'inherit',
+              display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px',
+              boxShadow: '0 4px 20px rgba(34,197,94,0.35)',
+            }}
+          >
+            <CheckCircle size={15} /> Log Complete
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// Camera mode placeholder — real TF.js MoveNet integration coming in PR-3.
+function CameraPlaceholder({ drill, onClose }) {
+  if (!drill) return null
+  return (
+    <div
+      onClick={onClose}
+      style={{
+        position: 'fixed', inset: 0, zIndex: 70,
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        background: 'rgba(0,0,0,0.82)', backdropFilter: 'blur(10px)', padding: '24px',
+      }}
+    >
+      <div
+        onClick={(e) => e.stopPropagation()}
+        style={{
+          width: '100%', maxWidth: '420px',
+          padding: '32px 24px',
+          background: 'linear-gradient(180deg, #0B1A33 0%, #050C1C 100%)',
+          border: '1px solid rgba(59,130,246,0.4)',
+          borderRadius: '20px',
+          textAlign: 'center',
+        }}
+      >
+        <div
+          style={{
+            width: '64px', height: '64px', borderRadius: '50%',
+            background: 'linear-gradient(135deg, #3B82F6, #1E40AF)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            margin: '0 auto 16px',
+            boxShadow: '0 8px 24px rgba(59,130,246,0.4)',
+          }}
+        >
+          <Video size={30} style={{ color: '#fff' }} />
+        </div>
+        <h3 style={{ fontSize: '18px', fontWeight: 900, color: '#fff', marginBottom: '6px' }}>
+          Camera Mode — {drill.name}
+        </h3>
+        <p style={{ fontSize: '13px', lineHeight: 1.55, color: 'rgba(255,255,255,0.7)', marginBottom: '20px' }}>
+          Point your phone at the court and CourtIQ will track your movement to count reps and grade form — no QR ball needed.
+        </p>
+        <div
+          style={{
+            padding: '10px 14px', borderRadius: '10px',
+            background: 'rgba(251, 191, 36, 0.12)',
+            border: '1px solid rgba(251, 191, 36, 0.3)',
+            color: '#FBBF24',
+            fontSize: '12px',
+            fontWeight: 700,
+            marginBottom: '18px',
+          }}
+        >
+          Rolling out in the next update — pose-tracking engine installing.
+        </div>
+        <button
+          onClick={onClose}
+          style={{
+            width: '100%',
+            padding: '14px',
+            borderRadius: '12px',
+            border: 'none',
+            background: 'rgba(255,255,255,0.1)',
+            color: '#fff',
+            cursor: 'pointer',
+            fontSize: '14px',
+            fontWeight: 800,
+            fontFamily: 'inherit',
+          }}
+        >
+          Got it
+        </button>
+      </div>
+    </div>
+  )
+}
+
+// ─── Main page ───────────────────────────────────────────────────────────────
 export default function Drills() {
-  const { drills, loading, addDrill, updateDrill, deleteDrill, loadMore, hasMore, categoryStats, recentStreak } = useDrills();
-  const { showToast } = useToast();
-  const { isPro } = usePremium();
-  const [view, setView] = useState('list');
-  const [filter, setFilter] = useState('All');
-  const [form, setForm] = useState(emptyForm());
-  const [errors, setErrors] = useState({});
-  const [editId, setEditId] = useState(null);
-  const [saving, setSaving] = useState(false);
-  const [lastSaved, setLastSaved] = useState(null);
-  const [showUpgrade, setShowUpgrade] = useState(false);
+  const { addDrill, recentStreak } = useDrills()
+  const { showToast } = useToast()
+  const [filter, setFilter] = useState('All')
+  const [active, setActive] = useState(null)
+  const [cameraDrill, setCameraDrill] = useState(null)
 
   const filtered = useMemo(() => {
-    if (filter === 'All') return drills;
-    return drills.filter(d => d.category === filter);
-  }, [drills, filter]);
+    if (filter === 'All') return DRILL_LIBRARY
+    return DRILL_LIBRARY.filter((d) => d.category === filter)
+  }, [filter])
 
-  const activeStats = useMemo(() =>
-    Object.entries(categoryStats).filter(([, v]) => v.count > 0), [categoryStats]);
-
-  const set = (k, v) => setForm(f => ({ ...f, [k]: v }));
-
-  const validate = () => {
-    const e = {};
-    if (!form.drill_name.trim()) e.drill_name = 'Required';
-    if (!form.category) e.category = 'Required';
-    const dur = Number(form.duration_minutes);
-    if (!dur || dur < 1 || dur > 300) e.duration_minutes = '1-300 minutes';
-    setErrors(e);
-    return !Object.keys(e).length;
-  };
-
-  const openNew = () => { setForm(emptyForm()); setEditId(null); setErrors({}); setView('form'); };
-  const openEdit = (d) => {
-    setForm({ ...d, duration_minutes: String(d.duration_minutes), reps: d.reps ? String(d.reps) : '', sets: d.sets ? String(d.sets) : '' });
-    setEditId(d.id); setErrors({}); setView('form');
-  };
-
-  const handleSave = async () => {
-    if (!validate()) return;
-    setSaving(true);
-    try {
-      const payload = {
-        ...form,
-        duration_minutes: Number(form.duration_minutes),
-        reps: form.reps ? Number(form.reps) : null,
-        sets: form.sets ? Number(form.sets) : null,
-        rating: form.rating || null,
-      };
-      if (editId) {
-        const res = await updateDrill(editId, payload);
-        if (res) { showToast('Drill updated', 'success'); setView('list'); }
-        else showToast('Failed to update', 'error');
-      } else {
-        const res = await addDrill(payload);
-        if (res) {
-          setLastSaved(res);
-          showToast('Drill logged', 'success');
-          setView('result');
-          if (!isPro) setShowUpgrade(true);
-        }
-        else showToast('Failed to save', 'error');
-      }
-    } catch { showToast('Something went wrong', 'error'); }
-    setSaving(false);
-  };
-
-  const handleDelete = async () => {
-    if (!editId) return;
-    setSaving(true);
-    const ok = await deleteDrill(editId);
-    if (ok) { showToast('Drill deleted', 'success'); setView('list'); }
-    else showToast('Failed to delete', 'error');
-    setSaving(false);
-  };
-
-  const feedbackLine = (min) => {
-    if (min < 15) return 'Quick session — consistency matters!';
-    if (min <= 30) return 'Solid work!';
-    if (min <= 60) return 'Great commitment to your craft';
-    return 'Elite-level dedication';
-  };
-
-  // --- RESULT VIEW ---
-  if (view === 'result' && lastSaved) {
-    return (
-      <PageWrapper>
-        <div className="flex flex-col items-center gap-6 py-8">
-          <CheckCircle className="w-12 h-12" style={{ color: 'var(--color-success)' }} />
-          <Card padding="lg" glass>
-            <div className="flex flex-col items-center gap-3 text-center">
-              <h2 className="t-title2" style={{ color: 'var(--color-text)' }}>{lastSaved.drill_name}</h2>
-              <Badge variant={BADGE_MAP[lastSaved.category] || 'default'}>{lastSaved.category}</Badge>
-              <div className="flex items-center gap-2 t-body" style={{ color: 'var(--color-text-sec)' }}>
-                <Clock className="w-4 h-4" /> {lastSaved.duration_minutes} min
-              </div>
-              {lastSaved.rating > 0 && <Stars value={lastSaved.rating} />}
-              <p className="t-body" style={{ color: 'var(--color-accent)', marginTop: 'var(--space-1)' }}>{feedbackLine(lastSaved.duration_minutes)}</p>
-            </div>
-          </Card>
-          <Button variant="primary" onClick={() => setView('list')}>Done</Button>
-        </div>
-        {showUpgrade && (
-          <UpgradePrompt
-            title="Nice work!"
-            subtitle="You just logged a drill. Unlock custom templates, training packs & advanced analytics with Pro."
-            onClose={() => setShowUpgrade(false)}
-          />
-        )}
-      </PageWrapper>
-    );
+  const handleLog = async (drill) => {
+    const res = await addDrill({
+      session_date: new Date().toISOString().split('T')[0],
+      drill_name: drill.name,
+      category: drill.category,
+      duration_minutes: drill.duration,
+      rating: null,
+      notes: drill.focus,
+      is_custom_drill: false,
+    })
+    if (res) {
+      showToast(`${drill.name} logged — ${drill.duration} min`, 'success')
+      setActive(null)
+    } else {
+      showToast('Failed to log drill', 'error')
+    }
   }
 
-  // --- FORM VIEW ---
-  if (view === 'form') {
-    return (
-      <PageWrapper>
-        <div className="flex flex-col gap-5">
-          <button onClick={() => setView('list')} className="btn-ghost self-start" style={{ padding: '8px 16px' }}>
-            <ArrowLeft className="w-4 h-4" /> Back
-          </button>
-          <h1 className="t-title2" style={{ color: 'var(--color-text)' }}>{editId ? 'Edit Drill' : 'Log Drill'}</h1>
-          <Input label="Date" type="date" value={form.session_date} onChange={e => set('session_date', e.target.value)} />
-          <Input label="Drill Name" placeholder="e.g. Free Throws" value={form.drill_name} onChange={e => set('drill_name', e.target.value)} error={errors.drill_name} />
-          <Select label="Category" options={CATEGORY_OPTIONS} value={form.category} onChange={e => set('category', e.target.value)} placeholder="Select category" error={errors.category} />
-          <Input label="Duration (min)" type="number" placeholder="1-300" value={form.duration_minutes} onChange={e => set('duration_minutes', e.target.value)} error={errors.duration_minutes} />
-          <div className="grid grid-cols-2 gap-3">
-            <Input label="Reps" type="number" placeholder="Optional" value={form.reps} onChange={e => set('reps', e.target.value)} />
-            <Input label="Sets" type="number" placeholder="Optional" value={form.sets} onChange={e => set('sets', e.target.value)} />
-          </div>
-          <div className="flex flex-col gap-1.5">
-            <span className="t-label">Rating</span>
-            <Stars value={form.rating} interactive onChange={v => set('rating', v)} />
-          </div>
-          <label className="flex items-center gap-2 cursor-pointer t-body" style={{ color: 'var(--color-text-sec)' }}>
-            <span
-              className="w-5 h-5 rounded flex items-center justify-center text-xs font-bold"
-              style={{ border: '1px solid var(--color-border)', background: form.is_custom_drill ? 'var(--color-accent)' : 'transparent', color: '#fff' }}
-              onClick={() => set('is_custom_drill', !form.is_custom_drill)}
-            >{form.is_custom_drill ? '✓' : ''}</span>
-            <span onClick={() => set('is_custom_drill', !form.is_custom_drill)}>Custom drill</span>
-          </label>
-          <Input label="Notes" placeholder="Optional notes..." value={form.notes} onChange={e => set('notes', e.target.value)} />
-          <Button variant="primary" fullWidth loading={saving} onClick={handleSave}>{editId ? 'Update Drill' : 'Save Drill'}</Button>
-          {editId && <Button variant="ghost" fullWidth loading={saving} onClick={handleDelete} style={{ color: 'var(--color-danger)' }}>Delete Drill</Button>}
-        </div>
-      </PageWrapper>
-    );
-  }
-
-  // --- LIST VIEW ---
   return (
     <PageWrapper>
-      <div className="flex flex-col gap-5">
-        <div className="flex items-center justify-between">
-          <h1 className="t-title2" style={{ color: 'var(--color-text)' }}>Drill Tracker</h1>
-          <Button variant="primary" onClick={openNew}>Log Drill</Button>
-        </div>
-
-        {recentStreak > 0 && (
-          <div className="flex items-center gap-2 t-body" style={{ color: 'var(--color-accent)', fontWeight: 700 }}>
-            <Flame className="w-5 h-5" /> {recentStreak} day drill streak
-          </div>
-        )}
-
-        {activeStats.length > 0 && (
-          <div className="flex flex-wrap gap-2">
-            {activeStats.map(([cat, v]) => (
-              <span key={cat} className="px-2.5 py-1 rounded-full t-caption"
-                style={{ background: 'var(--color-card)', color: 'var(--color-text-sec)', border: '1px solid var(--color-border)' }}>
-                {cat} <strong style={{ color: 'var(--color-text)' }}>{v.count}</strong>
-              </span>
-            ))}
-          </div>
-        )}
-
-        <div className="flex gap-2 overflow-x-auto pb-1 hide-scrollbar">
-          {['All', ...CATEGORIES].map(c => (
-            <button key={c} onClick={() => setFilter(c)}
-              className="px-3 py-1.5 rounded-full t-caption whitespace-nowrap transition-colors cursor-pointer"
-              style={{
-                background: filter === c ? 'var(--color-accent)' : 'var(--color-card)',
-                color: filter === c ? '#fff' : 'var(--color-text-sec)',
-                border: filter === c ? 'none' : '1px solid var(--color-border)',
-                fontWeight: 600,
-              }}>
-              {c}
-            </button>
-          ))}
-        </div>
-
-        {loading && !drills.length ? (
-          <SkeletonLoader variant="card" count={3} />
-        ) : filtered.length === 0 ? (
-          <EmptyState icon={Target} title="No Drills Logged" description="Start building your skills" actionLabel="Log Your First Drill" onAction={openNew} />
-        ) : (
-          <div className="flex flex-col gap-3">
-            {filtered.map(d => (
-              <Card key={d.id} padding="md" hover onClick={() => openEdit(d)}>
-                <div className="flex flex-col gap-2">
-                  <div className="flex items-center justify-between">
-                    <span className="t-caption" style={{ color: 'var(--color-text-sec)' }}>{d.session_date}</span>
-                    <Badge variant={BADGE_MAP[d.category] || 'default'}>{d.category}</Badge>
-                  </div>
-                  <span className="t-body" style={{ color: 'var(--color-text)', fontWeight: 700 }}>{d.drill_name}</span>
-                  <div className="flex items-center gap-4 flex-wrap">
-                    <span className="flex items-center gap-1 t-caption" style={{ color: 'var(--color-text-sec)' }}>
-                      <Clock className="w-3.5 h-3.5" /> {d.duration_minutes} min
-                    </span>
-                    {d.reps && d.sets && (
-                      <span className="t-caption" style={{ color: 'var(--color-text-sec)' }}>{d.reps} x {d.sets}</span>
-                    )}
-                    {d.rating > 0 && <Stars value={d.rating} />}
-                  </div>
-                </div>
-              </Card>
-            ))}
-            {hasMore && (
-              <Button variant="ghost" fullWidth onClick={loadMore} loading={loading}>Load More</Button>
-            )}
-          </div>
-        )}
+      {/* Header */}
+      <div style={{ padding: '6px 0 14px' }}>
+        <h1 className="t-title2" style={{ marginBottom: '2px' }}>Drill Library</h1>
+        <p className="t-caption" style={{ color: 'var(--color-text-sec)' }}>
+          Coach-written drills with cues, steps, and live tracking.
+        </p>
       </div>
+
+      {/* Streak banner */}
+      {recentStreak > 0 && (
+        <Card padding="sm" style={{ marginBottom: '12px', border: '1px solid rgba(255,107,53,0.3)' }}>
+          <div className="flex items-center gap-2">
+            <Flame size={16} style={{ color: 'var(--color-accent)' }} />
+            <span className="t-body" style={{ fontWeight: 700, color: 'var(--color-accent)' }}>
+              {recentStreak} day drill streak
+            </span>
+            <span className="t-caption" style={{ color: 'var(--color-text-sec)', marginLeft: 'auto' }}>
+              Keep it alive
+            </span>
+          </div>
+        </Card>
+      )}
+
+      {/* Category filter */}
+      <div style={{ display: 'flex', gap: '8px', overflowX: 'auto', paddingBottom: '4px', marginBottom: '14px' }} className="hide-scrollbar">
+        {['All', ...CATEGORY_ORDER].map((cat) => {
+          const isActive = filter === cat
+          const color = CATEGORY_COLOR[cat] || 'var(--color-accent)'
+          return (
+            <button
+              key={cat}
+              onClick={() => setFilter(cat)}
+              style={{
+                flexShrink: 0,
+                padding: '8px 14px',
+                borderRadius: '999px',
+                border: isActive ? 'none' : '1px solid var(--color-border)',
+                background: isActive ? color : 'transparent',
+                color: isActive ? '#fff' : 'var(--color-text-sec)',
+                fontSize: '12px',
+                fontWeight: 700,
+                cursor: 'pointer',
+                fontFamily: 'inherit',
+                whiteSpace: 'nowrap',
+                transition: 'all 0.15s ease',
+              }}
+            >
+              {cat}
+            </button>
+          )
+        })}
+      </div>
+
+      {/* Drill grid */}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+        {filtered.map((drill) => (
+          <DrillCard key={drill.id} drill={drill} onOpen={setActive} />
+        ))}
+      </div>
+
+      <div style={{ height: '96px' }} />
+
+      {/* Detail modal */}
+      <DrillDetail
+        drill={active}
+        onClose={() => setActive(null)}
+        onLog={handleLog}
+        onCamera={(d) => { setActive(null); setCameraDrill(d) }}
+      />
+
+      {/* Camera placeholder modal */}
+      <CameraPlaceholder drill={cameraDrill} onClose={() => setCameraDrill(null)} />
     </PageWrapper>
-  );
+  )
 }

@@ -15,7 +15,7 @@
 // a generic "movement" analyzer that just reports that pose is tracked.
 
 import { useEffect, useRef, useState, useCallback } from 'react'
-import { X, Camera, CheckCircle, Zap, RefreshCw } from 'lucide-react'
+import { X, Camera, CheckCircle, Zap, RefreshCw, Play, Pause } from 'lucide-react'
 import { useHaptics } from '../../hooks/useHaptics'
 
 // ─── Keypoint indices for MoveNet / COCO 17-keypoint skeleton ──────────────
@@ -207,6 +207,17 @@ export default function DrillCamera({ drill, onClose, onComplete }) {
   const analyzerRef = useRef(null)
   const rafRef = useRef(0)
   const streamRef = useRef(null)
+  // Replay: compact per-frame keypoint snapshots so the user can scrub
+  // their session after finishing. We cap at 600 frames (~60s @ 10fps)
+  // and throttle recording so we don't blow out memory.
+  const framesRef = useRef([])
+  const lastFrameAtRef = useRef(0)
+  const MAX_FRAMES = 600
+  const FRAME_INTERVAL_MS = 100
+  const [replayMode, setReplayMode] = useState(false)
+  const [replayIdx, setReplayIdx] = useState(0)
+  const [replayPlaying, setReplayPlaying] = useState(false)
+  const replayRafRef = useRef(0)
   const [status, setStatus] = useState('init')  // init | loading | ready | error | done
   const [errorMsg, setErrorMsg] = useState('')
   const [reps, setReps] = useState(0)
@@ -299,6 +310,15 @@ export default function DrillCamera({ drill, onClose, onComplete }) {
           setFeedback(sum.feedback)
           setQuality(sum.quality)
           drawPose(canvas, video, kp)
+          // Throttled recording for post-session replay.
+          const now = performance.now()
+          if (now - lastFrameAtRef.current >= FRAME_INTERVAL_MS) {
+            lastFrameAtRef.current = now
+            // Compact snapshot: only {x,y,score} — drop name to keep it tiny.
+            const snap = kp.map(p => ({ x: p.x, y: p.y, s: p.score }))
+            framesRef.current.push({ t: now, kp: snap, reps: sum.reps, quality: sum.quality })
+            if (framesRef.current.length > MAX_FRAMES) framesRef.current.shift()
+          }
         }
       } catch { /* frame skipped */ }
       rafRef.current = requestAnimationFrame(loop)
@@ -312,13 +332,63 @@ export default function DrillCamera({ drill, onClose, onComplete }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [drill, facing])
 
+  const finishedSummaryRef = useRef(null)
+
   function handleFinish() {
     notification('success')
-    setStatus('done')
     const summary = analyzerRef.current?.summary() || { reps, feedback, quality }
+    finishedSummaryRef.current = summary
+    // Stop the live pipeline but keep recorded frames in memory so the user
+    // can scrub their session before committing.
     cleanup()
+    if (framesRef.current.length > 0) {
+      setStatus('done')
+      setReplayMode(true)
+      setReplayIdx(0)
+    } else {
+      // Nothing recorded — commit immediately.
+      onComplete?.({ reps: summary.reps, quality: summary.quality, feedback: summary.feedback })
+    }
+  }
+
+  function commitSession() {
+    const summary = finishedSummaryRef.current || { reps, feedback, quality }
     onComplete?.({ reps: summary.reps, quality: summary.quality, feedback: summary.feedback })
   }
+
+  // Replay playback loop — advance one frame at a time on rAF.
+  useEffect(() => {
+    if (!replayMode || !replayPlaying) return
+    const frames = framesRef.current
+    if (frames.length === 0) return
+    let last = 0
+    function step(now) {
+      if (!replayPlaying) return
+      if (now - last >= FRAME_INTERVAL_MS) {
+        last = now
+        setReplayIdx(i => {
+          const next = i + 1
+          if (next >= frames.length) {
+            setReplayPlaying(false)
+            return frames.length - 1
+          }
+          return next
+        })
+      }
+      replayRafRef.current = requestAnimationFrame(step)
+    }
+    replayRafRef.current = requestAnimationFrame(step)
+    return () => cancelAnimationFrame(replayRafRef.current)
+  }, [replayMode, replayPlaying])
+
+  // Draw the current replay frame's skeleton onto the canvas.
+  useEffect(() => {
+    if (!replayMode) return
+    const canvas = canvasRef.current
+    const frame = framesRef.current[replayIdx]
+    if (!canvas || !frame) return
+    drawReplayFrame(canvas, frame.kp)
+  }, [replayMode, replayIdx])
 
   function handleFlip() {
     impact('light')
@@ -344,6 +414,7 @@ export default function DrillCamera({ drill, onClose, onComplete }) {
             position: 'absolute', inset: 0, width: '100%', height: '100%',
             objectFit: 'cover',
             transform: facing === 'user' ? 'scaleX(-1)' : 'none',
+            display: replayMode ? 'none' : 'block',
           }}
         />
         <canvas
@@ -504,22 +575,65 @@ export default function DrillCamera({ drill, onClose, onComplete }) {
           </div>
         </div>
 
-        <button
-          onClick={handleFinish}
-          disabled={status !== 'ready'}
-          style={{
-            width: '100%', padding: '16px', borderRadius: '14px',
-            border: 'none', cursor: status === 'ready' ? 'pointer' : 'default',
-            background: status === 'ready'
-              ? 'linear-gradient(135deg, #22C55E, #16A34A)'
-              : 'rgba(255,255,255,0.08)',
-            color: '#fff', fontSize: '14px', fontWeight: 900,
-            display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
-            opacity: status === 'ready' ? 1 : 0.5,
-          }}
-        >
-          <CheckCircle size={18} /> Finish & Log {reps > 0 ? `· ${reps} reps` : ''}
-        </button>
+        {replayMode ? (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+              <button
+                onClick={() => setReplayPlaying(p => !p)}
+                aria-label={replayPlaying ? 'Pause replay' : 'Play replay'}
+                style={{
+                  width: '44px', height: '44px', borderRadius: '50%',
+                  background: 'rgba(255,255,255,0.15)', border: '1px solid rgba(255,255,255,0.2)',
+                  color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  cursor: 'pointer',
+                }}
+              >
+                {replayPlaying ? <Pause size={18} /> : <Play size={18} />}
+              </button>
+              <input
+                type="range"
+                min={0}
+                max={Math.max(0, framesRef.current.length - 1)}
+                value={replayIdx}
+                onChange={(e) => { setReplayPlaying(false); setReplayIdx(parseInt(e.target.value, 10)) }}
+                style={{ flex: 1, accentColor: 'var(--color-accent)' }}
+                aria-label="Scrub replay"
+              />
+              <span style={{ color: 'rgba(255,255,255,0.7)', fontSize: '11px', fontWeight: 700, minWidth: '48px', textAlign: 'right' }}>
+                {replayIdx + 1}/{framesRef.current.length}
+              </span>
+            </div>
+            <button
+              onClick={commitSession}
+              style={{
+                width: '100%', padding: '16px', borderRadius: '14px',
+                border: 'none', cursor: 'pointer',
+                background: 'linear-gradient(135deg, #22C55E, #16A34A)',
+                color: '#fff', fontSize: '14px', fontWeight: 900,
+                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
+              }}
+            >
+              <CheckCircle size={18} /> Log Session {reps > 0 ? `· ${reps} reps` : ''}
+            </button>
+          </div>
+        ) : (
+          <button
+            onClick={handleFinish}
+            disabled={status !== 'ready'}
+            style={{
+              width: '100%', padding: '16px', borderRadius: '14px',
+              border: 'none', cursor: status === 'ready' ? 'pointer' : 'default',
+              background: status === 'ready'
+                ? 'linear-gradient(135deg, #22C55E, #16A34A)'
+                : 'rgba(255,255,255,0.08)',
+              color: '#fff', fontSize: '14px', fontWeight: 900,
+              display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
+              opacity: status === 'ready' ? 1 : 0.5,
+            }}
+          >
+            <CheckCircle size={18} /> Finish & Log {reps > 0 ? `· ${reps} reps` : ''}
+          </button>
+        )}
       </div>
     </div>
   )
@@ -561,6 +675,46 @@ function drawPose(canvas, video, kp) {
     if (!p || p.score < KP_THRESHOLD) continue
     ctx.beginPath()
     ctx.arc(p.x, p.y, 4, 0, Math.PI * 2)
+    ctx.fill()
+  }
+}
+
+// Draw a replay frame onto whatever canvas size exists — the live video
+// is gone by this point, so we use a fixed 640×480 virtual space and scale
+// the canvas to match.
+function drawReplayFrame(canvas, kp) {
+  const W = 640, H = 480
+  if (canvas.width !== W) canvas.width = W
+  if (canvas.height !== H) canvas.height = H
+  const ctx = canvas.getContext('2d')
+  ctx.fillStyle = '#0A0A0F'
+  ctx.fillRect(0, 0, W, H)
+  // Grid
+  ctx.strokeStyle = 'rgba(255,255,255,0.04)'
+  ctx.lineWidth = 1
+  for (let i = 0; i < 10; i++) {
+    ctx.beginPath()
+    ctx.moveTo(0, (i * H) / 10)
+    ctx.lineTo(W, (i * H) / 10)
+    ctx.stroke()
+  }
+  // Skeleton
+  ctx.strokeStyle = '#FF6B35'
+  ctx.lineWidth = 3
+  ctx.fillStyle = '#FFD700'
+  for (const [a, b] of SKELETON_EDGES) {
+    const pa = kp[a], pb = kp[b]
+    if (!pa || !pb) continue
+    if (pa.s < KP_THRESHOLD || pb.s < KP_THRESHOLD) continue
+    ctx.beginPath()
+    ctx.moveTo(pa.x, pa.y)
+    ctx.lineTo(pb.x, pb.y)
+    ctx.stroke()
+  }
+  for (const p of kp) {
+    if (!p || p.s < KP_THRESHOLD) continue
+    ctx.beginPath()
+    ctx.arc(p.x, p.y, 5, 0, Math.PI * 2)
     ctx.fill()
   }
 }

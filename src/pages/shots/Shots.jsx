@@ -8,11 +8,11 @@
 // This page is explicitly NOT a logger — logging happens in Gametime. Users
 // come here to see their ongoing story.
 
-import { useMemo, useState, useEffect } from 'react'
+import { useMemo, useState, useEffect, useCallback, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
   BarChart3, Flame, TrendingUp, TrendingDown, Target, Trophy,
-  Lock, Sparkles, Crown, Dumbbell,
+  Lock, Sparkles, Crown, Dumbbell, RefreshCw,
 } from 'lucide-react'
 import PageWrapper from '../../components/layout/PageWrapper'
 import Card from '../../components/ui/Card'
@@ -147,6 +147,46 @@ function aggregate(allGames) {
   return { totals, avg, zones, totalShots, best, worst, trend }
 }
 
+// ─── Signature zone — find the tightest, highest-make cluster of shots. ────
+// Bins shots into a 5×5 court grid, scores each bin by (make% × log(volume))
+// so high-volume + high-accuracy wins over a 2/2 fluke, then reports the
+// centroid + radius of the winning bin's shots for on-court rendering.
+function computeSignatureZone(shots) {
+  const list = shots || []
+  if (list.length < 8) return null
+  const GRID = 5
+  const bins = new Map()
+  for (const s of list) {
+    if (s.x == null || s.y == null) continue
+    const gx = Math.min(GRID - 1, Math.floor((s.x / W) * GRID))
+    const gy = Math.min(GRID - 1, Math.floor((s.y / H) * GRID))
+    const key = `${gx},${gy}`
+    const cur = bins.get(key) || { shots: [], made: 0 }
+    cur.shots.push(s)
+    if (s.made) cur.made += 1
+    bins.set(key, cur)
+  }
+  let best = null
+  for (const [, bucket] of bins) {
+    const att = bucket.shots.length
+    if (att < 3) continue
+    const pct = (bucket.made / att) * 100
+    const score = pct * Math.log2(att + 1)
+    if (!best || score > best.score) {
+      const cx = bucket.shots.reduce((s, p) => s + p.x, 0) / att
+      const cy = bucket.shots.reduce((s, p) => s + p.y, 0) / att
+      const r = Math.max(
+        22,
+        Math.sqrt(
+          bucket.shots.reduce((s, p) => s + ((p.x - cx) ** 2 + (p.y - cy) ** 2), 0) / att
+        )
+      )
+      best = { cx, cy, r, att, made: bucket.made, pct: Math.round(pct), score }
+    }
+  }
+  return best
+}
+
 // ─── Text feedback engine ────────────────────────────────────────────────────
 // Generate plain-english coaching cues based on the aggregates.
 function generateInsights({ avg, totals, best, worst, trend }) {
@@ -202,7 +242,7 @@ function generateInsights({ avg, totals, best, worst, trend }) {
 }
 
 // ─── Heat map court SVG ──────────────────────────────────────────────────────
-function HeatCourt({ shots }) {
+function HeatCourt({ shots, signature }) {
   return (
     <svg viewBox={`0 0 ${W} ${H}`} style={{ width: '100%', display: 'block' }}>
       <defs>
@@ -228,6 +268,45 @@ function HeatCourt({ shots }) {
         <line x1={BASKET_X - 55} y1={H - 28} x2={BASKET_X + 55} y2={H - 28} strokeWidth={4} />
       </g>
       <circle cx={BASKET_X} cy={BASKET_Y} r="14" fill="none" stroke="#FF6B35" strokeWidth="3" />
+      {/* Signature zone — the tightest high-make cluster, drawn beneath the dots */}
+      {signature && (
+        <g>
+          <defs>
+            <radialGradient id="sigGrad" cx="50%" cy="50%" r="50%">
+              <stop offset="0%" stopColor="#FFD700" stopOpacity="0.45" />
+              <stop offset="70%" stopColor="#FFD700" stopOpacity="0.12" />
+              <stop offset="100%" stopColor="#FFD700" stopOpacity="0" />
+            </radialGradient>
+          </defs>
+          <circle
+            cx={signature.cx}
+            cy={signature.cy}
+            r={signature.r + 8}
+            fill="url(#sigGrad)"
+          />
+          <circle
+            cx={signature.cx}
+            cy={signature.cy}
+            r={signature.r}
+            fill="none"
+            stroke="#FFD700"
+            strokeOpacity="0.85"
+            strokeWidth="2.5"
+            strokeDasharray="6 4"
+          />
+          <text
+            x={signature.cx}
+            y={signature.cy - signature.r - 8}
+            textAnchor="middle"
+            fill="#FFD700"
+            fontSize="14"
+            fontWeight="900"
+            style={{ textTransform: 'uppercase', letterSpacing: '1px' }}
+          >
+            Signature {signature.pct}%
+          </text>
+        </g>
+      )}
       {/* Shot dots — green made, red missed, translucent so density reads as heat */}
       {shots.map((s, i) => (
         <circle
@@ -281,6 +360,7 @@ export default function MyIQ() {
 
   const data = useMemo(() => aggregate(allGames || []), [allGames])
   const insights = useMemo(() => generateInsights(data), [data])
+  const signatureZone = useMemo(() => computeSignatureZone(data.totalShots), [data.totalShots])
 
   // Training Load aggregates drill completions into a single coach's-eye view.
   const training = useMemo(() => {
@@ -303,39 +383,47 @@ export default function MyIQ() {
   const [aiInsights, setAiInsights] = useState([])
   const [aiLoading, setAiLoading] = useState(false)
   const [aiSource, setAiSource] = useState(null)
+  const aiReqRef = useRef(0)
 
-  useEffect(() => {
-    let cancelled = false
-    const shotsTotal = data?.totalShots || 0
-    // Only call once we have something to analyze.
-    if (shotsTotal === 0 && training.totalSessions === 0 && (allGames || []).length === 0) return
+  const runAI = useCallback(async () => {
+    const shotsArr = data?.totalShots || []
+    const shotsCount = shotsArr.length
+    const madeCount = shotsArr.filter(s => s.made).length
+    if (shotsCount === 0 && training.totalSessions === 0 && (allGames || []).length === 0) return
+    const myReq = ++aiReqRef.current
     setAiLoading(true)
     const summary = {
       games: {
         count: (allGames || []).length,
-        avgPts: Math.round(data?.avg?.points || 0),
+        avgPts: Math.round(data?.avg?.ppg || 0),
         avgFgPct: Math.round((data?.avg?.fgPct || 0) * 10) / 10,
       },
       shots: {
-        total: shotsTotal,
-        made: data?.totals?.made || 0,
-        pct: data?.totalShots ? Math.round(((data.totals.made || 0) / data.totalShots) * 100) : 0,
+        total: shotsCount,
+        made: madeCount,
+        pct: shotsCount ? Math.round((madeCount / shotsCount) * 100) : 0,
       },
+      signature: signatureZone ? { pct: signatureZone.pct, attempts: signatureZone.att } : null,
       training,
     }
-    fetchInsights({
-      summary,
-      player: { name: profile?.full_name, position: profile?.position, level: profile?.skill_level },
-    }).then(res => {
-      if (cancelled) return
+    try {
+      const res = await fetchInsights({
+        summary,
+        player: { name: profile?.full_name, position: profile?.position, level: profile?.skill_level },
+      })
+      if (myReq !== aiReqRef.current) return // a newer request superseded us
       setAiInsights(res.insights || [])
       setAiSource(res.source || null)
-      setAiLoading(false)
-    }).catch(() => {
-      if (!cancelled) setAiLoading(false)
-    })
-    return () => { cancelled = true }
-  }, [allGames, data, training, profile?.full_name, profile?.position, profile?.skill_level])
+    } catch {
+      /* noop */
+    } finally {
+      if (myReq === aiReqRef.current) setAiLoading(false)
+    }
+  }, [allGames, data, training, signatureZone, profile?.full_name, profile?.position, profile?.skill_level])
+
+  useEffect(() => {
+    runAI()
+  }, [runAI])
 
   if (loading && (!allGames || allGames.length === 0)) {
     return (
@@ -422,7 +510,7 @@ export default function MyIQ() {
         </div>
         {totalShots.length > 0 ? (
           <div style={{ borderRadius: '14px', overflow: 'hidden' }}>
-            <HeatCourt shots={totalShots} />
+            <HeatCourt shots={totalShots} signature={signatureZone} />
           </div>
         ) : (
           <p className="t-caption" style={{ color: 'var(--color-text-sec)', textAlign: 'center', padding: '20px' }}>
@@ -498,18 +586,89 @@ export default function MyIQ() {
       {/* AI Coach insights */}
       {(aiLoading || aiInsights.length > 0) && (
         <Card padding="md" style={{ marginBottom: '12px' }}>
-          <div className="section-label flex items-center gap-2" style={{ marginBottom: '10px' }}>
-            <Sparkles size={14} style={{ color: 'var(--color-accent)' }} />
-            Coach AI
-            {aiSource === 'claude' && (
-              <span style={{ fontSize: '10px', color: 'var(--color-accent)', fontWeight: 700, marginLeft: '4px' }}>
-                · Claude
-              </span>
-            )}
+          <div className="flex items-center justify-between" style={{ marginBottom: '10px' }}>
+            <div className="section-label flex items-center gap-2">
+              <Sparkles size={14} style={{ color: 'var(--color-accent)' }} />
+              Coach AI
+              {aiSource === 'claude' && (
+                <span style={{ fontSize: '10px', color: 'var(--color-accent)', fontWeight: 700, marginLeft: '4px' }}>
+                  · Claude
+                </span>
+              )}
+            </div>
+            <button
+              onClick={runAI}
+              disabled={aiLoading}
+              aria-label="Refresh coach insights"
+              style={{
+                background: 'transparent',
+                border: '1px solid var(--color-border)',
+                color: 'var(--color-text-sec)',
+                borderRadius: '8px',
+                padding: '4px 8px',
+                cursor: aiLoading ? 'default' : 'pointer',
+                opacity: aiLoading ? 0.5 : 1,
+                display: 'flex',
+                alignItems: 'center',
+                gap: '4px',
+                fontFamily: 'inherit',
+                fontSize: '11px',
+                fontWeight: 700,
+              }}
+            >
+              <RefreshCw
+                size={11}
+                style={{
+                  animation: aiLoading ? 'spin 0.8s linear infinite' : 'none',
+                }}
+              />
+              Refresh
+            </button>
           </div>
           {aiLoading && aiInsights.length === 0 ? (
-            <div style={{ padding: '12px 0', color: 'var(--color-text-sec)', fontSize: '13px' }}>
-              Analyzing your game…
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+              {[0, 1, 2].map(i => (
+                <div
+                  key={i}
+                  style={{
+                    padding: '12px 14px',
+                    borderRadius: '12px',
+                    borderLeft: '3px solid rgba(255,255,255,0.08)',
+                    background: 'rgba(255,255,255,0.03)',
+                  }}
+                >
+                  <div
+                    style={{
+                      width: '40%',
+                      height: '12px',
+                      borderRadius: '4px',
+                      background: 'rgba(255,255,255,0.08)',
+                      marginBottom: '8px',
+                      animation: 'pulse 1.4s ease-in-out infinite',
+                    }}
+                  />
+                  <div
+                    style={{
+                      width: '90%',
+                      height: '10px',
+                      borderRadius: '4px',
+                      background: 'rgba(255,255,255,0.06)',
+                      marginBottom: '5px',
+                      animation: 'pulse 1.4s ease-in-out infinite',
+                    }}
+                  />
+                  <div
+                    style={{
+                      width: '70%',
+                      height: '10px',
+                      borderRadius: '4px',
+                      background: 'rgba(255,255,255,0.06)',
+                      animation: 'pulse 1.4s ease-in-out infinite',
+                    }}
+                  />
+                </div>
+              ))}
+              <style>{`@keyframes pulse { 0%, 100% { opacity: 0.5; } 50% { opacity: 1; } }`}</style>
             </div>
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>

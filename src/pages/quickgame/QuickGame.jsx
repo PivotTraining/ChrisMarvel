@@ -38,20 +38,44 @@ function is3Pointer(x, y) {
 
 function CourtSVG({ shots, onCourtTap }) {
   const svgRef = useRef(null)
+  // Pointer-down anchor. If the pointer moves more than DRAG_THRESHOLD px
+  // before release, we treat the gesture as a drag/scroll and ignore it
+  // — that way the court can no longer eat accidental swipes.
+  const downRef = useRef(null)
+  const DRAG_THRESHOLD = 8 // CSS px, matches iOS scroll slop
 
-  function handleTap(e) {
+  function clientXY(e) {
+    const touch = e.changedTouches?.[0] || e.touches?.[0]
+    return {
+      x: touch ? touch.clientX : e.clientX,
+      y: touch ? touch.clientY : e.clientY,
+    }
+  }
+
+  function handlePointerDown(e) {
+    const { x, y } = clientXY(e)
+    downRef.current = { x, y }
+  }
+
+  function handlePointerUp(e) {
+    const down = downRef.current
+    downRef.current = null
+    if (!down) return
+    const { x: upX, y: upY } = clientXY(e)
+    const dx = upX - down.x
+    const dy = upY - down.y
+    if (Math.hypot(dx, dy) > DRAG_THRESHOLD) {
+      // Treat as a drag/scroll — do not log a shot.
+      return
+    }
     e.preventDefault()
     const svg = svgRef.current
     if (!svg) return
     const rect = svg.getBoundingClientRect()
-    // changedTouches is populated at touchEnd; touches is empty at that point
-    const touch = e.changedTouches?.[0] || e.touches?.[0]
-    const clientX = touch ? touch.clientX : e.clientX
-    const clientY = touch ? touch.clientY : e.clientY
     const scaleX = W / rect.width
     const scaleY = H / rect.height
-    const x = (clientX - rect.left) * scaleX
-    const y = (clientY - rect.top) * scaleY
+    const x = (upX - rect.left) * scaleX
+    const y = (upY - rect.top) * scaleY
     onCourtTap(x, y)
   }
 
@@ -59,9 +83,10 @@ function CourtSVG({ shots, onCourtTap }) {
     <svg
       ref={svgRef}
       viewBox={`0 0 ${W} ${H}`}
-      style={{ width: '100%', display: 'block', cursor: 'crosshair', touchAction: 'none', userSelect: 'none' }}
-      onClick={handleTap}
-      onTouchEnd={handleTap}
+      style={{ width: '100%', display: 'block', cursor: 'crosshair', touchAction: 'pan-y', userSelect: 'none' }}
+      onPointerDown={handlePointerDown}
+      onPointerUp={handlePointerUp}
+      onPointerCancel={() => { downRef.current = null }}
     >
       {/* Court background */}
       <defs>

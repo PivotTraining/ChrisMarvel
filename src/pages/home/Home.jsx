@@ -1,8 +1,9 @@
 import { useNavigate } from 'react-router-dom'
-import { Trophy, Target, BookHeart, Flame, TrendingUp, Award, Zap, Plus, ChevronRight, BookOpen, Crown, Timer } from 'lucide-react'
+import { Trophy, Target, BookHeart, Flame, TrendingUp, Award, Zap, Plus, ChevronRight, BookOpen, Crown, Timer, Users } from 'lucide-react'
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, BarChart, Bar } from 'recharts'
 import { useAuth } from '../../context/AuthContext'
 import { usePremium } from '../../context/PremiumContext'
+import { useLinking } from '../../context/LinkingContext'
 import useGames from '../../hooks/useGames'
 import useJournal from '../../hooks/useJournal'
 import useAnalytics from '../../hooks/useAnalytics'
@@ -96,6 +97,7 @@ export default function Home() {
   const navigate = useNavigate()
   const { profile } = useAuth()
   const { isPro } = usePremium()
+  const { myChildren } = useLinking()
   const { games, seasonAverages } = useGames()
   const { entries } = useJournal()
   const { scoringTrend, weeklyActivity } = useAnalytics()
@@ -146,6 +148,67 @@ export default function Home() {
             <ChevronRight className="w-4 h-4" style={{ color: 'var(--color-text-sec)' }} />
           </div>
         </Card>
+      )}
+
+      {/* === Linked Players (parent view) === */}
+      {myChildren && myChildren.length > 0 && (
+        <div className="mt-4">
+          <SectionHeader icon={Users} title="Your Players" />
+          <div
+            style={{
+              display: 'flex',
+              gap: '10px',
+              overflowX: 'auto',
+              paddingBottom: '4px',
+              marginRight: '-16px', // break out of PageWrapper padding for edge bleed
+              paddingRight: '16px',
+            }}
+          >
+            {myChildren.map((childId) => {
+              // childId is opaque; display the short suffix until we fetch profile
+              const label = typeof childId === 'string' ? childId.slice(0, 8) : 'Player'
+              return (
+                <button
+                  key={childId}
+                  onClick={() => navigate('/settings')}
+                  style={{
+                    flex: '0 0 auto',
+                    minWidth: '140px',
+                    padding: '12px 14px',
+                    borderRadius: 'var(--radius-card)',
+                    background: 'var(--color-card)',
+                    border: '1px solid var(--color-border)',
+                    color: 'var(--color-text)',
+                    textAlign: 'left',
+                    cursor: 'pointer',
+                    fontFamily: 'inherit',
+                  }}
+                >
+                  <div
+                    style={{
+                      width: '32px',
+                      height: '32px',
+                      borderRadius: '50%',
+                      background: 'var(--color-accent-tint)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      marginBottom: '8px',
+                    }}
+                  >
+                    <Users size={14} style={{ color: 'var(--color-accent)' }} />
+                  </div>
+                  <div className="t-caption" style={{ fontWeight: 700, color: 'var(--color-text)' }}>
+                    {label}…
+                  </div>
+                  <div className="t-caption" style={{ color: 'var(--color-text-sec)', marginTop: '2px' }}>
+                    Tap to manage
+                  </div>
+                </button>
+              )
+            })}
+          </div>
+        </div>
       )}
 
       {/* === Quick Actions === */}

@@ -11,6 +11,7 @@ import { useAuth } from '../../context/AuthContext'
 import { usePremium } from '../../context/PremiumContext'
 import { useLinking } from '../../context/LinkingContext'
 import { useToast } from '../../context/ToastContext'
+import { requestPermission, syncNotifications } from '../../lib/notifications'
 import useGames from '../../hooks/useGames'
 
 const POSITIONS = ['PG', 'SG', 'SF', 'PF', 'C']
@@ -445,16 +446,31 @@ export default function Settings() {
     }
   }
 
+  const applyPrefs = async (prefs) => {
+    await updateProfile({ notification_preferences: prefs })
+    // Ask for permission on first enable, then (re-)schedule to match.
+    if (prefs.streak_reminder || prefs.weekly_summary) {
+      const perm = await requestPermission()
+      if (!perm.granted && perm.reason !== 'web') {
+        showToast('Enable notifications in Settings app to receive reminders', 'info')
+      }
+    }
+    const res = await syncNotifications(prefs)
+    if (res.ok && res.scheduled > 0) {
+      showToast(`${res.scheduled} reminder${res.scheduled === 1 ? '' : 's'} scheduled`, 'success')
+    }
+  }
+
   const handleToggleStreak = () => {
     const next = !streakReminder
     setStreakReminder(next)
-    updateProfile({ notification_preferences: { streak_reminder: next, weekly_summary: weeklySummary } })
+    applyPrefs({ streak_reminder: next, weekly_summary: weeklySummary })
   }
 
   const handleToggleWeekly = () => {
     const next = !weeklySummary
     setWeeklySummary(next)
-    updateProfile({ notification_preferences: { streak_reminder: streakReminder, weekly_summary: next } })
+    applyPrefs({ streak_reminder: streakReminder, weekly_summary: next })
   }
 
   const handleResetStats = () => {

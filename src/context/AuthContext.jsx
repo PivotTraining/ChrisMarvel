@@ -109,8 +109,29 @@ export function AuthProvider({ children }) {
           setUser(entry.user)
           setSession({ user: entry.user })
           setProfile(entry.profile)
+          setLoading(false)
+          return
         }
       }
+      // No active user — auto-provision a dev account so the login screen
+      // is skipped entirely in BYPASS_AUTH mode. This is strictly a dev
+      // shortcut and runs only when no real user is signed in.
+      const devEmail = 'dev@courtiq.local'
+      let entry = getLocalUserByEmail(devEmail)
+      if (!entry) {
+        const { user: devUser, profile: devProfile } = createLocalUser(devEmail, 'devpass', {
+          full_name: 'Dev Player',
+          position: 'Guard',
+          skill_level: 'Intermediate',
+        })
+        entry = { user: devUser, profile: { ...devProfile, onboarding_completed: true } }
+        // Persist the onboarding-completed flag so we skip the onboarding flow.
+        updateLocalProfile(devEmail, { onboarding_completed: true })
+      }
+      setUser(entry.user)
+      setSession({ user: entry.user })
+      setProfile(entry.profile)
+      setActiveUserId(entry.user.id)
       setLoading(false)
       return
     }

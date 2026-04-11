@@ -140,8 +140,25 @@ export function PremiumProvider({ children }) {
     return limits[feature]
   }, [limits])
 
+  // Check whether a monthly-counted feature has remaining quota. Returns
+  // { ok, used, limit, remaining } — ok is true if Pro or under the limit.
+  // Caller passes an array of items with a date-ish field; we count items
+  // whose date falls in the current calendar month.
+  const checkMonthlyQuota = useCallback((feature, items, dateField = 'session_date') => {
+    const limit = limits[feature]
+    if (limit === Infinity || limit === true) return { ok: true, used: 0, limit: Infinity, remaining: Infinity }
+    const now = new Date()
+    const y = now.getFullYear()
+    const m = now.getMonth()
+    const used = (items || []).filter(i => {
+      const d = new Date(i?.[dateField] || i?.game_date || i?.created_at || 0)
+      return d.getFullYear() === y && d.getMonth() === m
+    }).length
+    return { ok: used < limit, used, limit, remaining: Math.max(0, limit - used) }
+  }, [limits])
+
   return (
-    <PremiumContext.Provider value={{ plan, isPro, currentPlan, limits, upgrade, downgrade, redeemPromoCode, canAccess, getLimit }}>
+    <PremiumContext.Provider value={{ plan, isPro, currentPlan, limits, upgrade, downgrade, redeemPromoCode, canAccess, getLimit, checkMonthlyQuota }}>
       {children}
     </PremiumContext.Provider>
   )

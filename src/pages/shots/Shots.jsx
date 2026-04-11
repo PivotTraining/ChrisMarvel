@@ -8,18 +8,21 @@
 // This page is explicitly NOT a logger — logging happens in Gametime. Users
 // come here to see their ongoing story.
 
-import { useMemo } from 'react'
+import { useMemo, useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
   BarChart3, Flame, TrendingUp, TrendingDown, Target, Trophy,
-  Lock, Sparkles, Crown,
+  Lock, Sparkles, Crown, Dumbbell,
 } from 'lucide-react'
 import PageWrapper from '../../components/layout/PageWrapper'
 import Card from '../../components/ui/Card'
 import Button from '../../components/ui/Button'
 import EmptyState from '../../components/ui/EmptyState'
 import useGames from '../../hooks/useGames'
+import useDrills from '../../hooks/useDrills'
 import { usePremium } from '../../context/PremiumContext'
+import { useAuth } from '../../context/AuthContext'
+import { fetchInsights } from '../../lib/insights'
 
 // ─── Court constants — must match QuickGame.jsx exactly ──────────────────────
 const W = 500, H = 470
@@ -272,10 +275,67 @@ function StatTile({ label, value, color, suffix }) {
 export default function MyIQ() {
   const navigate = useNavigate()
   const { allGames, loading } = useGames()
+  const { drills, categoryStats, recentStreak } = useDrills()
   const { isPro } = usePremium()
+  const { profile } = useAuth()
 
   const data = useMemo(() => aggregate(allGames || []), [allGames])
   const insights = useMemo(() => generateInsights(data), [data])
+
+  // Training Load aggregates drill completions into a single coach's-eye view.
+  const training = useMemo(() => {
+    const list = drills || []
+    const totalSessions = list.length
+    const totalMinutes = list.reduce((s, d) => s + (Number(d.duration_minutes) || 0), 0)
+    // Weekly sessions — last 7 days
+    const weekAgo = Date.now() - 7 * 24 * 60 * 60 * 1000
+    const last7 = list.filter(d => new Date(d.session_date).getTime() >= weekAgo).length
+    // Top category by minutes
+    let topCat = null
+    let topMin = 0
+    Object.entries(categoryStats || {}).forEach(([cat, s]) => {
+      if (s.totalMinutes > topMin) { topMin = s.totalMinutes; topCat = cat }
+    })
+    return { totalSessions, totalMinutes, last7, topCat, topMin, streak: recentStreak || 0 }
+  }, [drills, categoryStats, recentStreak])
+
+  // AI Coach — calls Claude edge function (or local rules in BYPASS_AUTH mode).
+  const [aiInsights, setAiInsights] = useState([])
+  const [aiLoading, setAiLoading] = useState(false)
+  const [aiSource, setAiSource] = useState(null)
+
+  useEffect(() => {
+    let cancelled = false
+    const shotsTotal = data?.totalShots || 0
+    // Only call once we have something to analyze.
+    if (shotsTotal === 0 && training.totalSessions === 0 && (allGames || []).length === 0) return
+    setAiLoading(true)
+    const summary = {
+      games: {
+        count: (allGames || []).length,
+        avgPts: Math.round(data?.avg?.points || 0),
+        avgFgPct: Math.round((data?.avg?.fgPct || 0) * 10) / 10,
+      },
+      shots: {
+        total: shotsTotal,
+        made: data?.totals?.made || 0,
+        pct: data?.totalShots ? Math.round(((data.totals.made || 0) / data.totalShots) * 100) : 0,
+      },
+      training,
+    }
+    fetchInsights({
+      summary,
+      player: { name: profile?.full_name, position: profile?.position, level: profile?.skill_level },
+    }).then(res => {
+      if (cancelled) return
+      setAiInsights(res.insights || [])
+      setAiSource(res.source || null)
+      setAiLoading(false)
+    }).catch(() => {
+      if (!cancelled) setAiLoading(false)
+    })
+    return () => { cancelled = true }
+  }, [allGames, data, training, profile?.full_name, profile?.position, profile?.skill_level])
 
   if (loading && (!allGames || allGames.length === 0)) {
     return (
@@ -287,7 +347,7 @@ export default function MyIQ() {
     )
   }
 
-  if (!allGames || allGames.length === 0) {
+  if ((!allGames || allGames.length === 0) && training.totalSessions === 0) {
     return (
       <PageWrapper>
         <EmptyState
@@ -405,6 +465,82 @@ export default function MyIQ() {
           })}
         </div>
       </Card>
+
+      {/* Training Load — drill aggregation */}
+      {training.totalSessions > 0 && (
+        <Card padding="md" style={{ marginBottom: '12px' }}>
+          <div className="flex items-center justify-between" style={{ marginBottom: '10px' }}>
+            <span className="section-label flex items-center gap-2">
+              <Dumbbell size={14} style={{ color: 'var(--color-accent)' }} /> Training Load
+            </span>
+            {training.streak > 0 && (
+              <span
+                className="flex items-center gap-1"
+                style={{ fontSize: '11px', fontWeight: 800, color: '#F59E0B' }}
+              >
+                <Flame size={12} /> {training.streak}d streak
+              </span>
+            )}
+          </div>
+          <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+            <StatTile label="Sessions" value={training.totalSessions} color="#22C55E" />
+            <StatTile label="Minutes" value={training.totalMinutes} color="#3B82F6" />
+            <StatTile label="Last 7d" value={training.last7} color="#A78BFA" />
+          </div>
+          {training.topCat && (
+            <p className="t-caption" style={{ color: 'var(--color-text-sec)', marginTop: '10px' }}>
+              Most time on <b style={{ color: 'var(--color-text)' }}>{training.topCat}</b> ({training.topMin} min)
+            </p>
+          )}
+        </Card>
+      )}
+
+      {/* AI Coach insights */}
+      {(aiLoading || aiInsights.length > 0) && (
+        <Card padding="md" style={{ marginBottom: '12px' }}>
+          <div className="section-label flex items-center gap-2" style={{ marginBottom: '10px' }}>
+            <Sparkles size={14} style={{ color: 'var(--color-accent)' }} />
+            Coach AI
+            {aiSource === 'claude' && (
+              <span style={{ fontSize: '10px', color: 'var(--color-accent)', fontWeight: 700, marginLeft: '4px' }}>
+                · Claude
+              </span>
+            )}
+          </div>
+          {aiLoading && aiInsights.length === 0 ? (
+            <div style={{ padding: '12px 0', color: 'var(--color-text-sec)', fontSize: '13px' }}>
+              Analyzing your game…
+            </div>
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+              {aiInsights.map((ins, i) => {
+                const tagColor = ins.tag === 'shooting' ? '#F59E0B'
+                  : ins.tag === 'gametime' ? '#3B82F6'
+                  : ins.tag === 'training' ? '#22C55E'
+                  : '#A855F7'
+                return (
+                  <div
+                    key={i}
+                    style={{
+                      padding: '12px 14px',
+                      borderRadius: '12px',
+                      borderLeft: `3px solid ${tagColor}`,
+                      background: `${tagColor}10`,
+                    }}
+                  >
+                    <div style={{ fontSize: '13px', fontWeight: 800, color: tagColor, marginBottom: '3px' }}>
+                      {ins.title}
+                    </div>
+                    <div style={{ fontSize: '13px', color: 'var(--color-text)', lineHeight: 1.45 }}>
+                      {ins.body}
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          )}
+        </Card>
+      )}
 
       {/* Insights */}
       {insights.length > 0 && (

@@ -10,6 +10,8 @@ import SkeletonLoader from '../../components/ui/SkeletonLoader'
 import SwipeableRow from '../../components/ui/SwipeableRow'
 import useGames from '../../hooks/useGames'
 import { useToast } from '../../context/ToastContext'
+import { useHaptics } from '../../hooks/useHaptics'
+import { usePremium } from '../../context/PremiumContext'
 
 const GAME_TYPES = ['League', 'Tournament', 'Pickup', 'Practice', 'Scrimmage']
 const RESULTS = ['Win', 'Loss', 'Draw']
@@ -159,11 +161,12 @@ function NumInput({ label, value, onChange, error, color }) {
 }
 
 function CounterInput({ label, value, onChange, color }) {
+  const { impact } = useHaptics()
   return (
     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: 'var(--space-2) 0' }}>
       <span className="t-body-bold">{label}</span>
       <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)' }}>
-        <button type="button" onClick={() => onChange(Math.max(0, (value || 0) - 1))}
+        <button type="button" onClick={() => { impact('light'); onChange(Math.max(0, (value || 0) - 1)) }}
           style={{
             width: '44px', height: '44px', borderRadius: '50%', border: 'none',
             background: 'var(--color-input-bg)', color: 'var(--color-text-sec)',
@@ -175,7 +178,7 @@ function CounterInput({ label, value, onChange, color }) {
         <span className="t-title2" style={{ color: color || 'var(--color-text)', minWidth: '36px', textAlign: 'center' }}>
           {value || 0}
         </span>
-        <button type="button" onClick={() => onChange((value || 0) + 1)}
+        <button type="button" onClick={() => { impact('light'); onChange((value || 0) + 1) }}
           style={{
             width: '44px', height: '44px', borderRadius: '50%', border: 'none',
             background: `linear-gradient(135deg, ${color}, ${color}CC)`,
@@ -1189,14 +1192,26 @@ function GameResult({ game, seasonAvg, allGames, onDone, onEdit, showToast, onRe
 
 export default function Games() {
   const navigate = useNavigate()
-  const { games, loading, addGame, updateGame, deleteGame, seasonAverages, loadMore, hasMore } = useGames()
+  const { games, allGames, loading, addGame, updateGame, deleteGame, seasonAverages, loadMore, hasMore } = useGames()
   const { showToast } = useToast()
+  const { isPro, checkMonthlyQuota } = usePremium()
   const [view, setView] = useState('list')
   const [editGame, setEditGame] = useState(null)
   const [savedGame, setSavedGame] = useState(null)
   const [saving, setSaving] = useState(false)
 
-  const openForm = (game = null) => { setEditGame(game); setView('form') }
+  const openForm = (game = null) => {
+    // Free tier: cap new-game logs at the monthly limit. Edits always allowed.
+    if (!game && !isPro) {
+      const quota = checkMonthlyQuota('gamesPerMonth', allGames || games, 'game_date')
+      if (!quota.ok) {
+        showToast(`Free plan: ${quota.used}/${quota.limit} games logged this month. Upgrade for unlimited.`, 'error')
+        navigate('/premium')
+        return
+      }
+    }
+    setEditGame(game); setView('form')
+  }
   const openReview = (game) => {
     if (!game) return
     setSavedGame({ ...game })

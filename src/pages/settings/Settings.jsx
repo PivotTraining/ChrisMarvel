@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { LogOut, Save, Crown, ChevronRight, Star, Share2, Trash2, RotateCcw, AlertTriangle } from 'lucide-react'
+import { LogOut, Save, Crown, ChevronRight, Star, Share2, Trash2, RotateCcw, AlertTriangle, Users, Copy, Link2, Unlink } from 'lucide-react'
 import PageWrapper from '../../components/layout/PageWrapper'
 import Button from '../../components/ui/Button'
 import Card from '../../components/ui/Card'
@@ -9,6 +9,7 @@ import Select from '../../components/ui/Select'
 import SeasonShareCard from '../../components/ui/SeasonShareCard'
 import { useAuth } from '../../context/AuthContext'
 import { usePremium } from '../../context/PremiumContext'
+import { useLinking } from '../../context/LinkingContext'
 import { useToast } from '../../context/ToastContext'
 import useGames from '../../hooks/useGames'
 
@@ -184,6 +185,217 @@ function DangerAction({ icon: Icon, title, description, buttonLabel, onAction, c
         </div>
       </div>
     </div>
+  )
+}
+
+function FamilyLinkingCard() {
+  const { showToast } = useToast()
+  const { profile } = useAuth()
+  const { mintCode, redeemCode, unlink, myChildren, myParentId } = useLinking()
+  const [activeCode, setActiveCode] = useState(null)
+  const [expiresAt, setExpiresAt] = useState(null)
+  const [redeemInput, setRedeemInput] = useState('')
+  const [busy, setBusy] = useState(false)
+
+  const handleGenerate = () => {
+    const res = mintCode()
+    if (!res) return showToast('Sign in first', 'error')
+    setActiveCode(res.code)
+    setExpiresAt(res.expiresAt)
+    showToast('Code generated — valid for 30 min', 'success')
+  }
+
+  const handleCopy = async () => {
+    if (!activeCode) return
+    try {
+      await navigator.clipboard.writeText(activeCode)
+      showToast('Copied to clipboard', 'success')
+    } catch {
+      showToast('Copy failed — write it down', 'error')
+    }
+  }
+
+  const handleRedeem = async () => {
+    if (!redeemInput.trim()) return
+    setBusy(true)
+    const res = await redeemCode(redeemInput)
+    setBusy(false)
+    if (res.ok) {
+      showToast(`Linked to ${res.parent.name || res.parent.email || 'parent'}`, 'success')
+      setRedeemInput('')
+    } else {
+      showToast(res.error || 'Failed to link', 'error')
+    }
+  }
+
+  const handleUnlink = async () => {
+    await unlink()
+    setActiveCode(null)
+    setExpiresAt(null)
+    showToast('Unlinked', 'info')
+  }
+
+  const linkedParentName = profile?.linked_parent_name
+  const hasAnyLink = !!myParentId || (myChildren?.length > 0)
+
+  return (
+    <Card className="mb-5">
+      <div className="flex items-center gap-3" style={{ marginBottom: 'var(--space-2)' }}>
+        <div
+          style={{
+            width: '36px', height: '36px', borderRadius: '10px',
+            backgroundColor: 'var(--color-accent-tint)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+          }}
+        >
+          <Users size={18} style={{ color: 'var(--color-accent)' }} />
+        </div>
+        <div>
+          <p className="t-body" style={{ fontWeight: 700, color: 'var(--color-text)' }}>Family Linking</p>
+          <p className="t-caption" style={{ color: 'var(--color-text-sec)' }}>
+            Link a parent and child account with a 6-digit code
+          </p>
+        </div>
+      </div>
+
+      {myParentId && (
+        <div
+          style={{
+            padding: 'var(--space-2)',
+            borderRadius: '10px',
+            backgroundColor: 'var(--color-accent-tint)',
+            border: '1px solid var(--color-accent)',
+            marginBottom: 'var(--space-2)',
+          }}
+        >
+          <div className="flex items-center gap-2">
+            <Link2 size={14} style={{ color: 'var(--color-accent)' }} />
+            <p className="t-caption" style={{ color: 'var(--color-text)', fontWeight: 700 }}>
+              Linked to parent: {linkedParentName || myParentId.slice(0, 8)}
+            </p>
+          </div>
+        </div>
+      )}
+
+      {myChildren?.length > 0 && (
+        <div style={{ marginBottom: 'var(--space-2)' }}>
+          <p className="t-caption" style={{ color: 'var(--color-text-sec)', marginBottom: '6px' }}>
+            Linked children ({myChildren.length})
+          </p>
+          {myChildren.map(cid => (
+            <div
+              key={cid}
+              style={{
+                padding: '8px 12px',
+                borderRadius: '8px',
+                backgroundColor: 'var(--color-card)',
+                border: '1px solid var(--color-border)',
+                marginBottom: '4px',
+              }}
+            >
+              <p className="t-caption" style={{ color: 'var(--color-text)' }}>{cid.slice(0, 12)}…</p>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {!myParentId && (
+        <>
+          <p className="t-caption" style={{ color: 'var(--color-text-sec)', marginTop: 'var(--space-2)', marginBottom: '6px', fontWeight: 700 }}>
+            Generate a code (share with your child)
+          </p>
+          {activeCode ? (
+            <div
+              style={{
+                padding: 'var(--space-2)',
+                borderRadius: '10px',
+                backgroundColor: 'var(--color-bg)',
+                border: '1px dashed var(--color-accent)',
+                textAlign: 'center',
+                marginBottom: 'var(--space-2)',
+              }}
+            >
+              <p
+                className="t-title2"
+                style={{
+                  color: 'var(--color-accent)',
+                  fontFamily: 'monospace',
+                  letterSpacing: '0.3em',
+                  marginBottom: '4px',
+                }}
+              >
+                {activeCode}
+              </p>
+              <p className="t-caption" style={{ color: 'var(--color-text-sec)' }}>
+                Expires {expiresAt ? new Date(expiresAt).toLocaleTimeString() : ''}
+              </p>
+              <button
+                onClick={handleCopy}
+                className="t-caption"
+                style={{
+                  marginTop: '8px',
+                  padding: '6px 14px',
+                  borderRadius: '8px',
+                  border: '1px solid var(--color-accent)',
+                  background: 'transparent',
+                  color: 'var(--color-accent)',
+                  fontWeight: 700,
+                  cursor: 'pointer',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  fontFamily: 'inherit',
+                }}
+              >
+                <Copy size={12} /> Copy code
+              </button>
+            </div>
+          ) : (
+            <Button variant="outline" fullWidth onClick={handleGenerate}>
+              Generate code
+            </Button>
+          )}
+
+          <div style={{ height: '1px', backgroundColor: 'var(--color-border)', margin: 'var(--space-2) 0' }} />
+
+          <p className="t-caption" style={{ color: 'var(--color-text-sec)', marginBottom: '6px', fontWeight: 700 }}>
+            Have a code from a parent?
+          </p>
+          <div className="flex gap-2">
+            <Input
+              value={redeemInput}
+              onChange={e => setRedeemInput(e.target.value.toUpperCase())}
+              placeholder="ABC123"
+              maxLength={6}
+            />
+            <Button onClick={handleRedeem} loading={busy}>Link</Button>
+          </div>
+        </>
+      )}
+
+      {hasAnyLink && (
+        <button
+          onClick={handleUnlink}
+          className="t-caption"
+          style={{
+            marginTop: 'var(--space-2)',
+            padding: '6px 14px',
+            borderRadius: '8px',
+            border: '1px solid rgba(239,68,68,0.3)',
+            background: 'transparent',
+            color: 'var(--color-danger)',
+            fontWeight: 700,
+            cursor: 'pointer',
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '6px',
+            fontFamily: 'inherit',
+          }}
+        >
+          <Unlink size={12} /> Unlink all
+        </button>
+      )}
+    </Card>
   )
 }
 
@@ -375,6 +587,9 @@ export default function Settings() {
           <ChevronRight size={16} style={{ color: 'var(--color-text-sec)' }} />
         </div>
       </Card>
+
+      <SectionTitle>Family</SectionTitle>
+      <FamilyLinkingCard />
 
       <SectionTitle>Account</SectionTitle>
       <Card className="mb-5">

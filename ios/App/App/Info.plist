@@ -47,5 +47,9 @@
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<true/>
+	<key>NSCameraUsageDescription</key>
+	<string>CourtIQ uses the camera to track your pose during drills — counting reps and grading your form.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>CourtIQ does not record audio; this permission is included by WebKit when camera is granted.</string>
 </dict>
 </plist>

@@ -3,17 +3,24 @@
 // "Log Complete" wires into the existing useDrills hook so the streak, totals,
 // and history still work.
 
-import { useState, useMemo } from 'react'
+import { useState, useMemo, lazy, Suspense } from 'react'
 import {
   Target, Flame, ArrowLeft, Clock, CheckCircle, Camera, X, Play,
-  Crosshair, Activity, Shield, Zap, Dumbbell, Video,
+  Crosshair, Activity, Shield, Zap, Dumbbell,
 } from 'lucide-react'
+
+// Lazy-load the pose-tracking camera — TF.js backend is ~3-4 MB and should
+// only be fetched when the user actually opens a drill camera session.
+const DrillCamera = lazy(() => import('../../components/drills/DrillCamera'))
 import PageWrapper from '../../components/layout/PageWrapper'
 import Button from '../../components/ui/Button'
 import Card from '../../components/ui/Card'
 import Badge from '../../components/ui/Badge'
+import { useNavigate } from 'react-router-dom'
 import { useToast } from '../../context/ToastContext'
+import { useHaptics } from '../../hooks/useHaptics'
 import useDrills from '../../hooks/useDrills'
+import { usePremium } from '../../context/PremiumContext'
 
 // ─── Drill library ───────────────────────────────────────────────────────────
 // Each drill: id, name, category, difficulty (1-5), duration (minutes),
@@ -23,6 +30,7 @@ const DRILL_LIBRARY = [
     id: 'form-shooting',
     name: 'Form Shooting',
     category: 'Shooting',
+    cameraMode: 'shooting-form',
     icon: Crosshair,
     difficulty: 1,
     duration: 10,
@@ -40,6 +48,7 @@ const DRILL_LIBRARY = [
     id: 'mikan',
     name: 'Mikan Drill',
     category: 'Shooting',
+    cameraMode: 'mikan',
     icon: Target,
     difficulty: 2,
     duration: 5,
@@ -91,6 +100,7 @@ const DRILL_LIBRARY = [
     id: 'pound-dribble',
     name: 'Pound Dribbles',
     category: 'Ball Handling',
+    cameraMode: 'pound',
     icon: Activity,
     difficulty: 1,
     duration: 5,
@@ -178,6 +188,7 @@ const DRILL_LIBRARY = [
     id: 'line-jumps',
     name: 'Line Jumps',
     category: 'Agility',
+    cameraMode: 'conditioning',
     icon: Zap,
     difficulty: 2,
     duration: 4,
@@ -494,85 +505,13 @@ function DrillDetail({ drill, onClose, onLog, onCamera }) {
   )
 }
 
-// Camera mode placeholder — real TF.js MoveNet integration coming in PR-3.
-function CameraPlaceholder({ drill, onClose }) {
-  if (!drill) return null
-  return (
-    <div
-      onClick={onClose}
-      style={{
-        position: 'fixed', inset: 0, zIndex: 70,
-        display: 'flex', alignItems: 'center', justifyContent: 'center',
-        background: 'rgba(0,0,0,0.82)', backdropFilter: 'blur(10px)', padding: '24px',
-      }}
-    >
-      <div
-        onClick={(e) => e.stopPropagation()}
-        style={{
-          width: '100%', maxWidth: '420px',
-          padding: '32px 24px',
-          background: 'linear-gradient(180deg, #0B1A33 0%, #050C1C 100%)',
-          border: '1px solid rgba(59,130,246,0.4)',
-          borderRadius: '20px',
-          textAlign: 'center',
-        }}
-      >
-        <div
-          style={{
-            width: '64px', height: '64px', borderRadius: '50%',
-            background: 'linear-gradient(135deg, #3B82F6, #1E40AF)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            margin: '0 auto 16px',
-            boxShadow: '0 8px 24px rgba(59,130,246,0.4)',
-          }}
-        >
-          <Video size={30} style={{ color: '#fff' }} />
-        </div>
-        <h3 style={{ fontSize: '18px', fontWeight: 900, color: '#fff', marginBottom: '6px' }}>
-          Camera Mode — {drill.name}
-        </h3>
-        <p style={{ fontSize: '13px', lineHeight: 1.55, color: 'rgba(255,255,255,0.7)', marginBottom: '20px' }}>
-          Point your phone at the court and CourtIQ will track your movement to count reps and grade form — no QR ball needed.
-        </p>
-        <div
-          style={{
-            padding: '10px 14px', borderRadius: '10px',
-            background: 'rgba(251, 191, 36, 0.12)',
-            border: '1px solid rgba(251, 191, 36, 0.3)',
-            color: '#FBBF24',
-            fontSize: '12px',
-            fontWeight: 700,
-            marginBottom: '18px',
-          }}
-        >
-          Rolling out in the next update — pose-tracking engine installing.
-        </div>
-        <button
-          onClick={onClose}
-          style={{
-            width: '100%',
-            padding: '14px',
-            borderRadius: '12px',
-            border: 'none',
-            background: 'rgba(255,255,255,0.1)',
-            color: '#fff',
-            cursor: 'pointer',
-            fontSize: '14px',
-            fontWeight: 800,
-            fontFamily: 'inherit',
-          }}
-        >
-          Got it
-        </button>
-      </div>
-    </div>
-  )
-}
-
 // ─── Main page ───────────────────────────────────────────────────────────────
 export default function Drills() {
-  const { addDrill, recentStreak } = useDrills()
+  const { drills, addDrill, recentStreak } = useDrills()
   const { showToast } = useToast()
+  const { impact, notification } = useHaptics()
+  const { isPro, checkMonthlyQuota } = usePremium()
+  const navigate = useNavigate()
   const [filter, setFilter] = useState('All')
   const [active, setActive] = useState(null)
   const [cameraDrill, setCameraDrill] = useState(null)
@@ -583,6 +522,16 @@ export default function Drills() {
   }, [filter])
 
   const handleLog = async (drill) => {
+    // Free tier: cap drill logs at the monthly limit.
+    if (!isPro) {
+      const quota = checkMonthlyQuota('drillsPerMonth', drills, 'session_date')
+      if (!quota.ok) {
+        notification('warning')
+        showToast(`Free plan: ${quota.used}/${quota.limit} drills this month. Upgrade for unlimited.`, 'error')
+        navigate('/premium')
+        return
+      }
+    }
     const res = await addDrill({
       session_date: new Date().toISOString().split('T')[0],
       drill_name: drill.name,
@@ -593,9 +542,11 @@ export default function Drills() {
       is_custom_drill: false,
     })
     if (res) {
+      notification('success')
       showToast(`${drill.name} logged — ${drill.duration} min`, 'success')
       setActive(null)
     } else {
+      notification('error')
       showToast('Failed to log drill', 'error')
     }
   }
@@ -633,7 +584,7 @@ export default function Drills() {
           return (
             <button
               key={cat}
-              onClick={() => setFilter(cat)}
+              onClick={() => { impact('light'); setFilter(cat) }}
               style={{
                 flexShrink: 0,
                 padding: '8px 14px',
@@ -658,7 +609,7 @@ export default function Drills() {
       {/* Drill grid */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
         {filtered.map((drill) => (
-          <DrillCard key={drill.id} drill={drill} onOpen={setActive} />
+          <DrillCard key={drill.id} drill={drill} onOpen={(d) => { impact('light'); setActive(d) }} />
         ))}
       </div>
 
@@ -672,8 +623,34 @@ export default function Drills() {
         onCamera={(d) => { setActive(null); setCameraDrill(d) }}
       />
 
-      {/* Camera placeholder modal */}
-      <CameraPlaceholder drill={cameraDrill} onClose={() => setCameraDrill(null)} />
+      {/* Pose-tracking camera — real TF.js MoveNet */}
+      {cameraDrill && (
+        <Suspense fallback={null}>
+          <DrillCamera
+            drill={cameraDrill}
+            onClose={() => setCameraDrill(null)}
+            onComplete={async ({ reps, quality, feedback }) => {
+              // Log the drill with camera metadata
+              const noteBits = [cameraDrill.focus]
+              if (reps > 0) noteBits.push(`${reps} tracked reps`)
+              if (quality !== null && quality !== undefined) noteBits.push(`form ${quality}%`)
+              if (feedback) noteBits.push(feedback)
+              await addDrill({
+                session_date: new Date().toISOString().split('T')[0],
+                drill_name: cameraDrill.name,
+                category: cameraDrill.category,
+                duration_minutes: cameraDrill.duration,
+                reps: reps || null,
+                rating: quality != null ? Math.round(quality / 20) : null,
+                notes: noteBits.join(' · '),
+                is_custom_drill: false,
+              })
+              showToast(`${cameraDrill.name} logged · ${reps} reps`, 'success')
+              setCameraDrill(null)
+            }}
+          />
+        </Suspense>
+      )}
     </PageWrapper>
   )
 }

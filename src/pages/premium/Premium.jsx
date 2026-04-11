@@ -9,9 +9,16 @@ import Card from '../../components/ui/Card'
 import { useToast } from '../../context/ToastContext'
 
 const STRIPE_PAYMENT_LINK = 'https://buy.stripe.com/9B6cN56JT5bq5nh577a3u0r'
-const stripePromise = import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY
-  ? loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY)
-  : null
+const STRIPE_PK = import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY
+const stripePromise = STRIPE_PK ? loadStripe(STRIPE_PK) : null
+
+if (!STRIPE_PK && import.meta.env.DEV) {
+  // eslint-disable-next-line no-console
+  console.warn(
+    '[CourtIQ] VITE_STRIPE_PUBLISHABLE_KEY is not set — embedded Stripe Checkout is disabled. ' +
+    'Upgrades will fall back to the hosted Payment Link. Set the env var in .env.local (and in Vercel) to enable inline checkout.'
+  )
+}
 
 const PRO_FEATURES = [
   { icon: Flame, title: 'Quick Game', desc: 'Tap stats live from the sideline — real-time play-by-play', color: 'var(--color-accent)' },

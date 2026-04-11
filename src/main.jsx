@@ -20,6 +20,18 @@ async function initNative() {
 
 initNative()
 
+// Auto-reload when a new service worker takes control, so users on an
+// already-open tab pick up fresh builds without a manual hard-refresh.
+// Paired with workbox skipWaiting + clientsClaim in vite.config.js.
+if ('serviceWorker' in navigator && !window.Capacitor?.isNativePlatform?.()) {
+  let refreshing = false
+  navigator.serviceWorker.addEventListener('controllerchange', () => {
+    if (refreshing) return
+    refreshing = true
+    window.location.reload()
+  })
+}
+
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <BrowserRouter>

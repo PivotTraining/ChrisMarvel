@@ -215,6 +215,16 @@ export function AuthProvider({ children }) {
     return data
   }
 
+  async function signInWithGoogle() {
+    if (BYPASS_AUTH) throw new Error('Google sign-in is not available in demo mode.')
+    const { data, error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: { redirectTo: `${window.location.origin}/` },
+    })
+    if (error) throw error
+    return data
+  }
+
   async function signIn(email, password) {
     if (BYPASS_AUTH) {
       const { user: loggedIn, profile: loggedInProfile } = loginLocalUser(email, password)
@@ -291,6 +301,7 @@ export function AuthProvider({ children }) {
     profile,
     signUp,
     signIn,
+    signInWithGoogle,
     signOut,
     updateProfile,
     deleteAccount,

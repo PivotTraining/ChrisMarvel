@@ -225,6 +225,16 @@ export function AuthProvider({ children }) {
     return data
   }
 
+  async function signInWithApple() {
+    if (BYPASS_AUTH) throw new Error('Apple sign-in is not available in demo mode.')
+    const { data, error } = await supabase.auth.signInWithOAuth({
+      provider: 'apple',
+      options: { redirectTo: `${window.location.origin}/` },
+    })
+    if (error) throw error
+    return data
+  }
+
   async function signIn(email, password) {
     if (BYPASS_AUTH) {
       const { user: loggedIn, profile: loggedInProfile } = loginLocalUser(email, password)
@@ -302,6 +312,7 @@ export function AuthProvider({ children }) {
     signUp,
     signIn,
     signInWithGoogle,
+    signInWithApple,
     signOut,
     updateProfile,
     deleteAccount,

@@ -28,7 +28,6 @@
     "preferredContentMode": "mobile",
     "backgroundColor": "#0F1117",
     "scrollEnabled": true,
-    "limitsNavigationsToAppBoundDomains": true,
     "allowsLinkPreview": false
   }
 }

@@ -20,12 +20,18 @@ async function initNative() {
 
 initNative()
 
-// Auto-reload when a new service worker takes control, so users on an
-// already-open tab pick up fresh builds without a manual hard-refresh.
-// Paired with workbox skipWaiting + clientsClaim in vite.config.js.
-if ('serviceWorker' in navigator && !window.Capacitor?.isNativePlatform?.()) {
+// Register PWA service worker on web only — skip on native iOS/Android
+// where it interferes with Capacitor's WKWebView asset handler.
+if (!window.Capacitor?.isNativePlatform?.()) {
+  import('virtual:pwa-register').then(({ registerSW }) => {
+    registerSW({ immediate: true })
+  }).catch(() => {})
+
+  // Auto-reload when a new service worker takes control, so users on an
+  // already-open tab pick up fresh builds without a manual hard-refresh.
+  // Paired with workbox skipWaiting + clientsClaim in vite.config.js.
   let refreshing = false
-  navigator.serviceWorker.addEventListener('controllerchange', () => {
+  navigator.serviceWorker?.addEventListener('controllerchange', () => {
     if (refreshing) return
     refreshing = true
     window.location.reload()

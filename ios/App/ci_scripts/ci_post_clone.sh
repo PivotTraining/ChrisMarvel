@@ -22,12 +22,20 @@ cd "$CI_PRIMARY_REPOSITORY_PATH"
 echo "Installing npm dependencies..."
 npm ci --prefer-offline || npm install
 
-# Write Supabase env vars from Xcode Cloud environment variables
-# Set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY in App Store Connect → Xcode Cloud → Environment
+# Write env vars — use Xcode Cloud env vars if set, otherwise fall back to
+# the production values so the build always has real Supabase credentials.
+# The anon key is intentionally public (it is safe to commit).
+RESOLVED_SUPABASE_URL="${VITE_SUPABASE_URL:-https://tkjvkvrzlvbukxbsilvw.supabase.co}"
+RESOLVED_SUPABASE_ANON_KEY="${VITE_SUPABASE_ANON_KEY:-sb_publishable_T0o4gWpul7FVGSLx657ieA_XqymEUCF}"
+
 cat > .env.local <<EOF
-VITE_SUPABASE_URL=${VITE_SUPABASE_URL}
-VITE_SUPABASE_ANON_KEY=${VITE_SUPABASE_ANON_KEY}
+VITE_SUPABASE_URL=${RESOLVED_SUPABASE_URL}
+VITE_SUPABASE_ANON_KEY=${RESOLVED_SUPABASE_ANON_KEY}
+VITE_BYPASS_AUTH=false
 EOF
+
+echo "Supabase URL: ${RESOLVED_SUPABASE_URL}"
+echo "Bypass auth: false"
 
 # Build the web app
 echo "Building web app..."

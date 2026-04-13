@@ -150,8 +150,28 @@ export function AuthProvider({ children }) {
         if (newSession?.user) await fetchProfile(newSession.user.id)
         else setProfile(null)
         setLoading(false)
+
+        // Close the in-app browser once OAuth completes on native
+        if (_event === 'SIGNED_IN' && typeof window !== 'undefined' && window.Capacitor?.isNativePlatform?.()) {
+          try { const { Browser } = await import('@capacitor/browser'); await Browser.close() } catch { /* noop */ }
+        }
       }
     )
+
+    // Handle the deep-link callback from OAuth on native iOS.
+    // When the browser redirects to com.courtiq.app://login-callback?code=...
+    // Capacitor fires appUrlOpen; we exchange the code for a session.
+    if (typeof window !== 'undefined' && window.Capacitor?.isNativePlatform?.()) {
+      import('@capacitor/app').then(({ App }) => {
+        App.addListener('appUrlOpen', async ({ url }) => {
+          if (url.includes('login-callback') || url.includes('access_token') || url.includes('code=')) {
+            const { error: exchErr } = await supabase.auth.exchangeCodeForSession(url)
+            if (exchErr) console.error('[Auth] exchangeCodeForSession:', exchErr.message)
+            try { const { Browser } = await import('@capacitor/browser'); await Browser.close() } catch { /* noop */ }
+          }
+        })
+      }).catch(() => {})
+    }
 
     return () => subscription.unsubscribe()
   }, [])
@@ -215,23 +235,48 @@ export function AuthProvider({ children }) {
     return data
   }
 
+  function isNative() {
+    return typeof window !== 'undefined' && !!window.Capacitor?.isNativePlatform?.()
+  }
+
+  async function oauthRedirectTo() {
+    // On native iOS use the registered URL scheme so the OS routes the
+    // callback back to this app. On web use the current origin.
+    return isNative() ? 'com.courtiq.app://login-callback' : `${window.location.origin}/`
+  }
+
+  async function openOAuth(url) {
+    if (isNative()) {
+      try {
+        const { Browser } = await import('@capacitor/browser')
+        await Browser.open({ url, windowName: '_self' })
+        return
+      } catch { /* fall through to window.location */ }
+    }
+    window.location.href = url
+  }
+
   async function signInWithGoogle() {
     if (BYPASS_AUTH) throw new Error('Google sign-in is not available in demo mode.')
+    const redirectTo = await oauthRedirectTo()
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
-      options: { redirectTo: `${window.location.origin}/` },
+      options: { redirectTo, skipBrowserRedirect: isNative() },
     })
     if (error) throw error
+    if (isNative() && data?.url) await openOAuth(data.url)
     return data
   }
 
   async function signInWithApple() {
     if (BYPASS_AUTH) throw new Error('Apple sign-in is not available in demo mode.')
+    const redirectTo = await oauthRedirectTo()
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider: 'apple',
-      options: { redirectTo: `${window.location.origin}/` },
+      options: { redirectTo, skipBrowserRedirect: isNative() },
     })
     if (error) throw error
+    if (isNative() && data?.url) await openOAuth(data.url)
     return data
   }
 

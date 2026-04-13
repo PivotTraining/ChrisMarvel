@@ -7,10 +7,17 @@ set -e
 
 echo "=== CourtIQ Xcode Cloud pre-build ==="
 
+# Prevent Homebrew auto-update — it produces no stdout for 10+ minutes
+# which triggers Xcode Cloud's 15-minute inactivity timeout.
+export HOMEBREW_NO_AUTO_UPDATE=1
+export HOMEBREW_NO_INSTALL_CLEANUP=1
+export HOMEBREW_NO_ENV_HINTS=1
+
 # Install Node via Homebrew if not present
 if ! command -v node &> /dev/null; then
-  echo "Installing Node.js..."
+  echo "Installing Node.js via Homebrew (auto-update disabled)..."
   brew install node
+  echo "Node installed successfully."
 fi
 
 echo "Node: $(node -v)  npm: $(npm -v)"
@@ -18,9 +25,10 @@ echo "Node: $(node -v)  npm: $(npm -v)"
 # Move to the project root (two levels up from ios/App/ci_scripts)
 cd "$CI_PRIMARY_REPOSITORY_PATH"
 
-# Install dependencies
+# Install dependencies (use --loglevel verbose so Xcode Cloud sees stdout
+# activity and doesn't hit the 15-minute inactivity timeout).
 echo "Installing npm dependencies..."
-npm ci --prefer-offline || npm install
+npm ci --prefer-offline --loglevel verbose 2>&1 || npm install --loglevel verbose 2>&1
 
 # Write env vars — use Xcode Cloud env vars if set, otherwise fall back to
 # the production values so the build always has real Supabase credentials.
@@ -39,10 +47,12 @@ echo "Bypass auth: false"
 
 # Build the web app
 echo "Building web app..."
-npm run build
+npm run build 2>&1
+echo "Web build complete."
 
 # Sync into iOS
 echo "Syncing to iOS..."
-npx cap sync ios
+npx cap sync ios 2>&1
+echo "iOS sync complete."
 
 echo "=== Pre-build complete ==="

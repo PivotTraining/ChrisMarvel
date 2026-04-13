@@ -30,3 +30,5 @@ supabase/.temp/
 ios/App/Pods/
 ios/.DS_Store
 android/
+.vercel
+.env*.local

@@ -26,7 +26,7 @@ npm ci --prefer-offline || npm install
 # the production values so the build always has real Supabase credentials.
 # The anon key is intentionally public (it is safe to commit).
 RESOLVED_SUPABASE_URL="${VITE_SUPABASE_URL:-https://tkjvkvrzlvbukxbsilvw.supabase.co}"
-RESOLVED_SUPABASE_ANON_KEY="${VITE_SUPABASE_ANON_KEY:-sb_publishable_T0o4gWpul7FVGSLx657ieA_XqymEUCF}"
+RESOLVED_SUPABASE_ANON_KEY="${VITE_SUPABASE_ANON_KEY:-eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRranZrdnJ6bHZidWt4YnNpbHZ3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU5MjIyMzQsImV4cCI6MjA5MTQ5ODIzNH0.ebLBIuzir8oVH_tLKqW7VV_RTQEbwT1LpfMe6vsc4VQ}"
 
 cat > .env.local <<EOF
 VITE_SUPABASE_URL=${RESOLVED_SUPABASE_URL}

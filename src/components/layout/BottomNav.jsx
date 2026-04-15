@@ -1,11 +1,13 @@
 import { NavLink } from 'react-router-dom'
-import { Home, Target, Zap, Trophy, BarChart3 } from 'lucide-react'
+import { Home, Target, Zap, BarChart3 } from 'lucide-react'
 
+// Four primary tabs. Game Log was removed because all game stats now flow
+// directly into My IQ — having a separate log made the UI feel duplicative
+// and was confusing users about where their data actually lived.
 const tabs = [
   { to: '/', icon: Home, label: 'Home' },
   { to: '/gametime', icon: Zap, label: 'Gametime' },
   { to: '/drills', icon: Target, label: 'Drills' },
-  { to: '/games', icon: Trophy, label: 'Game Log' },
   { to: '/shots', icon: BarChart3, label: 'My IQ' },
 ]
 

@@ -1,5 +1,6 @@
-import { useState, useCallback } from 'react'
-import { Share2, Check } from 'lucide-react'
+import { useState, useCallback, useRef } from 'react'
+import { Share2, Check, Download } from 'lucide-react'
+import { toPng } from 'html-to-image'
 
 /*
  * GameShareCard — a branded, screenshot-ready card showing the box score of
@@ -21,6 +22,8 @@ function pct(made, attempted) {
 
 export default function GameShareCard({ player, game, onClose }) {
   const [copied, setCopied] = useState(false)
+  const [sharing, setSharing] = useState(false)
+  const cardRef = useRef(null)
 
   const playerName = player?.full_name || 'Player'
   const position = player?.position || ''
@@ -68,31 +71,70 @@ FG: ${fgm}/${fga} (${fgPct}%) · 3PT: ${tpm}/${tpa} · FT: ${ftm}/${fta}
 Tracked with CourtIQ 🏀
 #CourtIQ #HoopStats`
 
+  // Render the card node to a PNG blob so we can share it as a real image
+  // (Instagram stories, iMessage, Twitter, etc.) instead of just a block of
+  // text. toPng walks the DOM and inlines computed styles — it handles our
+  // gradients, box-shadows and SVG content correctly.
+  const captureCardAsBlob = useCallback(async () => {
+    if (!cardRef.current) return null
+    const dataUrl = await toPng(cardRef.current, {
+      cacheBust: true,
+      pixelRatio: 3, // retina quality for social feeds
+      backgroundColor: '#0F1117',
+    })
+    const res = await fetch(dataUrl)
+    return await res.blob()
+  }, [])
+
   const handleShare = useCallback(async () => {
-    if (navigator.share) {
-      try {
-        await navigator.share({
-          title: `${playerName} vs ${opponent}`,
-          text: shareText,
-        })
-        return
-      } catch { /* user cancelled */ }
-    }
+    setSharing(true)
     try {
-      await navigator.clipboard.writeText(shareText)
+      const blob = await captureCardAsBlob()
+      if (!blob) throw new Error('capture failed')
+
+      const file = new File([blob], `courtiq-${opponent.replace(/\s+/g, '-')}-${pts}pts.png`, { type: 'image/png' })
+
+      // Prefer Web Share API with files (iOS Safari, Android Chrome).
+      // This opens the native share sheet and lets the user post the
+      // image directly to Instagram, Messages, etc.
+      if (navigator.canShare && navigator.canShare({ files: [file] })) {
+        try {
+          await navigator.share({
+            files: [file],
+            title: `${playerName} vs ${opponent}`,
+            text: shareText,
+          })
+          setSharing(false)
+          return
+        } catch {
+          /* user cancelled — fall through to download */
+        }
+      }
+
+      // Fallback: trigger a download so the user can save the PNG and
+      // post it manually. Works on desktop browsers that don't support
+      // file sharing.
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = file.name
+      document.body.appendChild(a)
+      a.click()
+      document.body.removeChild(a)
+      URL.revokeObjectURL(url)
       setCopied(true)
       setTimeout(() => setCopied(false), 2000)
     } catch {
-      const ta = document.createElement('textarea')
-      ta.value = shareText
-      document.body.appendChild(ta)
-      ta.select()
-      document.execCommand('copy')
-      document.body.removeChild(ta)
-      setCopied(true)
-      setTimeout(() => setCopied(false), 2000)
+      // Final fallback: copy the text to clipboard
+      try {
+        await navigator.clipboard.writeText(shareText)
+        setCopied(true)
+        setTimeout(() => setCopied(false), 2000)
+      } catch { /* noop */ }
+    } finally {
+      setSharing(false)
     }
-  }, [shareText, playerName, opponent])
+  }, [captureCardAsBlob, shareText, playerName, opponent, pts])
 
   return (
     <div
@@ -111,7 +153,8 @@ Tracked with CourtIQ 🏀
         overflowY: 'auto',
       }}
     >
-      {/* The Card */}
+      {/* The Card — cardRef is used by toPng() to capture this node as a
+          PNG blob for real image sharing. */}
       <div
         onClick={(e) => e.stopPropagation()}
         style={{
@@ -122,6 +165,7 @@ Tracked with CourtIQ 🏀
         }}
       >
         <div
+          ref={cardRef}
           style={{
             background: 'linear-gradient(160deg, #0F1117 0%, #1A1D2E 40%, #0F1117 100%)',
             padding: '28px 24px 24px',
@@ -275,6 +319,7 @@ Tracked with CourtIQ 🏀
       >
         <button
           onClick={handleShare}
+          disabled={sharing}
           style={{
             padding: '14px 28px',
             borderRadius: '16px',
@@ -283,16 +328,31 @@ Tracked with CourtIQ 🏀
             color: copied ? '#22C55E' : '#fff',
             fontSize: '15px',
             fontWeight: 800,
-            cursor: 'pointer',
+            cursor: sharing ? 'wait' : 'pointer',
             fontFamily: 'inherit',
             display: 'flex',
             alignItems: 'center',
             gap: '8px',
             boxShadow: copied ? 'none' : '0 4px 16px rgba(255,107,53,0.35)',
+            opacity: sharing ? 0.7 : 1,
           }}
         >
-          {copied ? <Check size={18} /> : <Share2 size={18} />}
-          {copied ? 'Copied!' : 'Share Game'}
+          {sharing ? (
+            <>
+              <Download size={18} />
+              Rendering…
+            </>
+          ) : copied ? (
+            <>
+              <Check size={18} />
+              Saved!
+            </>
+          ) : (
+            <>
+              <Share2 size={18} />
+              Share Image
+            </>
+          )}
         </button>
 
         <button
@@ -315,7 +375,7 @@ Tracked with CourtIQ 🏀
       </div>
 
       <p style={{ fontSize: '11px', color: 'rgba(255,255,255,0.3)', marginTop: '12px', textAlign: 'center' }}>
-        Screenshot the card to post on socials
+        Tap Share Image to post a real screenshot to socials
       </p>
     </div>
   )

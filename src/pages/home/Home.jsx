@@ -212,12 +212,16 @@ export default function Home() {
       )}
 
       {/* === Quick Actions === */}
+      {/* Four actions matching the four bottom-nav tabs. "Game Log" was
+          removed because all saved games now flow into My IQ, and the
+          duplicate entry point was confusing users about where their data
+          actually lived. Journal takes its slot as a real feature. */}
       <SectionHeader icon={Zap} title="Quick Actions" />
       <div className="grid grid-cols-2 gap-2.5">
         <QuickAction icon={Timer} label="Gametime" onClick={() => navigate('/gametime')} />
-        <QuickAction icon={Trophy} label="Game Log" onClick={() => navigate('/games')} />
-        <QuickAction icon={Target} label="Drills" onClick={() => navigate('/drills')} />
         <QuickAction icon={BookHeart} label="My IQ" onClick={() => navigate('/shots')} />
+        <QuickAction icon={Target} label="Drills" onClick={() => navigate('/drills')} />
+        <QuickAction icon={BookOpen} label="Journal" onClick={() => navigate('/journal')} />
       </div>
 
       {/* === Pro Upsell === */}
@@ -254,8 +258,8 @@ export default function Home() {
             icon={TrendingUp}
             title="Season Averages"
             extra={`${seasonAverages.gamesPlayed} game${seasonAverages.gamesPlayed !== 1 ? 's' : ''}`}
-            actionLabel="View All"
-            onAction={() => navigate('/games')}
+            actionLabel="My IQ"
+            onAction={() => navigate('/shots')}
           />
           <Card padding="md">
             <div className="grid grid-cols-3 gap-3">
@@ -273,8 +277,8 @@ export default function Home() {
       {/* === Recent Game === */}
       {lastGame && (
         <>
-          <SectionHeader icon={Trophy} title="Recent Game" actionLabel="All Games" onAction={() => navigate('/games')} />
-          <Card padding="md" hover onClick={() => navigate('/games')}>
+          <SectionHeader icon={Trophy} title="Recent Game" actionLabel="My IQ" onAction={() => navigate('/shots')} />
+          <Card padding="md" hover onClick={() => navigate('/shots')}>
             <div className="flex items-center justify-between mb-2">
               <p className="t-body" style={{ color: 'var(--color-text)', fontWeight: 600 }}>
                 {lastGame.opponent ? `vs ${lastGame.opponent}` : lastGame.game_type || 'Game'}
@@ -315,7 +319,7 @@ export default function Home() {
       {/* === Scoring Trend === */}
       {scoringTrend.length > 1 && (
         <>
-          <SectionHeader icon={TrendingUp} title="Scoring Trend" actionLabel="Details" onAction={() => navigate('/games')} />
+          <SectionHeader icon={TrendingUp} title="Scoring Trend" actionLabel="Details" onAction={() => navigate('/shots')} />
           <Card padding="md">
             <ResponsiveContainer width="100%" height={150}>
               <LineChart data={scoringTrend}>

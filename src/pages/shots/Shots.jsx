@@ -498,6 +498,125 @@ export default function MyIQ() {
         </div>
       </Card>
 
+      {/* Recent games — lives here now that Game Log was removed from the
+          bottom nav. Shows the 5 most recent saved games so users can still
+          scan individual box scores without leaving My IQ. */}
+      {(allGames || []).length > 0 && (
+        <Card padding="md" style={{ marginBottom: '12px' }}>
+          <div className="flex items-center justify-between" style={{ marginBottom: '10px' }}>
+            <span className="section-label flex items-center gap-2">
+              <Trophy size={14} style={{ color: 'var(--color-accent)' }} />
+              Recent Games
+            </span>
+            {(allGames || []).length > 5 && (
+              <button
+                onClick={() => navigate('/games')}
+                style={{
+                  background: 'transparent',
+                  border: 'none',
+                  color: 'var(--color-accent)',
+                  fontSize: '11px',
+                  fontWeight: 800,
+                  cursor: 'pointer',
+                  fontFamily: 'inherit',
+                  letterSpacing: '0.3px',
+                }}
+              >
+                View all →
+              </button>
+            )}
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+            {(allGames || []).slice(0, 5).map((g, i) => {
+              const d = g.game_date ? new Date(g.game_date) : null
+              const dateLabel = d
+                ? d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+                : '—'
+              const isWin = g.result === 'Win'
+              const resultColor = isWin ? '#22C55E' : g.result === 'Loss' ? '#EF4444' : 'rgba(255,255,255,0.3)'
+              return (
+                <div
+                  key={g.id || i}
+                  onClick={() => navigate('/games')}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '12px',
+                    padding: '12px 14px',
+                    borderRadius: '12px',
+                    background: 'rgba(255,255,255,0.03)',
+                    border: '1px solid rgba(255,255,255,0.06)',
+                    cursor: 'pointer',
+                  }}
+                >
+                  <div
+                    style={{
+                      width: '36px',
+                      height: '36px',
+                      borderRadius: '10px',
+                      background: `${resultColor}18`,
+                      border: `1px solid ${resultColor}40`,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      fontSize: '13px',
+                      fontWeight: 900,
+                      color: resultColor,
+                      flexShrink: 0,
+                    }}
+                  >
+                    {g.result ? g.result.charAt(0) : '—'}
+                  </div>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div
+                      style={{
+                        fontSize: '13px',
+                        fontWeight: 800,
+                        color: 'var(--color-text)',
+                        whiteSpace: 'nowrap',
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                      }}
+                    >
+                      vs {g.opponent || 'Opponent'}
+                    </div>
+                    <div style={{ fontSize: '11px', color: 'var(--color-text-sec)', marginTop: '1px' }}>
+                      {dateLabel}
+                    </div>
+                  </div>
+                  <div style={{ display: 'flex', gap: '10px', flexShrink: 0 }}>
+                    <div style={{ textAlign: 'center' }}>
+                      <div style={{ fontSize: '15px', fontWeight: 900, color: 'var(--color-accent)', lineHeight: 1 }}>
+                        {g.points || 0}
+                      </div>
+                      <div style={{ fontSize: '9px', fontWeight: 700, color: 'rgba(255,255,255,0.4)', marginTop: '2px', letterSpacing: '0.5px' }}>
+                        PTS
+                      </div>
+                    </div>
+                    <div style={{ textAlign: 'center' }}>
+                      <div style={{ fontSize: '15px', fontWeight: 900, color: '#3B82F6', lineHeight: 1 }}>
+                        {g.rebounds || 0}
+                      </div>
+                      <div style={{ fontSize: '9px', fontWeight: 700, color: 'rgba(255,255,255,0.4)', marginTop: '2px', letterSpacing: '0.5px' }}>
+                        REB
+                      </div>
+                    </div>
+                    <div style={{ textAlign: 'center' }}>
+                      <div style={{ fontSize: '15px', fontWeight: 900, color: '#22C55E', lineHeight: 1 }}>
+                        {g.assists || 0}
+                      </div>
+                      <div style={{ fontSize: '9px', fontWeight: 700, color: 'rgba(255,255,255,0.4)', marginTop: '2px', letterSpacing: '0.5px' }}>
+                        AST
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+        </Card>
+      )}
+
       {/* Heat map */}
       <Card padding="md" style={{ marginBottom: '12px' }}>
         <div className="flex items-center justify-between" style={{ marginBottom: '10px' }}>

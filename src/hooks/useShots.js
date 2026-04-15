@@ -1,7 +1,50 @@
 import { useState, useCallback, useEffect, useRef, useMemo } from 'react'
-import { supabase, BYPASS_AUTH } from '../lib/supabase'
+import { supabase } from '../lib/supabase'
+
+// localStorage is the source of truth; Supabase is best-effort sync.
+// See useGames.js for the rationale — same pattern for the same reason
+// (silent Supabase failures were dropping shot data).
 
 const STORAGE_KEY = 'courtiq_shots'
+
+async function tryInsertRemoteShot(shot) {
+  try {
+    const { error } = await supabase.from('shots').insert(shot)
+    if (error) {
+      // eslint-disable-next-line no-console
+      console.warn('[CourtIQ] Supabase shots insert skipped:', error.message)
+    }
+  } catch (e) {
+    // eslint-disable-next-line no-console
+    console.warn('[CourtIQ] Supabase shots insert threw:', e?.message || e)
+  }
+}
+
+async function tryDeleteRemoteShot(id) {
+  try {
+    const { error } = await supabase.from('shots').delete().eq('id', id)
+    if (error) {
+      // eslint-disable-next-line no-console
+      console.warn('[CourtIQ] Supabase shots delete skipped:', error.message)
+    }
+  } catch (e) {
+    // eslint-disable-next-line no-console
+    console.warn('[CourtIQ] Supabase shots delete threw:', e?.message || e)
+  }
+}
+
+async function tryDeleteRemoteSession(sessionId) {
+  try {
+    const { error } = await supabase.from('shots').delete().eq('session_id', sessionId)
+    if (error) {
+      // eslint-disable-next-line no-console
+      console.warn('[CourtIQ] Supabase shots session delete skipped:', error.message)
+    }
+  } catch (e) {
+    // eslint-disable-next-line no-console
+    console.warn('[CourtIQ] Supabase shots session delete threw:', e?.message || e)
+  }
+}
 
 export const COURT_ZONES = [
   { id: 'paint', label: 'Paint', x: 42, y: 70, w: 16, h: 22 },
@@ -73,20 +116,11 @@ export default function useShots() {
     if (!sessionId) return
     setLoading(true)
     try {
-      if (BYPASS_AUTH) {
-        const all = getLocalShots()
-        const filtered = all.filter((s) => s.session_id === sessionId)
-        if (mountedRef.current) setShots(filtered)
-      } else {
-        const { data, error } = await supabase
-          .from('shots')
-          .select('*')
-          .eq('session_id', sessionId)
-          .order('created_at', { ascending: true })
-        if (error) throw error
-        if (mountedRef.current) setShots(data || [])
-      }
-    } catch { /* noop */ } finally {
+      // localStorage is authoritative for the active session
+      const all = getLocalShots()
+      const filtered = all.filter((s) => s.session_id === sessionId)
+      if (mountedRef.current) setShots(filtered)
+    } finally {
       if (mountedRef.current) setLoading(false)
     }
   }, [sessionId])
@@ -96,9 +130,16 @@ export default function useShots() {
   }, [sessionId, loadSessionShots])
 
   const logShot = useCallback(async (zoneId, isMade, shotType = 'Catch & Shoot', context = null) => {
+    // Look up auth user id (best effort)
+    let userId = null
+    try {
+      const { data } = await supabase.auth.getUser()
+      userId = data?.user?.id || null
+    } catch { /* ignore */ }
+
     const shot = {
       id: generateId(),
-      user_id: null,
+      user_id: userId,
       session_id: sessionId,
       shot_date: todayDate(),
       zone_id: zoneId,
@@ -107,51 +148,35 @@ export default function useShots() {
       context: context || sessionContext || 'Practice',
       created_at: new Date().toISOString(),
     }
-    try {
-      if (BYPASS_AUTH) {
-        const all = getLocalShots()
-        all.push(shot)
-        setLocalShots(all)
-      } else {
-        const { error } = await supabase.from('shots').insert(shot)
-        if (error) throw error
-      }
-      if (mountedRef.current) setShots((prev) => [...prev, shot])
-    } catch { /* noop */ }
+    // 1. Local write — always succeeds
+    const all = getLocalShots()
+    all.push(shot)
+    setLocalShots(all)
+    if (mountedRef.current) setShots((prev) => [...prev, shot])
+    // 2. Best-effort remote sync
+    tryInsertRemoteShot(shot)
   }, [sessionId, sessionContext])
 
   const undoLastShot = useCallback(async () => {
     if (shots.length === 0) return
     const last = shots[shots.length - 1]
-    try {
-      if (BYPASS_AUTH) {
-        const all = getLocalShots()
-        const idx = all.findIndex((s) => s.id === last.id)
-        if (idx !== -1) {
-          all.splice(idx, 1)
-          setLocalShots(all)
-        }
-      } else {
-        const { error } = await supabase.from('shots').delete().eq('id', last.id)
-        if (error) throw error
-      }
-      if (mountedRef.current) setShots((prev) => prev.slice(0, -1))
-    } catch { /* noop */ }
+    const all = getLocalShots()
+    const idx = all.findIndex((s) => s.id === last.id)
+    if (idx !== -1) {
+      all.splice(idx, 1)
+      setLocalShots(all)
+    }
+    if (mountedRef.current) setShots((prev) => prev.slice(0, -1))
+    tryDeleteRemoteShot(last.id)
   }, [shots])
 
   const clearSession = useCallback(async () => {
     if (!sessionId) return
-    try {
-      if (BYPASS_AUTH) {
-        const all = getLocalShots()
-        const filtered = all.filter((s) => s.session_id !== sessionId)
-        setLocalShots(filtered)
-      } else {
-        const { error } = await supabase.from('shots').delete().eq('session_id', sessionId)
-        if (error) throw error
-      }
-      if (mountedRef.current) setShots([])
-    } catch { /* noop */ }
+    const all = getLocalShots()
+    const filtered = all.filter((s) => s.session_id !== sessionId)
+    setLocalShots(filtered)
+    if (mountedRef.current) setShots([])
+    tryDeleteRemoteSession(sessionId)
   }, [sessionId])
 
   const startSession = useCallback((context = 'Practice') => {
@@ -170,12 +195,11 @@ export default function useShots() {
 
   const overallZoneStats = useMemo(() => {
     try {
-      if (BYPASS_AUTH) {
-        const all = getLocalShots()
-        return computeZoneStats(all)
-      }
-    } catch { /* noop */ }
-    return computeZoneStats(shots)
+      const all = getLocalShots()
+      return computeZoneStats(all)
+    } catch {
+      return computeZoneStats(shots)
+    }
   }, [shots])
 
   const sessionSummary = useMemo(() => {
@@ -197,19 +221,11 @@ export default function useShots() {
     const since = new Date()
     since.setDate(since.getDate() - days)
     const sinceStr = since.toISOString().split('T')[0]
+    // Local source of truth — Supabase fetch is no longer required for
+    // history because games persist client-side.
     try {
-      if (BYPASS_AUTH) {
-        const all = getLocalShots()
-        return all.filter((s) => s.shot_date >= sinceStr)
-      } else {
-        const { data, error } = await supabase
-          .from('shots')
-          .select('*')
-          .gte('shot_date', sinceStr)
-          .order('created_at', { ascending: false })
-        if (error) throw error
-        return data || []
-      }
+      const all = getLocalShots()
+      return all.filter((s) => s.shot_date >= sinceStr)
     } catch {
       return []
     }

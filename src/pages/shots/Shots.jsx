@@ -16,7 +16,6 @@ import {
 } from 'lucide-react'
 import PageWrapper from '../../components/layout/PageWrapper'
 import Card from '../../components/ui/Card'
-import Button from '../../components/ui/Button'
 import EmptyState from '../../components/ui/EmptyState'
 import useGames from '../../hooks/useGames'
 import useDrills from '../../hooks/useDrills'
@@ -436,14 +435,16 @@ export default function MyIQ() {
   }
 
   if ((!allGames || allGames.length === 0) && training.totalSessions === 0) {
+    // Read-only empty state: My IQ is the home for your accumulated story,
+    // not a place to start a session. We keep the messaging instructive
+    // but deliberately do NOT render an action button here — users start
+    // games from the Gametime tab in the bottom nav.
     return (
       <PageWrapper>
         <EmptyState
           icon={BarChart3}
           title="My IQ"
-          description="Play your first Gametime session and your stats will start building here — ongoing averages, a shot heat map, and personalized coaching feedback."
-          actionLabel="Start Gametime"
-          onAction={() => navigate('/gametime')}
+          description="Your shooting heat map, season averages, and coaching feedback will appear here as you play. Head to Gametime in the bottom nav to start logging."
         />
       </PageWrapper>
     )
@@ -904,10 +905,8 @@ export default function MyIQ() {
         </Card>
       )}
 
-      <div style={{ height: '24px' }} />
-      <Button variant="outline" fullWidth onClick={() => navigate('/gametime')}>
-        Start another Gametime
-      </Button>
+      {/* My IQ is read-only by design — no "Start Gametime" CTA here.
+          Users start games from the Gametime bottom-nav tab. */}
       <div style={{ height: '96px' }} />
     </PageWrapper>
   )

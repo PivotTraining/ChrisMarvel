@@ -1,9 +1,10 @@
 import { useState, useMemo, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Trophy, ArrowLeft, ChevronRight, TrendingUp, TrendingDown, Target, Shield, Zap, Pencil, Share2, Crosshair, BarChart3, Info, Plus, Minus, X, Copy } from 'lucide-react'
+import { Trophy, ArrowLeft, ChevronRight, TrendingUp, TrendingDown, Target, Shield, Zap, Pencil, Share2, Crosshair, BarChart3, Info, Plus, Minus, X, Copy, Film, Trash } from 'lucide-react'
 import PageWrapper from '../../components/layout/PageWrapper'
 import Button from '../../components/ui/Button'
 import Card from '../../components/ui/Card'
+import RadarChart from '../../components/ui/RadarChart'
 import Badge from '../../components/ui/Badge'
 import EmptyState from '../../components/ui/EmptyState'
 import SkeletonLoader from '../../components/ui/SkeletonLoader'
@@ -767,44 +768,6 @@ function TrendBars({ games, currentPts }) {
 }
 
 /* ---- Radar Chart ---- */
-function RadarChart({ data }) {
-  const labels = ['Scoring', 'Shooting', 'Playmaking', 'Defense', 'Hustle', 'Efficiency']
-  const size = 200
-  const cx = size / 2, cy = size / 2, r = 75
-  const angleStep = (2 * Math.PI) / 6
-  const point = (i, pct) => {
-    const a = angleStep * i - Math.PI / 2
-    return { x: cx + r * (pct / 100) * Math.cos(a), y: cy + r * (pct / 100) * Math.sin(a) }
-  }
-  const gridLevels = [33, 66, 100]
-  const dataPoints = data.map((v, i) => point(i, Math.min(100, Math.max(0, v))))
-  const poly = dataPoints.map(p => `${p.x},${p.y}`).join(' ')
-
-  return (
-    <Card>
-      <p className="section-label" style={{ marginBottom: 'var(--space-2)' }}>Player Profile</p>
-      <svg viewBox={`0 0 ${size} ${size}`} style={{ width: '100%', maxWidth: '280px', display: 'block', margin: '0 auto' }}>
-        {gridLevels.map((lvl) => (
-          <polygon key={lvl}
-            points={Array.from({ length: 6 }, (_, i) => point(i, lvl)).map(p => `${p.x},${p.y}`).join(' ')}
-            fill="none" stroke="rgba(255,255,255,0.08)" strokeWidth="0.5" />
-        ))}
-        {Array.from({ length: 6 }, (_, i) => (
-          <line key={i} x1={cx} y1={cy} x2={point(i, 100).x} y2={point(i, 100).y} stroke="rgba(255,255,255,0.08)" strokeWidth="0.5" />
-        ))}
-        <polygon points={poly} fill="rgba(255,107,53,0.18)" stroke="var(--color-accent)" strokeWidth="1.5" />
-        {dataPoints.map((p, i) => (
-          <circle key={i} cx={p.x} cy={p.y} r="3" fill="var(--color-accent)" />
-        ))}
-        {labels.map((l, i) => {
-          const p = point(i, 118)
-          return <text key={i} x={p.x} y={p.y} textAnchor="middle" dominantBaseline="central" fill="var(--color-text-sec)" fontSize="7" fontWeight="600">{l}</text>
-        })}
-      </svg>
-    </Card>
-  )
-}
-
 /* ---- Player Archetype ---- */
 const ARCHETYPES = [
   { id: 'sniper', name: 'Sniper', icon: '\u{1F3AF}', desc: 'Deadly from beyond the arc', color: '#FF6B35', match: (g) => g.three_pointers_attempted > 3 && (g.three_pointers_made / g.three_pointers_attempted) > 0.38 },
@@ -922,11 +885,204 @@ function ShareCardModal({ game, rating, onClose }) {
 
 /* ===== NBA-LEVEL POST-GAME IQ SCREEN ===== */
 
+/* ===== GAME FILM — IndexedDB helpers ===== */
+// Films are written in QuickGame.jsx via persistFilm() under the same
+// database + key scheme. Reads here are best-effort: missing DB, missing
+// key, or any failure just means "no film for this game".
+function openFilmDBRead() {
+  return new Promise((resolve, reject) => {
+    try {
+      const req = indexedDB.open('courtiq_films', 1)
+      req.onupgradeneeded = (e) => {
+        const db = e.target.result
+        if (!db.objectStoreNames.contains('films')) db.createObjectStore('films')
+      }
+      req.onsuccess = (e) => resolve(e.target.result)
+      req.onerror = (e) => reject(e.target.error)
+    } catch (err) { reject(err) }
+  })
+}
+
+async function loadFilm(gameId) {
+  try {
+    const db = await openFilmDBRead()
+    return await new Promise((resolve, reject) => {
+      const tx = db.transaction('films', 'readonly')
+      const req = tx.objectStore('films').get(`courtiq_film_${gameId}`)
+      req.onsuccess = () => resolve(req.result || null)
+      req.onerror = () => reject(req.error)
+    })
+  } catch {
+    return null
+  }
+}
+
+async function deleteFilm(gameId) {
+  try {
+    const db = await openFilmDBRead()
+    await new Promise((resolve, reject) => {
+      const tx = db.transaction('films', 'readwrite')
+      tx.objectStore('films').delete(`courtiq_film_${gameId}`)
+      tx.oncomplete = resolve
+      tx.onerror = () => reject(tx.error)
+    })
+    return true
+  } catch {
+    return false
+  }
+}
+
+function FilmPlayerModal({ gameId, opponent, onClose, onDeleted }) {
+  const [url, setUrl] = useState(null)
+  const [meta, setMeta] = useState(null)
+  const [err, setErr] = useState(null)
+
+  useEffect(() => {
+    let objectUrl = null
+    let cancelled = false
+    ;(async () => {
+      const record = await loadFilm(gameId)
+      if (cancelled) return
+      if (!record || !record.blob) {
+        setErr('No film saved for this game')
+        return
+      }
+      objectUrl = URL.createObjectURL(record.blob)
+      setUrl(objectUrl)
+      setMeta({ size: record.sizeBytes || record.blob.size, savedAt: record.savedAt })
+    })()
+    return () => {
+      cancelled = true
+      if (objectUrl) URL.revokeObjectURL(objectUrl)
+    }
+  }, [gameId])
+
+  const handleDownload = () => {
+    if (!url) return
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `courtiq-${(opponent || 'game').replace(/\s+/g, '-')}-${gameId.slice(0, 6)}.mp4`
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
+  }
+
+  const handleDelete = async () => {
+    if (!window.confirm('Delete this film? This cannot be undone.')) return
+    const ok = await deleteFilm(gameId)
+    if (ok) {
+      onDeleted?.()
+      onClose()
+    }
+  }
+
+  return (
+    <div
+      onClick={onClose}
+      style={{
+        position: 'fixed', inset: 0, zIndex: 90,
+        background: 'rgba(0,0,0,0.92)', backdropFilter: 'blur(10px)',
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        padding: '16px',
+        paddingTop: 'calc(16px + env(safe-area-inset-top, 0px))',
+        paddingBottom: 'calc(16px + env(safe-area-inset-bottom, 0px))',
+      }}
+    >
+      <div
+        onClick={(e) => e.stopPropagation()}
+        style={{
+          background: '#0D0D1A', borderRadius: '20px',
+          border: '1px solid rgba(255,255,255,0.1)',
+          maxWidth: '640px', width: '100%',
+          maxHeight: '100%', display: 'flex', flexDirection: 'column',
+          overflow: 'hidden',
+        }}
+      >
+        <div style={{
+          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+          padding: '14px 16px', borderBottom: '1px solid rgba(255,255,255,0.08)',
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <Film size={18} style={{ color: '#FF6B35' }} />
+            <div>
+              <div style={{ color: '#fff', fontSize: '14px', fontWeight: 800 }}>Game Film</div>
+              <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '11px' }}>
+                {opponent || 'Game'}{meta?.size ? ` · ${Math.round(meta.size / 1024 / 1024 * 10) / 10} MB` : ''}
+              </div>
+            </div>
+          </div>
+          <button
+            onClick={onClose}
+            aria-label="Close"
+            style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,0.7)', cursor: 'pointer', padding: '4px' }}
+          >
+            <X size={20} />
+          </button>
+        </div>
+
+        <div style={{ background: '#000', display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '220px' }}>
+          {err && (
+            <div style={{ color: 'rgba(255,255,255,0.6)', padding: '32px', textAlign: 'center' }}>{err}</div>
+          )}
+          {url && (
+            <video
+              src={url}
+              controls
+              playsInline
+              style={{ width: '100%', maxHeight: '70vh', display: 'block' }}
+            />
+          )}
+          {!url && !err && (
+            <div style={{ color: 'rgba(255,255,255,0.5)', padding: '32px' }}>Loading film…</div>
+          )}
+        </div>
+
+        {url && (
+          <div style={{
+            display: 'flex', gap: '8px', padding: '12px 16px',
+            borderTop: '1px solid rgba(255,255,255,0.08)',
+          }}>
+            <button
+              onClick={handleDownload}
+              className="btn-outline"
+              style={{ flex: 1 }}
+            >
+              <Share2 size={14} /> Save to Device
+            </button>
+            <button
+              onClick={handleDelete}
+              className="btn-outline"
+              style={{ flex: 1, color: '#EF4444', borderColor: '#EF444450' }}
+            >
+              <Trash size={14} /> Delete Film
+            </button>
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
+
 function GameResult({ game, seasonAvg, allGames, onDone, onEdit, showToast, onResume }) {
   const feedback = useMemo(() => generateFeedback(game, seasonAvg), [game, seasonAvg])
   const rating = useMemo(() => calcPerformanceRating(game, seasonAvg), [game, seasonAvg])
   const [shared, setShared] = useState(false)
   const [showShareCard, setShowShareCard] = useState(false)
+
+  // Game Film: check IndexedDB for a saved film keyed to this game id. The
+  // has_film flag on the game record is a hint but we verify because a user
+  // may have deleted the film after saving the game.
+  const [hasFilm, setHasFilm] = useState(false)
+  const [showFilm, setShowFilm] = useState(false)
+  useEffect(() => {
+    let cancelled = false
+    if (!game?.id) return
+    ;(async () => {
+      const record = await loadFilm(game.id)
+      if (!cancelled) setHasFilm(!!record?.blob)
+    })()
+    return () => { cancelled = true }
+  }, [game?.id])
 
   const pts = game.points || 0
   const reb = game.rebounds || 0
@@ -1160,7 +1316,9 @@ function GameResult({ game, seasonAvg, allGames, onDone, onEdit, showToast, onRe
       )}
 
       {/* ===== RADAR CHART ===== */}
-      <div style={{ marginTop: 'var(--space-2)' }}><RadarChart data={radarData} /></div>
+      <Card style={{ marginTop: 'var(--space-2)' }}>
+        <RadarChart data={radarData} title="Game Profile" />
+      </Card>
 
       {/* ===== PLAYER ARCHETYPE ===== */}
       <div style={{ marginTop: 'var(--space-2)' }}><ArchetypeCard game={game} /></div>
@@ -1169,9 +1327,32 @@ function GameResult({ game, seasonAvg, allGames, onDone, onEdit, showToast, onRe
       <div style={{ marginTop: 'var(--space-2)' }}><StreakConsistency allGames={allGames} /></div>
 
       {showShareCard && <ShareCardModal game={game} rating={rating} onClose={() => setShowShareCard(false)} />}
+      {showFilm && (
+        <FilmPlayerModal
+          gameId={game.id}
+          opponent={game.opponent}
+          onClose={() => setShowFilm(false)}
+          onDeleted={() => setHasFilm(false)}
+        />
+      )}
 
       {/* Action buttons */}
-      <div style={{ marginTop: 'var(--space-3)', marginBottom: 'var(--space-2)', display: 'flex', gap: 'var(--space-1)' }}>
+      <div style={{ marginTop: 'var(--space-3)', marginBottom: 'var(--space-2)', display: 'flex', gap: 'var(--space-1)', flexWrap: 'wrap' }}>
+        {hasFilm && (
+          <button
+            type="button"
+            onClick={() => setShowFilm(true)}
+            className="btn-outline"
+            style={{
+              flex: '1 1 100%',
+              color: '#FF6B35',
+              borderColor: '#FF6B3550',
+              background: 'linear-gradient(135deg, rgba(255,107,53,0.08), rgba(255,107,53,0.02))',
+            }}
+          >
+            <Film size={16} /> Watch Film
+          </button>
+        )}
         <button type="button" onClick={() => setShowShareCard(true)} className="btn-outline" style={{ flex: 1 }}>
           <Share2 size={16} /> Share Card
         </button>

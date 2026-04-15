@@ -1,6 +1,6 @@
-import { useState, useCallback, useRef } from 'react'
+import { useState, useCallback, useRef, useEffect } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
-import { Undo2, Share2, Trash2, Check, ChevronLeft } from 'lucide-react'
+import { Undo2, Share2, Trash2, Check, ChevronLeft, Video, VideoOff } from 'lucide-react'
 import useGames from '../../hooks/useGames'
 import { useToast } from '../../context/ToastContext'
 import { usePremium } from '../../context/PremiumContext'
@@ -8,6 +8,46 @@ import { useAuth } from '../../context/AuthContext'
 import { useHaptics } from '../../hooks/useHaptics'
 import UpgradePrompt from '../../components/ui/UpgradePrompt'
 import GameShareCard from '../../components/ui/GameShareCard'
+
+// ─── Game Film persistence (IndexedDB) ────────────────────────────────────
+// Videos are big — we store them locally, keyed by game.id. No upload, no
+// cloud bill. On iOS WKWebView, IndexedDB persists inside the app sandbox
+// and survives restarts but will be cleared if the user deletes the app.
+function openFilmDB() {
+  return new Promise((resolve, reject) => {
+    try {
+      const req = indexedDB.open('courtiq_films', 1)
+      req.onupgradeneeded = (e) => {
+        const db = e.target.result
+        if (!db.objectStoreNames.contains('films')) db.createObjectStore('films')
+      }
+      req.onsuccess = (e) => resolve(e.target.result)
+      req.onerror = (e) => reject(e.target.error)
+    } catch (err) {
+      reject(err)
+    }
+  })
+}
+
+async function persistFilm(gameId, blob) {
+  try {
+    const db = await openFilmDB()
+    const tx = db.transaction('films', 'readwrite')
+    tx.objectStore('films').put(
+      { blob, savedAt: new Date().toISOString(), mimeType: blob.type || 'video/webm', sizeBytes: blob.size },
+      `courtiq_film_${gameId}`
+    )
+    await new Promise((res, rej) => {
+      tx.oncomplete = res
+      tx.onerror = () => rej(tx.error)
+    })
+    // eslint-disable-next-line no-console
+    console.info('[CourtIQ] Film saved for game', gameId, Math.round(blob.size / 1024), 'KB')
+  } catch (e) {
+    // eslint-disable-next-line no-console
+    console.warn('[CourtIQ] Failed to save film:', e?.message || e)
+  }
+}
 
 // ─── Half-Court SVG ─────────────────────────────────────────────────────────
 // viewBox: 500 wide × 470 tall (half court, basket at bottom)
@@ -280,12 +320,104 @@ export default function Gametime() {
   const [saving, setSaving] = useState(false)
   const [showFT, setShowFT] = useState(false)
 
+  // Game Film recording (Pro). Camera runs in the background while stats
+  // are being logged, so users never have to choose between recording and
+  // tracking. Film is stored locally in IndexedDB keyed by game.id.
+  const [filming, setFilming] = useState(false)
+  const mediaRecorderRef = useRef(null)
+  const recordedChunksRef = useRef([])
+  const cameraStreamRef = useRef(null)
+  const videoPreviewRef = useRef(null)
+
   // Derived shooting stats from shots array
   const fgm = shots.filter(s => s.made && !s.is3).length
   const fga = shots.filter(s => !s.is3).length
   const tpm = shots.filter(s => s.made && s.is3).length
   const tpa = shots.filter(s => s.is3).length
   const pts = fgm * 2 + tpm * 3 + stats.free_throws_made
+
+  // Stop the MediaRecorder and resolve with the final Blob. Safe to call
+  // when not recording — resolves with null in that case.
+  const stopRecording = useCallback(() => new Promise((resolve) => {
+    const recorder = mediaRecorderRef.current
+    if (!recorder || recorder.state === 'inactive') { resolve(null); return }
+    recorder.onstop = () => {
+      const mime = recorder.mimeType || 'video/webm'
+      const blob = new Blob(recordedChunksRef.current, { type: mime })
+      recordedChunksRef.current = []
+      resolve(blob.size > 0 ? blob : null)
+    }
+    try { recorder.stop() } catch { resolve(null) }
+  }), [])
+
+  const tearDownCamera = useCallback(() => {
+    try { cameraStreamRef.current?.getTracks().forEach(t => t.stop()) } catch { /* noop */ }
+    cameraStreamRef.current = null
+    if (videoPreviewRef.current) {
+      try { videoPreviewRef.current.srcObject = null } catch { /* noop */ }
+    }
+    mediaRecorderRef.current = null
+    recordedChunksRef.current = []
+  }, [])
+
+  const startFilming = useCallback(async () => {
+    if (!isPro) {
+      setShowUpgrade(true)
+      return
+    }
+    if (typeof navigator === 'undefined' || !navigator.mediaDevices?.getUserMedia) {
+      showToast('Camera not supported on this device', 'error')
+      return
+    }
+    if (typeof MediaRecorder === 'undefined') {
+      showToast('Recording not supported on this device', 'error')
+      return
+    }
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: { ideal: 'environment' }, width: { ideal: 1280 }, height: { ideal: 720 } },
+        audio: true,
+      })
+      cameraStreamRef.current = stream
+      if (videoPreviewRef.current) {
+        videoPreviewRef.current.srcObject = stream
+        videoPreviewRef.current.play().catch(() => { /* autoplay blocked, that's fine */ })
+      }
+      // Prefer MP4 on iOS (native), fall back to WebM on web. Safari supports
+      // MediaRecorder as of iOS 14.3 but only with MP4; Chrome prefers WebM.
+      const candidates = ['video/mp4', 'video/webm;codecs=vp9,opus', 'video/webm;codecs=vp8,opus', 'video/webm']
+      const mimeType = candidates.find(t => MediaRecorder.isTypeSupported?.(t)) || ''
+      recordedChunksRef.current = []
+      const recorder = new MediaRecorder(stream, mimeType ? { mimeType } : undefined)
+      recorder.ondataavailable = (e) => {
+        if (e.data && e.data.size > 0) recordedChunksRef.current.push(e.data)
+      }
+      mediaRecorderRef.current = recorder
+      recorder.start(1000) // emit a chunk every second so we never lose > 1s on crash
+      setFilming(true)
+      showToast('Recording film', 'success')
+    } catch (e) {
+      // eslint-disable-next-line no-console
+      console.warn('[CourtIQ] Could not start recording:', e?.message || e)
+      showToast('Camera permission denied', 'error')
+      tearDownCamera()
+    }
+  }, [isPro, showToast, tearDownCamera])
+
+  const stopFilmingDiscard = useCallback(async () => {
+    await stopRecording()
+    tearDownCamera()
+    setFilming(false)
+    showToast('Film discarded', 'info')
+  }, [stopRecording, tearDownCamera, showToast])
+
+  // Release the camera if the component unmounts mid-recording (e.g. user
+  // navigates away). We never keep a hot camera stream around after unmount.
+  useEffect(() => {
+    return () => {
+      try { cameraStreamRef.current?.getTracks().forEach(t => t.stop()) } catch { /* noop */ }
+    }
+  }, [])
 
   const push = useCallback((action) => {
     setHistory(h => [...h, action])
@@ -365,6 +497,17 @@ export default function Gametime() {
 
   const handleSave = useCallback(async () => {
     setSaving(true)
+
+    // Stop recording first so we can tag the film with the new game's id.
+    // Keeping this BEFORE the DB write means we have the blob in hand by
+    // the time we know the game id, so the IndexedDB key always lines up.
+    let filmBlob = null
+    if (filming) {
+      filmBlob = await stopRecording()
+      tearDownCamera()
+      setFilming(false)
+    }
+
     const gameData = {
       game_date: new Date().toISOString().split('T')[0],
       opponent: opponent || 'Opponent',
@@ -385,24 +528,35 @@ export default function Gametime() {
       free_throws_made: stats.free_throws_made,
       free_throws_attempted: stats.free_throws_attempted,
       _shots: shots,
+      has_film: !!filmBlob, // surfaces "Watch Film" in review
     }
     try {
+      let persistedId = null
       if (resumeGame?.id) {
         await updateGame(resumeGame.id, gameData)
+        persistedId = resumeGame.id
         showToast('Game updated!', 'success')
       } else {
-        await addGame(gameData)
+        const saved = await addGame(gameData)
+        persistedId = saved?.id || null
         showToast('Game saved!', 'success')
       }
+
+      // Persist the film blob against the game id. This is best-effort —
+      // if IndexedDB write fails, the stats still save.
+      if (filmBlob && persistedId) {
+        await persistFilm(persistedId, filmBlob)
+      }
+
       // Post-save: show shareable game card. The card's onClose handler
       // chains to the Pro upsell (free users) or navigates to /games (Pro).
-      setSavedGame(gameData)
+      setSavedGame({ ...gameData, id: persistedId })
     } catch {
       showToast('Failed to save', 'error')
     } finally {
       setSaving(false)
     }
-  }, [pts, stats, fgm, fga, tpm, tpa, shots, opponent, resumeGame, addGame, updateGame, showToast])
+  }, [filming, stopRecording, tearDownCamera, pts, stats, fgm, fga, tpm, tpa, shots, opponent, resumeGame, addGame, updateGame, showToast])
 
   const handleShareCardClose = useCallback(() => {
     setSavedGame(null)
@@ -441,10 +595,68 @@ export default function Gametime() {
             outline: 'none', fontFamily: 'inherit',
           }}
         />
+        <button
+          onClick={filming ? stopFilmingDiscard : startFilming}
+          aria-label={filming ? 'Stop recording' : 'Record game film'}
+          style={{
+            background: filming ? 'rgba(239,68,68,0.18)' : 'none',
+            border: filming ? '1px solid rgba(239,68,68,0.5)' : '1px solid transparent',
+            color: filming ? '#EF4444' : 'rgba(255,255,255,0.5)',
+            cursor: 'pointer', padding: '6px 10px',
+            display: 'flex', alignItems: 'center', gap: '6px',
+            borderRadius: '10px', fontWeight: 800, fontSize: '11px',
+          }}
+        >
+          {filming ? <VideoOff size={16} /> : <Video size={16} />}
+          {filming && (
+            <span style={{
+              display: 'inline-block', width: '8px', height: '8px',
+              borderRadius: '50%', background: '#EF4444',
+              animation: 'courtiqRecordPulse 1.2s ease-in-out infinite',
+            }} />
+          )}
+        </button>
         <button onClick={handleShare} style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,0.5)', cursor: 'pointer', padding: '4px' }}>
           <Share2 size={18} />
         </button>
       </div>
+
+      {/* Keyframes for the recording dot pulse — scoped globally via tag */}
+      <style>{`@keyframes courtiqRecordPulse { 0%,100% { opacity:1 } 50% { opacity:0.25 } }`}</style>
+
+      {/* Floating PiP preview while recording. Minimal and out of the way
+          so it doesn't block the court. Tap to toggle size. */}
+      {filming && (
+        <div style={{
+          position: 'fixed',
+          top: 'calc(120px + env(safe-area-inset-top, 0px))',
+          right: '10px',
+          width: '96px', height: '128px', zIndex: 25,
+          borderRadius: '12px', overflow: 'hidden',
+          border: '2px solid #EF4444',
+          boxShadow: '0 8px 24px rgba(0,0,0,0.7)',
+          background: '#000',
+        }}>
+          <video
+            ref={videoPreviewRef}
+            autoPlay muted playsInline
+            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+          />
+          <div style={{
+            position: 'absolute', top: '6px', left: '6px',
+            display: 'flex', alignItems: 'center', gap: '4px',
+            padding: '2px 6px', borderRadius: '10px',
+            background: 'rgba(0,0,0,0.55)',
+          }}>
+            <span style={{
+              width: '6px', height: '6px', borderRadius: '50%',
+              background: '#EF4444',
+              animation: 'courtiqRecordPulse 1.2s ease-in-out infinite',
+            }} />
+            <span style={{ color: '#fff', fontSize: '9px', fontWeight: 800, letterSpacing: '0.5px' }}>REC</span>
+          </div>
+        </div>
+      )}
 
       {/* Live stat bar */}
       <div style={{

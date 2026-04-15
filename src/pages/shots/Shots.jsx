@@ -12,14 +12,18 @@ import { useMemo, useState, useEffect, useCallback, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
   BarChart3, Flame, TrendingUp, TrendingDown, Target, Trophy,
-  Lock, Sparkles, Crown, Dumbbell, RefreshCw,
+  Lock, Sparkles, Crown, Dumbbell, RefreshCw, Brain, Download,
 } from 'lucide-react'
+import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts'
 import PageWrapper from '../../components/layout/PageWrapper'
 import Card from '../../components/ui/Card'
 import EmptyState from '../../components/ui/EmptyState'
+import RadarChart from '../../components/ui/RadarChart'
 import useGames from '../../hooks/useGames'
 import useDrills from '../../hooks/useDrills'
+import useJournal from '../../hooks/useJournal'
 import { usePremium } from '../../context/PremiumContext'
+import { useToast } from '../../context/ToastContext'
 import { useAuth } from '../../context/AuthContext'
 import { fetchInsights } from '../../lib/insights'
 
@@ -354,7 +358,9 @@ export default function MyIQ() {
   const navigate = useNavigate()
   const { allGames, loading } = useGames()
   const { drills, categoryStats, recentStreak } = useDrills()
+  const { allEntries: journalEntries } = useJournal()
   const { isPro } = usePremium()
+  const { showToast } = useToast()
   const { profile } = useAuth()
 
   const data = useMemo(() => aggregate(allGames || []), [allGames])
@@ -377,6 +383,113 @@ export default function MyIQ() {
     })
     return { totalSessions, totalMinutes, last7, topCat, topMin, streak: recentStreak || 0 }
   }, [drills, categoryStats, recentStreak])
+
+  // Mental Game: surface journal data in MyIQ so the mental side of the
+  // game gets the same weight as the physical side. This is a key
+  // differentiator — shown to free users on purpose as a retention hook.
+  const mentalGame = useMemo(() => {
+    const list = (journalEntries || []).filter(e => e.mental_game_score != null)
+    if (list.length === 0) return null
+    // Sort ascending by date for the trend line
+    const sorted = [...list].sort(
+      (a, b) => (a.entry_date || '').localeCompare(b.entry_date || '')
+    )
+    const last30 = sorted.slice(-30).map((e, idx) => ({
+      day: idx + 1,
+      score: +(e.mental_game_score || 0),
+      date: e.entry_date || '',
+    }))
+    // Average across all journal entries
+    const avgScore = +(list.reduce((s, e) => s + (e.mental_game_score || 0), 0) / list.length).toFixed(1)
+    // Mood distribution over last 30 entries
+    const moodCounts = {}
+    list.slice(-30).forEach((e) => {
+      const m = e.mood || 'Okay'
+      moodCounts[m] = (moodCounts[m] || 0) + 1
+    })
+    const topMood = Object.entries(moodCounts).sort((a, b) => b[1] - a[1])[0]?.[0] || null
+    return {
+      count: list.length,
+      avgScore,
+      last30,
+      topMood,
+      latest: sorted[sorted.length - 1],
+    }
+  }, [journalEntries])
+
+  // Radar chart data for season-level "Player Profile" view (Pro). Maps
+  // season averages onto the same 6-axis layout used in per-game review,
+  // but at a seasonal scale so the scores are interpretable across games.
+  const seasonRadar = useMemo(() => {
+    const avg = data?.avg || {}
+    const scoring = Math.min(100, ((avg.ppg || 0) / 25) * 100)
+    const shooting = Math.min(100, ((avg.fgPct || 0) / 55) * 100)
+    const playmaking = Math.min(100, ((avg.apg || 0) / 8) * 100)
+    const defense = Math.min(100, (((avg.spg || 0) + (avg.bpg || 0)) / 4) * 100)
+    const hustle = Math.min(100, ((avg.rpg || 0) / 10) * 100)
+    const efficiency = Math.min(100, ((avg.winPct || 0) / 70) * 100)
+    return [scoring, shooting, playmaking, defense, hustle, efficiency]
+  }, [data])
+
+  // Last-10 trend data for Points + FG% line charts
+  const last10Trend = useMemo(() => {
+    const last = [...(allGames || [])]
+      .sort((a, b) => (a.game_date || '').localeCompare(b.game_date || ''))
+      .slice(-10)
+    return last.map((g, i) => {
+      const fga = g.field_goals_attempted || 0
+      const fgm = g.field_goals_made || 0
+      return {
+        game: `G${i + 1}`,
+        pts: g.points || 0,
+        fgPct: fga > 0 ? Math.round((fgm / fga) * 100) : 0,
+      }
+    })
+  }, [allGames])
+
+  // CSV export (Pro). Exports every saved game as a single CSV file
+  // users can open in Excel / Google Sheets / Numbers.
+  const handleExportCSV = useCallback(() => {
+    const rows = allGames || []
+    if (rows.length === 0) {
+      showToast('No games to export yet', 'info')
+      return
+    }
+    const headers = [
+      'date', 'opponent', 'result', 'points', 'rebounds', 'assists', 'steals',
+      'blocks', 'turnovers', 'fouls', 'fg_made', 'fg_attempted', 'three_made',
+      'three_attempted', 'ft_made', 'ft_attempted',
+    ]
+    const escape = (v) => {
+      const s = v == null ? '' : String(v)
+      return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s
+    }
+    const lines = [headers.join(',')]
+    rows.forEach((g) => {
+      lines.push([
+        g.game_date, g.opponent, g.result, g.points, g.rebounds, g.assists, g.steals,
+        g.blocks, g.turnovers, g.fouls, g.field_goals_made, g.field_goals_attempted,
+        g.three_pointers_made, g.three_pointers_attempted,
+        g.free_throws_made, g.free_throws_attempted,
+      ].map(escape).join(','))
+    })
+    const csv = lines.join('\n')
+    try {
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      const stamp = new Date().toISOString().slice(0, 10)
+      a.href = url
+      a.download = `courtiq-stats-${stamp}.csv`
+      document.body.appendChild(a)
+      a.click()
+      document.body.removeChild(a)
+      setTimeout(() => URL.revokeObjectURL(url), 1000)
+      showToast(`Exported ${rows.length} games`, 'success')
+    } catch {
+      showToast('Export failed', 'error')
+    }
+  }, [allGames, showToast])
 
   // AI Coach — calls Claude edge function (or local rules in BYPASS_AUTH mode).
   const [aiInsights, setAiInsights] = useState([])
@@ -498,6 +611,73 @@ export default function MyIQ() {
           <StatTile label="WIN%" value={avg.winPct} color="#FF6B35" suffix="%" />
         </div>
       </Card>
+
+      {/* Mental Game — unique to CourtIQ. Surfaces journal data in the
+          season dashboard so the mental side of the game gets equal weight.
+          Shown to free users on purpose as a retention hook. */}
+      {mentalGame && (
+        <Card padding="md" style={{ marginBottom: '12px' }}>
+          <div className="flex items-center justify-between" style={{ marginBottom: '10px' }}>
+            <span className="section-label flex items-center gap-2">
+              <Brain size={14} style={{ color: '#A78BFA' }} /> Mental Game
+            </span>
+            <button
+              onClick={() => navigate('/journal')}
+              style={{
+                background: 'transparent', border: 'none',
+                color: 'var(--color-accent)', fontSize: '11px', fontWeight: 800,
+                cursor: 'pointer', fontFamily: 'inherit', letterSpacing: '0.3px',
+              }}
+            >
+              Journal →
+            </button>
+          </div>
+
+          {/* Top-line stats row */}
+          <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginBottom: '12px' }}>
+            <StatTile label="SCORE" value={mentalGame.avgScore} color="#A78BFA" suffix="/10" />
+            <StatTile label="ENTRIES" value={mentalGame.count} color="#3B82F6" />
+            {mentalGame.topMood && (
+              <div style={{
+                flex: 1, minWidth: '72px',
+                padding: '10px 12px', borderRadius: '12px',
+                background: 'rgba(167,139,250,0.08)',
+                border: '1px solid rgba(167,139,250,0.25)',
+                display: 'flex', flexDirection: 'column', gap: '3px',
+              }}>
+                <span style={{ fontSize: '9px', fontWeight: 800, color: 'rgba(255,255,255,0.5)', letterSpacing: '0.6px' }}>MOOD</span>
+                <span style={{ fontSize: '14px', fontWeight: 800, color: '#A78BFA' }}>{mentalGame.topMood}</span>
+              </div>
+            )}
+          </div>
+
+          {/* Trend line (last ~30 entries) */}
+          {mentalGame.last30.length >= 2 && (
+            <div style={{ height: '100px', margin: '0 -6px' }}>
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={mentalGame.last30}>
+                  <defs>
+                    <linearGradient id="mentalGrad" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor="#A78BFA" stopOpacity={0.9} />
+                      <stop offset="100%" stopColor="#A78BFA" stopOpacity={0.3} />
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid stroke="rgba(255,255,255,0.05)" vertical={false} />
+                  <XAxis dataKey="day" hide />
+                  <YAxis domain={[0, 10]} hide />
+                  <Tooltip
+                    contentStyle={{ background: '#0D0D1A', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', fontSize: '11px' }}
+                    labelStyle={{ color: 'rgba(255,255,255,0.5)' }}
+                    itemStyle={{ color: '#A78BFA' }}
+                    formatter={(v) => [`${v}/10`, 'Score']}
+                  />
+                  <Line type="monotone" dataKey="score" stroke="url(#mentalGrad)" strokeWidth={2.5} dot={{ fill: '#A78BFA', r: 2 }} activeDot={{ r: 4 }} />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
+          )}
+        </Card>
+      )}
 
       {/* Recent games — lives here now that Game Log was removed from the
           bottom nav. Shows the 5 most recent saved games so users can still
@@ -888,21 +1068,111 @@ export default function MyIQ() {
       )}
 
       {isPro && (
-        <Card padding="md" style={{ marginBottom: '12px', border: '1px solid rgba(251, 191, 36, 0.3)' }}>
-          <div className="section-label flex items-center gap-2" style={{ marginBottom: '10px' }}>
-            <Crown size={14} style={{ color: '#FBBF24' }} /> Pro · Archetype
-          </div>
-          <p className="t-body" style={{ color: 'var(--color-text)' }}>
-            {(() => {
-              if (avg.tpPct >= 38 && avg.ppg >= 15) return 'Sniper — you live beyond the arc and you make defenses pay.'
-              if (avg.apg >= 5 && avg.topg < 3) return 'Floor General — you set the table and don\'t turn it over.'
-              if (avg.rpg >= 8 && avg.bpg >= 1) return 'Anchor — glass-crashing rim protector.'
-              if (avg.spg >= 2) return 'Menace — you disrupt everything on the defensive end.'
-              if (avg.fgPct >= 50) return 'Efficient Finisher — no wasted possessions.'
-              return 'Two-Way — balanced profile, keep stacking games.'
-            })()}
-          </p>
-        </Card>
+        <>
+          {/* Pro · Archetype */}
+          <Card padding="md" style={{ marginBottom: '12px', border: '1px solid rgba(251, 191, 36, 0.3)' }}>
+            <div className="section-label flex items-center gap-2" style={{ marginBottom: '10px' }}>
+              <Crown size={14} style={{ color: '#FBBF24' }} /> Pro · Archetype
+            </div>
+            <p className="t-body" style={{ color: 'var(--color-text)' }}>
+              {(() => {
+                if (avg.tpPct >= 38 && avg.ppg >= 15) return 'Sniper — you live beyond the arc and you make defenses pay.'
+                if (avg.apg >= 5 && avg.topg < 3) return 'Floor General — you set the table and don\'t turn it over.'
+                if (avg.rpg >= 8 && avg.bpg >= 1) return 'Anchor — glass-crashing rim protector.'
+                if (avg.spg >= 2) return 'Menace — you disrupt everything on the defensive end.'
+                if (avg.fgPct >= 50) return 'Efficient Finisher — no wasted possessions.'
+                return 'Two-Way — balanced profile, keep stacking games.'
+              })()}
+            </p>
+          </Card>
+
+          {/* Pro · Season Radar */}
+          {(allGames || []).length > 0 && (
+            <Card padding="md" style={{ marginBottom: '12px', border: '1px solid rgba(251, 191, 36, 0.2)' }}>
+              <div className="section-label flex items-center gap-2" style={{ marginBottom: '12px' }}>
+                <Crown size={14} style={{ color: '#FBBF24' }} /> Pro · Season Profile
+              </div>
+              <RadarChart data={seasonRadar} title="" />
+            </Card>
+          )}
+
+          {/* Pro · Last-10 Points Trend */}
+          {last10Trend.length >= 2 && (
+            <Card padding="md" style={{ marginBottom: '12px', border: '1px solid rgba(251, 191, 36, 0.2)' }}>
+              <div className="flex items-center justify-between" style={{ marginBottom: '10px' }}>
+                <span className="section-label flex items-center gap-2">
+                  <Crown size={14} style={{ color: '#FBBF24' }} /> Pro · Last 10 — Points
+                </span>
+                <span className="t-caption" style={{ color: 'var(--color-text-sec)' }}>
+                  {last10Trend.length} games
+                </span>
+              </div>
+              <div style={{ height: '140px', margin: '0 -6px' }}>
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart data={last10Trend}>
+                    <CartesianGrid stroke="rgba(255,255,255,0.05)" vertical={false} />
+                    <XAxis dataKey="game" tick={{ fill: 'rgba(255,255,255,0.4)', fontSize: 10 }} axisLine={false} tickLine={false} />
+                    <YAxis tick={{ fill: 'rgba(255,255,255,0.4)', fontSize: 10 }} axisLine={false} tickLine={false} width={24} />
+                    <Tooltip
+                      contentStyle={{ background: '#0D0D1A', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', fontSize: '11px' }}
+                      labelStyle={{ color: 'rgba(255,255,255,0.5)' }}
+                      itemStyle={{ color: '#FF6B35' }}
+                    />
+                    <Line type="monotone" dataKey="pts" stroke="#FF6B35" strokeWidth={2.5} dot={{ fill: '#FF6B35', r: 3 }} activeDot={{ r: 5 }} name="Points" />
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
+            </Card>
+          )}
+
+          {/* Pro · Last-10 FG% Trend */}
+          {last10Trend.length >= 2 && (
+            <Card padding="md" style={{ marginBottom: '12px', border: '1px solid rgba(251, 191, 36, 0.2)' }}>
+              <div className="section-label flex items-center gap-2" style={{ marginBottom: '10px' }}>
+                <Crown size={14} style={{ color: '#FBBF24' }} /> Pro · Last 10 — Field Goal %
+              </div>
+              <div style={{ height: '140px', margin: '0 -6px' }}>
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart data={last10Trend}>
+                    <CartesianGrid stroke="rgba(255,255,255,0.05)" vertical={false} />
+                    <XAxis dataKey="game" tick={{ fill: 'rgba(255,255,255,0.4)', fontSize: 10 }} axisLine={false} tickLine={false} />
+                    <YAxis domain={[0, 100]} tick={{ fill: 'rgba(255,255,255,0.4)', fontSize: 10 }} axisLine={false} tickLine={false} width={30} />
+                    <Tooltip
+                      contentStyle={{ background: '#0D0D1A', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', fontSize: '11px' }}
+                      labelStyle={{ color: 'rgba(255,255,255,0.5)' }}
+                      itemStyle={{ color: '#22C55E' }}
+                      formatter={(v) => [`${v}%`, 'FG%']}
+                    />
+                    <Line type="monotone" dataKey="fgPct" stroke="#22C55E" strokeWidth={2.5} dot={{ fill: '#22C55E', r: 3 }} activeDot={{ r: 5 }} name="FG%" />
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
+            </Card>
+          )}
+
+          {/* Pro · Export */}
+          <Card padding="md" style={{ marginBottom: '12px', border: '1px solid rgba(251, 191, 36, 0.2)' }}>
+            <div className="section-label flex items-center gap-2" style={{ marginBottom: '10px' }}>
+              <Crown size={14} style={{ color: '#FBBF24' }} /> Pro · Export Data
+            </div>
+            <p className="t-caption" style={{ color: 'var(--color-text-sec)', marginBottom: '12px' }}>
+              Download every saved game as a CSV for Excel, Google Sheets, or Numbers.
+            </p>
+            <button
+              onClick={handleExportCSV}
+              style={{
+                width: '100%', padding: '12px', borderRadius: '12px',
+                border: '1px solid rgba(251, 191, 36, 0.4)',
+                background: 'linear-gradient(135deg, rgba(251,191,36,0.12), rgba(251,191,36,0.04))',
+                color: '#FBBF24', cursor: 'pointer', fontFamily: 'inherit',
+                fontWeight: 800, fontSize: '13px', display: 'flex',
+                alignItems: 'center', justifyContent: 'center', gap: '8px',
+              }}
+            >
+              <Download size={15} /> Export Season CSV
+            </button>
+          </Card>
+        </>
       )}
 
       {/* My IQ is read-only by design — no "Start Gametime" CTA here.

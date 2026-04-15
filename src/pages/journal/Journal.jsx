@@ -10,6 +10,8 @@ import Badge from '../../components/ui/Badge'
 import EmptyState from '../../components/ui/EmptyState'
 import SkeletonLoader from '../../components/ui/SkeletonLoader'
 import { useToast } from '../../context/ToastContext'
+import { usePremium } from '../../context/PremiumContext'
+import { useNavigate } from 'react-router-dom'
 import useJournal from '../../hooks/useJournal'
 
 const MOODS = [
@@ -134,13 +136,26 @@ function JournalForm({ entry, onSave, onDelete, onBack, saving }) {
 }
 
 export default function Journal() {
-  const { entries, loading, addEntry, updateEntry, deleteEntry, loadMore, hasMore, showMentalHealthSupport } = useJournal()
+  const { entries, allEntries, loading, addEntry, updateEntry, deleteEntry, loadMore, hasMore, showMentalHealthSupport } = useJournal()
   const { showToast } = useToast()
+  const { isPro, checkMonthlyQuota } = usePremium()
+  const navigate = useNavigate()
   const [view, setView] = useState('list')
   const [editingEntry, setEditingEntry] = useState(null)
   const [saving, setSaving] = useState(false)
 
-  const openNew = () => { setEditingEntry(null); setView('form') }
+  const openNew = () => {
+    // Free tier: cap journal entries at the monthly limit. Edits always allowed.
+    if (!isPro) {
+      const quota = checkMonthlyQuota('journalEntriesPerMonth', allEntries || entries, 'entry_date')
+      if (!quota.ok) {
+        showToast(`Free plan: ${quota.used}/${quota.limit} entries this month. Upgrade for unlimited.`, 'error')
+        navigate('/premium')
+        return
+      }
+    }
+    setEditingEntry(null); setView('form')
+  }
   const openEdit = entry => { setEditingEntry(entry); setView('form') }
   const backToList = () => setView('list')
 

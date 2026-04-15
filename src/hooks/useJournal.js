@@ -202,6 +202,7 @@ export default function useJournal() {
 
   return {
     entries,
+    allEntries,
     loading,
     fetchEntries,
     addEntry,

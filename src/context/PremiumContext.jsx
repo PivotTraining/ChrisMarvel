@@ -28,6 +28,8 @@ const FREE_LIMITS = {
   radarChart: false,
   shareCards: false,
   customDrillTemplates: false,
+  gameFilm: false, // Record video during Gametime (Pro)
+  trendGraphs: false, // Last-10 trend line charts (Pro)
 }
 
 const PRO_LIMITS = {
@@ -43,6 +45,8 @@ const PRO_LIMITS = {
   radarChart: true,
   shareCards: true,
   customDrillTemplates: true,
+  gameFilm: true,
+  trendGraphs: true,
 }
 
 export const PLANS = {
@@ -68,9 +72,11 @@ export const PLANS = {
     limits: PRO_LIMITS,
     features: [
       'Unlimited game logging',
+      'Game Film — record video while you track stats',
       'Gametime live tracker',
       'Practice Mode with timers',
       'Advanced analytics & radar chart',
+      'Last-10 trend graphs',
       'All training packs',
       'Share cards & data export',
       'Custom drill templates',

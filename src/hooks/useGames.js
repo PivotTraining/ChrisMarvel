@@ -96,36 +96,50 @@ export default function useGames() {
       if (BYPASS_AUTH) {
         const all = getAllGamesFromStorage()
         setAllGames(all)
-        const start = 0
         const end = (pageNum + 1) * PAGE_SIZE
-        const sliced = all.slice(start, end)
-        setGames(sliced)
+        setGames(all.slice(0, end))
         setHasMore(end < all.length)
-      } else {
-        const start = 0
-        const end = (pageNum + 1) * PAGE_SIZE - 1
-
-        const { data, error } = await supabase
-          .from('games')
-          .select('*')
-          .order('game_date', { ascending: false })
-          .range(start, end)
-
-        if (error) throw error
-
-        setGames(data || [])
-        setHasMore((data || []).length === (pageNum + 1) * PAGE_SIZE)
-
-        // Fetch all games for season averages
-        const { data: allData, error: allError } = await supabase
-          .from('games')
-          .select('*')
-
-        if (allError) throw allError
-        setAllGames(allData || [])
+        return
       }
-    } catch {
-      // error fetching games
+
+      // PRODUCTION: localStorage is the source of truth. Supabase is a
+      // best-effort sync layer. Previously this branch was Supabase-only
+      // and any insert error silently lost the user's game. Now we always
+      // start from localStorage and merge in whatever Supabase returns.
+      const local = getAllGamesFromStorage()
+
+      let remoteAll = []
+      try {
+        const { data, error } = await supabase.from('games').select('*')
+        if (error) {
+          // eslint-disable-next-line no-console
+          console.warn('[CourtIQ] Supabase games fetch skipped:', error.message)
+        } else {
+          remoteAll = data || []
+        }
+      } catch (e) {
+        // eslint-disable-next-line no-console
+        console.warn('[CourtIQ] Supabase games fetch threw:', e?.message || e)
+      }
+
+      // Merge by id. Remote rows win on conflict (server is canonical
+      // when reachable). Local-only rows stay so unsynced games still
+      // appear in the UI.
+      const byId = new Map()
+      for (const g of local) if (g && g.id) byId.set(g.id, g)
+      for (const g of remoteAll) if (g && g.id) byId.set(g.id, g)
+      const merged = Array.from(byId.values()).sort(
+        (a, b) => (b.game_date || '').localeCompare(a.game_date || '')
+      )
+
+      // Persist the merged set so localStorage stays canonical even
+      // after a remote-only sync brought in new rows.
+      saveGamesToStorage(merged)
+
+      setAllGames(merged)
+      const end = (pageNum + 1) * PAGE_SIZE
+      setGames(merged.slice(0, end))
+      setHasMore(end < merged.length)
     } finally {
       setLoading(false)
     }
@@ -143,33 +157,56 @@ export default function useGames() {
   }, [hasMore, loading, page, fetchGames])
 
   const addGame = useCallback(async (gameData) => {
-    try {
-      if (BYPASS_AUTH) {
-        const newGame = {
-          ...gameData,
-          id: crypto.randomUUID(),
-          user_id: 'bypass-user',
-          created_at: new Date().toISOString(),
-        }
-        const all = getAllGamesFromStorage()
-        all.push(newGame)
-        saveGamesToStorage(all)
-        await fetchGames(page)
-        return newGame
-      } else {
-        const { data, error } = await supabase
-          .from('games')
-          .insert([gameData])
-          .select()
-          .single()
-
-        if (error) throw error
-        await fetchGames(page)
-        return data
-      }
-    } catch {
-      return null
+    // Build the new game with a stable id we control client-side. This
+    // matters because the localStorage write needs to happen BEFORE the
+    // Supabase insert (so it's durable even if Supabase fails) and both
+    // copies need the same id so the merge in fetchGames dedupes them.
+    const newGame = {
+      ...gameData,
+      id: gameData.id || (crypto.randomUUID ? crypto.randomUUID() : `game-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`),
+      created_at: gameData.created_at || new Date().toISOString(),
     }
+
+    // 1. ALWAYS persist to localStorage first. This is the write the
+    //    user actually cares about — it cannot silently fail.
+    const all = getAllGamesFromStorage()
+    all.push(newGame)
+    saveGamesToStorage(all)
+
+    if (BYPASS_AUTH) {
+      newGame.user_id = newGame.user_id || 'bypass-user'
+      // Re-save so user_id sticks
+      const updated = getAllGamesFromStorage().map(g => g.id === newGame.id ? newGame : g)
+      saveGamesToStorage(updated)
+      await fetchGames(page)
+      return newGame
+    }
+
+    // 2. Best-effort sync to Supabase. Errors are logged but never
+    //    thrown — the localStorage write above is what counts.
+    try {
+      const { data, error } = await supabase
+        .from('games')
+        .insert([newGame])
+        .select()
+        .single()
+      if (error) {
+        // eslint-disable-next-line no-console
+        console.warn('[CourtIQ] Supabase games insert skipped:', error.message)
+      } else if (data) {
+        // Replace the localStorage row with the canonical Supabase row
+        // (it may have server-set fields like user_id from RLS).
+        const synced = getAllGamesFromStorage().map(g => g.id === newGame.id ? data : g)
+        saveGamesToStorage(synced)
+      }
+    } catch (e) {
+      // eslint-disable-next-line no-console
+      console.warn('[CourtIQ] Supabase games insert threw:', e?.message || e)
+    }
+
+    // 3. Refresh derived state from storage.
+    await fetchGames(page)
+    return newGame
   }, [page, fetchGames])
 
   const updateGame = useCallback(async (id, updates) => {

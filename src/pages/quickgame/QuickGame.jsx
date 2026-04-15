@@ -254,7 +254,7 @@ export default function Gametime() {
   const location = useLocation()
   const { addGame, updateGame } = useGames()
   const { showToast } = useToast()
-  const { isPro } = usePremium()
+  const { isPro, upgrade } = usePremium()
   const { profile } = useAuth()
   const { impact, notification, selection } = useHaptics()
 
@@ -608,6 +608,7 @@ export default function Gametime() {
           title="Great game!"
           subtitle={`You logged ${pts} points. Unlock advanced analytics, heat maps & more with Pro.`}
           onClose={() => { setShowUpgrade(false); navigate('/games') }}
+          onUpgrade={() => { upgrade(); setShowUpgrade(false); navigate('/games') }}
         />
       )}
     </div>

@@ -14,12 +14,20 @@ export default function UpgradePrompt({
   subtitle = "You're crushing it. Take your training to the next level.",
   benefits = DEFAULT_BENEFITS,
   onClose,
+  // Optional: called instead of navigate('/premium') when user taps upgrade.
+  // Useful when the prompt appears mid-session (e.g. after Gametime) and we
+  // don't want to unmount the current page and lose in-memory state.
+  onUpgrade,
 }) {
   const navigate = useNavigate()
 
   const handleUpgrade = () => {
     if (onClose) onClose()
-    navigate('/premium')
+    if (onUpgrade) {
+      onUpgrade()
+    } else {
+      navigate('/premium')
+    }
   }
 
   return (

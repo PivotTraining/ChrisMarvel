@@ -136,10 +136,45 @@ export function AuthProvider({ children }) {
       return
     }
 
-    supabase.auth.getSession().then(({ data: { session: currentSession } }) => {
+    // Race supabase.auth.getSession() against a hard 5-second timeout.
+    // We've seen real users hang here forever — typically when the
+    // local refresh-token flow gets confused by a stale session and the
+    // promise simply never resolves. The timeout guarantees the auth
+    // loading screen can never deadlock the entire app: if we don't
+    // hear back in 5s we give up, treat the user as unauthed, and let
+    // them sign in again.
+    const sessionPromise = supabase.auth.getSession()
+    const timeoutPromise = new Promise((resolve) => {
+      setTimeout(() => resolve({ data: { session: null }, __timedOut: true }), 5000)
+    })
+    Promise.race([sessionPromise, timeoutPromise]).then((result) => {
+      if (result?.__timedOut) {
+        // eslint-disable-next-line no-console
+        console.warn('[CourtIQ] supabase.auth.getSession() timed out after 5s — clearing local session and showing login.')
+        try {
+          // Best-effort: nuke any sb-* tokens so the next mount starts clean.
+          for (const k of Object.keys(localStorage)) {
+            if (k.startsWith('sb-')) localStorage.removeItem(k)
+          }
+        } catch { /* noop */ }
+        setSession(null)
+        setUser(null)
+        setProfile(null)
+        setLoading(false)
+        return
+      }
+      const currentSession = result?.data?.session ?? null
       setSession(currentSession)
       setUser(currentSession?.user ?? null)
       if (currentSession?.user) fetchProfile(currentSession.user.id)
+      setLoading(false)
+    }).catch(() => {
+      // getSession() rejected outright — treat as unauthed and unblock UI.
+      // eslint-disable-next-line no-console
+      console.warn('[CourtIQ] supabase.auth.getSession() rejected — showing login.')
+      setSession(null)
+      setUser(null)
+      setProfile(null)
       setLoading(false)
     })
 

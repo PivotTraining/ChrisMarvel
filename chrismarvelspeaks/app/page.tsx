@@ -76,6 +76,7 @@ export default function Home() {
             <li role="none"><a href="#keynotes" role="menuitem" onClick={(e) => { e.preventDefault(); scrollTo('keynotes') }}>Keynotes</a></li>
             <li role="none"><a href="#reel" role="menuitem" onClick={(e) => { e.preventDefault(); scrollTo('reel') }}>Reel</a></li>
             <li role="none"><a href="#book" role="menuitem" onClick={(e) => { e.preventDefault(); scrollTo('book') }}>Book</a></li>
+            <li role="none"><a href="/communities" role="menuitem">Communities</a></li>
             <li role="none"><a href="#testimonials" role="menuitem" onClick={(e) => { e.preventDefault(); scrollTo('testimonials') }}>Testimonials</a></li>
             <li role="none"><a href="#contact" className="nav-cta" role="menuitem" onClick={(e) => { e.preventDefault(); scrollTo('contact') }}>Book Chris</a></li>
           </ul>

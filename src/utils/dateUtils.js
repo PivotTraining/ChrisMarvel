@@ -1,8 +1,31 @@
 /**
+ * Get today's date as YYYY-MM-DD in the LOCAL timezone. Never use
+ * `new Date().toISOString().split('T')[0]` — that returns UTC which
+ * is wrong after 8pm EDT (or any negative-offset timezone).
+ */
+export function localToday() {
+  const d = new Date()
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
+}
+
+/**
+ * Safely parse a date-only string (YYYY-MM-DD) into a Date at noon
+ * local time. Plain `new Date("2026-04-16")` parses as midnight UTC,
+ * which in western timezones displays as the PREVIOUS day.
+ */
+export function parseLocalDate(dateStr) {
+  if (!dateStr) return new Date()
+  // If it already has a time component, use as-is
+  if (dateStr.includes('T')) return new Date(dateStr)
+  // Date-only: anchor at noon local to avoid timezone day-shift
+  return new Date(dateStr + 'T12:00:00')
+}
+
+/**
  * Format an ISO date string to a readable date like "Mar 19, 2026"
  */
 export function formatDate(isoString) {
-  const date = new Date(isoString)
+  const date = parseLocalDate(isoString)
   return date.toLocaleDateString('en-US', {
     month: 'short',
     day: 'numeric',

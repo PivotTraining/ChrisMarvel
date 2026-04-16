@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { supabase, BYPASS_AUTH } from '../lib/supabase';
+import { localToday } from '../utils/dateUtils';
 
 const STORAGE_KEY = 'courtiq_drills';
 const PAGE_SIZE = 10;
@@ -68,7 +69,7 @@ export default function useDrills() {
         const drill = {
           id: crypto.randomUUID(),
           user_id: 'local',
-          session_date: data.session_date || new Date().toISOString().split('T')[0],
+          session_date: data.session_date || localToday(),
           drill_name: data.drill_name,
           category: data.category,
           duration_minutes: Number(data.duration_minutes) || 0,

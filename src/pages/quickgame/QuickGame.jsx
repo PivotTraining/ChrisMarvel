@@ -2,6 +2,7 @@ import { useState, useCallback, useRef, useEffect } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { Undo2, Share2, Trash2, Check, ChevronLeft, Video, VideoOff } from 'lucide-react'
 import useGames from '../../hooks/useGames'
+import { localToday } from '../../utils/dateUtils'
 import { useToast } from '../../context/ToastContext'
 import { usePremium } from '../../context/PremiumContext'
 import { useAuth } from '../../context/AuthContext'
@@ -430,12 +431,67 @@ export default function Gametime() {
     }
   }, [isPro, showToast, tearDownCamera])
 
-  const stopFilmingDiscard = useCallback(async () => {
-    await stopRecording()
+  // When the user taps Stop, we capture the blob and show a preview
+  // modal with Save to Device / Delete options. The video is NEVER
+  // persisted inside the app — it goes to the device's camera roll
+  // or downloads folder, or it gets discarded.
+  const [filmBlob, setFilmBlob] = useState(null)
+  const [showFilmPreview, setShowFilmPreview] = useState(false)
+
+  const stopFilmingPreview = useCallback(async () => {
+    const blob = await stopRecording()
     tearDownCamera()
     setFilming(false)
-    showToast('Film discarded', 'info')
+    if (blob && blob.size > 0) {
+      setFilmBlob(blob)
+      setShowFilmPreview(true)
+    } else {
+      showToast('No video recorded', 'info')
+    }
   }, [stopRecording, tearDownCamera, showToast])
+
+  const handleSaveFilmToDevice = useCallback(async () => {
+    if (!filmBlob) return
+    // Try native share first (works on iOS — saves to camera roll)
+    if (navigator.share && navigator.canShare) {
+      const file = new File(
+        [filmBlob],
+        `CourtIQ-${opponent || 'game'}-${localToday()}.${filmBlob.type.includes('mp4') ? 'mp4' : 'webm'}`,
+        { type: filmBlob.type }
+      )
+      try {
+        if (navigator.canShare({ files: [file] })) {
+          await navigator.share({ files: [file], title: 'CourtIQ Game Film' })
+          showToast('Film saved', 'success')
+          setShowFilmPreview(false)
+          setFilmBlob(null)
+          return
+        }
+      } catch { /* user cancelled share — fall through to download */ }
+    }
+    // Fallback: trigger a download
+    try {
+      const url = URL.createObjectURL(filmBlob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = `CourtIQ-${opponent || 'game'}-${localToday()}.${filmBlob.type.includes('mp4') ? 'mp4' : 'webm'}`
+      document.body.appendChild(a)
+      a.click()
+      document.body.removeChild(a)
+      setTimeout(() => URL.revokeObjectURL(url), 1000)
+      showToast('Film downloaded', 'success')
+    } catch {
+      showToast('Could not save film', 'error')
+    }
+    setShowFilmPreview(false)
+    setFilmBlob(null)
+  }, [filmBlob, opponent, showToast])
+
+  const handleDeleteFilm = useCallback(() => {
+    setFilmBlob(null)
+    setShowFilmPreview(false)
+    showToast('Film deleted', 'info')
+  }, [showToast])
 
   // Release the camera if the component unmounts mid-recording (e.g. user
   // navigates away). We never keep a hot camera stream around after unmount.
@@ -524,18 +580,16 @@ export default function Gametime() {
   const handleSave = useCallback(async () => {
     setSaving(true)
 
-    // Stop recording first so we can tag the film with the new game's id.
-    // Keeping this BEFORE the DB write means we have the blob in hand by
-    // the time we know the game id, so the IndexedDB key always lines up.
-    let filmBlob = null
+    // If still filming when Save is tapped, stop the camera gracefully
+    // but don't auto-save the video — the user can save it separately.
     if (filming) {
-      filmBlob = await stopRecording()
+      await stopRecording()
       tearDownCamera()
       setFilming(false)
     }
 
     const gameData = {
-      game_date: new Date().toISOString().split('T')[0],
+      game_date: localToday(),
       opponent: sessionType === 'Workout' ? opponent || 'Solo Workout' : opponent || 'Opponent',
       game_type: sessionType,
       result: sessionType === 'Game' ? 'Win' : null,
@@ -554,7 +608,6 @@ export default function Gametime() {
       free_throws_made: stats.free_throws_made,
       free_throws_attempted: stats.free_throws_attempted,
       _shots: shots,
-      has_film: !!filmBlob, // surfaces "Watch Film" in review
     }
     try {
       let persistedId = null
@@ -567,22 +620,13 @@ export default function Gametime() {
         persistedId = saved?.id || null
         showToast('Game saved!', 'success')
       }
-
-      // Persist the film blob against the game id. This is best-effort —
-      // if IndexedDB write fails, the stats still save.
-      if (filmBlob && persistedId) {
-        await persistFilm(persistedId, filmBlob)
-      }
-
-      // Post-save: show shareable game card. The card's onClose handler
-      // chains to the Pro upsell (free users) or navigates to /games (Pro).
       setSavedGame({ ...gameData, id: persistedId })
     } catch {
       showToast('Failed to save', 'error')
     } finally {
       setSaving(false)
     }
-  }, [filming, stopRecording, tearDownCamera, pts, stats, fgm, fga, tpm, tpa, shots, opponent, resumeGame, addGame, updateGame, showToast])
+  }, [filming, stopRecording, tearDownCamera, pts, stats, fgm, fga, tpm, tpa, shots, opponent, sessionType, resumeGame, addGame, updateGame, showToast])
 
   const handleShareCardClose = useCallback(() => {
     setSavedGame(null)
@@ -655,7 +699,7 @@ export default function Gametime() {
         {/* Film button — spacer pushes it right */}
         <div style={{ marginLeft: 'auto' }}>
           <button
-            onClick={filming ? stopFilmingDiscard : startFilming}
+            onClick={filming ? stopFilmingPreview : startFilming}
             aria-label={filming ? 'Stop recording' : 'Record game film'}
             style={{
               display: 'flex', alignItems: 'center', gap: '6px',
@@ -885,6 +929,84 @@ export default function Gametime() {
           onUpgrade={() => { upgrade(); setShowUpgrade(false); navigate('/games') }}
         />
       )}
+
+      {/* Film preview modal — shown after Stop Recording. User chooses
+          Save to Device (camera roll / downloads) or Delete. */}
+      {showFilmPreview && filmBlob && (() => {
+        const blobUrl = URL.createObjectURL(filmBlob)
+        return (
+          <div
+            onClick={() => { URL.revokeObjectURL(blobUrl); handleDeleteFilm() }}
+            style={{
+              position: 'fixed', inset: 0, zIndex: 60,
+              background: 'rgba(0,0,0,0.85)', backdropFilter: 'blur(10px)',
+              display: 'flex', flexDirection: 'column',
+              alignItems: 'center', justifyContent: 'center',
+              padding: '20px',
+              paddingTop: 'calc(20px + env(safe-area-inset-top, 0px))',
+              paddingBottom: 'calc(20px + env(safe-area-inset-bottom, 0px))',
+            }}
+          >
+            <div onClick={(e) => e.stopPropagation()} style={{
+              width: '100%', maxWidth: '400px',
+              background: '#0D0D1A', borderRadius: '20px',
+              border: '1px solid rgba(255,255,255,0.1)',
+              overflow: 'hidden',
+            }}>
+              {/* Header */}
+              <div style={{
+                padding: '16px 20px',
+                borderBottom: '1px solid rgba(255,255,255,0.08)',
+                textAlign: 'center',
+              }}>
+                <div style={{ fontSize: '16px', fontWeight: 900, color: '#fff' }}>Game Film</div>
+                <div style={{ fontSize: '12px', color: 'rgba(255,255,255,0.5)', marginTop: '4px' }}>
+                  {Math.round(filmBlob.size / 1024 / 1024 * 10) / 10} MB · {filmBlob.type.includes('mp4') ? 'MP4' : 'WebM'}
+                </div>
+              </div>
+
+              {/* Video preview */}
+              <div style={{ background: '#000' }}>
+                <video
+                  src={blobUrl}
+                  controls
+                  playsInline
+                  style={{ width: '100%', maxHeight: '50vh', display: 'block' }}
+                />
+              </div>
+
+              {/* Actions */}
+              <div style={{ display: 'flex', gap: '10px', padding: '16px 20px' }}>
+                <button
+                  onClick={() => { URL.revokeObjectURL(blobUrl); handleDeleteFilm() }}
+                  style={{
+                    flex: 1, padding: '14px', borderRadius: '14px',
+                    border: '1px solid rgba(239,68,68,0.4)',
+                    background: 'rgba(239,68,68,0.1)',
+                    color: '#EF4444', fontSize: '14px', fontWeight: 800,
+                    cursor: 'pointer', fontFamily: 'inherit',
+                  }}
+                >
+                  Delete
+                </button>
+                <button
+                  onClick={() => { URL.revokeObjectURL(blobUrl); handleSaveFilmToDevice() }}
+                  style={{
+                    flex: 1, padding: '14px', borderRadius: '14px',
+                    border: 'none',
+                    background: 'linear-gradient(135deg, #FF6B35, #C8490A)',
+                    color: '#fff', fontSize: '14px', fontWeight: 800,
+                    cursor: 'pointer', fontFamily: 'inherit',
+                    boxShadow: '0 4px 16px rgba(255,107,53,0.35)',
+                  }}
+                >
+                  Save to Device
+                </button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
     </div>
   )
 }

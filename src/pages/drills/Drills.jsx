@@ -8,6 +8,7 @@ import {
   Target, Flame, ArrowLeft, Clock, CheckCircle, Camera, X, Play,
   Crosshair, Activity, Shield, Zap, Dumbbell,
 } from 'lucide-react'
+import { localToday } from '../../utils/dateUtils'
 
 // Lazy-load the pose-tracking camera — TF.js backend is ~3-4 MB and should
 // only be fetched when the user actually opens a drill camera session.
@@ -533,7 +534,7 @@ export default function Drills() {
       }
     }
     const res = await addDrill({
-      session_date: new Date().toISOString().split('T')[0],
+      session_date: localToday(),
       drill_name: drill.name,
       category: drill.category,
       duration_minutes: drill.duration,
@@ -636,7 +637,7 @@ export default function Drills() {
               if (quality !== null && quality !== undefined) noteBits.push(`form ${quality}%`)
               if (feedback) noteBits.push(feedback)
               await addDrill({
-                session_date: new Date().toISOString().split('T')[0],
+                session_date: localToday(),
                 drill_name: cameraDrill.name,
                 category: cameraDrill.category,
                 duration_minutes: cameraDrill.duration,

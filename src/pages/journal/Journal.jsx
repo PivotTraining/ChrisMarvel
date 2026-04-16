@@ -1,5 +1,6 @@
 import { useState, useMemo, useEffect } from 'react'
 import { BookHeart, ArrowLeft, Trash2, Heart } from 'lucide-react'
+import { localToday } from '../../utils/dateUtils'
 import PageWrapper from '../../components/layout/PageWrapper'
 import Button from '../../components/ui/Button'
 import Card from '../../components/ui/Card'
@@ -81,7 +82,7 @@ function JournalEntryCard({ entry, onClick }) {
 }
 
 const defaultForm = () => ({
-  entry_date: new Date().toISOString().slice(0, 10),
+  entry_date: localToday(),
   mood: '', energy_level: 5, confidence: 5, focus: 5, stress: 5, sleep_quality: 5,
   goals_text: '', gratitude_text: '', reflection_text: '', tags: '',
 })

@@ -1,5 +1,6 @@
 import { useState, useCallback, useEffect, useRef, useMemo } from 'react'
 import { supabase, BYPASS_AUTH } from '../lib/supabase'
+import { localToday } from '../utils/dateUtils'
 
 const STORAGE_KEY = 'courtiq_shots'
 
@@ -24,7 +25,7 @@ function generateId() {
 }
 
 function todayDate() {
-  return new Date().toISOString().split('T')[0]
+  return localToday()
 }
 
 function getLocalShots() {

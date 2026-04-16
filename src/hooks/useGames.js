@@ -182,29 +182,30 @@ export default function useGames() {
       return newGame
     }
 
-    // 2. Best-effort sync to Supabase. Errors are logged but never
-    //    thrown — the localStorage write above is what counts.
-    try {
-      const { data, error } = await supabase
-        .from('games')
-        .insert([newGame])
-        .select()
-        .single()
-      if (error) {
+    // 2. Best-effort sync to Supabase — FIRE-AND-FORGET. We never await
+    //    this so the UI returns immediately after the localStorage write.
+    //    If Supabase is slow, down, or the table doesn't exist, the user
+    //    never sees a hang. The data is already safely in localStorage.
+    supabase
+      .from('games')
+      .insert([newGame])
+      .select()
+      .single()
+      .then(({ data, error }) => {
+        if (error) {
+          // eslint-disable-next-line no-console
+          console.warn('[CourtIQ] Supabase games insert skipped:', error.message)
+        } else if (data) {
+          const synced = getAllGamesFromStorage().map(g => g.id === newGame.id ? data : g)
+          saveGamesToStorage(synced)
+        }
+      })
+      .catch((e) => {
         // eslint-disable-next-line no-console
-        console.warn('[CourtIQ] Supabase games insert skipped:', error.message)
-      } else if (data) {
-        // Replace the localStorage row with the canonical Supabase row
-        // (it may have server-set fields like user_id from RLS).
-        const synced = getAllGamesFromStorage().map(g => g.id === newGame.id ? data : g)
-        saveGamesToStorage(synced)
-      }
-    } catch (e) {
-      // eslint-disable-next-line no-console
-      console.warn('[CourtIQ] Supabase games insert threw:', e?.message || e)
-    }
+        console.warn('[CourtIQ] Supabase games insert threw:', e?.message || e)
+      })
 
-    // 3. Refresh derived state from storage.
+    // 3. Refresh derived state from localStorage (instant, no network).
     await fetchGames(page)
     return newGame
   }, [page, fetchGames])

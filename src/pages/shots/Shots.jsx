@@ -10,6 +10,7 @@
 
 import { useMemo, useState, useEffect, useCallback, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { localToday, parseLocalDate } from '../../utils/dateUtils'
 import {
   BarChart3, Flame, TrendingUp, TrendingDown, Target, Trophy,
   Lock, Sparkles, Crown, Dumbbell, RefreshCw, Brain, Download,
@@ -478,7 +479,7 @@ export default function MyIQ() {
       const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
       const url = URL.createObjectURL(blob)
       const a = document.createElement('a')
-      const stamp = new Date().toISOString().slice(0, 10)
+      const stamp = localToday()
       a.href = url
       a.download = `courtiq-stats-${stamp}.csv`
       document.body.appendChild(a)
@@ -709,7 +710,7 @@ export default function MyIQ() {
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
             {(allGames || []).slice(0, 5).map((g, i) => {
-              const d = g.game_date ? new Date(g.game_date) : null
+              const d = g.game_date ? parseLocalDate(g.game_date) : null
               const dateLabel = d
                 ? d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
                 : '—'

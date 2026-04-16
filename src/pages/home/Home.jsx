@@ -10,7 +10,7 @@ import useJournal from '../../hooks/useJournal'
 import useAnalytics from '../../hooks/useAnalytics'
 import useGamification from '../../hooks/useGamification'
 import useSchedule from '../../hooks/useSchedule'
-import { getGreeting, formatDate } from '../../utils/dateUtils'
+import { getGreeting, formatDate, localToday } from '../../utils/dateUtils'
 import PageWrapper from '../../components/layout/PageWrapper'
 import Card from '../../components/ui/Card'
 import Button from '../../components/ui/Button'
@@ -254,7 +254,7 @@ export default function Home() {
             </button>
             <button
               onClick={() => {
-                setNewEvent({ title: '', type: 'Game', date: new Date().toISOString().split('T')[0], time: '' })
+                setNewEvent({ title: '', type: 'Game', date: localToday(), time: '' })
                 setShowAddEvent(true)
               }}
               className="flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-bold"

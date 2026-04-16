@@ -1,5 +1,6 @@
 import { useState, useCallback, useMemo, useEffect } from 'react'
 import { supabase, BYPASS_AUTH } from '../lib/supabase'
+import { localToday } from '../utils/dateUtils'
 
 const STORAGE_KEY = 'courtiq_schedule'
 const GCAL_CACHE_KEY = 'courtiq_gcal_cache'
@@ -210,7 +211,7 @@ export default function useSchedule() {
 
   // Upcoming events — today and future, sorted by date+time ascending.
   const upcoming = useMemo(() => {
-    const today = new Date().toISOString().split('T')[0]
+    const today = localToday()
     return events
       .filter((e) => e.date >= today)
       .sort((a, b) => {
@@ -222,7 +223,7 @@ export default function useSchedule() {
 
   // Today's events specifically.
   const todayEvents = useMemo(() => {
-    const today = new Date().toISOString().split('T')[0]
+    const today = localToday()
     return upcoming.filter((e) => e.date === today)
   }, [upcoming])
 

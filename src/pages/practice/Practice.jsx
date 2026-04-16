@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Timer, Target, RotateCcw, Play, Pause, Check, Plus, Minus, Flame, Crosshair, Dumbbell, X } from 'lucide-react'
+import { localToday } from '../../utils/dateUtils'
 import PageWrapper from '../../components/layout/PageWrapper'
 import Card from '../../components/ui/Card'
 import Button from '../../components/ui/Button'
@@ -426,7 +427,7 @@ function PracticeContent() {
 
   const saveWorkout = async () => {
     const drillData = {
-      drill_date: new Date().toISOString().split('T')[0],
+      drill_date: localToday(),
       drill_name: workout.name,
       category: workout.type === 'shooting' ? 'Shooting' : 'Conditioning',
       duration: Math.round(sessionTimer / 60) || 1,

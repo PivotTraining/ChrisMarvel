@@ -302,6 +302,7 @@ export default function Gametime() {
   const resumeGame = location.state?.game || null
 
   const [opponent, setOpponent] = useState(resumeGame?.opponent || '')
+  const [sessionType, setSessionType] = useState(resumeGame?.game_type || 'Game')
   const [showUpgrade, setShowUpgrade] = useState(false)
   const [savedGame, setSavedGame] = useState(null) // triggers GameShareCard after save
   const [shots, setShots] = useState(resumeGame?._shots || [])
@@ -374,15 +375,35 @@ export default function Gametime() {
       return
     }
     try {
+      // Request camera+mic. On iOS WKWebView, this triggers the native
+      // permission prompt if not yet granted. The stream will contain
+      // active tracks once the user taps Allow.
       const stream = await navigator.mediaDevices.getUserMedia({
         video: { facingMode: { ideal: 'environment' }, width: { ideal: 1280 }, height: { ideal: 720 } },
         audio: true,
       })
       cameraStreamRef.current = stream
+
+      // Set filming=true FIRST so the PiP <video> element mounts in the
+      // next render. Then connect the stream on the following tick so the
+      // ref is live. This was the cause of the "black screen" — we were
+      // setting srcObject on a ref that didn't exist yet because the
+      // conditional rendering hadn't fired.
+      setFilming(true)
+
+      // Wait one tick for React to render the PiP video element.
+      await new Promise((r) => setTimeout(r, 50))
+
       if (videoPreviewRef.current) {
         videoPreviewRef.current.srcObject = stream
-        videoPreviewRef.current.play().catch(() => { /* autoplay blocked, that's fine */ })
+        // play() must be called explicitly on iOS — autoplay alone is
+        // insufficient in WKWebView even with muted+playsInline.
+        try { await videoPreviewRef.current.play() } catch {
+          // eslint-disable-next-line no-console
+          console.warn('[CourtIQ] Video preview play() blocked — camera is still recording')
+        }
       }
+
       // Prefer MP4 on iOS (native), fall back to WebM on web. Safari supports
       // MediaRecorder as of iOS 14.3 but only with MP4; Chrome prefers WebM.
       const candidates = ['video/mp4', 'video/webm;codecs=vp9,opus', 'video/webm;codecs=vp8,opus', 'video/webm']
@@ -394,12 +415,17 @@ export default function Gametime() {
       }
       mediaRecorderRef.current = recorder
       recorder.start(1000) // emit a chunk every second so we never lose > 1s on crash
-      setFilming(true)
-      showToast('Recording film', 'success')
+      showToast('Recording game film', 'success')
     } catch (e) {
       // eslint-disable-next-line no-console
       console.warn('[CourtIQ] Could not start recording:', e?.message || e)
-      showToast('Camera permission denied', 'error')
+      const msg = e?.name === 'NotAllowedError'
+        ? 'Camera permission denied — check Settings → CourtIQ → Camera'
+        : e?.name === 'NotFoundError'
+          ? 'No camera found on this device'
+          : `Camera error: ${e?.message || 'unknown'}`
+      showToast(msg, 'error')
+      setFilming(false)
       tearDownCamera()
     }
   }, [isPro, showToast, tearDownCamera])
@@ -510,10 +536,10 @@ export default function Gametime() {
 
     const gameData = {
       game_date: new Date().toISOString().split('T')[0],
-      opponent: opponent || 'Opponent',
-      game_type: 'Pickup',
-      result: 'Win',
-      is_home_game: true,
+      opponent: sessionType === 'Workout' ? opponent || 'Solo Workout' : opponent || 'Opponent',
+      game_type: sessionType,
+      result: sessionType === 'Game' ? 'Win' : null,
+      is_home_game: sessionType === 'Game',
       points: pts,
       rebounds: stats.rebounds,
       assists: stats.assists,
@@ -595,33 +621,69 @@ export default function Gametime() {
             outline: 'none', fontFamily: 'inherit',
           }}
         />
-        <button
-          onClick={filming ? stopFilmingDiscard : startFilming}
-          aria-label={filming ? 'Stop recording' : 'Record game film'}
-          style={{
-            background: filming ? 'rgba(239,68,68,0.18)' : 'none',
-            border: filming ? '1px solid rgba(239,68,68,0.5)' : '1px solid transparent',
-            color: filming ? '#EF4444' : 'rgba(255,255,255,0.5)',
-            cursor: 'pointer', padding: '6px 10px',
-            display: 'flex', alignItems: 'center', gap: '6px',
-            borderRadius: '10px', fontWeight: 800, fontSize: '11px',
-          }}
-        >
-          {filming ? <VideoOff size={16} /> : <Video size={16} />}
-          {filming && (
-            <span style={{
-              display: 'inline-block', width: '8px', height: '8px',
-              borderRadius: '50%', background: '#EF4444',
-              animation: 'courtiqRecordPulse 1.2s ease-in-out infinite',
-            }} />
-          )}
-        </button>
         <button onClick={handleShare} style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,0.5)', cursor: 'pointer', padding: '4px' }}>
           <Share2 size={18} />
         </button>
       </div>
 
-      {/* Keyframes for the recording dot pulse — scoped globally via tag */}
+      {/* Session type + Film bar */}
+      <div style={{
+        display: 'flex', alignItems: 'center', gap: '8px',
+        padding: '8px 16px',
+        background: 'rgba(0,0,0,0.25)',
+        borderBottom: '1px solid rgba(255,255,255,0.05)',
+      }}>
+        {/* Session type chips */}
+        {['Game', 'Practice', 'Workout'].map((t) => (
+          <button
+            key={t}
+            onClick={() => { setSessionType(t); selection?.() }}
+            style={{
+              padding: '6px 14px', borderRadius: '20px',
+              border: sessionType === t ? '1px solid var(--color-accent, #FF6B35)' : '1px solid rgba(255,255,255,0.1)',
+              background: sessionType === t ? 'rgba(255,107,53,0.15)' : 'rgba(255,255,255,0.04)',
+              color: sessionType === t ? '#FF6B35' : 'rgba(255,255,255,0.5)',
+              fontSize: '12px', fontWeight: 800, cursor: 'pointer',
+              fontFamily: 'inherit', letterSpacing: '0.3px',
+              WebkitTapHighlightColor: 'transparent',
+            }}
+          >
+            {t}
+          </button>
+        ))}
+
+        {/* Film button — spacer pushes it right */}
+        <div style={{ marginLeft: 'auto' }}>
+          <button
+            onClick={filming ? stopFilmingDiscard : startFilming}
+            aria-label={filming ? 'Stop recording' : 'Record game film'}
+            style={{
+              display: 'flex', alignItems: 'center', gap: '6px',
+              padding: '6px 14px', borderRadius: '20px',
+              background: filming
+                ? 'linear-gradient(135deg, rgba(239,68,68,0.25), rgba(239,68,68,0.12))'
+                : 'linear-gradient(135deg, rgba(255,107,53,0.15), rgba(255,107,53,0.06))',
+              border: filming ? '1px solid rgba(239,68,68,0.6)' : '1px solid rgba(255,107,53,0.4)',
+              color: filming ? '#EF4444' : '#FF6B35',
+              cursor: 'pointer', fontSize: '12px', fontWeight: 800,
+              fontFamily: 'inherit', letterSpacing: '0.3px',
+              WebkitTapHighlightColor: 'transparent',
+            }}
+          >
+            {filming ? <VideoOff size={14} /> : <Video size={14} />}
+            {filming ? 'Stop' : 'Film'}
+            {filming && (
+              <span style={{
+                display: 'inline-block', width: '7px', height: '7px',
+                borderRadius: '50%', background: '#EF4444',
+                animation: 'courtiqRecordPulse 1.2s ease-in-out infinite',
+              }} />
+            )}
+          </button>
+        </div>
+      </div>
+
+      {/* Keyframes for the recording dot pulse */}
       <style>{`@keyframes courtiqRecordPulse { 0%,100% { opacity:1 } 50% { opacity:0.25 } }`}</style>
 
       {/* Floating PiP preview while recording. Minimal and out of the way

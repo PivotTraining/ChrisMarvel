@@ -1,5 +1,6 @@
+import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Trophy, Target, BookHeart, Flame, TrendingUp, Award, Zap, Plus, ChevronRight, BookOpen, Crown, Timer, Users } from 'lucide-react'
+import { Trophy, Target, BookHeart, Flame, TrendingUp, Award, Zap, Plus, ChevronRight, BookOpen, Crown, Timer, Users, CalendarDays, X, Dumbbell } from 'lucide-react'
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, BarChart, Bar } from 'recharts'
 import { useAuth } from '../../context/AuthContext'
 import { usePremium } from '../../context/PremiumContext'
@@ -8,6 +9,7 @@ import useGames from '../../hooks/useGames'
 import useJournal from '../../hooks/useJournal'
 import useAnalytics from '../../hooks/useAnalytics'
 import useGamification from '../../hooks/useGamification'
+import useSchedule from '../../hooks/useSchedule'
 import { getGreeting, formatDate } from '../../utils/dateUtils'
 import PageWrapper from '../../components/layout/PageWrapper'
 import Card from '../../components/ui/Card'
@@ -102,6 +104,9 @@ export default function Home() {
   const { entries } = useJournal()
   const { scoringTrend, weeklyActivity } = useAnalytics()
   const { badges, weeklyChallenge, challengeProgress, level, xp, xpToNextLevel } = useGamification()
+  const { upcoming, addEvent, deleteEvent } = useSchedule()
+  const [showAddEvent, setShowAddEvent] = useState(false)
+  const [newEvent, setNewEvent] = useState({ title: '', type: 'Game', date: '', time: '' })
 
   const greeting = getGreeting()
   const playerName = profile?.full_name || 'Player'
@@ -223,6 +228,187 @@ export default function Home() {
         <QuickAction icon={Target} label="Drills" onClick={() => navigate('/drills')} />
         <QuickAction icon={BookOpen} label="Journal" onClick={() => navigate('/journal')} />
       </div>
+
+      {/* === Upcoming Schedule === */}
+      <div style={{ marginTop: 'var(--space-2)' }}>
+        <div className="flex items-center justify-between" style={{ marginBottom: 'var(--space-1)' }}>
+          <div className="flex items-center gap-2">
+            <CalendarDays className="w-4 h-4" style={{ color: 'var(--color-accent)' }} />
+            <span className="section-label">Schedule</span>
+          </div>
+          <button
+            onClick={() => {
+              setNewEvent({ title: '', type: 'Game', date: new Date().toISOString().split('T')[0], time: '' })
+              setShowAddEvent(true)
+            }}
+            className="flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-bold"
+            style={{
+              background: 'rgba(255,107,53,0.1)', border: '1px solid rgba(255,107,53,0.3)',
+              color: '#FF6B35', cursor: 'pointer', fontFamily: 'inherit',
+            }}
+          >
+            <Plus className="w-3 h-3" /> Add
+          </button>
+        </div>
+
+        {upcoming.length === 0 ? (
+          <Card padding="md">
+            <div style={{ textAlign: 'center', padding: '8px 0' }}>
+              <CalendarDays size={24} style={{ color: 'var(--color-text-sec)', margin: '0 auto 8px' }} />
+              <p className="t-caption" style={{ color: 'var(--color-text-sec)' }}>
+                No upcoming sessions. Tap + to schedule a game, practice, or workout.
+              </p>
+            </div>
+          </Card>
+        ) : (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+            {upcoming.slice(0, 4).map((evt) => {
+              const d = evt.date ? new Date(evt.date + 'T12:00:00') : null
+              const dateStr = d ? d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' }) : '—'
+              const typeColors = { Game: '#FF6B35', Practice: '#3B82F6', Workout: '#22C55E' }
+              const color = typeColors[evt.type] || '#FF6B35'
+              const TypeIcon = evt.type === 'Workout' ? Dumbbell : evt.type === 'Practice' ? Target : Timer
+              return (
+                <Card key={evt.id} padding="sm" hover onClick={() => {
+                  navigate('/gametime', { state: { game: { opponent: evt.title, game_type: evt.type } } })
+                }}>
+                  <div className="flex items-center gap-3">
+                    <div style={{
+                      width: '38px', height: '38px', borderRadius: '10px',
+                      background: `${color}18`, border: `1px solid ${color}40`,
+                      display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
+                    }}>
+                      <TypeIcon size={18} style={{ color }} />
+                    </div>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div className="t-body" style={{ fontWeight: 700, color: 'var(--color-text)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                        {evt.title || evt.type}
+                      </div>
+                      <div className="t-caption" style={{ color: 'var(--color-text-sec)', marginTop: '1px' }}>
+                        {dateStr}{evt.time ? ` · ${evt.time}` : ''} · <span style={{ color, fontWeight: 700 }}>{evt.type}</span>
+                      </div>
+                    </div>
+                    <ChevronRight className="w-4 h-4" style={{ color: 'var(--color-text-sec)' }} />
+                  </div>
+                </Card>
+              )
+            })}
+          </div>
+        )}
+      </div>
+
+      {/* === Add Event Modal === */}
+      {showAddEvent && (
+        <div
+          onClick={() => setShowAddEvent(false)}
+          style={{
+            position: 'fixed', inset: 0, zIndex: 80,
+            background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(8px)',
+            display: 'flex', alignItems: 'flex-end', justifyContent: 'center',
+            padding: '16px',
+          }}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              width: '100%', maxWidth: '420px',
+              background: '#0D0D1A', borderRadius: '20px',
+              border: '1px solid rgba(255,255,255,0.1)',
+              padding: '24px 20px',
+              paddingBottom: 'calc(24px + env(safe-area-inset-bottom, 0px))',
+            }}
+          >
+            <div className="flex items-center justify-between" style={{ marginBottom: '20px' }}>
+              <h3 className="t-title3" style={{ color: 'var(--color-text)' }}>Schedule Session</h3>
+              <button onClick={() => setShowAddEvent(false)} style={{ background: 'none', border: 'none', color: 'var(--color-text-sec)', cursor: 'pointer', padding: '4px' }}>
+                <X size={20} />
+              </button>
+            </div>
+
+            {/* Type pills */}
+            <div style={{ display: 'flex', gap: '8px', marginBottom: '16px' }}>
+              {['Game', 'Practice', 'Workout'].map((t) => {
+                const colors = { Game: '#FF6B35', Practice: '#3B82F6', Workout: '#22C55E' }
+                const c = colors[t]
+                return (
+                  <button
+                    key={t}
+                    onClick={() => setNewEvent((p) => ({ ...p, type: t }))}
+                    style={{
+                      flex: 1, padding: '10px', borderRadius: '12px',
+                      border: newEvent.type === t ? `2px solid ${c}` : '2px solid rgba(255,255,255,0.08)',
+                      background: newEvent.type === t ? `${c}15` : 'rgba(255,255,255,0.03)',
+                      color: newEvent.type === t ? c : 'rgba(255,255,255,0.5)',
+                      fontSize: '13px', fontWeight: 800, cursor: 'pointer', fontFamily: 'inherit',
+                    }}
+                  >
+                    {t}
+                  </button>
+                )
+              })}
+            </div>
+
+            {/* Title */}
+            <input
+              value={newEvent.title}
+              onChange={(e) => setNewEvent((p) => ({ ...p, title: e.target.value }))}
+              placeholder={newEvent.type === 'Game' ? 'Opponent or team name' : 'Session name (optional)'}
+              style={{
+                width: '100%', padding: '12px 14px', borderRadius: '12px',
+                background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)',
+                color: '#fff', fontSize: '14px', fontWeight: 600, outline: 'none',
+                fontFamily: 'inherit', marginBottom: '12px', boxSizing: 'border-box',
+              }}
+            />
+
+            {/* Date + Time row */}
+            <div style={{ display: 'flex', gap: '8px', marginBottom: '20px' }}>
+              <input
+                type="date"
+                value={newEvent.date}
+                onChange={(e) => setNewEvent((p) => ({ ...p, date: e.target.value }))}
+                style={{
+                  flex: 2, padding: '12px 14px', borderRadius: '12px',
+                  background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)',
+                  color: '#fff', fontSize: '14px', fontWeight: 600, outline: 'none',
+                  fontFamily: 'inherit', boxSizing: 'border-box',
+                  colorScheme: 'dark',
+                }}
+              />
+              <input
+                type="time"
+                value={newEvent.time}
+                onChange={(e) => setNewEvent((p) => ({ ...p, time: e.target.value }))}
+                style={{
+                  flex: 1, padding: '12px 10px', borderRadius: '12px',
+                  background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)',
+                  color: '#fff', fontSize: '14px', fontWeight: 600, outline: 'none',
+                  fontFamily: 'inherit', boxSizing: 'border-box',
+                  colorScheme: 'dark',
+                }}
+              />
+            </div>
+
+            {/* Save */}
+            <button
+              onClick={() => {
+                if (!newEvent.date) return
+                addEvent(newEvent)
+                setShowAddEvent(false)
+                setNewEvent({ title: '', type: 'Game', date: '', time: '' })
+              }}
+              style={{
+                width: '100%', padding: '14px', borderRadius: '14px', border: 'none',
+                background: 'linear-gradient(135deg, #FF6B35, #C8490A)',
+                color: '#fff', fontSize: '15px', fontWeight: 900, cursor: 'pointer',
+                fontFamily: 'inherit', boxShadow: '0 4px 20px rgba(255,107,53,0.35)',
+              }}
+            >
+              Schedule {newEvent.type}
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* === Pro Upsell === */}
       {!isPro && (

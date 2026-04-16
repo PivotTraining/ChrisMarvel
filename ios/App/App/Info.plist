@@ -25,9 +25,9 @@
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NSCameraUsageDescription</key>
-	<string>CourtIQ uses the camera to track your pose during drills — counting reps and grading your form.</string>
+	<string>CourtIQ uses the camera to record Game Film during Gametime and to track your pose during drills.</string>
 	<key>NSMicrophoneUsageDescription</key>
-	<string>CourtIQ does not record audio; this permission is included by WebKit when camera is granted.</string>
+	<string>CourtIQ records audio alongside your Game Film so you can review the full game later.</string>
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>
 	<key>UIMainStoryboardFile</key>

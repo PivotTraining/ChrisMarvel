@@ -296,7 +296,15 @@ export function AuthProvider({ children }) {
     const redirectTo = await oauthRedirectTo()
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
-      options: { redirectTo, skipBrowserRedirect: isNative() },
+      options: {
+        redirectTo,
+        skipBrowserRedirect: isNative(),
+        // Request read-only calendar access so we can pull upcoming
+        // games/practices from the user's Google Calendar into the
+        // Home screen schedule card. The provider_token on the session
+        // will carry this scope after the user consents.
+        scopes: 'https://www.googleapis.com/auth/calendar.events.readonly',
+      },
     })
     if (error) throw error
     if (isNative() && data?.url) await openOAuth(data.url)

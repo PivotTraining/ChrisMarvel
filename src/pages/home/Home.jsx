@@ -104,7 +104,7 @@ export default function Home() {
   const { entries } = useJournal()
   const { scoringTrend, weeklyActivity } = useAnalytics()
   const { badges, weeklyChallenge, challengeProgress, level, xp, xpToNextLevel } = useGamification()
-  const { upcoming, addEvent, deleteEvent } = useSchedule()
+  const { upcoming, addEvent, deleteEvent, gcalLoading, refreshGoogleCalendar } = useSchedule()
   const [showAddEvent, setShowAddEvent] = useState(false)
   const [newEvent, setNewEvent] = useState({ title: '', type: 'Game', date: '', time: '' })
 
@@ -235,20 +235,37 @@ export default function Home() {
           <div className="flex items-center gap-2">
             <CalendarDays className="w-4 h-4" style={{ color: 'var(--color-accent)' }} />
             <span className="section-label">Schedule</span>
+            {gcalLoading && (
+              <span className="t-caption" style={{ color: 'var(--color-text-sec)', fontSize: '10px' }}>syncing…</span>
+            )}
           </div>
-          <button
-            onClick={() => {
-              setNewEvent({ title: '', type: 'Game', date: new Date().toISOString().split('T')[0], time: '' })
-              setShowAddEvent(true)
-            }}
-            className="flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-bold"
-            style={{
-              background: 'rgba(255,107,53,0.1)', border: '1px solid rgba(255,107,53,0.3)',
-              color: '#FF6B35', cursor: 'pointer', fontFamily: 'inherit',
-            }}
-          >
-            <Plus className="w-3 h-3" /> Add
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => refreshGoogleCalendar()}
+              className="flex items-center gap-1 px-2 py-1 rounded-lg text-xs font-bold"
+              style={{
+                background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)',
+                color: 'var(--color-text-sec)', cursor: 'pointer', fontFamily: 'inherit',
+                fontSize: '10px',
+              }}
+              title="Sync Google Calendar"
+            >
+              <CalendarDays className="w-3 h-3" /> Sync
+            </button>
+            <button
+              onClick={() => {
+                setNewEvent({ title: '', type: 'Game', date: new Date().toISOString().split('T')[0], time: '' })
+                setShowAddEvent(true)
+              }}
+              className="flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-bold"
+              style={{
+                background: 'rgba(255,107,53,0.1)', border: '1px solid rgba(255,107,53,0.3)',
+                color: '#FF6B35', cursor: 'pointer', fontFamily: 'inherit',
+              }}
+            >
+              <Plus className="w-3 h-3" /> Add
+            </button>
+          </div>
         </div>
 
         {upcoming.length === 0 ? (
@@ -286,6 +303,7 @@ export default function Home() {
                       </div>
                       <div className="t-caption" style={{ color: 'var(--color-text-sec)', marginTop: '1px' }}>
                         {dateStr}{evt.time ? ` · ${evt.time}` : ''} · <span style={{ color, fontWeight: 700 }}>{evt.type}</span>
+                        {evt.source === 'google' && <span style={{ marginLeft: '4px', opacity: 0.6 }}>📅</span>}
                       </div>
                     </div>
                     <ChevronRight className="w-4 h-4" style={{ color: 'var(--color-text-sec)' }} />

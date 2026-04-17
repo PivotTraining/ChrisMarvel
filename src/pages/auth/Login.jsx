@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
 import { useToast } from '../../context/ToastContext'
@@ -40,11 +40,37 @@ export default function Login() {
   const [googleLoading, setGoogleLoading] = useState(false)
   const [appleLoading, setAppleLoading] = useState(false)
 
-  const { signIn, signInWithGoogle, signInWithApple } = useAuth()
+  const { signIn, signInWithGoogle, signInWithApple, user } = useAuth()
   const { showToast } = useToast()
   const navigate = useNavigate()
 
   const emailNotConfirmed = error === 'EMAIL_NOT_CONFIRMED'
+
+  // If a session is established (by OAuth callback or restored from storage)
+  // while we're still on the login page, navigate to home. App.jsx should
+  // already handle this via its user-is-set branch, but this is a
+  // belt-and-suspenders fallback in case the redirect hasn't happened.
+  useEffect(() => {
+    if (user) navigate('/', { replace: true })
+  }, [user, navigate])
+
+  // If the user taps Google/Apple and nothing happens within 20 seconds,
+  // reset the loading state so they're not stuck staring at "Redirecting…"
+  // forever. The OAuth flow hit a wall somewhere; let them try again.
+  useEffect(() => {
+    if (!googleLoading && !appleLoading) return
+    const t = setTimeout(() => {
+      if (googleLoading) {
+        setGoogleLoading(false)
+        showToast('Sign-in took too long. Please try again.', 'error')
+      }
+      if (appleLoading) {
+        setAppleLoading(false)
+        showToast('Sign-in took too long. Please try again.', 'error')
+      }
+    }, 20000)
+    return () => clearTimeout(t)
+  }, [googleLoading, appleLoading, showToast])
 
   async function handleSubmit(e) {
     e.preventDefault()

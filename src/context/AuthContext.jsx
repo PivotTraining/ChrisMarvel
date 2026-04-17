@@ -136,6 +136,49 @@ export function AuthProvider({ children }) {
       return
     }
 
+    // If the URL contains an OAuth callback code/token, we're in the
+    // middle of a sign-in redirect and must NOT prematurely decide the
+    // user is unauthenticated. Supabase's detectSessionInUrl will
+    // process the code asynchronously and fire onAuthStateChange once
+    // done. Staying in loading state keeps App.jsx on the spinner
+    // instead of redirecting to /login (which would strip the ?code=
+    // from the URL before exchange completes).
+    const urlHasOAuthCode =
+      typeof window !== 'undefined' &&
+      (window.location.search.includes('code=') ||
+        window.location.search.includes('error=') ||
+        window.location.hash.includes('access_token='))
+
+    if (urlHasOAuthCode) {
+      // eslint-disable-next-line no-console
+      console.info('[Auth] OAuth callback detected in URL — waiting for session exchange to complete.')
+      // Keep loading=true; onAuthStateChange will fire SIGNED_IN and
+      // flip loading=false when the exchange finishes. Fallback after
+      // 15s so the UI can never deadlock.
+      setTimeout(() => {
+        setLoading((prev) => {
+          if (prev) {
+            // eslint-disable-next-line no-console
+            console.warn('[Auth] OAuth exchange timed out after 15s — falling back to login.')
+          }
+          return false
+        })
+      }, 15000)
+      const { data: { subscription: sub } } = supabase.auth.onAuthStateChange(async (_event, newSession) => {
+        if (newSession?.user) {
+          setSession(newSession)
+          setUser(newSession.user)
+          await fetchProfile(newSession.user.id)
+          setLoading(false)
+          // Clean the URL so refreshes don't retry the exchange
+          if (typeof window !== 'undefined' && window.history?.replaceState) {
+            window.history.replaceState({}, '', window.location.pathname)
+          }
+        }
+      })
+      return () => sub.unsubscribe()
+    }
+
     // Race supabase.auth.getSession() against a hard 10-second timeout
     // so the loading screen can never deadlock. IMPORTANT: on timeout we
     // do NOT delete the sb-* tokens — that was the old bug that caused

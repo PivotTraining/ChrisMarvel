@@ -26,7 +26,20 @@ if (import.meta.env.DEV || typeof window !== 'undefined') {
   console.info(`[CourtIQ] Supabase key source: ${src} (${keyPrefix}…)`)
 }
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey)
+// Explicit auth settings so sessions survive across app launches, reloads,
+// and network blips. Without these we were letting users get logged out
+// whenever getSession() was slow — now the tokens stay persisted and
+// auto-refresh happens silently in the background.
+export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+  auth: {
+    persistSession: true,
+    autoRefreshToken: true,
+    detectSessionInUrl: true,
+    storage: typeof window !== 'undefined' ? window.localStorage : undefined,
+    storageKey: 'sb-tkjvkvrzlvbukxbsilvw-auth-token',
+    flowType: 'pkce',
+  },
+})
 
 // Always run against real Supabase in production. BYPASS_AUTH is only for
 // local dev when the developer explicitly opts in.

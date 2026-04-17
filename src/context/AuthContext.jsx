@@ -136,31 +136,41 @@ export function AuthProvider({ children }) {
       return
     }
 
-    // Race supabase.auth.getSession() against a hard 5-second timeout.
-    // We've seen real users hang here forever — typically when the
-    // local refresh-token flow gets confused by a stale session and the
-    // promise simply never resolves. The timeout guarantees the auth
-    // loading screen can never deadlock the entire app: if we don't
-    // hear back in 5s we give up, treat the user as unauthed, and let
-    // them sign in again.
+    // Race supabase.auth.getSession() against a hard 10-second timeout
+    // so the loading screen can never deadlock. IMPORTANT: on timeout we
+    // do NOT delete the sb-* tokens — that was the old bug that caused
+    // users to have to sign in over and over again every time their
+    // network was slow. The tokens are valid and persist across launches;
+    // onAuthStateChange will fire a SIGNED_IN event as soon as
+    // getSession() actually resolves in the background. We just unblock
+    // the UI optimistically so the app is usable immediately.
     const sessionPromise = supabase.auth.getSession()
     const timeoutPromise = new Promise((resolve) => {
-      setTimeout(() => resolve({ data: { session: null }, __timedOut: true }), 5000)
+      setTimeout(() => resolve({ data: { session: null }, __timedOut: true }), 10000)
     })
     Promise.race([sessionPromise, timeoutPromise]).then((result) => {
       if (result?.__timedOut) {
         // eslint-disable-next-line no-console
-        console.warn('[CourtIQ] supabase.auth.getSession() timed out after 5s — clearing local session and showing login.')
-        try {
-          // Best-effort: nuke any sb-* tokens so the next mount starts clean.
-          for (const k of Object.keys(localStorage)) {
-            if (k.startsWith('sb-')) localStorage.removeItem(k)
-          }
-        } catch { /* noop */ }
+        console.warn('[CourtIQ] getSession() slow — unblocking UI; tokens remain in storage and onAuthStateChange will restore the session when the network recovers.')
+        // Do NOT clear tokens. Show login optimistically; if the real
+        // session resolves, onAuthStateChange will take over and the
+        // user will be signed in automatically without any further input.
         setSession(null)
         setUser(null)
         setProfile(null)
         setLoading(false)
+
+        // Let the actual getSession call finish in the background — if
+        // it returns a valid session, onAuthStateChange fires and the
+        // user is transparently signed back in.
+        sessionPromise.then((late) => {
+          const lateSession = late?.data?.session ?? null
+          if (lateSession) {
+            setSession(lateSession)
+            setUser(lateSession.user ?? null)
+            if (lateSession.user) fetchProfile(lateSession.user.id)
+          }
+        }).catch(() => { /* noop */ })
         return
       }
       const currentSession = result?.data?.session ?? null
@@ -169,9 +179,10 @@ export function AuthProvider({ children }) {
       if (currentSession?.user) fetchProfile(currentSession.user.id)
       setLoading(false)
     }).catch(() => {
-      // getSession() rejected outright — treat as unauthed and unblock UI.
+      // getSession() rejected outright — treat as unauthed but keep
+      // tokens intact so the next open has a chance to restore them.
       // eslint-disable-next-line no-console
-      console.warn('[CourtIQ] supabase.auth.getSession() rejected — showing login.')
+      console.warn('[CourtIQ] supabase.auth.getSession() rejected — showing login (tokens preserved).')
       setSession(null)
       setUser(null)
       setProfile(null)

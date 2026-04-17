@@ -104,17 +104,28 @@ export default function useSchedule() {
   const [gcalLoading, setGcalLoading] = useState(false)
   const [gcalError, setGcalError] = useState(null)
 
-  // Fetch Google Calendar events using the provider_token from the
-  // Supabase session. Runs once on mount + when manually refreshed.
+  // Fetch Google Calendar events. The provider_token is ONLY in the
+  // session on the initial SIGNED_IN event — AuthContext persists it
+  // to localStorage so we can read it back here on subsequent loads.
   const fetchGoogleCalendar = useCallback(async () => {
     if (BYPASS_AUTH) return
 
     try {
-      const { data: { session } } = await supabase.auth.getSession()
-      const token = session?.provider_token
+      // Check localStorage first (persisted from SIGNED_IN event),
+      // then fall back to the live session in case we're running on
+      // the same page-load as the sign-in.
+      let token = null
+      try { token = localStorage.getItem('courtiq_google_provider_token') } catch { /* noop */ }
       if (!token) {
-        // No Google token — user signed in with email/Apple, or token expired.
-        // Not an error, just means no Google Calendar sync.
+        const { data: { session } } = await supabase.auth.getSession()
+        token = session?.provider_token || null
+        if (token) {
+          try { localStorage.setItem('courtiq_google_provider_token', token) } catch { /* noop */ }
+        }
+      }
+      if (!token) {
+        // eslint-disable-next-line no-console
+        console.info('[CourtIQ] No Google provider_token — user signed in with email/Apple, or needs to re-auth with Google for calendar access.')
         return
       }
 
@@ -139,9 +150,12 @@ export default function useSchedule() {
 
       if (!res.ok) {
         if (res.status === 401 || res.status === 403) {
-          // Token expired or scope not granted — fail silently.
+          // Token expired or scope not granted — wipe it so we don't
+          // keep retrying with a dead token. User needs to re-auth
+          // with Google and grant the calendar scope.
+          try { localStorage.removeItem('courtiq_google_provider_token') } catch { /* noop */ }
           // eslint-disable-next-line no-console
-          console.warn('[CourtIQ] Google Calendar token expired or scope missing')
+          console.warn('[CourtIQ] Google Calendar token expired or scope missing — cleared, user must sign in with Google again.')
           setGcalError('reconnect')
         } else {
           // eslint-disable-next-line no-console

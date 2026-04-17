@@ -240,6 +240,28 @@ export function AuthProvider({ children }) {
         else setProfile(null)
         setLoading(false)
 
+        // Persist the Google provider_token so we can use it to call
+        // Google Calendar API later. Supabase only exposes this on the
+        // initial SIGNED_IN event after OAuth — it's NOT in the session
+        // object on subsequent page loads. Without this persistence,
+        // calendar sync would only work for ~1 session then stop.
+        if (_event === 'SIGNED_IN' && newSession?.provider_token) {
+          try {
+            localStorage.setItem('courtiq_google_provider_token', newSession.provider_token)
+            if (newSession.provider_refresh_token) {
+              localStorage.setItem('courtiq_google_provider_refresh_token', newSession.provider_refresh_token)
+            }
+            // eslint-disable-next-line no-console
+            console.info('[Auth] Stored Google provider_token for Calendar API access')
+          } catch { /* noop */ }
+        }
+        if (_event === 'SIGNED_OUT') {
+          try {
+            localStorage.removeItem('courtiq_google_provider_token')
+            localStorage.removeItem('courtiq_google_provider_refresh_token')
+          } catch { /* noop */ }
+        }
+
         // Close the in-app browser once OAuth completes on native
         if (_event === 'SIGNED_IN' && typeof window !== 'undefined' && window.Capacitor?.isNativePlatform?.()) {
           try { const { Browser } = await import('@capacitor/browser'); await Browser.close() } catch { /* noop */ }

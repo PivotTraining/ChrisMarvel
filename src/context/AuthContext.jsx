@@ -194,15 +194,63 @@ export function AuthProvider({ children }) {
     )
 
     // Handle the deep-link callback from OAuth on native iOS.
-    // When the browser redirects to com.courtiq.app://login-callback?code=...
-    // Capacitor fires appUrlOpen; we exchange the code for a session.
+    // Supabase can return tokens in two formats:
+    //   1. PKCE flow (preferred):  ?code=XXX → exchangeCodeForSession(url)
+    //   2. Implicit flow:          #access_token=XXX&refresh_token=YYY → setSession()
+    // The old code only handled #1 which is why Google/Apple silently failed on
+    // device — the tokens were arriving in the hash fragment and being ignored.
     if (typeof window !== 'undefined' && window.Capacitor?.isNativePlatform?.()) {
       import('@capacitor/app').then(({ App }) => {
         App.addListener('appUrlOpen', async ({ url }) => {
-          if (url.includes('login-callback') || url.includes('access_token') || url.includes('code=')) {
-            const { error: exchErr } = await supabase.auth.exchangeCodeForSession(url)
-            if (exchErr) console.error('[Auth] exchangeCodeForSession:', exchErr.message)
+          // Only react to our own OAuth callback URLs
+          if (!url.includes('login-callback') && !url.includes('access_token') && !url.includes('code=')) {
+            return
+          }
+          // eslint-disable-next-line no-console
+          console.info('[Auth] OAuth callback URL received:', url.substring(0, 120))
+
+          try {
+            // Close the in-app browser immediately so the user sees the app again
             try { const { Browser } = await import('@capacitor/browser'); await Browser.close() } catch { /* noop */ }
+
+            // Implicit flow: tokens are in the fragment (#) — parse and setSession
+            const hashIdx = url.indexOf('#')
+            if (hashIdx >= 0) {
+              const hash = url.substring(hashIdx + 1)
+              const params = new URLSearchParams(hash)
+              const access_token = params.get('access_token')
+              const refresh_token = params.get('refresh_token')
+              if (access_token && refresh_token) {
+                const { error } = await supabase.auth.setSession({ access_token, refresh_token })
+                if (error) {
+                  // eslint-disable-next-line no-console
+                  console.error('[Auth] setSession failed:', error.message)
+                } else {
+                  // eslint-disable-next-line no-console
+                  console.info('[Auth] Signed in via implicit flow')
+                }
+                return
+              }
+            }
+
+            // PKCE flow: code is in the query — exchange it for a session
+            if (url.includes('code=')) {
+              const { error } = await supabase.auth.exchangeCodeForSession(url)
+              if (error) {
+                // eslint-disable-next-line no-console
+                console.error('[Auth] exchangeCodeForSession failed:', error.message)
+              } else {
+                // eslint-disable-next-line no-console
+                console.info('[Auth] Signed in via PKCE flow')
+              }
+              return
+            }
+
+            // eslint-disable-next-line no-console
+            console.warn('[Auth] Callback URL had neither access_token nor code:', url.substring(0, 200))
+          } catch (e) {
+            // eslint-disable-next-line no-console
+            console.error('[Auth] appUrlOpen handler threw:', e?.message || e)
           }
         })
       }).catch(() => {})

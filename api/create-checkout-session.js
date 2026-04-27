@@ -22,7 +22,6 @@ export default async function handler(req, res) {
       ui_mode: 'embedded',
       line_items: [{ price: process.env.STRIPE_PRICE_ID, quantity: 1 }],
       mode: 'subscription',
-      allow_promotion_codes: true,
       return_url: `${req.headers.origin}/premium?success=true`,
     })
 

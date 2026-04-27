@@ -705,7 +705,7 @@ export default function Training() {
               Unlock Training Packs
             </p>
             <p className="t-caption" style={{ color: 'var(--color-text-sec)' }}>
-              30-day structured programs with Pro — $4.99/mo
+              30-day structured programs — upgrade to Pro to unlock
             </p>
           </div>
           <ChevronRight size={18} style={{ color: 'var(--color-text-sec)' }} />

@@ -125,7 +125,7 @@ export default function UpgradePrompt({
             marginBottom: '8px',
           }}
         >
-          Upgrade to Pro — $4.99/mo
+          Upgrade to Pro
         </button>
         <button
           onClick={onClose}

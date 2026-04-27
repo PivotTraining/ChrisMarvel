@@ -1,18 +1,29 @@
 import { useState, useEffect, useCallback } from 'react'
 import { supabase, BYPASS_AUTH } from '../lib/supabase'
+import { XP_VALUES, BADGE_CRITERIA } from '../lib/gamificationRules'
 
-const BADGE_DEFINITIONS = [
-  { name: 'First Game', description: 'Log your first game', check: (data) => data.games >= 1 },
-  { name: '5 Game Streak', description: 'Log 5 games', check: (data) => data.games >= 5 },
-  { name: 'Sharpshooter', description: 'Log 100 shots', check: (data) => data.shots >= 100 },
-  { name: 'Gym Rat', description: 'Complete 10 drill sessions', check: (data) => data.drills >= 10 },
-  { name: 'Mind Over Matter', description: 'Write 5 journal entries', check: (data) => data.journal >= 5 },
-  { name: '30 Piece', description: 'Score 30+ points in a game', check: (data) => data.maxPoints >= 30 },
-  { name: 'Double Double', description: 'Record a double-double', check: (data) => data.hasDoubleDouble },
-  { name: 'Iron Man', description: '7-day activity streak', check: (data) => data.streak >= 7 },
-  { name: 'Scholar', description: 'Complete 5 training content items', check: (data) => data.contentCompleted >= 5 },
-  { name: 'All-Around', description: 'Use all 4 features (games, drills, shots, journal)', check: (data) => data.games > 0 && data.drills > 0 && data.shots > 0 && data.journal > 0 },
-]
+const BADGE_DEFINITIONS = Object.entries(BADGE_CRITERIA).map(([name, criteria]) => {
+  let check
+  switch (criteria.type) {
+    case 'count':
+      check = (data) => (data[criteria.feature] || 0) >= criteria.threshold
+      break
+    case 'stat':
+      check = (data) => (data[criteria.feature] || 0) >= criteria.threshold
+      break
+    case 'streak':
+      check = (data) => (data.streak || 0) >= criteria.threshold
+      break
+    case 'special':
+      if (criteria.feature === 'hasDoubleDouble') check = (data) => data.hasDoubleDouble
+      else if (criteria.feature === 'allFeatures') check = (data) => data.games > 0 && data.drills > 0 && data.shots > 0 && data.journal > 0
+      else check = () => false
+      break
+    default:
+      check = () => false
+  }
+  return { name, description: `${name}`, check }
+})
 
 const CHALLENGE_TEMPLATES = [
   { name: 'Shot Clock', description: 'Log 50 shots this week', target: 50, type: 'shots' },
@@ -289,11 +300,11 @@ export default function useGamification() {
       const badges = parseJSON('courtiq_badges')
       const challenges = parseJSON('courtiq_challenges')
 
-      totalXP += games.length * 50
-      totalXP += drills.length * 30
-      totalXP += shots.length * 5
-      totalXP += journal.length * 25
-      totalXP += badges.length * 100
+      totalXP += games.length * XP_VALUES.game_logged
+      totalXP += drills.length * XP_VALUES.drill_completed
+      totalXP += shots.length * XP_VALUES.shot_logged
+      totalXP += journal.length * XP_VALUES.journal_entry
+      totalXP += badges.length * XP_VALUES.badge_earned
       totalXP += challenges.filter((c) => c.completed).reduce((sum, c) => sum + (c.xp_reward || 0), 0)
     } else {
       const { data: profile } = await supabase

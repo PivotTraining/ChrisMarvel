@@ -1,4 +1,5 @@
 import { createContext, useContext, useState, useEffect } from 'react'
+import useOfflineSync from '../hooks/useOfflineSync'
 
 const OfflineContext = createContext(null)
 
@@ -6,6 +7,7 @@ export function OfflineProvider({ children }) {
   const [isOnline, setIsOnline] = useState(
     typeof navigator !== 'undefined' ? navigator.onLine : true
   )
+  const { isSyncing, pendingCount, lastSyncResult, syncAll, refreshCount } = useOfflineSync()
 
   useEffect(() => {
     function handleOnline() {
@@ -25,7 +27,7 @@ export function OfflineProvider({ children }) {
   }, [])
 
   return (
-    <OfflineContext.Provider value={{ isOnline }}>
+    <OfflineContext.Provider value={{ isOnline, isSyncing, pendingCount, lastSyncResult, syncAll, refreshCount }}>
       {children}
     </OfflineContext.Provider>
   )

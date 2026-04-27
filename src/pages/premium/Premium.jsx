@@ -2,22 +2,18 @@ import { useState, useEffect, useCallback } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { loadStripe } from '@stripe/stripe-js'
 import { EmbeddedCheckoutProvider, EmbeddedCheckout } from '@stripe/react-stripe-js'
-import { Zap, Check, Crown, Lock, Flame, Target, Timer, BarChart3, Share2, Crosshair, Dumbbell, ChevronRight, Star, X, Tag } from 'lucide-react'
+import { Zap, Check, Crown, Lock, Flame, Target, Timer, BarChart3, Share2, Crosshair, Dumbbell, ChevronRight, Star, X } from 'lucide-react'
 import { usePremium, PLANS } from '../../context/PremiumContext'
 import PageWrapper from '../../components/layout/PageWrapper'
 import Card from '../../components/ui/Card'
 import { useToast } from '../../context/ToastContext'
 
-const STRIPE_PAYMENT_LINK = 'https://buy.stripe.com/9B6cN56JT5bq5nh577a3u0r'
 const STRIPE_PK = import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY
 const stripePromise = STRIPE_PK ? loadStripe(STRIPE_PK) : null
 
-if (!STRIPE_PK && import.meta.env.DEV) {
-  // eslint-disable-next-line no-console
-  console.warn(
-    '[CourtIQ] VITE_STRIPE_PUBLISHABLE_KEY is not set — embedded Stripe Checkout is disabled. ' +
-    'Upgrades will fall back to the hosted Payment Link. Set the env var in .env.local (and in Vercel) to enable inline checkout.'
-  )
+function isNativeIOS() {
+  return typeof window !== 'undefined' && !!window.Capacitor?.isNativePlatform?.() &&
+    (/iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1))
 }
 
 const PRO_FEATURES = [
@@ -36,15 +32,13 @@ const TESTIMONIALS = [
 ]
 
 export default function Premium() {
-  const { isPro, upgrade, downgrade, redeemPromoCode } = usePremium()
+  const { isPro, upgrade, downgrade } = usePremium()
   const { showToast } = useToast()
   const [showCheckout, setShowCheckout] = useState(false)
   const [checkoutError, setCheckoutError] = useState(false)
   const [searchParams, setSearchParams] = useSearchParams()
-  const [promoCode, setPromoCode] = useState('')
-  const [promoError, setPromoError] = useState('')
+  const isiOS = isNativeIOS()
 
-  // Handle return from Stripe after successful payment
   useEffect(() => {
     if (searchParams.get('success') === 'true' && !isPro) {
       upgrade()
@@ -69,13 +63,14 @@ export default function Premium() {
   }, [showToast])
 
   const handleUpgrade = () => {
+    if (isiOS) {
+      showToast('Subscriptions are managed through the App Store', 'info')
+      return
+    }
     if (stripePromise && !checkoutError) {
       setShowCheckout(true)
     } else {
-      // Fallback to Payment Link — open in new tab so the user doesn't lose
-      // app state, and tell them how to activate Pro once they're done.
-      window.open(STRIPE_PAYMENT_LINK, '_blank', 'noopener,noreferrer')
-      showToast('After paying, tap "Restore Pro Access" below', 'info')
+      showToast('Checkout is temporarily unavailable. Please try again later.', 'error')
     }
   }
 
@@ -87,27 +82,9 @@ export default function Premium() {
   }
 
   const handleRestore = () => {
-    // Recovery path for users who completed Stripe payment but weren't
-    // auto-activated (e.g. Payment Link didn't redirect back with ?success=true).
-    if (window.confirm('Have you already completed payment through Stripe? This will activate your Pro access.')) {
+    if (window.confirm('Have you already completed payment? This will activate your Pro access.')) {
       upgrade()
       showToast('Welcome to CourtIQ Pro!', 'success')
-    }
-  }
-
-  const handleApplyPromo = (e) => {
-    e.preventDefault()
-    setPromoError('')
-    const code = promoCode.trim()
-    if (!code) {
-      setPromoError('Enter a code')
-      return
-    }
-    if (redeemPromoCode(code)) {
-      showToast('Promo code applied! Welcome to Pro.', 'success')
-      setPromoCode('')
-    } else {
-      setPromoError('Invalid or expired code')
     }
   }
 
@@ -178,8 +155,8 @@ export default function Premium() {
         </Card>
       )}
 
-      {/* Embedded Stripe Checkout */}
-      {!isPro && showCheckout && !checkoutError && (
+      {/* Embedded Stripe Checkout (non-iOS only) */}
+      {!isPro && !isiOS && showCheckout && !checkoutError && (
         <div style={{ marginBottom: 'var(--space-3)' }}>
           <div className="flex items-center justify-between" style={{ marginBottom: 'var(--space-2)' }}>
             <h2 className="t-title3">Complete Payment</h2>
@@ -198,8 +175,8 @@ export default function Premium() {
         </div>
       )}
 
-      {/* Pricing cards */}
-      {!isPro && (!showCheckout || checkoutError) && (
+      {/* Plan comparison (no prices shown) */}
+      {!isPro && (!showCheckout || checkoutError || isiOS) && (
         <div style={{ marginBottom: 'var(--space-3)' }}>
           {/* Free plan */}
           <Card padding="md" style={{ marginBottom: 'var(--space-1)' }}>
@@ -207,9 +184,6 @@ export default function Premium() {
               <div>
                 <h3 className="t-title3">Free</h3>
                 <p className="t-caption" style={{ color: 'var(--color-text-sec)' }}>Get started</p>
-              </div>
-              <div style={{ textAlign: 'right' }}>
-                <span className="t-stat-sm" style={{ color: 'var(--color-text)' }}>$0</span>
               </div>
             </div>
             <ul style={{ listStyle: 'none', padding: 0 }}>
@@ -231,7 +205,6 @@ export default function Premium() {
               background: 'linear-gradient(135deg, #D97706, #FBBF24, #D97706)',
             }}
           >
-            {/* Most Popular badge */}
             <div
               style={{
                 position: 'absolute',
@@ -260,10 +233,6 @@ export default function Premium() {
                 <div>
                   <h3 className="t-title3" style={{ color: '#FBBF24' }}>Pro</h3>
                   <p className="t-caption" style={{ color: 'var(--color-text-sec)' }}>Everything unlimited</p>
-                </div>
-                <div style={{ textAlign: 'right' }}>
-                  <span className="t-stat-sm" style={{ color: '#FBBF24' }}>$4.99</span>
-                  <span className="t-caption" style={{ color: 'var(--color-text-sec)' }}>/month</span>
                 </div>
               </div>
               <ul style={{ listStyle: 'none', padding: 0, marginBottom: 'var(--space-3)' }}>
@@ -300,70 +269,6 @@ export default function Premium() {
                 <Zap size={20} />
                 Upgrade to Pro
               </button>
-
-              {/* Promo code */}
-              <form onSubmit={handleApplyPromo} style={{ marginTop: '14px' }}>
-                <label
-                  className="t-caption"
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '6px',
-                    color: 'var(--color-text-sec)',
-                    marginBottom: '6px',
-                    fontWeight: 700,
-                  }}
-                >
-                  <Tag size={13} />
-                  Have a promo code?
-                </label>
-                <div style={{ display: 'flex', gap: '8px' }}>
-                  <input
-                    type="text"
-                    value={promoCode}
-                    onChange={(e) => { setPromoCode(e.target.value); setPromoError('') }}
-                    placeholder="Enter code"
-                    autoCapitalize="characters"
-                    autoCorrect="off"
-                    spellCheck="false"
-                    style={{
-                      flex: 1,
-                      padding: '10px 12px',
-                      borderRadius: '10px',
-                      border: `1px solid ${promoError ? 'var(--color-danger)' : 'rgba(255,255,255,0.1)'}`,
-                      background: 'rgba(0,0,0,0.25)',
-                      color: 'var(--color-text)',
-                      fontSize: '13px',
-                      fontWeight: 700,
-                      fontFamily: 'inherit',
-                      textTransform: 'uppercase',
-                      letterSpacing: '1px',
-                      outline: 'none',
-                    }}
-                  />
-                  <button
-                    type="submit"
-                    style={{
-                      padding: '10px 18px',
-                      borderRadius: '10px',
-                      border: '1px solid rgba(251, 191, 36, 0.4)',
-                      background: 'rgba(251, 191, 36, 0.12)',
-                      color: '#FBBF24',
-                      fontSize: '13px',
-                      fontWeight: 800,
-                      fontFamily: 'inherit',
-                      cursor: 'pointer',
-                    }}
-                  >
-                    Apply
-                  </button>
-                </div>
-                {promoError && (
-                  <p className="t-caption" style={{ color: 'var(--color-danger)', marginTop: '6px' }}>
-                    {promoError}
-                  </p>
-                )}
-              </form>
             </div>
           </div>
         </div>
@@ -432,11 +337,11 @@ export default function Premium() {
         </Card>
       ))}
 
-      {/* Restore purchase — for users who paid but weren't auto-activated */}
+      {/* Restore purchase */}
       {!isPro && (
         <div style={{ marginTop: 'var(--space-4)', textAlign: 'center' }}>
           <p className="t-caption" style={{ color: 'var(--color-text-sec)', marginBottom: '6px' }}>
-            Already paid but not showing as Pro?
+            Already subscribed but not showing as Pro?
           </p>
           <button
             onClick={handleRestore}

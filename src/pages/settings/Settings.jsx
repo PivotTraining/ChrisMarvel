@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { LogOut, Save, Crown, ChevronRight, Star, Share2, Trash2, RotateCcw, AlertTriangle, Users, Copy, Link2, Unlink } from 'lucide-react'
+import { LogOut, Save, Crown, ChevronRight, Star, Share2, Trash2, RotateCcw, AlertTriangle, Users, Copy, Link2, Unlink, Download, FileText } from 'lucide-react'
 import PageWrapper from '../../components/layout/PageWrapper'
 import Button from '../../components/ui/Button'
 import Card from '../../components/ui/Card'
@@ -12,6 +12,7 @@ import { usePremium } from '../../context/PremiumContext'
 import { useLinking } from '../../context/LinkingContext'
 import { useToast } from '../../context/ToastContext'
 import { requestPermission, syncNotifications } from '../../lib/notifications'
+import { exportGamesCSV, exportDrillsCSV, exportJournalCSV, exportStatSheetPDF } from '../../lib/exportUtils'
 import useGames from '../../hooks/useGames'
 
 const POSITIONS = ['PG', 'SG', 'SF', 'PF', 'C']
@@ -567,6 +568,54 @@ export default function Settings() {
         <Share2 size={18} />
         Share Season Scorecard
       </button>
+
+      <SectionTitle>Export Data</SectionTitle>
+      <Card className="mb-5">
+        <p className="t-caption" style={{ color: 'var(--color-text-sec)', marginBottom: 'var(--space-2)' }}>
+          Download your data as CSV or generate a printable stat sheet.
+        </p>
+        <div className="flex flex-col gap-2">
+          <Button variant="outline" fullWidth onClick={() => {
+            try {
+              const games = JSON.parse(localStorage.getItem('courtiq_games') || '[]')
+              if (!games.length) return showToast('No games to export', 'info')
+              exportGamesCSV(games)
+              showToast('Games exported', 'success')
+            } catch { showToast('Export failed', 'error') }
+          }}>
+            <Download className="w-4 h-4" /> Export Games CSV
+          </Button>
+          <Button variant="outline" fullWidth onClick={() => {
+            try {
+              const drills = JSON.parse(localStorage.getItem('courtiq_drills') || '[]')
+              if (!drills.length) return showToast('No drills to export', 'info')
+              exportDrillsCSV(drills)
+              showToast('Drills exported', 'success')
+            } catch { showToast('Export failed', 'error') }
+          }}>
+            <Download className="w-4 h-4" /> Export Drills CSV
+          </Button>
+          <Button variant="outline" fullWidth onClick={() => {
+            try {
+              const journal = JSON.parse(localStorage.getItem('courtiq_journal') || '[]')
+              if (!journal.length) return showToast('No journal entries to export', 'info')
+              exportJournalCSV(journal)
+              showToast('Journal exported', 'success')
+            } catch { showToast('Export failed', 'error') }
+          }}>
+            <Download className="w-4 h-4" /> Export Journal CSV
+          </Button>
+          <Button variant="outline" fullWidth onClick={() => {
+            try {
+              const games = JSON.parse(localStorage.getItem('courtiq_games') || '[]')
+              if (!games.length) return showToast('No games for stat sheet', 'info')
+              exportStatSheetPDF(profile, seasonAverages, games)
+            } catch { showToast('Export failed', 'error') }
+          }}>
+            <FileText className="w-4 h-4" /> Print Stat Sheet
+          </Button>
+        </div>
+      </Card>
 
       <SectionTitle>Preferences</SectionTitle>
       <Card className="mb-5">

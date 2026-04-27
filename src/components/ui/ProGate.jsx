@@ -38,7 +38,7 @@ export default function ProGate({ feature, children, fallback }) {
       </p>
       <button onClick={upgrade} className="btn-primary" style={{ maxWidth: '280px', margin: '0 auto' }}>
         <Zap size={18} />
-        Upgrade to Pro — {PLANS.pro.price}{PLANS.pro.period}
+        Upgrade to Pro
       </button>
     </div>
   )

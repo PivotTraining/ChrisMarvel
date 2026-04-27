@@ -65,8 +65,8 @@ export default function Signup() {
   const needsParentalConsent = age !== null && age < 13
 
   function validate() {
-    if (!email || !password || !confirmPassword || !dob) {
-      return 'All fields are required.'
+    if (!email || !password || !confirmPassword) {
+      return 'Email, password, and confirm password are required.'
     }
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
     if (!emailRegex.test(email)) {
@@ -233,7 +233,7 @@ export default function Signup() {
           </div>
 
           <div style={{ marginBottom: 'var(--space-2)' }}>
-            <label htmlFor="dob" className="t-label" style={{ display: 'block', marginBottom: 'var(--space-1)' }}>Date of Birth</label>
+            <label htmlFor="dob" className="t-label" style={{ display: 'block', marginBottom: 'var(--space-1)' }}>Date of Birth <span style={{ color: 'var(--color-text-sec)', fontWeight: 400 }}>(optional)</span></label>
             <div style={{ position: 'relative' }}>
               <Calendar size={16} style={iconStyle} />
               <input id="dob" type="date" value={dob} onChange={(e) => setDob(e.target.value)} className="input-base" style={{ paddingLeft: '40px', colorScheme: 'dark' }} />

@@ -408,7 +408,12 @@ export function AuthProvider({ children }) {
     if (isNative()) {
       try {
         const { Browser } = await import('@capacitor/browser')
-        await Browser.open({ url, windowName: '_self' })
+        await Browser.open({
+          url,
+          windowName: '_self',
+          presentationStyle: 'fullscreen',
+          toolbarColor: '#000000',
+        })
         return
       } catch { /* fall through to window.location */ }
     }

@@ -19,7 +19,7 @@ function getInitials(name) {
 }
 
 export default function Header() {
-  const { isOnline } = useOffline()
+  const { isOnline, pendingCount } = useOffline()
   const { profile } = useAuth()
   const { isPro } = usePremium()
   const initials = getInitials(profile?.full_name)
@@ -106,11 +106,22 @@ export default function Header() {
       </Link>
 
       <div className="flex items-center gap-3">
-        <span
-          className="inline-block h-2 w-2 rounded-full"
-          title={isOnline ? 'Online' : 'Offline'}
-          style={{ backgroundColor: isOnline ? 'var(--color-success)' : 'var(--color-warning)' }}
-        />
+        <div className="flex items-center gap-1.5">
+          <span
+            className="inline-block h-2 w-2 rounded-full"
+            title={isOnline ? 'Online' : 'Offline'}
+            style={{ backgroundColor: isOnline ? 'var(--color-success)' : 'var(--color-warning)' }}
+          />
+          {pendingCount > 0 && (
+            <span
+              className="t-caption"
+              title={`${pendingCount} pending sync`}
+              style={{ color: 'var(--color-warning)', fontSize: '10px', fontWeight: 700 }}
+            >
+              {pendingCount}
+            </span>
+          )}
+        </div>
         {initials ? (
           <Link
             to="/settings"

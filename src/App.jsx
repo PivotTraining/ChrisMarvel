@@ -23,6 +23,7 @@ const Settings = lazy(() => import('./pages/settings/Settings'))
 const Gametime = lazy(() => import('./pages/quickgame/QuickGame'))
 const Practice = lazy(() => import('./pages/practice/Practice'))
 const Premium = lazy(() => import('./pages/premium/Premium'))
+const Support = lazy(() => import('./pages/support/Support'))
 
 function RouteFallback() {
   return (
@@ -89,6 +90,7 @@ function AppContent() {
         <Routes>
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
+          <Route path="/support" element={<Support />} />
           <Route path="*" element={<Navigate to="/login" replace />} />
         </Routes>
       </Suspense>
@@ -101,6 +103,7 @@ function AppContent() {
       <Suspense fallback={<RouteFallback />}>
         <Routes>
           <Route path="/onboarding" element={<Onboarding />} />
+          <Route path="/support" element={<Support />} />
           <Route path="*" element={<Navigate to="/onboarding" replace />} />
         </Routes>
       </Suspense>
@@ -125,6 +128,7 @@ function AppContent() {
           <Route path="/journal" element={<Journal />} />
           <Route path="/settings" element={<Settings />} />
           <Route path="/premium" element={<Premium />} />
+          <Route path="/support" element={<Support />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </Suspense>

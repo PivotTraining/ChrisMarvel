@@ -90,6 +90,11 @@ export default function Signup() {
 
   return (
     <div
+      onClick={(e) => {
+        if (e.target.tagName !== 'INPUT' && e.target.tagName !== 'BUTTON') {
+          document.activeElement?.blur()
+        }
+      }}
       style={{
         minHeight: '100dvh',
         display: 'flex',
@@ -98,6 +103,8 @@ export default function Signup() {
         justifyContent: 'center',
         backgroundColor: 'var(--color-bg)',
         padding: 'var(--space-3)',
+        overflowY: 'auto',
+        WebkitOverflowScrolling: 'touch',
       }}
     >
       <div style={{ textAlign: 'center', marginBottom: 'var(--space-4)' }}>
@@ -115,7 +122,7 @@ export default function Signup() {
             <label htmlFor="email" className="t-label" style={{ display: 'block', marginBottom: 'var(--space-1)' }}>Email</label>
             <div style={{ position: 'relative' }}>
               <Mail size={16} style={iconStyle} />
-              <input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@email.com" className="input-base" style={{ paddingLeft: '40px' }} />
+              <input id="email" type="email" inputMode="email" autoComplete="email" enterKeyHint="next" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@email.com" className="input-base" style={{ paddingLeft: '40px' }} />
             </div>
           </div>
 
@@ -123,7 +130,7 @@ export default function Signup() {
             <label htmlFor="password" className="t-label" style={{ display: 'block', marginBottom: 'var(--space-1)' }}>Password</label>
             <div style={{ position: 'relative' }}>
               <Lock size={16} style={iconStyle} />
-              <input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Min 8 characters" className="input-base" style={{ paddingLeft: '40px' }} />
+              <input id="password" type="password" autoComplete="new-password" enterKeyHint="next" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Min 8 characters" className="input-base" style={{ paddingLeft: '40px' }} />
             </div>
           </div>
 
@@ -131,7 +138,7 @@ export default function Signup() {
             <label htmlFor="confirmPassword" className="t-label" style={{ display: 'block', marginBottom: 'var(--space-1)' }}>Confirm Password</label>
             <div style={{ position: 'relative' }}>
               <Lock size={16} style={iconStyle} />
-              <input id="confirmPassword" type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} placeholder="Re-enter password" className="input-base" style={{ paddingLeft: '40px' }} />
+              <input id="confirmPassword" type="password" autoComplete="new-password" enterKeyHint="done" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} placeholder="Re-enter password" className="input-base" style={{ paddingLeft: '40px' }} />
             </div>
           </div>
 

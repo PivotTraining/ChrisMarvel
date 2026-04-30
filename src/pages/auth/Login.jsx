@@ -71,6 +71,11 @@ export default function Login() {
 
   return (
     <div
+      onClick={(e) => {
+        if (e.target.tagName !== 'INPUT' && e.target.tagName !== 'BUTTON') {
+          document.activeElement?.blur()
+        }
+      }}
       style={{
         minHeight: '100dvh',
         display: 'flex',
@@ -79,6 +84,8 @@ export default function Login() {
         justifyContent: 'center',
         backgroundColor: 'var(--color-bg)',
         padding: 'var(--space-3)',
+        overflowY: 'auto',
+        WebkitOverflowScrolling: 'touch',
       }}
     >
       {/* Logo */}
@@ -124,6 +131,9 @@ export default function Login() {
             <Mail size={18} style={{ position: 'absolute', left: 'var(--space-2)', top: '50%', transform: 'translateY(-50%)', color: 'var(--color-text-sec)', pointerEvents: 'none' }} />
             <input
               type="email"
+              inputMode="email"
+              autoComplete="email"
+              enterKeyHint="next"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="Email"
@@ -136,6 +146,8 @@ export default function Login() {
             <Lock size={18} style={{ position: 'absolute', left: 'var(--space-2)', top: '50%', transform: 'translateY(-50%)', color: 'var(--color-text-sec)', pointerEvents: 'none' }} />
             <input
               type="password"
+              autoComplete="current-password"
+              enterKeyHint="go"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="Password"

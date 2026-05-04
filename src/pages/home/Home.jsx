@@ -1,9 +1,8 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Trophy, Target, BookHeart, Flame, TrendingUp, Award, Zap, Plus, ChevronRight, BookOpen, Crown, Timer, Users, CalendarDays, X, Dumbbell } from 'lucide-react'
+import { Trophy, Target, BookHeart, Flame, TrendingUp, Award, Zap, Plus, ChevronRight, BookOpen, Timer, Users, CalendarDays, X, Dumbbell } from 'lucide-react'
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, BarChart, Bar } from 'recharts'
 import { useAuth } from '../../context/AuthContext'
-import { usePremium } from '../../context/PremiumContext'
 import { useLinking } from '../../context/LinkingContext'
 import useGames from '../../hooks/useGames'
 import useJournal from '../../hooks/useJournal'
@@ -98,7 +97,6 @@ function SectionHeader({ icon: Icon, title, actionLabel, onAction, extra }) {
 export default function Home() {
   const navigate = useNavigate()
   const { profile } = useAuth()
-  const { isPro } = usePremium()
   const { myChildren } = useLinking()
   const { games, seasonAverages } = useGames()
   const { entries } = useJournal()
@@ -426,33 +424,6 @@ export default function Home() {
             </button>
           </div>
         </div>
-      )}
-
-      {/* === Pro Upsell === */}
-      {!isPro && (
-        <Card padding="md" hover onClick={() => navigate('/premium')} style={{ marginTop: 'var(--space-2)', border: '1px solid rgba(217, 119, 6, 0.3)' }}>
-          <div className="flex items-center gap-3">
-            <div
-              style={{
-                width: '40px',
-                height: '40px',
-                borderRadius: '50%',
-                background: 'linear-gradient(135deg, #D97706, #FBBF24)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                flexShrink: 0,
-              }}
-            >
-              <Crown className="w-5 h-5" style={{ color: '#fff' }} />
-            </div>
-            <div className="flex-1">
-              <p className="t-body" style={{ fontWeight: 700, color: '#FBBF24' }}>Upgrade to Pro</p>
-              <p className="t-caption" style={{ color: 'var(--color-text-sec)' }}>Practice Mode, training packs, heat maps & more</p>
-            </div>
-            <ChevronRight className="w-4 h-4" style={{ color: '#FBBF24' }} />
-          </div>
-        </Card>
       )}
 
       {/* === Season Averages === */}

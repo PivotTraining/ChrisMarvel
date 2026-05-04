@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react'
-import { BookOpen, ArrowLeft, Bookmark, Check, Clock, Search, Zap, Target, Shield, TrendingUp, ChevronRight, Play, Lock } from 'lucide-react'
+import { BookOpen, ArrowLeft, Bookmark, Check, Clock, Search, Zap, Target, Shield, TrendingUp, Play, Lock } from 'lucide-react'
 import PageWrapper from '../../components/layout/PageWrapper'
 import Button from '../../components/ui/Button'
 import Card from '../../components/ui/Card'
@@ -7,10 +7,8 @@ import Badge from '../../components/ui/Badge'
 import EmptyState from '../../components/ui/EmptyState'
 import SkeletonLoader from '../../components/ui/SkeletonLoader'
 import { useToast } from '../../context/ToastContext'
-import { usePremium } from '../../context/PremiumContext'
 import useContentLibrary from '../../hooks/useContentLibrary'
 import useGames from '../../hooks/useGames'
-import { useNavigate } from 'react-router-dom'
 
 /* ===== TRAINING PACKS DATA ===== */
 
@@ -426,8 +424,6 @@ export default function Training() {
   const { content, loading, fetchContent, savedIds, saveContent, unsaveContent, markCompleted, completedIds, activeFilter } = useContentLibrary()
   const { seasonAverages } = useGames()
   const { showToast } = useToast()
-  const { isPro } = usePremium()
-  const navigate = useNavigate()
   const [view, setView] = useState('main') // 'main', 'packs', 'pack-detail', 'library', 'detail'
   const [selected, setSelected] = useState(null)
   const [selectedPack, setSelectedPack] = useState(null)
@@ -621,32 +617,28 @@ export default function Training() {
         <p className="t-body" style={{ color: 'var(--color-text-sec)' }}>Training packs & drill library — by difficulty</p>
       </div>
 
-      {/* Training Packs — Pro only (hidden entirely from free users' drill list) */}
-      {isPro && (
-        <>
-          <h2 className="section-label" style={{ marginBottom: 'var(--space-2)' }}>
-            <Zap size={14} style={{ display: 'inline', verticalAlign: '-2px', color: 'var(--color-accent)', marginRight: '4px' }} />
-            Training Packs
-          </h2>
-          {packsByDifficulty.map(({ difficulty, packs }) => {
-            const color = DIFF_COLORS[difficulty]
-            return (
-              <div key={difficulty} style={{ marginBottom: 'var(--space-3)' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: 'var(--space-1)' }}>
-                  <div style={{ width: '4px', height: '18px', borderRadius: '2px', background: color, boxShadow: `0 0 12px ${color}80` }} />
-                  <span className="t-label" style={{ color, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '1px' }}>{difficulty}</span>
-                </div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-1)' }}>
-                  {packs.map((p) => (
-                    <PackCard key={p.id} pack={p} progress={packProgress[p.id]}
-                      onTap={() => { setSelectedPack(p); setView('pack-detail') }} />
-                  ))}
-                </div>
-              </div>
-            )
-          })}
-        </>
-      )}
+      {/* Training Packs */}
+      <h2 className="section-label" style={{ marginBottom: 'var(--space-2)' }}>
+        <Zap size={14} style={{ display: 'inline', verticalAlign: '-2px', color: 'var(--color-accent)', marginRight: '4px' }} />
+        Training Packs
+      </h2>
+      {packsByDifficulty.map(({ difficulty, packs }) => {
+        const color = DIFF_COLORS[difficulty]
+        return (
+          <div key={difficulty} style={{ marginBottom: 'var(--space-3)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: 'var(--space-1)' }}>
+              <div style={{ width: '4px', height: '18px', borderRadius: '2px', background: color, boxShadow: `0 0 12px ${color}80` }} />
+              <span className="t-label" style={{ color, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '1px' }}>{difficulty}</span>
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-1)' }}>
+              {packs.map((p) => (
+                <PackCard key={p.id} pack={p} progress={packProgress[p.id]}
+                  onTap={() => { setSelectedPack(p); setView('pack-detail') }} />
+              ))}
+            </div>
+          </div>
+        )
+      })}
 
       {/* Drill Library grouped by difficulty */}
       <h2 className="section-label" style={{ marginBottom: 'var(--space-2)', marginTop: 'var(--space-3)' }}>
@@ -676,41 +668,6 @@ export default function Training() {
         })
       )}
 
-      {/* Pro teaser — only for free users, shown AFTER the free drill library */}
-      {!isPro && (
-        <div
-          onClick={() => navigate('/premium')}
-          style={{
-            marginTop: 'var(--space-4)',
-            padding: 'var(--space-3)',
-            borderRadius: 'var(--radius-card)',
-            background: 'linear-gradient(135deg, rgba(255,107,53,0.14), rgba(139,92,246,0.10))',
-            border: '1px solid rgba(255,107,53,0.35)',
-            cursor: 'pointer',
-            display: 'flex', alignItems: 'center', gap: 'var(--space-2)',
-          }}
-        >
-          <div
-            style={{
-              width: '44px', height: '44px', borderRadius: '14px',
-              background: 'linear-gradient(135deg, #FF6B35, #C8490A)',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              flexShrink: 0, boxShadow: '0 4px 16px rgba(255,107,53,0.4)',
-            }}
-          >
-            <Lock size={18} color="#fff" />
-          </div>
-          <div style={{ flex: 1 }}>
-            <p className="t-body" style={{ color: 'var(--color-text)', fontWeight: 800, marginBottom: '2px' }}>
-              Unlock Training Packs
-            </p>
-            <p className="t-caption" style={{ color: 'var(--color-text-sec)' }}>
-              30-day structured programs — upgrade to Pro to unlock
-            </p>
-          </div>
-          <ChevronRight size={18} style={{ color: 'var(--color-text-sec)' }} />
-        </div>
-      )}
     </PageWrapper>
   )
 }

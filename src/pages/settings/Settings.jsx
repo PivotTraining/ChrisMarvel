@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { LogOut, Save, Crown, ChevronRight, Star, Share2, Trash2, RotateCcw, AlertTriangle, Users, Copy, Link2, Unlink, Download, FileText } from 'lucide-react'
+import { LogOut, Save, Share2, Trash2, RotateCcw, AlertTriangle, Users, Copy, Link2, Unlink, Download, FileText } from 'lucide-react'
 import PageWrapper from '../../components/layout/PageWrapper'
 import Button from '../../components/ui/Button'
 import Card from '../../components/ui/Card'
@@ -8,7 +8,6 @@ import Input from '../../components/ui/Input'
 import Select from '../../components/ui/Select'
 import SeasonShareCard from '../../components/ui/SeasonShareCard'
 import { useAuth } from '../../context/AuthContext'
-import { usePremium } from '../../context/PremiumContext'
 import { useLinking } from '../../context/LinkingContext'
 import { useToast } from '../../context/ToastContext'
 import { requestPermission, syncNotifications } from '../../lib/notifications'
@@ -404,7 +403,6 @@ function FamilyLinkingCard() {
 export default function Settings() {
   const navigate = useNavigate()
   const { profile, updateProfile, signOut, deleteAccount } = useAuth()
-  const { isPro } = usePremium()
   const { showToast } = useToast()
   const { seasonAverages } = useGames()
 
@@ -622,35 +620,6 @@ export default function Settings() {
         <ToggleRow label="Streak Reminders" enabled={streakReminder} onToggle={handleToggleStreak} />
         <div style={{ borderTop: '1px solid var(--color-border)' }} />
         <ToggleRow label="Weekly Summary" enabled={weeklySummary} onToggle={handleToggleWeekly} />
-      </Card>
-
-      <SectionTitle>Subscription</SectionTitle>
-      <Card className="mb-5" hover onClick={() => navigate('/premium')}>
-        <div className="flex items-center gap-3">
-          <div
-            style={{
-              width: '40px',
-              height: '40px',
-              borderRadius: '50%',
-              background: isPro ? 'linear-gradient(135deg, #D97706, #FBBF24)' : 'var(--color-accent-tint)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              flexShrink: 0,
-            }}
-          >
-            {isPro ? <Star size={20} style={{ color: '#fff' }} fill="#fff" /> : <Crown size={20} style={{ color: 'var(--color-accent)' }} />}
-          </div>
-          <div className="flex-1">
-            <p className="t-body" style={{ fontWeight: 700, color: isPro ? '#FBBF24' : 'var(--color-text)' }}>
-              {isPro ? 'CourtIQ Pro' : 'Free Plan'}
-            </p>
-            <p className="t-caption" style={{ color: 'var(--color-text-sec)' }}>
-              {isPro ? 'All features unlocked' : 'Upgrade for unlimited access'}
-            </p>
-          </div>
-          <ChevronRight size={16} style={{ color: 'var(--color-text-sec)' }} />
-        </div>
       </Card>
 
       <SectionTitle>Family</SectionTitle>

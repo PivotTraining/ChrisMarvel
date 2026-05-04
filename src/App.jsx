@@ -22,7 +22,6 @@ const Journal = lazy(() => import('./pages/journal/Journal'))
 const Settings = lazy(() => import('./pages/settings/Settings'))
 const Gametime = lazy(() => import('./pages/quickgame/QuickGame'))
 const Practice = lazy(() => import('./pages/practice/Practice'))
-const Premium = lazy(() => import('./pages/premium/Premium'))
 const Support = lazy(() => import('./pages/support/Support'))
 
 function RouteFallback() {
@@ -127,7 +126,7 @@ function AppContent() {
           <Route path="/practice" element={<Practice />} />
           <Route path="/journal" element={<Journal />} />
           <Route path="/settings" element={<Settings />} />
-          <Route path="/premium" element={<Premium />} />
+          <Route path="/premium" element={<Navigate to="/" replace />} />
           <Route path="/support" element={<Support />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>

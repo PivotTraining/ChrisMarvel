@@ -13,7 +13,6 @@ import SwipeableRow from '../../components/ui/SwipeableRow'
 import useGames from '../../hooks/useGames'
 import { useToast } from '../../context/ToastContext'
 import { useHaptics } from '../../hooks/useHaptics'
-import { usePremium } from '../../context/PremiumContext'
 
 const GAME_TYPES = ['League', 'Tournament', 'Pickup', 'Practice', 'Scrimmage']
 const RESULTS = ['Win', 'Loss', 'Draw']
@@ -1376,22 +1375,12 @@ export default function Games() {
   const navigate = useNavigate()
   const { games, allGames, loading, addGame, updateGame, deleteGame, seasonAverages, loadMore, hasMore } = useGames()
   const { showToast } = useToast()
-  const { isPro, checkMonthlyQuota } = usePremium()
   const [view, setView] = useState('list')
   const [editGame, setEditGame] = useState(null)
   const [savedGame, setSavedGame] = useState(null)
   const [saving, setSaving] = useState(false)
 
   const openForm = (game = null) => {
-    // Free tier: cap new-game logs at the monthly limit. Edits always allowed.
-    if (!game && !isPro) {
-      const quota = checkMonthlyQuota('gamesPerMonth', allGames || games, 'game_date')
-      if (!quota.ok) {
-        showToast(`Free plan: ${quota.used}/${quota.limit} games logged this month. Upgrade for unlimited.`, 'error')
-        navigate('/premium')
-        return
-      }
-    }
     setEditGame(game); setView('form')
   }
   const openReview = (game) => {

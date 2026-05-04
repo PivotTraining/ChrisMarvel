@@ -13,7 +13,7 @@ import { useNavigate } from 'react-router-dom'
 import { localToday, parseLocalDate } from '../../utils/dateUtils'
 import {
   BarChart3, Flame, TrendingUp, TrendingDown, Target, Trophy,
-  Lock, Sparkles, Crown, Dumbbell, RefreshCw, Brain, Download,
+  Sparkles, Dumbbell, RefreshCw, Brain, Download,
 } from 'lucide-react'
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts'
 import PageWrapper from '../../components/layout/PageWrapper'
@@ -23,7 +23,6 @@ import RadarChart from '../../components/ui/RadarChart'
 import useGames from '../../hooks/useGames'
 import useDrills from '../../hooks/useDrills'
 import useJournal from '../../hooks/useJournal'
-import { usePremium } from '../../context/PremiumContext'
 import { useToast } from '../../context/ToastContext'
 import { useAuth } from '../../context/AuthContext'
 import { fetchInsights } from '../../lib/insights'
@@ -360,7 +359,6 @@ export default function MyIQ() {
   const { allGames, loading } = useGames()
   const { drills, categoryStats, recentStreak } = useDrills()
   const { allEntries: journalEntries } = useJournal()
-  const { isPro } = usePremium()
   const { showToast } = useToast()
   const { profile } = useAuth()
 
@@ -1036,102 +1034,69 @@ export default function MyIQ() {
         </Card>
       )}
 
-      {/* Pro-gated advanced analytics */}
-      {!isPro && (
-        <Card
-          padding="md"
-          hover
-          onClick={() => navigate('/premium')}
-          style={{ marginBottom: '12px', border: '1px solid rgba(251, 191, 36, 0.35)' }}
-        >
-          <div className="flex items-center gap-3">
-            <div
-              style={{
-                width: '42px', height: '42px', borderRadius: '50%',
-                background: 'linear-gradient(135deg, #D97706, #FBBF24)',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                flexShrink: 0,
-              }}
-            >
-              <Crown size={20} style={{ color: '#fff' }} />
-            </div>
-            <div style={{ flex: 1 }}>
-              <div className="flex items-center gap-2">
-                <span style={{ fontWeight: 800, color: '#FBBF24' }}>Unlock Advanced IQ</span>
-                <Lock size={12} style={{ color: '#FBBF24' }} />
-              </div>
-              <p className="t-caption" style={{ color: 'var(--color-text-sec)', marginTop: '3px' }}>
-                Radar chart · archetype detection · last-10 trend graphs · export your data
-              </p>
-            </div>
+      {/* Advanced analytics */}
+      {/* Archetype */}
+      <Card padding="md" style={{ marginBottom: '12px', border: '1px solid rgba(251, 191, 36, 0.3)' }}>
+        <div className="section-label flex items-center gap-2" style={{ marginBottom: '10px' }}>
+          Archetype
+        </div>
+        <p className="t-body" style={{ color: 'var(--color-text)' }}>
+          {(() => {
+            if (avg.tpPct >= 38 && avg.ppg >= 15) return 'Sniper — you live beyond the arc and you make defenses pay.'
+            if (avg.apg >= 5 && avg.topg < 3) return 'Floor General — you set the table and don\'t turn it over.'
+            if (avg.rpg >= 8 && avg.bpg >= 1) return 'Anchor — glass-crashing rim protector.'
+            if (avg.spg >= 2) return 'Menace — you disrupt everything on the defensive end.'
+            if (avg.fgPct >= 50) return 'Efficient Finisher — no wasted possessions.'
+            return 'Two-Way — balanced profile, keep stacking games.'
+          })()}
+        </p>
+      </Card>
+
+      {/* Season Radar */}
+      {(allGames || []).length > 0 && (
+        <Card padding="md" style={{ marginBottom: '12px', border: '1px solid rgba(251, 191, 36, 0.2)' }}>
+          <div className="section-label flex items-center gap-2" style={{ marginBottom: '12px' }}>
+            Season Profile
+          </div>
+          <RadarChart data={seasonRadar} title="" />
+        </Card>
+      )}
+
+      {/* Last-10 Points Trend */}
+      {last10Trend.length >= 2 && (
+        <Card padding="md" style={{ marginBottom: '12px', border: '1px solid rgba(251, 191, 36, 0.2)' }}>
+          <div className="flex items-center justify-between" style={{ marginBottom: '10px' }}>
+            <span className="section-label flex items-center gap-2">
+              Last 10 — Points
+            </span>
+            <span className="t-caption" style={{ color: 'var(--color-text-sec)' }}>
+              {last10Trend.length} games
+            </span>
+          </div>
+          <div style={{ height: '140px', margin: '0 -6px' }}>
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart data={last10Trend}>
+                <CartesianGrid stroke="rgba(255,255,255,0.05)" vertical={false} />
+                <XAxis dataKey="game" tick={{ fill: 'rgba(255,255,255,0.4)', fontSize: 10 }} axisLine={false} tickLine={false} />
+                <YAxis tick={{ fill: 'rgba(255,255,255,0.4)', fontSize: 10 }} axisLine={false} tickLine={false} width={24} />
+                <Tooltip
+                  contentStyle={{ background: '#0D0D1A', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', fontSize: '11px' }}
+                  labelStyle={{ color: 'rgba(255,255,255,0.5)' }}
+                  itemStyle={{ color: '#FF6B35' }}
+                />
+                <Line type="monotone" dataKey="pts" stroke="#FF6B35" strokeWidth={2.5} dot={{ fill: '#FF6B35', r: 3 }} activeDot={{ r: 5 }} name="Points" />
+              </LineChart>
+            </ResponsiveContainer>
           </div>
         </Card>
       )}
 
-      {isPro && (
-        <>
-          {/* Pro · Archetype */}
-          <Card padding="md" style={{ marginBottom: '12px', border: '1px solid rgba(251, 191, 36, 0.3)' }}>
-            <div className="section-label flex items-center gap-2" style={{ marginBottom: '10px' }}>
-              <Crown size={14} style={{ color: '#FBBF24' }} /> Pro · Archetype
-            </div>
-            <p className="t-body" style={{ color: 'var(--color-text)' }}>
-              {(() => {
-                if (avg.tpPct >= 38 && avg.ppg >= 15) return 'Sniper — you live beyond the arc and you make defenses pay.'
-                if (avg.apg >= 5 && avg.topg < 3) return 'Floor General — you set the table and don\'t turn it over.'
-                if (avg.rpg >= 8 && avg.bpg >= 1) return 'Anchor — glass-crashing rim protector.'
-                if (avg.spg >= 2) return 'Menace — you disrupt everything on the defensive end.'
-                if (avg.fgPct >= 50) return 'Efficient Finisher — no wasted possessions.'
-                return 'Two-Way — balanced profile, keep stacking games.'
-              })()}
-            </p>
-          </Card>
-
-          {/* Pro · Season Radar */}
-          {(allGames || []).length > 0 && (
-            <Card padding="md" style={{ marginBottom: '12px', border: '1px solid rgba(251, 191, 36, 0.2)' }}>
-              <div className="section-label flex items-center gap-2" style={{ marginBottom: '12px' }}>
-                <Crown size={14} style={{ color: '#FBBF24' }} /> Pro · Season Profile
-              </div>
-              <RadarChart data={seasonRadar} title="" />
-            </Card>
-          )}
-
-          {/* Pro · Last-10 Points Trend */}
-          {last10Trend.length >= 2 && (
-            <Card padding="md" style={{ marginBottom: '12px', border: '1px solid rgba(251, 191, 36, 0.2)' }}>
-              <div className="flex items-center justify-between" style={{ marginBottom: '10px' }}>
-                <span className="section-label flex items-center gap-2">
-                  <Crown size={14} style={{ color: '#FBBF24' }} /> Pro · Last 10 — Points
-                </span>
-                <span className="t-caption" style={{ color: 'var(--color-text-sec)' }}>
-                  {last10Trend.length} games
-                </span>
-              </div>
-              <div style={{ height: '140px', margin: '0 -6px' }}>
-                <ResponsiveContainer width="100%" height="100%">
-                  <LineChart data={last10Trend}>
-                    <CartesianGrid stroke="rgba(255,255,255,0.05)" vertical={false} />
-                    <XAxis dataKey="game" tick={{ fill: 'rgba(255,255,255,0.4)', fontSize: 10 }} axisLine={false} tickLine={false} />
-                    <YAxis tick={{ fill: 'rgba(255,255,255,0.4)', fontSize: 10 }} axisLine={false} tickLine={false} width={24} />
-                    <Tooltip
-                      contentStyle={{ background: '#0D0D1A', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', fontSize: '11px' }}
-                      labelStyle={{ color: 'rgba(255,255,255,0.5)' }}
-                      itemStyle={{ color: '#FF6B35' }}
-                    />
-                    <Line type="monotone" dataKey="pts" stroke="#FF6B35" strokeWidth={2.5} dot={{ fill: '#FF6B35', r: 3 }} activeDot={{ r: 5 }} name="Points" />
-                  </LineChart>
-                </ResponsiveContainer>
-              </div>
-            </Card>
-          )}
-
-          {/* Pro · Last-10 FG% Trend */}
-          {last10Trend.length >= 2 && (
-            <Card padding="md" style={{ marginBottom: '12px', border: '1px solid rgba(251, 191, 36, 0.2)' }}>
-              <div className="section-label flex items-center gap-2" style={{ marginBottom: '10px' }}>
-                <Crown size={14} style={{ color: '#FBBF24' }} /> Pro · Last 10 — Field Goal %
-              </div>
+      {/* Last-10 FG% Trend */}
+      {last10Trend.length >= 2 && (
+        <Card padding="md" style={{ marginBottom: '12px', border: '1px solid rgba(251, 191, 36, 0.2)' }}>
+          <div className="section-label flex items-center gap-2" style={{ marginBottom: '10px' }}>
+            Last 10 — Field Goal %
+          </div>
               <div style={{ height: '140px', margin: '0 -6px' }}>
                 <ResponsiveContainer width="100%" height="100%">
                   <LineChart data={last10Trend}>
@@ -1147,34 +1112,32 @@ export default function MyIQ() {
                     <Line type="monotone" dataKey="fgPct" stroke="#22C55E" strokeWidth={2.5} dot={{ fill: '#22C55E', r: 3 }} activeDot={{ r: 5 }} name="FG%" />
                   </LineChart>
                 </ResponsiveContainer>
-              </div>
-            </Card>
-          )}
-
-          {/* Pro · Export */}
-          <Card padding="md" style={{ marginBottom: '12px', border: '1px solid rgba(251, 191, 36, 0.2)' }}>
-            <div className="section-label flex items-center gap-2" style={{ marginBottom: '10px' }}>
-              <Crown size={14} style={{ color: '#FBBF24' }} /> Pro · Export Data
-            </div>
-            <p className="t-caption" style={{ color: 'var(--color-text-sec)', marginBottom: '12px' }}>
-              Download every saved game as a CSV for Excel, Google Sheets, or Numbers.
-            </p>
-            <button
-              onClick={handleExportCSV}
-              style={{
-                width: '100%', padding: '12px', borderRadius: '12px',
-                border: '1px solid rgba(251, 191, 36, 0.4)',
-                background: 'linear-gradient(135deg, rgba(251,191,36,0.12), rgba(251,191,36,0.04))',
-                color: '#FBBF24', cursor: 'pointer', fontFamily: 'inherit',
-                fontWeight: 800, fontSize: '13px', display: 'flex',
-                alignItems: 'center', justifyContent: 'center', gap: '8px',
-              }}
-            >
-              <Download size={15} /> Export Season CSV
-            </button>
-          </Card>
-        </>
+          </div>
+        </Card>
       )}
+
+      {/* Export */}
+      <Card padding="md" style={{ marginBottom: '12px', border: '1px solid rgba(251, 191, 36, 0.2)' }}>
+        <div className="section-label flex items-center gap-2" style={{ marginBottom: '10px' }}>
+          Export Data
+        </div>
+        <p className="t-caption" style={{ color: 'var(--color-text-sec)', marginBottom: '12px' }}>
+          Download every saved game as a CSV for Excel, Google Sheets, or Numbers.
+        </p>
+        <button
+          onClick={handleExportCSV}
+          style={{
+            width: '100%', padding: '12px', borderRadius: '12px',
+            border: '1px solid rgba(251, 191, 36, 0.4)',
+            background: 'linear-gradient(135deg, rgba(251,191,36,0.12), rgba(251,191,36,0.04))',
+            color: '#FBBF24', cursor: 'pointer', fontFamily: 'inherit',
+            fontWeight: 800, fontSize: '13px', display: 'flex',
+            alignItems: 'center', justifyContent: 'center', gap: '8px',
+          }}
+        >
+          <Download size={15} /> Export Season CSV
+        </button>
+      </Card>
 
       {/* My IQ is read-only by design — no "Start Gametime" CTA here.
           Users start games from the Gametime bottom-nav tab. */}

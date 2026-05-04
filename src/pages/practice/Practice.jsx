@@ -5,7 +5,6 @@ import { localToday } from '../../utils/dateUtils'
 import PageWrapper from '../../components/layout/PageWrapper'
 import Card from '../../components/ui/Card'
 import Button from '../../components/ui/Button'
-import ProGate from '../../components/ui/ProGate'
 import useShots, { COURT_ZONES } from '../../hooks/useShots'
 import useDrills from '../../hooks/useDrills'
 import { useToast } from '../../context/ToastContext'
@@ -633,9 +632,5 @@ function PracticeContent() {
 }
 
 export default function Practice() {
-  return (
-    <ProGate feature="practiceMode">
-      <PracticeContent />
-    </ProGate>
-  )
+  return <PracticeContent />
 }

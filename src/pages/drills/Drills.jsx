@@ -17,11 +17,9 @@ import PageWrapper from '../../components/layout/PageWrapper'
 import Button from '../../components/ui/Button'
 import Card from '../../components/ui/Card'
 import Badge from '../../components/ui/Badge'
-import { useNavigate } from 'react-router-dom'
 import { useToast } from '../../context/ToastContext'
 import { useHaptics } from '../../hooks/useHaptics'
 import useDrills from '../../hooks/useDrills'
-import { usePremium } from '../../context/PremiumContext'
 
 // ─── Drill library ───────────────────────────────────────────────────────────
 // Each drill: id, name, category, difficulty (1-5), duration (minutes),
@@ -511,8 +509,6 @@ export default function Drills() {
   const { drills, addDrill, recentStreak } = useDrills()
   const { showToast } = useToast()
   const { impact, notification } = useHaptics()
-  const { isPro, checkMonthlyQuota } = usePremium()
-  const navigate = useNavigate()
   const [filter, setFilter] = useState('All')
   const [active, setActive] = useState(null)
   const [cameraDrill, setCameraDrill] = useState(null)
@@ -523,16 +519,6 @@ export default function Drills() {
   }, [filter])
 
   const handleLog = async (drill) => {
-    // Free tier: cap drill logs at the monthly limit.
-    if (!isPro) {
-      const quota = checkMonthlyQuota('drillsPerMonth', drills, 'session_date')
-      if (!quota.ok) {
-        notification('warning')
-        showToast(`Free plan: ${quota.used}/${quota.limit} drills this month. Upgrade for unlimited.`, 'error')
-        navigate('/premium')
-        return
-      }
-    }
     const res = await addDrill({
       session_date: localToday(),
       drill_name: drill.name,

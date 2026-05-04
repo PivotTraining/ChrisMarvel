@@ -4,10 +4,8 @@ import { Undo2, Share2, Trash2, Check, ChevronLeft, Video, VideoOff } from 'luci
 import useGames from '../../hooks/useGames'
 import { localToday } from '../../utils/dateUtils'
 import { useToast } from '../../context/ToastContext'
-import { usePremium } from '../../context/PremiumContext'
 import { useAuth } from '../../context/AuthContext'
 import { useHaptics } from '../../hooks/useHaptics'
-import UpgradePrompt from '../../components/ui/UpgradePrompt'
 import GameShareCard from '../../components/ui/GameShareCard'
 
 // ─── Game Film persistence (IndexedDB) ────────────────────────────────────
@@ -295,7 +293,6 @@ export default function Gametime() {
   const location = useLocation()
   const { addGame, updateGame } = useGames()
   const { showToast } = useToast()
-  const { isPro, upgrade } = usePremium()
   const { profile } = useAuth()
   const { impact, notification, selection } = useHaptics()
 
@@ -304,7 +301,6 @@ export default function Gametime() {
 
   const [opponent, setOpponent] = useState(resumeGame?.opponent || '')
   const [sessionType, setSessionType] = useState(resumeGame?.game_type || 'Game')
-  const [showUpgrade, setShowUpgrade] = useState(false)
   const [savedGame, setSavedGame] = useState(null) // triggers GameShareCard after save
   const [shots, setShots] = useState(resumeGame?._shots || [])
   const [stats, setStats] = useState({
@@ -363,10 +359,6 @@ export default function Gametime() {
   }, [])
 
   const startFilming = useCallback(async () => {
-    if (!isPro) {
-      setShowUpgrade(true)
-      return
-    }
     if (typeof navigator === 'undefined' || !navigator.mediaDevices?.getUserMedia) {
       showToast('Camera not supported on this device', 'error')
       return
@@ -429,7 +421,7 @@ export default function Gametime() {
       setFilming(false)
       tearDownCamera()
     }
-  }, [isPro, showToast, tearDownCamera])
+  }, [showToast, tearDownCamera])
 
   // When the user taps Stop, we capture the blob and show a preview
   // modal with Save to Device / Delete options. The video is NEVER
@@ -630,12 +622,8 @@ export default function Gametime() {
 
   const handleShareCardClose = useCallback(() => {
     setSavedGame(null)
-    if (!isPro) {
-      setShowUpgrade(true)
-    } else {
-      navigate('/games')
-    }
-  }, [isPro, navigate])
+    navigate('/games')
+  }, [navigate])
 
   const fgPct = fga > 0 ? Math.round((fgm / fga) * 100) : 0
 
@@ -917,16 +905,6 @@ export default function Gametime() {
           player={profile}
           game={savedGame}
           onClose={handleShareCardClose}
-        />
-      )}
-
-      {/* Post-save Pro upsell (shown after the user dismisses the share card) */}
-      {showUpgrade && (
-        <UpgradePrompt
-          title="Great game!"
-          subtitle={`You logged ${pts} points. Unlock advanced analytics, heat maps & more with Pro.`}
-          onClose={() => { setShowUpgrade(false); navigate('/games') }}
-          onUpgrade={() => { upgrade(); setShowUpgrade(false); navigate('/games') }}
         />
       )}
 

@@ -390,6 +390,15 @@ export function AuthProvider({ children }) {
           email,
           date_of_birth: metadata.date_of_birth || null,
         }, { onConflict: 'id' })
+    } else if (data?.user && !data?.session) {
+      // No session — email confirmation may be on. Try signing in directly
+      // in case the user was auto-confirmed server-side.
+      try {
+        const { data: signInData } = await supabase.auth.signInWithPassword({ email, password })
+        if (signInData?.session) {
+          return signInData
+        }
+      } catch { /* fall through — caller handles the no-session case */ }
     }
     return data
   }

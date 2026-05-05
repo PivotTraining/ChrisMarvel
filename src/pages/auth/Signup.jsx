@@ -24,7 +24,7 @@ export default function Signup() {
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
 
-  const { signUp } = useAuth()
+  const { signUp, signIn } = useAuth()
   const { showToast } = useToast()
   const navigate = useNavigate()
 
@@ -76,8 +76,16 @@ export default function Signup() {
         showToast('Account created!', 'success')
         navigate('/onboarding')
       } else {
-        showToast('Account created! Check your email to verify, then sign in.', 'success')
-        navigate('/login')
+        // No session returned — email confirmation may still be on.
+        // Auto-sign-in so the user isn't blocked by verification emails.
+        try {
+          await signIn(email, password)
+          showToast('Account created!', 'success')
+          navigate('/onboarding')
+        } catch {
+          showToast('Account created! Check your email to verify, then sign in.', 'success')
+          navigate('/login')
+        }
       }
     } catch (err) {
       setError(err.message || 'Failed to create account. Please try again.')

@@ -75,7 +75,7 @@ export default function Home() {
             <li role="none"><a href="#about" role="menuitem" onClick={(e) => { e.preventDefault(); scrollTo('about') }}>About</a></li>
             <li role="none"><a href="#keynotes" role="menuitem" onClick={(e) => { e.preventDefault(); scrollTo('keynotes') }}>Keynotes</a></li>
             <li role="none"><a href="#reel" role="menuitem" onClick={(e) => { e.preventDefault(); scrollTo('reel') }}>Reel</a></li>
-            <li role="none"><a href="#book" role="menuitem" onClick={(e) => { e.preventDefault(); scrollTo('book') }}>Book</a></li>
+            <li role="none"><a href="/book" role="menuitem">Book</a></li>
             <li role="none"><a href="#testimonials" role="menuitem" onClick={(e) => { e.preventDefault(); scrollTo('testimonials') }}>Testimonials</a></li>
             <li role="none"><a href="#contact" className="nav-cta" role="menuitem" onClick={(e) => { e.preventDefault(); scrollTo('contact') }}>Book Chris</a></li>
           </ul>
@@ -260,7 +260,7 @@ export default function Home() {
               Available for individual purchase and <strong>bulk orders for corporate events</strong>, conferences, and team retreats.
             </p>
             <div className="book-buttons">
-              <a href="#" className="btn btn-navy">Get the Book</a>
+              <a href="/book" className="btn btn-navy">Get the Book</a>
               <a href="#contact" className="btn btn-outline-navy" onClick={(e) => { e.preventDefault(); scrollTo('contact') }}>Bulk Orders for Events</a>
             </div>
           </div>

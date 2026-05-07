@@ -1,0 +1,1170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The What If Effect — Chris Marvel Davis</title>
+<meta name="description" content="Twelve questions that will change your life. The new book from Chris Marvel Davis, available now in ebook, paperback, and hardcover.">
+
+<meta property="og:title" content="The What If Effect">
+<meta property="og:description" content="Twelve questions that will change your life. By Chris Marvel Davis.">
+<meta property="og:type" content="book">
+<meta property="og:url" content="https://chrismarvelspeaks.com/the-what-if-effect">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="The What If Effect">
+<meta name="twitter:description" content="Twelve questions that will change your life.">
+
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23F5D32F'/%3E%3Ctext x='50' y='75' text-anchor='middle' font-size='80' font-weight='900' fill='%230E0D0C'%3E?%3C/text%3E%3C/svg%3E">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght,SOFT@9..144,300..900,0..100&family=Inter+Tight:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+<style>
+:root {
+  --yellow: #F5D32F;
+  --yellow-deep: #E8C322;
+  --black: #0E0D0C;
+  --black-soft: #1A1816;
+  --cream: #FAF6E8;
+  --cream-dim: #B5AC8A;
+  --gray-line: #2A2724;
+  --gray-text: #6B655A;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: 'Inter Tight', sans-serif;
+  background: var(--black);
+  color: var(--cream);
+  font-size: 17px;
+  line-height: 1.65;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* TOP NAV */
+nav.top {
+  position: fixed; top: 0; left: 0; right: 0;
+  z-index: 100;
+  padding: 22px 48px;
+  display: flex; justify-content: space-between; align-items: center;
+  background: rgba(14,13,12,0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--gray-line);
+}
+nav.top a.brand {
+  color: var(--cream); text-decoration: none;
+  font-size: 14px; font-weight: 600;
+  letter-spacing: 0.12em; text-transform: uppercase;
+}
+nav.top .nav-links { display: flex; gap: 36px; align-items: center; }
+nav.top .nav-links a {
+  color: var(--cream-dim); text-decoration: none;
+  font-size: 13px; font-weight: 500;
+  letter-spacing: 0.08em; text-transform: uppercase;
+  transition: color 0.2s;
+}
+nav.top .nav-links a:hover { color: var(--yellow); }
+nav.top .nav-links a.cta {
+  color: var(--black); background: var(--yellow);
+  padding: 8px 18px;
+}
+nav.top .nav-links a.cta:hover { background: var(--cream); color: var(--black); }
+
+/* HERO */
+.hero {
+  background: var(--yellow);
+  color: var(--black);
+  min-height: 100vh;
+  position: relative;
+  padding: 120px 48px 80px;
+  display: grid;
+  grid-template-columns: 1.2fr 1fr;
+  gap: 80px;
+  align-items: center;
+  overflow: hidden;
+}
+.hero::before {
+  content: '';
+  position: absolute; inset: 0;
+  background-image:
+    linear-gradient(rgba(0,0,0,0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,0,0,0.04) 1px, transparent 1px);
+  background-size: 54px 54px;
+  pointer-events: none;
+}
+.hero-text { position: relative; z-index: 2; max-width: 720px; }
+.hero-eyebrow {
+  display: inline-block;
+  font-size: 13px; font-weight: 600;
+  letter-spacing: 0.18em; text-transform: uppercase;
+  margin-bottom: 36px;
+  padding: 8px 16px;
+  background: var(--black); color: var(--yellow);
+}
+h1.hero-title {
+  font-family: 'Fraunces', serif;
+  font-weight: 900;
+  font-size: clamp(64px, 9vw, 138px);
+  line-height: 0.92;
+  letter-spacing: -0.025em;
+  margin-bottom: 32px;
+  font-variation-settings: "opsz" 144, "SOFT" 0;
+}
+h1.hero-title .underline-word {
+  display: inline-block;
+  background: var(--black); color: var(--yellow);
+  padding: 0 14px;
+  margin-left: -4px;
+  font-style: italic;
+}
+.hero-subtitle {
+  font-size: 22px; line-height: 1.45;
+  max-width: 560px; margin-bottom: 44px;
+  font-weight: 400; color: var(--black);
+  opacity: 0.85;
+}
+.hero-cta { display: flex; gap: 18px; align-items: center; flex-wrap: wrap; }
+.btn {
+  display: inline-flex; align-items: center; gap: 12px;
+  padding: 18px 28px;
+  font-size: 15px; font-weight: 600;
+  letter-spacing: 0.06em; text-transform: uppercase;
+  text-decoration: none;
+  border: 2px solid var(--black);
+  transition: all 0.25s ease;
+  cursor: pointer;
+}
+.btn-primary { background: var(--black); color: var(--yellow); }
+.btn-primary:hover { background: transparent; color: var(--black); }
+.btn-secondary { background: transparent; color: var(--black); }
+.btn-secondary:hover { background: var(--black); color: var(--yellow); }
+.btn .arrow { transition: transform 0.25s; }
+.btn:hover .arrow { transform: translateX(4px); }
+
+.hero-cover-wrap { position: relative; z-index: 2; display: flex; justify-content: center; align-items: center; }
+.hero-cover {
+  width: 100%; max-width: 480px; aspect-ratio: 1/1.6;
+  position: relative;
+  box-shadow: 24px 24px 0 var(--black-soft), -2px -2px 0 rgba(0,0,0,0.1);
+  transform: rotate(-3deg);
+  transition: transform 0.6s ease;
+}
+.hero-cover:hover { transform: rotate(-1deg) translateY(-8px); }
+.hero-cover-inner {
+  position: absolute; inset: 0;
+  background: var(--yellow);
+  display: flex; flex-direction: column; justify-content: space-between;
+  padding: 36px 32px;
+}
+.hero-cover-title {
+  font-family: 'Inter Tight', sans-serif;
+  font-weight: 800;
+  font-size: clamp(36px, 4.8vw, 64px);
+  line-height: 0.95;
+  letter-spacing: -0.02em;
+  color: var(--black);
+}
+.hero-cover-title .effect {
+  display: inline-block;
+  background: var(--black); color: var(--cream);
+  padding: 0 8px;
+  margin-top: 4px;
+}
+.hero-cover-domino {
+  align-self: flex-end;
+  width: 80px; height: 200px;
+  background: var(--black);
+  position: relative;
+  transform: rotate(-22deg);
+  margin-right: 30px; margin-top: 40px;
+}
+.hero-cover-domino::after {
+  content: ''; position: absolute;
+  left: 0; right: 0; top: 50%;
+  height: 3px; background: var(--yellow);
+  transform: translateY(-50%);
+}
+.hero-cover-domino .pip {
+  position: absolute; left: 50%; transform: translateX(-50%);
+  font-family: 'Inter Tight'; font-weight: 800;
+  color: var(--yellow); font-size: 42px;
+}
+.hero-cover-domino .pip-top { top: 18%; }
+.hero-cover-domino .pip-bot { bottom: 18%; }
+.hero-cover-tag { font-size: 13px; font-weight: 600; color: var(--black); max-width: 65%; }
+.hero-cover-author {
+  font-size: 14px; font-weight: 800;
+  letter-spacing: 0.04em; color: var(--black);
+  border-top: 2px solid var(--black);
+  padding-top: 8px;
+  margin-top: 16px;
+}
+
+/* THE QUESTION BLOCK */
+.question-block {
+  background: var(--black);
+  padding: 160px 48px;
+  position: relative; overflow: hidden;
+}
+.question-block::before {
+  content: ''; position: absolute; inset: 0;
+  background-image: radial-gradient(circle at 70% 50%, rgba(245,211,47,0.08) 0%, transparent 50%);
+  pointer-events: none;
+}
+.question-content { max-width: 1100px; margin: 0 auto; position: relative; z-index: 2; text-align: center; }
+.question-eyebrow {
+  font-size: 13px; font-weight: 600;
+  letter-spacing: 0.2em; text-transform: uppercase;
+  color: var(--yellow); margin-bottom: 40px;
+}
+.question-text {
+  font-family: 'Fraunces', serif;
+  font-weight: 300;
+  font-size: clamp(36px, 5.5vw, 80px);
+  line-height: 1.15; letter-spacing: -0.015em;
+  font-style: italic;
+  font-variation-settings: "opsz" 144, "SOFT" 50;
+  color: var(--cream);
+}
+.question-text .punch {
+  display: inline-block;
+  font-style: normal; font-weight: 900;
+  color: var(--yellow);
+  font-variation-settings: "opsz" 144, "SOFT" 0;
+}
+.question-attribution {
+  margin-top: 72px;
+  font-size: 14px; letter-spacing: 0.08em;
+  color: var(--gray-text); text-transform: uppercase;
+  font-weight: 500;
+}
+
+/* SAMPLE EXCERPT SECTION */
+.sample-section {
+  background: var(--cream);
+  color: var(--black);
+  padding: 140px 48px;
+}
+.sample-content { max-width: 780px; margin: 0 auto; }
+.sample-eyebrow {
+  font-size: 13px; font-weight: 600;
+  letter-spacing: 0.2em; text-transform: uppercase;
+  color: var(--gray-text); margin-bottom: 24px;
+  text-align: center;
+}
+.sample-title {
+  font-family: 'Fraunces', serif; font-weight: 800;
+  font-size: clamp(36px, 5vw, 60px);
+  line-height: 1.05; letter-spacing: -0.02em;
+  margin-bottom: 56px; text-align: center;
+  font-variation-settings: "opsz" 144;
+}
+.sample-prose {
+  font-family: 'Fraunces', serif;
+  font-size: 19px;
+  line-height: 1.7;
+  font-variation-settings: "opsz" 14, "SOFT" 30;
+  color: var(--black);
+}
+.sample-prose p { margin-bottom: 24px; }
+.sample-prose p.dropcap::first-letter {
+  font-family: 'Fraunces', serif;
+  font-weight: 900;
+  font-size: 5.2em;
+  float: left;
+  line-height: 0.85;
+  margin: 8px 14px 0 0;
+  color: var(--black);
+  font-variation-settings: "opsz" 144;
+}
+.sample-italic { font-style: italic; }
+.sample-cta-block {
+  margin-top: 56px;
+  padding: 40px;
+  background: var(--black);
+  color: var(--cream);
+  text-align: center;
+}
+.sample-cta-block p {
+  font-size: 17px;
+  margin-bottom: 24px;
+  color: var(--cream-dim);
+  font-family: 'Inter Tight', sans-serif;
+}
+.sample-cta-btn {
+  display: inline-flex; align-items: center; gap: 10px;
+  background: var(--yellow); color: var(--black);
+  padding: 16px 28px;
+  font-family: 'Inter Tight', sans-serif;
+  font-size: 14px; font-weight: 700;
+  letter-spacing: 0.08em; text-transform: uppercase;
+  text-decoration: none;
+  border: 2px solid var(--yellow);
+  transition: all 0.25s;
+}
+.sample-cta-btn:hover { background: transparent; color: var(--yellow); }
+
+/* AS FEATURED IN */
+.featured-in {
+  background: var(--black-soft);
+  color: var(--cream);
+  padding: 56px 48px;
+  border-top: 1px solid var(--gray-line);
+  border-bottom: 1px solid var(--gray-line);
+}
+.featured-content {
+  max-width: 1400px; margin: 0 auto;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 64px; align-items: center;
+}
+.featured-label {
+  font-size: 12px; font-weight: 700;
+  letter-spacing: 0.18em; text-transform: uppercase;
+  color: var(--gray-text); white-space: nowrap;
+}
+.featured-logos {
+  display: flex; gap: 56px; align-items: center;
+  flex-wrap: wrap;
+  font-family: 'Fraunces', serif;
+  font-weight: 700; font-size: 22px;
+  color: var(--cream);
+}
+.featured-logos span { font-style: italic; letter-spacing: -0.01em; position: relative; }
+.featured-logos span:not(:last-child)::after {
+  content: '·'; position: absolute;
+  right: -32px; top: 50%; transform: translateY(-50%);
+  color: var(--gray-text); font-style: normal; font-size: 20px;
+}
+
+/* TWELVE QUESTIONS — EXPANDABLE */
+.questions-section { background: var(--black); padding: 140px 48px; }
+.questions-content { max-width: 1200px; margin: 0 auto; }
+.section-eyebrow {
+  font-size: 13px; font-weight: 600;
+  letter-spacing: 0.2em; text-transform: uppercase;
+  color: var(--yellow); margin-bottom: 24px;
+}
+.section-title {
+  font-family: 'Fraunces', serif; font-weight: 800;
+  font-size: clamp(44px, 6vw, 88px);
+  line-height: 1; letter-spacing: -0.02em;
+  margin-bottom: 24px; max-width: 900px;
+  font-variation-settings: "opsz" 144;
+}
+.section-subtitle {
+  font-size: 17px;
+  color: var(--cream-dim);
+  max-width: 600px;
+  margin-bottom: 64px;
+}
+.questions-list {
+  border-top: 1px solid var(--gray-line);
+}
+.q-card {
+  border-bottom: 1px solid var(--gray-line);
+  overflow: hidden;
+}
+.q-header {
+  display: grid;
+  grid-template-columns: 80px 1fr auto;
+  gap: 28px;
+  padding: 32px 24px;
+  align-items: center;
+  cursor: pointer;
+  transition: background 0.3s, padding 0.3s;
+  background: transparent;
+  border: none;
+  width: 100%;
+  text-align: left;
+  color: inherit;
+  font-family: inherit;
+}
+.q-card:hover .q-header { background: var(--black-soft); padding-left: 32px; }
+.q-card:hover .q-num { color: var(--yellow); }
+.q-card.open .q-header { background: var(--black-soft); padding-left: 32px; }
+.q-card.open .q-num { color: var(--yellow); }
+.q-num {
+  font-family: 'Fraunces', serif;
+  font-weight: 300;
+  font-size: 42px;
+  color: var(--gray-text);
+  font-variation-settings: "opsz" 144;
+  transition: color 0.3s;
+  font-feature-settings: "tnum";
+}
+.q-text {
+  font-family: 'Fraunces', serif;
+  font-weight: 500;
+  font-size: clamp(20px, 2vw, 26px);
+  line-height: 1.3;
+  color: var(--cream);
+  font-style: italic;
+  letter-spacing: -0.01em;
+}
+.q-toggle {
+  width: 40px; height: 40px;
+  border-radius: 50%;
+  background: transparent;
+  border: 1px solid var(--gray-line);
+  display: flex; align-items: center; justify-content: center;
+  color: var(--cream-dim);
+  font-size: 20px;
+  font-weight: 300;
+  transition: all 0.3s;
+  flex-shrink: 0;
+}
+.q-card:hover .q-toggle { border-color: var(--yellow); color: var(--yellow); }
+.q-card.open .q-toggle {
+  background: var(--yellow); border-color: var(--yellow);
+  color: var(--black);
+  transform: rotate(45deg);
+}
+.q-body {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.5s ease;
+  padding: 0 24px 0 132px;
+  background: var(--black-soft);
+}
+.q-card.open .q-body {
+  max-height: 600px;
+  padding: 0 24px 36px 132px;
+}
+.q-card.open:hover .q-body { padding-left: 140px; }
+.q-body-content {
+  font-size: 16px;
+  line-height: 1.7;
+  color: var(--cream-dim);
+  max-width: 760px;
+}
+.q-body-content em {
+  color: var(--cream);
+  font-style: italic;
+  font-weight: 500;
+}
+
+/* AUTHOR SECTION */
+.author-section {
+  background: var(--cream); color: var(--black);
+  padding: 140px 48px;
+}
+.author-grid {
+  max-width: 1300px; margin: 0 auto;
+  display: grid; grid-template-columns: 1fr 1.4fr;
+  gap: 100px; align-items: start;
+}
+.author-image {
+  aspect-ratio: 4/5;
+  background: var(--black);
+  position: relative; overflow: hidden;
+}
+.author-image img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.author-image-placeholder {
+  position: absolute; inset: 0;
+  background: linear-gradient(135deg, rgba(245,211,47,0.1) 0%, transparent 50%), var(--black-soft);
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Fraunces', serif; font-style: italic;
+  font-size: 18px; color: var(--cream-dim);
+  letter-spacing: 0.05em; text-align: center; padding: 24px;
+}
+.author-text { padding-top: 16px; }
+.author-eyebrow {
+  font-size: 13px; font-weight: 600;
+  letter-spacing: 0.2em; text-transform: uppercase;
+  color: var(--gray-text); margin-bottom: 24px;
+}
+.author-name {
+  font-family: 'Fraunces', serif; font-weight: 800;
+  font-size: clamp(40px, 5vw, 64px);
+  line-height: 1; letter-spacing: -0.02em;
+  margin-bottom: 32px;
+}
+.author-bio { font-size: 18px; line-height: 1.7; margin-bottom: 24px; color: var(--black); }
+.author-bio strong { font-weight: 600; background: var(--yellow); padding: 0 4px; }
+.author-credits {
+  margin-top: 40px; padding-top: 32px;
+  border-top: 2px solid var(--black);
+}
+.author-credits-label {
+  font-size: 12px; font-weight: 700;
+  letter-spacing: 0.18em; text-transform: uppercase;
+  margin-bottom: 18px; color: var(--gray-text);
+}
+.author-credits-list { font-size: 16px; line-height: 1.6; font-weight: 500; }
+.author-credits-list span { display: inline-block; margin-right: 8px; }
+
+/* PURCHASE SECTION */
+.purchase-section {
+  background: var(--yellow); color: var(--black);
+  padding: 140px 48px;
+  position: relative; overflow: hidden;
+}
+.purchase-section::before {
+  content: ''; position: absolute; inset: 0;
+  background-image:
+    linear-gradient(rgba(0,0,0,0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,0,0,0.04) 1px, transparent 1px);
+  background-size: 54px 54px; pointer-events: none;
+}
+.purchase-content {
+  max-width: 1100px; margin: 0 auto;
+  position: relative; z-index: 2; text-align: center;
+}
+.purchase-eyebrow {
+  font-size: 13px; font-weight: 700;
+  letter-spacing: 0.2em; text-transform: uppercase;
+  color: var(--black); margin-bottom: 28px;
+}
+.purchase-title {
+  font-family: 'Fraunces', serif; font-weight: 900;
+  font-size: clamp(48px, 7vw, 110px);
+  line-height: 0.95; letter-spacing: -0.025em;
+  margin-bottom: 28px;
+  font-variation-settings: "opsz" 144;
+}
+.purchase-subtitle {
+  font-size: 22px; font-weight: 400;
+  max-width: 660px; margin: 0 auto 56px;
+  line-height: 1.5; color: var(--black); opacity: 0.8;
+}
+.retailer-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 16px; max-width: 800px; margin: 0 auto;
+}
+.retailer-btn {
+  background: var(--black); color: var(--yellow);
+  padding: 28px 24px; text-decoration: none;
+  font-weight: 700; font-size: 15px;
+  letter-spacing: 0.04em; text-transform: uppercase;
+  display: flex; flex-direction: column; align-items: flex-start;
+  border: 2px solid var(--black);
+  transition: all 0.25s ease;
+  text-align: left; position: relative;
+}
+.retailer-btn:hover { background: var(--cream); color: var(--black); transform: translateY(-4px); }
+.retailer-btn .retailer-name { font-size: 18px; margin-bottom: 4px; }
+.retailer-btn .retailer-format { font-size: 12px; opacity: 0.6; font-weight: 500; }
+.retailer-btn .arrow {
+  position: absolute; top: 24px; right: 24px;
+  opacity: 0.5;
+  transition: transform 0.25s, opacity 0.25s;
+}
+.retailer-btn:hover .arrow { opacity: 1; transform: translate(4px, -4px); }
+.retailer-btn.coming-soon {
+  background: transparent; color: var(--black);
+  border-style: dashed; cursor: not-allowed;
+  opacity: 0.55;
+}
+.retailer-btn.coming-soon:hover { transform: none; background: transparent; color: var(--black); }
+.retailer-btn.coming-soon .retailer-format { color: var(--black); opacity: 0.7; }
+
+/* EMAIL CAPTURE */
+.email-section {
+  background: var(--black);
+  padding: 120px 48px;
+  border-top: 1px solid var(--gray-line);
+}
+.email-content { max-width: 800px; margin: 0 auto; text-align: center; }
+.email-eyebrow {
+  font-size: 13px; font-weight: 600;
+  letter-spacing: 0.2em; text-transform: uppercase;
+  color: var(--yellow); margin-bottom: 24px;
+}
+.email-title {
+  font-family: 'Fraunces', serif; font-weight: 800;
+  font-size: clamp(36px, 4.5vw, 56px);
+  line-height: 1.05; letter-spacing: -0.02em;
+  margin-bottom: 20px;
+}
+.email-description {
+  font-size: 17px; color: var(--cream-dim);
+  margin-bottom: 40px; max-width: 560px;
+  margin-left: auto; margin-right: auto;
+  line-height: 1.6;
+}
+.email-form {
+  display: flex; gap: 0;
+  max-width: 560px; margin: 0 auto;
+  border: 2px solid var(--cream);
+  background: var(--black-soft);
+}
+.email-form input {
+  flex: 1; background: transparent; border: none;
+  padding: 20px 24px;
+  font-family: inherit; font-size: 16px;
+  color: var(--cream); outline: none;
+}
+.email-form input::placeholder { color: var(--gray-text); }
+.email-form button {
+  background: var(--yellow); color: var(--black);
+  border: none;
+  padding: 20px 32px;
+  font-family: inherit;
+  font-size: 14px; font-weight: 700;
+  letter-spacing: 0.08em; text-transform: uppercase;
+  cursor: pointer;
+  transition: background 0.2s;
+  white-space: nowrap;
+}
+.email-form button:hover { background: var(--cream); }
+.email-disclaimer { margin-top: 20px; font-size: 13px; color: var(--gray-text); }
+.email-success {
+  display: none;
+  background: var(--yellow); color: var(--black);
+  padding: 24px;
+  font-weight: 600; margin-top: 20px;
+}
+.email-success.show { display: block; }
+
+/* FOOTER */
+footer {
+  background: var(--black);
+  padding: 80px 48px 40px;
+  border-top: 1px solid var(--gray-line);
+}
+.footer-content {
+  max-width: 1300px; margin: 0 auto;
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr;
+  gap: 60px; margin-bottom: 60px;
+}
+.footer-brand {
+  font-family: 'Fraunces', serif; font-weight: 700;
+  font-size: 24px; margin-bottom: 16px;
+  letter-spacing: -0.01em;
+}
+.footer-brand span { color: var(--yellow); font-style: italic; }
+.footer-tagline {
+  font-size: 15px; color: var(--cream-dim);
+  max-width: 320px; line-height: 1.5;
+}
+.footer-col h4 {
+  font-size: 12px; font-weight: 700;
+  letter-spacing: 0.18em; text-transform: uppercase;
+  color: var(--gray-text); margin-bottom: 18px;
+}
+.footer-col ul { list-style: none; }
+.footer-col ul li { margin-bottom: 10px; }
+.footer-col ul li a {
+  color: var(--cream); text-decoration: none;
+  font-size: 15px; transition: color 0.2s;
+}
+.footer-col ul li a:hover { color: var(--yellow); }
+.footer-bottom {
+  border-top: 1px solid var(--gray-line);
+  padding-top: 32px;
+  display: flex; justify-content: space-between;
+  font-size: 13px; color: var(--gray-text);
+}
+
+/* RESPONSIVE */
+@media (max-width: 900px) {
+  nav.top { padding: 16px 24px; }
+  nav.top .nav-links { gap: 16px; }
+  nav.top .nav-links a:not(.cta) { display: none; }
+  .hero { grid-template-columns: 1fr; gap: 48px; padding: 100px 24px 64px; text-align: center; }
+  .hero-text { margin: 0 auto; }
+  .hero-cta { justify-content: center; }
+  .question-block, .questions-section, .author-section, .purchase-section, .email-section, .sample-section { padding: 80px 24px; }
+  .featured-in { padding: 40px 24px; }
+  .featured-content { grid-template-columns: 1fr; gap: 24px; text-align: center; }
+  .featured-logos { justify-content: center; gap: 32px; }
+  .featured-logos span:not(:last-child)::after { right: -20px; }
+  .author-grid { grid-template-columns: 1fr; gap: 48px; }
+  .footer-content { grid-template-columns: 1fr 1fr; gap: 32px; }
+  .footer-bottom { flex-direction: column; gap: 12px; text-align: center; }
+  .email-form { flex-direction: column; }
+  .email-form button { padding: 16px; }
+  .q-header { grid-template-columns: 50px 1fr 36px; gap: 16px; padding: 24px 16px; }
+  .q-num { font-size: 30px; }
+  .q-text { font-size: 18px; }
+  .q-body { padding: 0 16px 0 82px; }
+  .q-card.open .q-body { padding: 0 16px 28px 82px; }
+  .sample-prose { font-size: 17px; }
+  .sample-prose p.dropcap::first-letter { font-size: 4em; }
+}
+
+.fade-in { opacity: 0; transform: translateY(24px); transition: opacity 0.8s ease, transform 0.8s ease; }
+.fade-in.visible { opacity: 1; transform: translateY(0); }
+</style>
+</head>
+<body>
+
+<!-- TOP NAV -->
+<nav class="top">
+  <a href="https://chrismarvelspeaks.com" class="brand">Chris Marvel Davis</a>
+  <div class="nav-links">
+    <a href="https://chrismarvelspeaks.com/speaking">Speaking</a>
+    <a href="https://chrismarvelspeaks.com/about">About</a>
+    <a href="#book" class="cta">Get the Book</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-text fade-in">
+    <span class="hero-eyebrow">Available Now Everywhere Books Are Sold</span>
+    <h1 class="hero-title">
+      The What If <span class="underline-word">Effect</span>
+    </h1>
+    <p class="hero-subtitle">
+      Twelve questions that will change your life.<br>
+      Drawn from a decade of practice and a lifetime of paying attention.
+    </p>
+    <div class="hero-cta">
+      <a href="https://books.apple.com/us/book/the-what-if-effect/id6766121201" class="btn btn-primary" target="_blank" rel="noopener">
+        Get the Book
+        <span class="arrow">→</span>
+      </a>
+      <a href="#sample" class="btn btn-secondary">
+        Read a Sample
+      </a>
+    </div>
+  </div>
+
+  <div class="hero-cover-wrap fade-in">
+    <div class="hero-cover">
+      <div class="hero-cover-inner">
+        <div class="hero-cover-title">
+          THE WHAT IF<br>
+          <span class="effect">EFFECT</span>
+        </div>
+        <div class="hero-cover-domino">
+          <span class="pip pip-top">?</span>
+          <span class="pip pip-bot">?</span>
+        </div>
+        <div>
+          <div class="hero-cover-tag">Twelve questions that will change your life.</div>
+          <div class="hero-cover-author">CHRIS MARVEL DAVIS</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- THE PREMISE -->
+<section class="question-block">
+  <div class="question-content fade-in">
+    <div class="question-eyebrow">The Premise</div>
+    <p class="question-text">
+      Most people think their lives are shaped by big moments. They are not. Your life is shaped by the questions you ask yourself in the small moments nobody is watching.
+      <br><br>
+      <span class="punch">What if you are closer than you think?</span>
+    </p>
+    <div class="question-attribution">— From the introduction</div>
+  </div>
+</section>
+
+<!-- AS FEATURED ON -->
+<section class="featured-in">
+  <div class="featured-content">
+    <div class="featured-label">As featured on</div>
+    <div class="featured-logos">
+      <span>ESPN</span>
+      <span>Fox Sports</span>
+      <span>Yahoo</span>
+      <span>HuffPost</span>
+      <span>Earn Your Leisure</span>
+      <span>Radio One</span>
+    </div>
+  </div>
+</section>
+
+<!-- SAMPLE EXCERPT -->
+<section class="sample-section" id="sample">
+  <div class="sample-content fade-in">
+    <div class="sample-eyebrow">A Sample From the Book</div>
+    <h2 class="sample-title">The Question That Built This Book</h2>
+    <div class="sample-prose">
+      <p class="dropcap">There is a woman somewhere on the East Coast who has no idea she changed my life. She came into the Apple Store I worked at on a slow afternoon, looking for a charging cable and maybe a case for her phone. The kind of customer you help in three minutes and never see again.</p>
+      <p>I was thirty-two. Eight or nine months into the job. A sales associate in a navy blue shirt working the product zone of a store on the east side of Cleveland that I had quietly figured out, by my third month, was the most lucrative Apple Store between there and New York. The customers who walked through those glass doors on a regular weekday were a different kind of person than the ones I had grown up around. Construction company owners. Dentists with their own practices. Business owners. Professionals whose lives were operating on a math I had not been issued the key to.</p>
+      <p>I was curious about them. So I had developed a habit. As often as I could without making it weird, I would ask the customers I helped what they did for a living.</p>
+      <p>I asked her.</p>
+      <p>She said she had gone back to school at forty-one and become a psychologist. Three minutes. That was the whole conversation. She paid for her cable. She walked out.</p>
+      <p>But something inside me had already started moving. I went home that night and I could not sit still. The question would not leave me alone. It kept circling, getting louder every time it came back around. Not the question I expected to ask myself, either. The version of me that had been losing for years would have asked something safer.</p>
+      <p>Instead the question that showed up was this.</p>
+      <p class="sample-italic">What if I am closer than I think.</p>
+      <p>That question changed everything that came after.</p>
+    </div>
+    <div class="sample-cta-block">
+      <p>Keep reading. The full book is available now in eBook, paperback, and hardcover.</p>
+      <a href="#book" class="sample-cta-btn">
+        Get the Book
+        <span>→</span>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- TWELVE QUESTIONS — EXPANDABLE -->
+<section class="questions-section">
+  <div class="questions-content fade-in">
+    <div class="section-eyebrow">What's Inside</div>
+    <h2 class="section-title">Twelve questions.<br>One throughline.</h2>
+    <p class="section-subtitle">Tap any question to read what the chapter is about.</p>
+
+    <div class="questions-list">
+
+      <div class="q-card">
+        <button class="q-header" aria-expanded="false">
+          <div class="q-num">01</div>
+          <div class="q-text">What if the story you tell yourself is wrong?</div>
+          <div class="q-toggle">+</div>
+        </button>
+        <div class="q-body">
+          <div class="q-body-content">
+            Most people are walking around inside a story they wrote about themselves before they were old enough to know better. Someone said something at the wrong time, or you watched something happen and quietly drew a conclusion, and that conclusion has been running your life ever since. <em>This chapter teaches you how to find the story, name it, and decide whether to keep it.</em>
+          </div>
+        </div>
+      </div>
+
+      <div class="q-card">
+        <button class="q-header" aria-expanded="false">
+          <div class="q-num">02</div>
+          <div class="q-text">What if small decisions are the real compound interest?</div>
+          <div class="q-toggle">+</div>
+        </button>
+        <div class="q-body">
+          <div class="q-body-content">
+            People wait for the big move. The big leap. The big yes. Meanwhile, the small decisions you make on autopilot every day are the real engineers of your future. <em>This chapter shows you how to identify the three or four micro-decisions that are actually shaping your trajectory, and how to use them deliberately instead of accidentally.</em>
+          </div>
+        </div>
+      </div>
+
+      <div class="q-card">
+        <button class="q-header" aria-expanded="false">
+          <div class="q-num">03</div>
+          <div class="q-text">What if fear is the signal?</div>
+          <div class="q-toggle">+</div>
+        </button>
+        <div class="q-body">
+          <div class="q-body-content">
+            We have been taught that fear is the stop sign. The thing telling us to back away. But fear is more often a compass than a wall. It points exactly at the work that matters most. <em>This chapter reframes fear as data, not directive, and gives you a way to read what your fear is actually trying to tell you.</em>
+          </div>
+        </div>
+      </div>
+
+      <div class="q-card">
+        <button class="q-header" aria-expanded="false">
+          <div class="q-num">04</div>
+          <div class="q-text">What if you stopped auditioning for approval?</div>
+          <div class="q-toggle">+</div>
+        </button>
+        <div class="q-body">
+          <div class="q-body-content">
+            A lot of grown adults are still rehearsing for an audience that stopped watching years ago. The parent. The teacher. The peer group from a season of life that has long since ended. <em>This chapter is about identifying whose approval is still running your decisions, and what your life looks like when you stop performing for them.</em>
+          </div>
+        </div>
+      </div>
+
+      <div class="q-card">
+        <button class="q-header" aria-expanded="false">
+          <div class="q-num">05</div>
+          <div class="q-text">What if failure is just information?</div>
+          <div class="q-toggle">+</div>
+        </button>
+        <div class="q-body">
+          <div class="q-body-content">
+            The people who keep moving forward after setbacks are not braver than you. They are better at debriefing. They look at what happened, take what is useful, and leave the rest. <em>This chapter teaches you the post-failure debrief — a five-step process for turning a setback into a usable lesson without taking on shame as identity.</em>
+          </div>
+        </div>
+      </div>
+
+      <div class="q-card">
+        <button class="q-header" aria-expanded="false">
+          <div class="q-num">06</div>
+          <div class="q-text">What if it is already in you?</div>
+          <div class="q-toggle">+</div>
+        </button>
+        <div class="q-body">
+          <div class="q-body-content">
+            Most people are searching for a thing they already have. The capacity, the courage, the clarity, the qualifications. They have spent years collecting the evidence that disqualifies them and almost no time collecting the evidence that qualifies them. <em>This chapter is about taking inventory of what is already inside you, and learning to count it accurately for the first time.</em>
+          </div>
+        </div>
+      </div>
+
+      <div class="q-card">
+        <button class="q-header" aria-expanded="false">
+          <div class="q-num">07</div>
+          <div class="q-text">What if playing small is costing more than you think?</div>
+          <div class="q-toggle">+</div>
+        </button>
+        <div class="q-body">
+          <div class="q-body-content">
+            The cost of staying small is usually invisible until you measure it. Career growth that did not happen. Relationships that stayed shallow. Money that was never made. Confidence that was never built. <em>This chapter walks you through the actual math of playing small over a five-year horizon, and shows you the cost of the safe choice you have been mistaking for the smart choice.</em>
+          </div>
+        </div>
+      </div>
+
+      <div class="q-card">
+        <button class="q-header" aria-expanded="false">
+          <div class="q-num">08</div>
+          <div class="q-text">What if you are the one?</div>
+          <div class="q-toggle">+</div>
+        </button>
+        <div class="q-body">
+          <div class="q-body-content">
+            Somebody has to be the person in your family, your team, your community who breaks the pattern. Most people assume it is somebody else's job. <em>This chapter is about what it costs and what it pays to accept the call when the call has your name on it. The hardest chapter to live and the one that builds the most.</em>
+          </div>
+        </div>
+      </div>
+
+      <div class="q-card">
+        <button class="q-header" aria-expanded="false">
+          <div class="q-num">09</div>
+          <div class="q-text">What if you did it scared?</div>
+          <div class="q-toggle">+</div>
+        </button>
+        <div class="q-body">
+          <div class="q-body-content">
+            Most people are waiting for confidence to arrive before they move. Confidence does not work that way. Confidence is a byproduct of action, not a prerequisite for it. <em>This chapter is the permission slip to move while still afraid, and the practical framework for doing it without burning out.</em>
+          </div>
+        </div>
+      </div>
+
+      <div class="q-card">
+        <button class="q-header" aria-expanded="false">
+          <div class="q-num">10</div>
+          <div class="q-text">What if environment is destiny?</div>
+          <div class="q-toggle">+</div>
+        </button>
+        <div class="q-body">
+          <div class="q-body-content">
+            Willpower fails. Discipline runs out. The people who live the lives they want do not have superhuman willpower. They have engineered environments that make the right choice the easy choice. <em>This chapter is about auditing your physical, digital, and relational environment and redesigning it to support the version of you that you are trying to become.</em>
+          </div>
+        </div>
+      </div>
+
+      <div class="q-card">
+        <button class="q-header" aria-expanded="false">
+          <div class="q-num">11</div>
+          <div class="q-text">What if the win is the walk?</div>
+          <div class="q-toggle">+</div>
+        </button>
+        <div class="q-body">
+          <div class="q-body-content">
+            We have been sold the idea that the win is the destination. The promotion, the milestone, the achievement. The deeper truth is that the win is the daily walk. The version of yourself you become while pursuing the thing matters more than the thing. <em>This chapter is about learning to see the practice as the prize.</em>
+          </div>
+        </div>
+      </div>
+
+      <div class="q-card">
+        <button class="q-header" aria-expanded="false">
+          <div class="q-num">12</div>
+          <div class="q-text">What if you already started?</div>
+          <div class="q-toggle">+</div>
+        </button>
+        <div class="q-body">
+          <div class="q-body-content">
+            Here is the secret the first eleven chapters have been quietly building toward. You did not pick up this book by accident. You are already in motion. The question is not whether to begin. The question is whether to acknowledge what has already begun. <em>This is the closing chapter and the start of whatever comes next.</em>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- AUTHOR SECTION -->
+<section class="author-section">
+  <div class="author-grid">
+    <div class="author-image fade-in">
+      <!--
+        TO ADD YOUR PHOTO:
+        Replace the placeholder div below with:
+        <img src="/path-to-your-photo.jpg" alt="Chris Marvel Davis">
+      -->
+      <div class="author-image-placeholder">
+        [ Chris Marvel Davis<br>portrait ]
+      </div>
+    </div>
+    <div class="author-text fade-in">
+      <div class="author-eyebrow">About the Author</div>
+      <h2 class="author-name">Chris Marvel Davis</h2>
+      <p class="author-bio">
+        Chris Marvel Davis is a coach, speaker, and author whose commentary on leadership, human development, professional athletics, and spiritual growth has been featured on <strong>ESPN, Fox Sports, Yahoo,</strong> and <strong>HuffPost.</strong>
+      </p>
+      <p class="author-bio">
+        He has interviewed <strong>Lamar Odom, Terrell Owens, and Lil Rel Howery</strong>, appeared on <strong>Earn Your Leisure</strong>, and works as a coach to professional athletes including future Hall of Famer Terrell Owens.
+      </p>
+      <p class="author-bio">
+        He has been retained by <strong>Johnson and Johnson</strong> and <strong>Head Start</strong> to train their teams, holds a regular guest spot on <strong>Radio One Cleveland</strong>, and is a two-time <strong>Who's Who in Cleveland</strong> honoree. He lives in Atlanta with his wife Jazmine and their three sons.
+      </p>
+      <div class="author-credits">
+        <div class="author-credits-label">Selected Press &amp; Stages</div>
+        <div class="author-credits-list">
+          <span>ESPN</span>·<span>Fox Sports</span>·<span>Yahoo</span>·<span>HuffPost</span>·<span>HuffPostLive</span>·<span>Earn Your Leisure</span>·<span>Blavity Media</span>·<span>Radio One Cleveland</span>·<span>Sports Time Ohio</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PURCHASE -->
+<section class="purchase-section" id="book">
+  <div class="purchase-content fade-in">
+    <div class="purchase-eyebrow">Available Now</div>
+    <h2 class="purchase-title">Get the book.</h2>
+    <p class="purchase-subtitle">
+      Available now in eBook, paperback, and hardcover. Pick your format. Pick your platform.
+    </p>
+    <div class="retailer-grid">
+      <a href="https://books.apple.com/us/book/the-what-if-effect/id6766121201"
+         class="retailer-btn" target="_blank" rel="noopener">
+        <span class="retailer-name">Apple Books</span>
+        <span class="retailer-format">eBook</span>
+        <span class="arrow">↗</span>
+      </a>
+      <a href="https://www.amazon.com/dp/B0GZLV99W3"
+         class="retailer-btn" target="_blank" rel="noopener">
+        <span class="retailer-name">Amazon Kindle</span>
+        <span class="retailer-format">eBook</span>
+        <span class="arrow">↗</span>
+      </a>
+      <a href="https://a.co/d/0hwfYrf7"
+         class="retailer-btn" target="_blank" rel="noopener">
+        <span class="retailer-name">Amazon Paperback</span>
+        <span class="retailer-format">Print</span>
+        <span class="arrow">↗</span>
+      </a>
+      <a href="https://a.co/d/03NqGLKi"
+         class="retailer-btn" target="_blank" rel="noopener">
+        <span class="retailer-name">Amazon Hardcover</span>
+        <span class="retailer-format">Print · Collectible</span>
+        <span class="arrow">↗</span>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- EMAIL CAPTURE -->
+<section class="email-section" id="email">
+  <div class="email-content fade-in">
+    <div class="email-eyebrow">Stay Close</div>
+    <h2 class="email-title">One question. Every week.</h2>
+    <p class="email-description">
+      Join the weekly note from Chris Marvel Davis. One short essay every Tuesday. The same voice as the book, in shorter form, delivered to your inbox.
+    </p>
+    <form class="email-form" id="subscribe-form">
+      <input type="email" name="email" placeholder="your@email.com" required aria-label="Your email">
+      <button type="submit">Subscribe</button>
+    </form>
+    <div class="email-success" id="subscribe-success">
+      Thank you. Check your inbox to confirm your subscription.
+    </div>
+    <p class="email-disclaimer">No spam. Unsubscribe anytime. Just the work.</p>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-content">
+    <div>
+      <div class="footer-brand">Chris Marvel <span>Davis</span></div>
+      <p class="footer-tagline">
+        Coach. Speaker. Author of The What If Effect. Writing for the person who already knows they are capable of more.
+      </p>
+    </div>
+    <div class="footer-col">
+      <h4>The Book</h4>
+      <ul>
+        <li><a href="#book">Buy</a></li>
+        <li><a href="#sample">Sample</a></li>
+        <li><a href="#email">Subscribe</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>Speaking</h4>
+      <ul>
+        <li><a href="https://chrismarvelspeaks.com/speaking">Book Chris</a></li>
+        <li><a href="https://chrismarvelspeaks.com/topics">Topics</a></li>
+        <li><a href="https://chrismarvelspeaks.com/clients">Clients</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>Connect</h4>
+      <ul>
+        <li><a href="https://substack.com/profile/12068093-chris-marvel" target="_blank" rel="noopener">Substack</a></li>
+        <li><a href="https://instagram.com/ChrisMarvel" target="_blank" rel="noopener">Instagram</a></li>
+        <li><a href="https://linkedin.com/in/Chrismarvel" target="_blank" rel="noopener">LinkedIn</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <div>© 2026 Chris Marvel LLC. All rights reserved.</div>
+    <div>Atlanta · Cleveland</div>
+  </div>
+</footer>
+
+<script>
+// Fade-in on scroll
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) entry.target.classList.add('visible');
+  });
+}, { threshold: 0.15 });
+document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+
+// Expandable question cards
+document.querySelectorAll('.q-card .q-header').forEach(header => {
+  header.addEventListener('click', () => {
+    const card = header.parentElement;
+    const isOpen = card.classList.contains('open');
+    // Close all cards
+    document.querySelectorAll('.q-card').forEach(c => {
+      c.classList.remove('open');
+      c.querySelector('.q-header').setAttribute('aria-expanded', 'false');
+    });
+    // Open this one if it was closed
+    if (!isOpen) {
+      card.classList.add('open');
+      header.setAttribute('aria-expanded', 'true');
+    }
+  });
+});
+
+// ═══════════════════════════════════════════════════════════════
+// SUBSTACK EMAIL CAPTURE
+// ═══════════════════════════════════════════════════════════════
+// Replace YOUR_HANDLE below with your actual Substack handle
+// (the part before .substack.com — find it in your Substack dashboard).
+//
+// Example: if your publication URL is "chrismarvel.substack.com"
+//          then SUBSTACK_HANDLE = 'chrismarvel'
+
+const SUBSTACK_HANDLE = 'YOUR_HANDLE';
+
+document.getElementById('subscribe-form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const email = e.target.email.value;
+  const formData = new FormData();
+  formData.append('email', email);
+  formData.append('first_referrer', 'https://chrismarvelspeaks.com/the-what-if-effect');
+
+  try {
+    await fetch(`https://${SUBSTACK_HANDLE}.substack.com/api/v1/free?nojs=true`, {
+      method: 'POST',
+      mode: 'no-cors',
+      body: formData
+    });
+    document.getElementById('subscribe-success').classList.add('show');
+    e.target.reset();
+  } catch (err) {
+    document.getElementById('subscribe-success').classList.add('show');
+    e.target.reset();
+  }
+});
+</script>
+
+</body>
+</html>

@@ -300,25 +300,27 @@ export default function Home() {
       <section className="book-section" id="book" aria-label="The What If Effect book by Chris Marvel Davis">
         <div className="container">
           <div className="book-cover">
-            <img src="/images/book-cover.jpg" alt="The What If Effect: Flip Doubt Into Direction — book by performance strategist Chris Marvel Davis" loading="lazy" width={350} height={500} />
+            <img src="/images/book-cover-v13.png" alt="The What If Effect: Twelve Questions That Will Change Your Life — book by Chris Marvel Davis" loading="lazy" width={400} height={640} />
           </div>
           <div className="book-content">
-            <span className="badge badge-gold">The Book</span>
+            <span className="badge badge-gold">Available Now</span>
             <h2>The What If <span className="accent">Effect</span></h2>
-            <p>
-              What if the only thing standing between you and your breakthrough is the story you keep telling yourself?
-              In &ldquo;<strong>The What If Effect: Flip Doubt Into Direction</strong>,&rdquo; Chris Marvel draws on a decade
-              of coaching elite athletes and corporate leaders to reveal the thinking patterns that keep high performers
-              stuck &mdash; and the precise strategies to break through them.
+            <p style={{ fontSize: '1.15rem', fontWeight: 500, color: 'var(--navy)' }}>
+              Twelve questions that will change your life.<br />
+              Drawn from a decade of practice and a lifetime of paying attention.
             </p>
             <p>
-              This isn&rsquo;t another motivational book filled with empty affirmations. It&rsquo;s a <strong>psychology-backed
-              performance playbook</strong> for anyone ready to stop asking &ldquo;what if&rdquo; out of fear and start asking
-              &ldquo;what if&rdquo; out of possibility. Available for individual purchase and <strong>bulk orders for
-              corporate events</strong>, conferences, universities, and team retreats.
+              The new book from Chris Marvel Davis &mdash; available now in <strong>eBook, paperback, and hardcover</strong>.
+              Pick your format. Pick your platform.
             </p>
             <div className="book-buttons">
-              <a href="/book" className="btn btn-navy">Get the Book</a>
+              <a href="https://books.apple.com/us/book/the-what-if-effect/id6766121201" target="_blank" rel="noopener noreferrer" className="btn btn-navy">Apple Books</a>
+              <a href="https://www.amazon.com/dp/B0GZLV99W3" target="_blank" rel="noopener noreferrer" className="btn btn-navy">Amazon Kindle</a>
+              <a href="https://a.co/d/0hwfYrf7" target="_blank" rel="noopener noreferrer" className="btn btn-navy">Amazon Paperback</a>
+              <a href="https://a.co/d/03NqGLKi" target="_blank" rel="noopener noreferrer" className="btn btn-navy">Amazon Hardcover</a>
+            </div>
+            <div className="book-buttons" style={{ marginTop: '16px' }}>
+              <a href="/book" className="btn btn-outline-white" style={{ color: 'var(--navy)', borderColor: 'var(--navy)' }}>Read More About the Book</a>
               <a href="#contact" className="btn btn-outline-white" style={{ color: 'var(--navy)', borderColor: 'var(--navy)' }} onClick={(e) => { e.preventDefault(); scrollTo('contact') }}>Bulk Orders for Events</a>
             </div>
           </div>

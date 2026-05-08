@@ -126,7 +126,6 @@ function AppContent() {
           <Route path="/practice" element={<Practice />} />
           <Route path="/journal" element={<Journal />} />
           <Route path="/settings" element={<Settings />} />
-          <Route path="/premium" element={<Navigate to="/" replace />} />
           <Route path="/support" element={<Support />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>

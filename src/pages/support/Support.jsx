@@ -47,10 +47,6 @@ export default function Support() {
             q="How do I delete my account?"
             a="Go to Settings, scroll to the Danger Zone section, and tap Erase Profile. This permanently deletes all your data and signs you out."
           />
-          <FAQ
-            q="What is CourtIQ Pro?"
-            a="CourtIQ Pro unlocks advanced features including structured training programs, practice mode, and AI coaching insights."
-          />
         </Section>
 
         <Section title="System Requirements">

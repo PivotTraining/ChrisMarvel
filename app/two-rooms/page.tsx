@@ -4,7 +4,7 @@ import './two-rooms.css'
 
 export const metadata: Metadata = {
   title: 'The Two Rooms: On Camera | Chris Marvel Davis',
-  description: 'A practical field manual for speakers, coaches, consultants, trainers, executives, educators, pastors, therapists, and experts who can hold a room but go stiff when the camera turns on.',
+  description: 'A practical digital field manual for speakers, coaches, consultants, trainers, executives, educators, pastors, therapists, and experts who can hold a room but go stiff when the camera turns on.',
   alternates: { canonical: 'https://chrismarvelspeaks.com/two-rooms' },
   openGraph: {
     title: 'The Two Rooms: Volume One — On Camera',
@@ -14,7 +14,7 @@ export const metadata: Metadata = {
   },
 }
 
-const checkoutUrl = 'https://buy.stripe.com/14A9AT9W56fu3f97ffa3u0z'
+const checkoutUrl = 'https://buy.stripe.com/fZufZh9W51ZeaHB9nna3u0A'
 
 const frameworks = [
   ['01', 'The Eighteen-Inch Room', 'Stop performing to an imaginary crowd. Learn to speak to one person through the lens.'],
@@ -50,7 +50,7 @@ export default function TwoRoomsPage() {
       <header className="tr-hero">
         <div className="tr-wrap tr-hero-grid">
           <div className="tr-hero-copy">
-            <div className="tr-eyebrow">Volume One · On Camera</div>
+            <div className="tr-eyebrow">Volume One · On Camera · Digital Edition</div>
             <h1>The<br />Two<br /><span>Rooms</span></h1>
             <p className="tr-deck">A field manual for people who already have something to say.</p>
             <p className="tr-lead">
@@ -60,10 +60,10 @@ export default function TwoRoomsPage() {
               <a className="tr-btn tr-btn-rust" href={checkoutUrl}>Get The Two Rooms — $47</a>
               <a className="tr-btn tr-btn-ghost" href="#inside">See What&apos;s Inside</a>
             </div>
-            <p className="tr-micro">Secure checkout through Stripe. U.S. shipping address collected at checkout. Bulk and event orders handled separately.</p>
+            <p className="tr-micro">Digital download · Instant access after purchase · Secure Stripe checkout · Promo codes accepted at checkout.</p>
           </div>
 
-          <div className="tr-book-stage" aria-label="The Two Rooms book mockup">
+          <div className="tr-book-stage" aria-label="The Two Rooms digital book mockup">
             <div className="tr-shadow"></div>
             <div className="tr-book">
               <div className="tr-book-top">VOLUME ONE · ON CAMERA</div>
@@ -193,14 +193,14 @@ export default function TwoRoomsPage() {
       <section className="tr-final">
         <div className="tr-wrap tr-final-inner">
           <div>
-            <div className="tr-eyebrow">The Two Rooms · Volume One</div>
+            <div className="tr-eyebrow">The Two Rooms · Volume One · Digital Edition</div>
             <h2>Learn the room.</h2>
             <p>You already learned how to command the first one. Now learn how to enter the second.</p>
           </div>
           <div className="tr-final-buy">
             <div className="tr-price"><span>$</span>47</div>
-            <a className="tr-btn tr-btn-rust" href={checkoutUrl}>Get The Book</a>
-            <a className="tr-bulk" href="mailto:Jazmine@pivottraining.us?subject=The%20Two%20Rooms%20Bulk%20Order">Bulk &amp; event orders →</a>
+            <a className="tr-btn tr-btn-rust" href={checkoutUrl}>Get Instant Access</a>
+            <div className="tr-bulk">Digital PDF · Delivered after checkout</div>
           </div>
         </div>
       </section>

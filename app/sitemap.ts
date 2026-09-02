@@ -18,6 +18,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.9,
     },
     {
+      url: `${baseUrl}/two-rooms/field-kit`,
+      lastModified: lastMod,
+      changeFrequency: 'monthly',
+      priority: 0.85,
+    },
+    {
       url: `${baseUrl}/#about`,
       lastModified: lastMod,
       changeFrequency: 'monthly',

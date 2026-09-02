@@ -14,6 +14,8 @@ export const metadata: Metadata = {
   },
 }
 
+const checkoutUrl = 'https://buy.stripe.com/14A9AT9W56fu3f97ffa3u0z'
+
 const frameworks = [
   ['01', 'The Eighteen-Inch Room', 'Stop performing to an imaginary crowd. Learn to speak to one person through the lens.'],
   ['02', 'The 115 Setting', 'A practical calibration cue for finding the camera energy that looks natural to the viewer.'],
@@ -40,7 +42,7 @@ export default function TwoRoomsPage() {
             <a href="#inside">Inside</a>
             <a href="#system">The System</a>
             <a href="#author">Author</a>
-            <a className="tr-nav-cta" href="mailto:Jazmine@pivottraining.us?subject=The%20Two%20Rooms%20Order">Get the Book</a>
+            <a className="tr-nav-cta" href={checkoutUrl}>Get the Book</a>
           </div>
         </div>
       </nav>
@@ -55,10 +57,10 @@ export default function TwoRoomsPage() {
               You can hold a ballroom, lead a workshop, coach a client, teach a class, or command a meeting — then go blank when a lens points at you. <strong>You did not lose the skill. The room changed.</strong>
             </p>
             <div className="tr-actions">
-              <a className="tr-btn tr-btn-rust" href="mailto:Jazmine@pivottraining.us?subject=The%20Two%20Rooms%20Order">Get The Two Rooms — $47</a>
+              <a className="tr-btn tr-btn-rust" href={checkoutUrl}>Get The Two Rooms — $47</a>
               <a className="tr-btn tr-btn-ghost" href="#inside">See What&apos;s Inside</a>
             </div>
-            <p className="tr-micro">For individual, team, event, and bulk-order inquiries.</p>
+            <p className="tr-micro">Secure checkout through Stripe. U.S. shipping address collected at checkout. Bulk and event orders handled separately.</p>
           </div>
 
           <div className="tr-book-stage" aria-label="The Two Rooms book mockup">
@@ -197,7 +199,7 @@ export default function TwoRoomsPage() {
           </div>
           <div className="tr-final-buy">
             <div className="tr-price"><span>$</span>47</div>
-            <a className="tr-btn tr-btn-rust" href="mailto:Jazmine@pivottraining.us?subject=The%20Two%20Rooms%20Order">Get The Book</a>
+            <a className="tr-btn tr-btn-rust" href={checkoutUrl}>Get The Book</a>
             <a className="tr-bulk" href="mailto:Jazmine@pivottraining.us?subject=The%20Two%20Rooms%20Bulk%20Order">Bulk &amp; event orders →</a>
           </div>
         </div>

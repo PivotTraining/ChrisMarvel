@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import '../globals.css'
+import './books.css'
 
 export const metadata: Metadata = {
   title: 'Books by Chris Marvel Davis | ChrisMarvelSpeaks.com',
@@ -13,78 +14,88 @@ export const metadata: Metadata = {
   },
 }
 
-const books = [
-  {
-    title: 'The What If Effect',
-    kicker: 'Book · Performance & Possibility',
-    description: 'A framework for breaking through the mental barriers that keep people stuck and transforming fear-based thinking into possibility-driven action.',
-    href: '/book/what-if-effect',
-    image: '/images/book-cover-v13.png',
-    cta: 'Explore The What If Effect',
-    accent: '#C9A84C',
-  },
-  {
-    title: 'The Two Rooms: Volume One — On Camera',
-    kicker: 'Digital Field Manual · Communication',
-    description: 'A 105-page practical system for experienced communicators who can command a room but need to recalibrate their skill for the camera.',
-    href: '/two-rooms',
-    image: null,
-    cta: 'Explore The Two Rooms',
-    accent: '#B34A32',
-  },
-]
-
 export default function BooksPage() {
   return (
-    <main style={{minHeight:'100vh',background:'#f5f2eb',color:'#111d35'}}>
-      <nav style={{background:'#111d35',padding:'18px 24px'}} aria-label="Books navigation">
-        <div style={{maxWidth:1180,margin:'0 auto',display:'flex',alignItems:'center',justifyContent:'space-between',gap:20}}>
-          <a href="/" className="nav-logo" style={{color:'#fff',textDecoration:'none',display:'flex',alignItems:'center',gap:4}}>
-            Chris<img src="/images/chris-marvel-logo.png" alt="" width={28} height={28}/><span>Marvel</span>
+    <main className="books-page">
+      <nav id="navbar" className="books-nav" aria-label="Main navigation">
+        <div className="container">
+          <a href="/" className="nav-logo" aria-label="Chris Marvel homepage">
+            Chris<img src="/images/chris-marvel-logo.png" alt="Chris Marvel logo" className="nav-logo-icon" width={28} height={28}/><span>Marvel</span>
           </a>
-          <a href="/" style={{color:'#fff',textDecoration:'none',fontWeight:700,fontSize:'.9rem'}}>Back to ChrisMarvelSpeaks.com</a>
+          <ul className="nav-links" role="menubar">
+            <li role="none"><a href="/#about" role="menuitem">About</a></li>
+            <li role="none"><a href="/#method" role="menuitem">Method</a></li>
+            <li role="none"><a href="/#keynotes" role="menuitem">Keynotes</a></li>
+            <li role="none"><a href="/#reel" role="menuitem">Reel</a></li>
+            <li role="none"><a href="/book" role="menuitem" aria-current="page">Books</a></li>
+            <li role="none"><a href="/communities" role="menuitem">Communities</a></li>
+            <li role="none"><a href="/#contact" className="nav-cta" role="menuitem">Book Chris</a></li>
+          </ul>
         </div>
       </nav>
 
-      <header style={{padding:'88px 24px 52px',borderBottom:'1px solid #ddd6c9'}}>
-        <div style={{maxWidth:1180,margin:'0 auto'}}>
-          <div style={{fontSize:'.74rem',letterSpacing:'3px',fontWeight:800,textTransform:'uppercase',color:'#B34A32',marginBottom:16}}>Books by Chris Marvel Davis</div>
-          <h1 style={{fontSize:'clamp(3.8rem,9vw,8rem)',lineHeight:.88,letterSpacing:'-5px',textTransform:'uppercase',margin:'0 0 28px',fontWeight:900}}>Ideas built<br/>to be used.</h1>
-          <p style={{maxWidth:760,fontFamily:"Georgia,'Times New Roman',serif",fontSize:'1.3rem',lineHeight:1.65,color:'#3d485a',margin:0}}>Books and field manuals that turn psychology, performance, communication, and possibility into frameworks people can actually apply.</p>
+      <header className="books-hero">
+        <div className="container">
+          <span className="books-kicker">Books by Chris Marvel Davis</span>
+          <h1>Frameworks for how people think, perform, and communicate.</h1>
+          <p>Each title stands on its own. Together, they reflect the same approach Chris brings to the stage: practical psychology, clear systems, and tools designed to be used after the inspiration wears off.</p>
         </div>
       </header>
 
-      <section style={{padding:'64px 24px 96px'}}>
-        <div style={{maxWidth:1180,margin:'0 auto',display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(320px,1fr))',gap:32}}>
-          {books.map((book) => (
-            <article key={book.title} style={{background:'#fff',border:'1px solid #ddd6c9',overflow:'hidden',boxShadow:'0 18px 50px rgba(17,29,53,.08)'}}>
-              <div style={{height:420,background:'#111d35',display:'grid',placeItems:'center',padding:34,borderTop:`8px solid ${book.accent}`}}>
-                {book.image ? (
-                  <img src={book.image} alt={`${book.title} book cover`} style={{maxHeight:'100%',maxWidth:'82%',objectFit:'contain',filter:'drop-shadow(0 18px 30px rgba(0,0,0,.32))'}} />
-                ) : (
-                  <div style={{width:'72%',aspectRatio:'.72',background:'#F4F0E8',padding:'34px 28px',boxShadow:'20px 22px 0 #244B58,24px 26px 30px rgba(0,0,0,.28)',display:'flex',flexDirection:'column',justifyContent:'space-between',transform:'rotate(1.5deg)'}}>
-                    <div style={{fontSize:'.62rem',letterSpacing:'2px',fontWeight:800,textTransform:'uppercase',color:'#555'}}>Volume One · On Camera</div>
-                    <div style={{fontSize:'clamp(2.2rem,5vw,4rem)',lineHeight:.84,fontWeight:900,letterSpacing:'-2px',textTransform:'uppercase',color:'#171717'}}>The<br/>Two<br/><span style={{color:'#B34A32'}}>Rooms</span></div>
-                    <div style={{height:5,background:'#B34A32'}} />
-                    <div style={{fontSize:'.72rem',fontWeight:800,textTransform:'uppercase',letterSpacing:'1px',color:'#171717'}}>Chris Marvel Davis</div>
-                  </div>
-                )}
+      <section className="books-shelf" aria-label="Books by Chris Marvel Davis">
+        <div className="container books-grid">
+          <article className="book-tile">
+            <div className="book-art gold">
+              <img src="/images/book-cover-v13.png" alt="The What If Effect book cover" />
+            </div>
+            <div className="book-info">
+              <div className="book-meta">Book · Performance &amp; Possibility</div>
+              <h2>The What If Effect</h2>
+              <p>A psychology-backed framework for breaking through the thinking patterns that keep people stuck and turning doubt into direction.</p>
+              <div className="book-actions">
+                <a className="btn btn-navy" href="/book/what-if-effect">View Book</a>
               </div>
-              <div style={{padding:'34px 34px 38px'}}>
-                <div style={{fontSize:'.7rem',letterSpacing:'2px',fontWeight:800,textTransform:'uppercase',color:book.accent,marginBottom:12}}>{book.kicker}</div>
-                <h2 style={{fontSize:'2rem',lineHeight:1.05,margin:'0 0 16px',fontWeight:900,textTransform:'uppercase'}}>{book.title}</h2>
-                <p style={{lineHeight:1.75,color:'#4a4a4a',margin:'0 0 28px'}}>{book.description}</p>
-                <a href={book.href} style={{display:'inline-block',background:'#111d35',color:'#fff',padding:'14px 20px',fontWeight:800,textDecoration:'none',textTransform:'uppercase',fontSize:'.78rem',letterSpacing:'1px'}}>{book.cta}</a>
+            </div>
+          </article>
+
+          <article className="book-tile">
+            <div className="book-art rust">
+              <div className="two-rooms-cover" aria-label="The Two Rooms book cover">
+                <div className="small">Volume One · On Camera</div>
+                <div className="title">The<br/>Two<br/><span>Rooms</span></div>
+                <div className="rule"></div>
+                <div className="small">A field manual for people who already have something to say</div>
+                <div className="author">Chris Marvel Davis</div>
               </div>
-            </article>
-          ))}
+            </div>
+            <div className="book-info">
+              <div className="book-meta">Digital Field Manual · Communication</div>
+              <h2>The Two Rooms: Volume One — On Camera</h2>
+              <p>A 105-page working system for experienced communicators who can command a room but need to recalibrate their skill for the camera.</p>
+              <div className="book-actions">
+                <a className="btn btn-navy" href="/two-rooms">View Book</a>
+                <a className="btn btn-outline" href="https://buy.stripe.com/fZufZh9W51ZeaHB9nna3u0A">Get Digital Edition — $47</a>
+              </div>
+            </div>
+          </article>
         </div>
       </section>
 
-      <footer style={{background:'#111d35',color:'rgba(255,255,255,.7)',padding:'28px 24px',fontSize:'.85rem'}}>
-        <div style={{maxWidth:1180,margin:'0 auto',display:'flex',justifyContent:'space-between',gap:20,flexWrap:'wrap'}}>
-          <div>© 2026 Chris Marvel Davis · Pivot Training &amp; Development</div>
-          <div><a href="/" style={{color:'#fff'}}>ChrisMarvelSpeaks.com</a></div>
+      <section className="books-note">
+        <div className="container">
+          <div className="books-note-card">
+            <h3>More titles will live here.</h3>
+            <p>The Books tab is now the permanent library for Chris Marvel Davis titles. Supporting tools such as the Field Kit, Script Vault, and Two Rooms Lab remain inside the Two Rooms product ecosystem rather than crowding the main shelf.</p>
+          </div>
+        </div>
+      </section>
+
+      <footer className="footer">
+        <div className="container">
+          <div className="footer-bottom">
+            <p>© 2026 Chris Marvel Davis · Pivot Training &amp; Development</p>
+            <p><a href="/">ChrisMarvelSpeaks.com</a></p>
+          </div>
         </div>
       </footer>
     </main>

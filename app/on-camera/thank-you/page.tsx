@@ -1,0 +1,9 @@
+import '../../globals.css'
+import '../../two-rooms/two-rooms.css'
+
+const labCheckout='https://buy.stripe.com/7sY7sL9W57jycPJarra3u0E'
+
+export default function OnCameraThankYou(){return <main className="tr-page" style={{minHeight:'100vh',padding:'80px 24px'}}><div style={{maxWidth:980,margin:'0 auto'}}>
+<section style={{textAlign:'center',background:'#fff',padding:'56px 42px',border:'1px solid #ded9d1'}}><div className="tr-eyebrow">Purchase complete</div><h1 style={{fontFamily:'var(--font-heading)',fontSize:'clamp(3rem,8vw,5.8rem)',lineHeight:.9,textTransform:'uppercase',letterSpacing:'-3px',margin:'0 0 26px'}}>You&apos;re<br/>ON CAMERA.</h1><p style={{fontSize:'1.05rem',lineHeight:1.75,color:'#444',maxWidth:650,margin:'0 auto 28px'}}>Your payment was processed securely through Stripe. Your permanent digital download will live here once private fulfillment storage is connected.</p><a className="tr-btn tr-btn-rust" href="mailto:Jazmine@pivottraining.us?subject=ON%20CAMERA%20Download%20Access">Need Download Access?</a></section>
+<section style={{marginTop:32,background:'#111d35',color:'#fff',padding:'54px 46px',borderTop:'8px solid #b34a32'}}><div className="tr-section-kicker light">Your next step</div><h2 style={{fontFamily:'var(--font-heading)',fontSize:'clamp(2.4rem,5vw,4.4rem)',lineHeight:1,textTransform:'uppercase'}}>ON CAMERA Lab</h2><p style={{fontFamily:"Georgia,'Times New Roman',serif",fontStyle:'italic',fontSize:'1.25rem',color:'#eadfd1'}}>The manual gives you the system. The Lab gives you the reps.</p><p style={{lineHeight:1.75,color:'rgba(255,255,255,.78)',maxWidth:720}}>Guided camera reps, calibration, diagnostic feedback, content extraction, and buyer-facing reel review.</p><a className="tr-btn tr-btn-rust" href={labCheckout}>Join ON CAMERA Lab — $197</a></section>
+</div></main>}

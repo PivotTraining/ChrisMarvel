@@ -1,0 +1,1 @@
+Homepage photo update: restore the original hero image, keep the black-and-white About portrait, and add the new school-assembly and professional-event images to the gallery. This note is temporary and can be removed before merge.

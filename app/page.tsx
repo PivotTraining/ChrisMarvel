@@ -73,7 +73,7 @@ export default function Home() {
           </a>
           <ul className={`nav-links ${menuOpen ? 'show' : ''}`} role="menubar">
             <li role="none"><a href="#about" role="menuitem" onClick={(e) => { e.preventDefault(); scrollTo('about') }}>About</a></li>
-            <li role="none"><a href="#method" role="menuitem" onClick={(e) => { e.preventDefault(); scrollTo('method') }}>Method</a></li>
+            <li role="none"><a href="#standard" role="menuitem" onClick={(e) => { e.preventDefault(); scrollTo('standard') }}>The Standard</a></li>
             <li role="none"><a href="#keynotes" role="menuitem" onClick={(e) => { e.preventDefault(); scrollTo('keynotes') }}>Keynotes</a></li>
             <li role="none"><a href="#reel" role="menuitem" onClick={(e) => { e.preventDefault(); scrollTo('reel') }}>Reel</a></li>
             <li role="none"><a href="/book" role="menuitem">Book</a></li>
@@ -176,46 +176,54 @@ export default function Home() {
         <img src="/images/gallery-stage.jpg" alt="Chris Marvel delivering performance keynote on stage at corporate conference" loading="lazy" />
       </div>
 
-      {/* ===== THE RECHARGE METHOD ===== */}
-      <section className="keynotes" id="method" aria-label="The Recharge Method — Chris Marvel's performance system">
+      {/* ===== THE STANDARD =====
+           Replaced The Recharge Method(TM), retired 9 September at Chris's
+           instruction. The section is not simply deleted: between About and
+           Keynotes it was carrying the argument for WHY a talk changes
+           anything, and that is the speaking buyer's actual fear -- booking
+           somebody who is forgotten by Monday. The argument stays; the
+           trademark goes, because a standard a buyer can hold you to is
+           stronger than a framework they have to take on faith. */}
+      <section className="keynotes" id="standard" aria-label="How Chris Marvel works, and the standard he holds himself to">
         <div className="container">
-          <span className="badge badge-gold">The Performance System</span>
-          <h2>The Recharge <span className="accent">Method&trade;</span></h2>
+          <span className="badge badge-gold">The Standard</span>
+          <h2>If nothing is different by Monday, <span className="accent">it didn&rsquo;t work</span></h2>
           <p className="keynotes-subtitle">
-            Most speakers inspire temporarily. Chris Marvel installs systems, changes behavior, and drives performance outcomes.
-            The Recharge Method&trade; is a structured performance system designed to improve how individuals operate under pressure.
+            Most organizations answer a strained team by buying something people can attend. A pizza party. A wellness week.
+            A poster with a hotline on it. None of those are bad &mdash; what&rsquo;s bad is buying one instead of changing the
+            thing that made it necessary, and calling that a response.
           </p>
           <div className="keynote-grid">
             <article className="keynote-card fade-in">
-              <div className="keynote-card-icon">&#128269;</div>
-              <h3>1. Diagnose</h3>
+              <div className="keynote-card-icon">&#128172;</div>
+              <h3>Name what&rsquo;s actually happening</h3>
               <p>
-                Identify how individuals respond to stress and pressure. Assess patterns of thinking, behavior,
-                and emotional regulation that are silently eroding performance, engagement, and culture.
+                Every booking starts with a conversation about what the room is carrying &mdash; staff, students, or school
+                leaders. Not a topic picked off a shelf months earlier and delivered whatever walks in.
               </p>
             </article>
             <article className="keynote-card fade-in">
-              <div className="keynote-card-icon">&#9889;</div>
-              <h3>2. Rewire</h3>
+              <div className="keynote-card-icon">&#129504;</div>
+              <h3>Give them something to run on</h3>
               <p>
-                Train individuals to shift from <strong>reactive to intentional thinking</strong>. Build emotional regulation
-                and mental discipline. Introduce elevated thinking frameworks that change how people process pressure.
+                Psychology and behavioral science, applied to the pressure people are under right now. The room doesn&rsquo;t
+                just feel better for an hour &mdash; people leave with something they can <strong>use on Monday</strong>.
               </p>
             </article>
             <article className="keynote-card fade-in">
-              <div className="keynote-card-icon">&#127919;</div>
-              <h3>3. Deploy</h3>
+              <div className="keynote-card-icon">&#128101;</div>
+              <h3>Equip the person closest to them</h3>
               <p>
-                Apply new behaviors in real-world environments. Reinforce performance habits and create
-                <strong> repeatable execution patterns</strong> that drive sustained results &mdash; not temporary motivation.
+                A strategy is only ever delivered by the manager, the principal, the teacher in the room. Equipping that
+                layer is the difference between a plan and a change.
               </p>
             </article>
             <article className="keynote-card fade-in">
-              <div className="keynote-card-icon">&#128200;</div>
-              <h3>The Outcome</h3>
+              <div className="keynote-card-icon">&#128202;</div>
+              <h3>Show you, don&rsquo;t promise you</h3>
               <p>
-                Higher engagement. Stronger accountability. Improved focus and execution. Reduced burnout behaviors.
-                Elevated decision-making. <strong>Sustainable performance improvement</strong> that lasts long after the event.
+                Chris doesn&rsquo;t leave when the applause stops. Where it fits, a short baseline before and after shows what
+                actually moved. <strong>Everyone promises impact.</strong> He&rsquo;d rather show you.
               </p>
             </article>
           </div>
@@ -238,7 +246,7 @@ export default function Home() {
           <span className="badge badge-gold">Signature Keynotes &amp; Workshops</span>
           <h2>Keynote Talks That Drive <span className="accent">Results</span></h2>
           <p className="keynotes-subtitle">
-            Each keynote is built on The Recharge Method&trade; and customizable for corporate, K&ndash;12, university, and nonprofit audiences.
+            Every keynote is shaped to the room before he arrives, and customizable for corporate, K&ndash;12, university, and nonprofit audiences.
             Available as 60-minute keynotes, half-day workshops, full-day training, or multi-session programs.
           </p>
           <div className="keynote-grid">
@@ -267,6 +275,19 @@ export default function Home() {
                 Based on Chris Marvel&rsquo;s bestselling book &mdash; a framework for breaking through the mental barriers
                 that keep people stuck. Transform fear-based thinking into possibility-driven strategy and unlock
                 the next level of performance. A <strong>keynote for anyone ready to execute at a higher level</strong>.
+              </p>
+            </article>
+            {/* The student talk. Named 9 September: the three keynotes above are
+                written for the adults in the building, and nothing was built to be
+                delivered TO a room of students. The title is the instruction. */}
+            <article className="keynote-card fade-in">
+              <div className="keynote-card-icon">&#9918;</div>
+              <h3>Take the Bat Off Your Shoulders</h3>
+              <p>
+                <strong>For students.</strong> Chris was twelve, facing the best pitcher in the league, and had already
+                decided not to swing &mdash; until a coach yelled five words from the dugout. Built on his own story of
+                losses, mistakes and setbacks, this assembly leaves students understanding that where they are right now
+                does not have to determine where they finish. <strong>Their circumstances are not their identity.</strong>
               </p>
             </article>
             <article className="keynote-card fade-in">
@@ -390,7 +411,7 @@ export default function Home() {
           <div className="faq-grid">
             <details className="faq-item" open>
               <summary>What does Chris Marvel speak about?</summary>
-              <p>Chris is a performance strategist who helps organizations, schools, and universities increase engagement, elevate thinking, and drive measurable performance outcomes. His signature keynotes include &ldquo;Pressure Is a Privilege,&rdquo; &ldquo;The Invisible Injury,&rdquo; and &ldquo;The What If Effect&rdquo; &mdash; all built on The Recharge Method&trade;. Topics are fully customizable for corporate, education, university, and nonprofit audiences.</p>
+              <p>Chris is a performance strategist who helps organizations, schools, and universities increase engagement, elevate thinking, and drive measurable performance outcomes. His signature keynotes include &ldquo;Pressure Is a Privilege,&rdquo; &ldquo;The Invisible Injury,&rdquo; and &ldquo;The What If Effect&rdquo; &mdash; plus the student talk &ldquo;Take the Bat Off Your Shoulders.&rdquo; Topics are fully customizable for corporate, education, university, and nonprofit audiences.</p>
             </details>
             <details className="faq-item">
               <summary>How much does it cost to book Chris Marvel?</summary>
@@ -401,8 +422,8 @@ export default function Home() {
               <p>Chris speaks at corporate conferences, leadership summits, professional development days, K&ndash;12 school district training, university student success programs (TRIO, First-Year Experience), HBCU events, nonprofit galas, team retreats, and industry conventions. He offers 60-minute keynotes, half-day workshops, full-day training, and multi-session programs.</p>
             </details>
             <details className="faq-item">
-              <summary>What is The Recharge Method&trade;?</summary>
-              <p>The Recharge Method&trade; is Chris Marvel&rsquo;s structured performance system built on three phases: Diagnose (identify how individuals respond to stress and pressure), Rewire (train individuals to shift from reactive to intentional thinking), and Deploy (apply new behaviors in real-world environments with repeatable execution patterns). It&rsquo;s designed to improve how people operate under pressure &mdash; not just inspire them temporarily.</p>
+              <summary>What makes this different from a motivational speaker?</summary>
+              <p>A motivational talk is measured by how the room felt on the day. Chris works to a harder standard: if nothing is different by Monday, it didn&rsquo;t work. Every booking starts with what the room is actually carrying rather than a topic chosen in advance, the content is grounded in psychology and behavioral science rather than anecdote, and where it fits, a short baseline before and after shows what moved. Everyone promises impact &mdash; he&rsquo;d rather show you.</p>
             </details>
             <details className="faq-item">
               <summary>What makes Chris Marvel different from other speakers?</summary>
@@ -543,7 +564,7 @@ export default function Home() {
               <h4>Navigate</h4>
               <ul>
                 <li><a href="#about" onClick={(e) => { e.preventDefault(); scrollTo('about') }}>About Chris</a></li>
-                <li><a href="#method" onClick={(e) => { e.preventDefault(); scrollTo('method') }}>The Recharge Method</a></li>
+                <li><a href="#standard" onClick={(e) => { e.preventDefault(); scrollTo('standard') }}>The Standard</a></li>
                 <li><a href="#keynotes" onClick={(e) => { e.preventDefault(); scrollTo('keynotes') }}>Keynote Topics</a></li>
                 <li><a href="#book" onClick={(e) => { e.preventDefault(); scrollTo('book') }}>The What If Effect</a></li>
                 <li><a href="#faq" onClick={(e) => { e.preventDefault(); scrollTo('faq') }}>FAQ</a></li>

@@ -172,8 +172,8 @@ export default function Home() {
       </section>
 
       {/* ===== FULL-WIDTH STAGE PHOTO ===== */}
-      <div className="stage-photo" role="img" aria-label="Chris Marvel delivering keynote on stage at major conference">
-        <img src="/images/gallery-stage.jpg" alt="Chris Marvel delivering performance keynote on stage at corporate conference" loading="lazy" />
+      <div className="stage-photo" role="img" aria-label="Chris Marvel speaking to a seated audience during a professional development session">
+        <img src="/images/gallery-stage.jpg" alt="Chris Marvel speaking to educators seated at round tables during a professional development session" loading="lazy" />
       </div>
 
       {/* ===== THE STANDARD =====
@@ -235,7 +235,7 @@ export default function Home() {
         <div className="gallery-strip">
           <img src="/images/gallery-workshop.jpg" alt="Chris Marvel leading interactive performance workshop for corporate team" loading="lazy" width={400} height={300} />
           <img src="/images/gallery-ballroom.jpg" alt="Chris Marvel delivering keynote to packed ballroom at national conference" loading="lazy" width={400} height={300} />
-          <img src="/images/gallery-education.jpg" alt="Chris Marvel presenting engagement strategies for educators and school administrators" loading="lazy" width={400} height={300} />
+          <img src="/images/gallery-education.jpg" alt="Chris Marvel speaking to a room of educators at a Head Start professional development day" loading="lazy" width={400} height={300} />
           <img src="/images/about-presenting.jpg" alt="Chris Marvel engaging corporate audience during performance strategy presentation" loading="lazy" width={400} height={300} />
         </div>
       </section>
@@ -311,7 +311,7 @@ export default function Home() {
           <h2>Speaker <span className="accent">Reel</span></h2>
           <p className="reel-subtitle">Watch what happens when psychology meets the stage. See why organizations, schools, and universities book Chris Marvel for their most important events.</p>
           <a href="https://youtu.be/AAAURVaEE48?si=4LKNwd9qRLYzhkNp" target="_blank" rel="noopener noreferrer" className="reel-container" aria-label="Watch Chris Marvel keynote speaker demo reel on YouTube">
-            <img src="/images/gallery-stage.jpg" alt="Chris Marvel keynote speaker demo reel — watch highlights from corporate events, conferences, and workshops" loading="lazy" />
+            <img src="/images/gallery-stage.jpg" alt="Watch Chris Marvel&rsquo;s speaker reel" loading="lazy" />
             <div className="play-btn" role="button" aria-label="Play speaker demo reel video"></div>
           </a>
         </div>

@@ -7,7 +7,7 @@ export const metadata: Metadata = {
     template: '%s | Chris Marvel Speaks',
   },
   description:
-    'Book Chris Marvel — performance strategist and keynote speaker who helps organizations, schools, and universities increase engagement, elevate thinking, and drive measurable performance outcomes. Creator of The Recharge Method™. Corporate keynotes, workshops, and training programs starting at $7,500.',
+    'Book Chris Marvel — performance strategist and keynote speaker who helps organizations, schools, and universities increase engagement, elevate thinking, and drive measurable performance outcomes. Corporate keynotes, workshops, and training programs starting at $7,500.',
   keywords: [
     'Chris Marvel',
     'Chris Marvel speaker',
@@ -20,7 +20,7 @@ export const metadata: Metadata = {
     'engagement speaker',
     'workforce performance',
     'student performance speaker',
-    'The Recharge Method',
+    'student assembly speaker',
     'leadership keynote speaker',
     'keynote speaker Atlanta',
     'keynote speaker Cleveland',
@@ -118,7 +118,7 @@ const personSchema = {
   additionalName: 'Chris Marvel',
   jobTitle: 'Performance Strategist & Keynote Speaker',
   description:
-    'Chris Marvel is a performance strategist and keynote speaker who uses psychology, behavioral science, and real-world application to help organizations and institutions increase engagement, elevate thinking, and drive measurable performance outcomes. Creator of The Recharge Method™.',
+    'Chris Marvel is a performance strategist and keynote speaker who uses psychology, behavioral science, and real-world application to help organizations and institutions increase engagement, elevate thinking, and drive measurable performance outcomes.',
   url: 'https://chrismarvelspeaks.com',
   image: 'https://chrismarvelspeaks.com/images/hero-headshot.jpg',
   email: 'Jazmine@pivottraining.us',
@@ -160,7 +160,7 @@ const personSchema = {
     name: 'Performance Strategist & Keynote Speaker',
     description: 'Performance strategist using psychology and behavioral science to help organizations increase engagement and drive measurable outcomes',
     occupationLocation: { '@type': 'Country', name: 'United States' },
-    skills: 'Keynote Speaking, Workshop Facilitation, Corporate Training, Performance Development, The Recharge Method™',
+    skills: 'Keynote Speaking, Workshop Facilitation, Corporate Training, Performance Development, Student Assemblies',
   },
   sameAs: [
     'https://www.linkedin.com/in/chrismarvel',
@@ -175,7 +175,7 @@ const websiteSchema = {
   '@id': 'https://chrismarvelspeaks.com/#website',
   url: 'https://chrismarvelspeaks.com',
   name: 'Chris Marvel Speaks',
-  description: 'Official website of performance strategist and keynote speaker Chris Marvel Davis — creator of The Recharge Method™',
+  description: 'Official website of performance strategist and keynote speaker Chris Marvel Davis',
   publisher: { '@id': 'https://chrismarvelspeaks.com/#person' },
   inLanguage: 'en-US',
 }
@@ -209,7 +209,7 @@ const serviceSchema = {
       },
       {
         '@type': 'Offer',
-        itemOffered: { '@type': 'Service', name: 'Full-Day Training', description: 'Comprehensive full-day immersive training using The Recharge Method™' },
+        itemOffered: { '@type': 'Service', name: 'Full-Day Training', description: 'Comprehensive full-day immersive training, shaped to the room before he arrives' },
       },
       {
         '@type': 'Offer',
@@ -233,7 +233,7 @@ const faqSchema = {
       name: 'What does Chris Marvel speak about?',
       acceptedAnswer: {
         '@type': 'Answer',
-        text: 'Chris Marvel is a performance strategist who helps organizations, schools, and universities increase engagement, elevate thinking, and drive measurable performance outcomes. His signature keynotes include "Pressure Is a Privilege," "The Invisible Injury," and "The What If Effect" — all built on The Recharge Method™. Topics are customizable for corporate, K-12, university, and nonprofit audiences.',
+        text: 'Chris Marvel is a performance strategist who helps organizations, schools, and universities increase engagement, elevate thinking, and drive measurable performance outcomes. His signature keynotes include "Pressure Is a Privilege," "The Invisible Injury," and "The What If Effect," plus the student talk "Take the Bat Off Your Shoulders." Topics are customizable for corporate, K-12, university, and nonprofit audiences.',
       },
     },
     {
@@ -246,10 +246,10 @@ const faqSchema = {
     },
     {
       '@type': 'Question',
-      name: 'What is The Recharge Method™?',
+      name: 'What makes this different from a motivational speaker?',
       acceptedAnswer: {
         '@type': 'Answer',
-        text: 'The Recharge Method™ is Chris Marvel\'s structured performance system built on three phases: Diagnose (identify how individuals respond to stress and pressure), Rewire (train individuals to shift from reactive to intentional thinking), and Deploy (apply new behaviors in real-world environments). It delivers sustainable performance improvement, not temporary motivation.',
+        text: 'A motivational talk is measured by how the room felt on the day. Chris works to a harder standard: if nothing is different by Monday, it did not work. Every booking starts with what the room is actually carrying rather than a topic chosen in advance, the content is grounded in psychology and behavioral science, and where it fits a short baseline before and after shows what moved.',
       },
     },
     {
@@ -342,7 +342,7 @@ const breadcrumbSchema = {
   itemListElement: [
     { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://chrismarvelspeaks.com' },
     { '@type': 'ListItem', position: 2, name: 'About Chris Marvel', item: 'https://chrismarvelspeaks.com/#about' },
-    { '@type': 'ListItem', position: 3, name: 'The Recharge Method', item: 'https://chrismarvelspeaks.com/#method' },
+    { '@type': 'ListItem', position: 3, name: 'The Standard', item: 'https://chrismarvelspeaks.com/#standard' },
     { '@type': 'ListItem', position: 4, name: 'Keynote Topics', item: 'https://chrismarvelspeaks.com/#keynotes' },
     { '@type': 'ListItem', position: 5, name: 'Speaker Reel', item: 'https://chrismarvelspeaks.com/#reel' },
     { '@type': 'ListItem', position: 6, name: 'The What If Effect Book', item: 'https://chrismarvelspeaks.com/#book' },

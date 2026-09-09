@@ -13,7 +13,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: `${baseUrl}/on-camera/script-vault`, lastModified: lastMod, changeFrequency: 'monthly', priority: 0.82 },
     { url: `${baseUrl}/on-camera/lab`, lastModified: lastMod, changeFrequency: 'monthly', priority: 0.82 },
     { url: `${baseUrl}/#about`, lastModified: lastMod, changeFrequency: 'monthly', priority: 0.9 },
-    { url: `${baseUrl}/#method`, lastModified: lastMod, changeFrequency: 'monthly', priority: 0.9 },
+    { url: `${baseUrl}/#standard`, lastModified: lastMod, changeFrequency: 'monthly', priority: 0.9 },
     { url: `${baseUrl}/#keynotes`, lastModified: lastMod, changeFrequency: 'monthly', priority: 0.9 },
     { url: `${baseUrl}/#testimonials`, lastModified: lastMod, changeFrequency: 'monthly', priority: 0.8 },
     { url: `${baseUrl}/#faq`, lastModified: lastMod, changeFrequency: 'monthly', priority: 0.8 },

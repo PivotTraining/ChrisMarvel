@@ -65,10 +65,10 @@ export const metadata: Metadata = {
     siteName: 'Chris Marvel Speaks',
     images: [
       {
-        url: '/images/hero-headshot.jpg',
-        width: 1400,
-        height: 1400,
-        alt: 'Chris Marvel — Performance Strategist and Keynote Speaker for corporate events, schools, and universities',
+        url: '/images/og-card.jpg',
+        width: 1200,
+        height: 630,
+        alt: 'Chris Marvel — Performance Strategist and Keynote Speaker',
         type: 'image/jpeg',
       },
     ],
@@ -78,7 +78,7 @@ export const metadata: Metadata = {
     title: 'Chris Marvel — Performance Strategist & Keynote Speaker',
     description:
       'I help organizations, schools, and universities increase engagement and performance by teaching people how to think, regulate, and execute under pressure.',
-    images: ['/images/hero-headshot.jpg'],
+    images: ['/images/og-card.jpg'],
     creator: '@chrismarvel',
   },
   robots: {

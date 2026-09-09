@@ -108,9 +108,9 @@ export default function Home() {
           <div className="hero-image-container">
             <img
               src="/images/hero-headshot.jpg"
-              alt="Chris Marvel — performance strategist and keynote speaker for corporate events, schools, and universities"
-              width={520}
-              height={520}
+              alt="Chris Marvel seated, hands clasped, in a navy double-breasted suit over a blue striped shirt, against a grey studio backdrop"
+              width={1040}
+              height={1525}
               loading="eager"
             />
           </div>
@@ -166,7 +166,7 @@ export default function Home() {
             <a href="#contact" className="btn btn-navy" onClick={(e) => { e.preventDefault(); scrollTo('contact') }} style={{ marginTop: '32px' }}>Get In Touch</a>
           </div>
           <div className="mission-image">
-            <img src="/images/about-presenting.jpg" alt="Chris Marvel with a handheld microphone, walking the floor of a tiered training room while participants follow along at long desks with laptops" loading="lazy" width={600} height={400} />
+            <img src="/images/about-portrait.jpg" alt="Black-and-white portrait of Chris Marvel seated in an armchair, hands clasped, in an open-collared white shirt" loading="lazy" width={1200} height={1759} />
           </div>
         </div>
       </section>

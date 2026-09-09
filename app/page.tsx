@@ -166,7 +166,7 @@ export default function Home() {
             <a href="#contact" className="btn btn-navy" onClick={(e) => { e.preventDefault(); scrollTo('contact') }} style={{ marginTop: '32px' }}>Get In Touch</a>
           </div>
           <div className="mission-image">
-            <img src="/images/about-presenting.jpg" alt="Chris Marvel presenting performance strategy keynote to corporate audience" loading="lazy" width={600} height={400} />
+            <img src="/images/about-presenting.jpg" alt="Chris Marvel with a handheld microphone, walking the floor of a tiered training room while participants follow along at long desks with laptops" loading="lazy" width={600} height={400} />
           </div>
         </div>
       </section>
@@ -233,10 +233,10 @@ export default function Home() {
       {/* ===== PHOTO GALLERY STRIP ===== */}
       <section className="photo-gallery" aria-label="Chris Marvel keynote speaker photo gallery">
         <div className="gallery-strip">
-          <img src="/images/gallery-workshop.jpg" alt="Chris Marvel leading interactive performance workshop for corporate team" loading="lazy" width={400} height={300} />
-          <img src="/images/gallery-ballroom.jpg" alt="Chris Marvel delivering keynote to packed ballroom at national conference" loading="lazy" width={400} height={300} />
+          <img src="/images/gallery-workshop.jpg" alt="Chris Marvel mid-sentence in a Pivot polo, tablet in hand, presenting beside a projected slide in a wood-panelled conference room" loading="lazy" width={400} height={300} />
+          <img src="/images/gallery-ballroom.jpg" alt="Chris Marvel with a microphone addressing educators seated at banquet tables in a hotel ballroom, a presentation slide on the screen behind him" loading="lazy" width={400} height={300} />
           <img src="/images/gallery-education.jpg" alt="Chris Marvel speaking to a room of educators at a Head Start professional development day" loading="lazy" width={400} height={300} />
-          <img src="/images/about-presenting.jpg" alt="Chris Marvel engaging corporate audience during performance strategy presentation" loading="lazy" width={400} height={300} />
+          <img src="/images/about-presenting.jpg" alt="Chris Marvel speaking with a microphone to a professional development group seated at long training-room desks" loading="lazy" width={400} height={300} />
         </div>
       </section>
 
@@ -393,7 +393,7 @@ export default function Home() {
       {/* ===== CTA BANNER ===== */}
       <section className="cta-banner" aria-label="Book performance strategist Chris Marvel for your event">
         <div className="bg-img">
-          <img src="/images/gallery-ballroom.jpg" alt="Chris Marvel speaking to large audience at corporate conference event" loading="lazy" />
+          <img src="/images/gallery-ballroom.jpg" alt="Chris Marvel presenting to a full room of educators seated at banquet tables in a hotel ballroom" loading="lazy" />
         </div>
         <div className="container">
           <div className="cta-banner-sub">Ready to Elevate Performance?</div>

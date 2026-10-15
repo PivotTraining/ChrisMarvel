@@ -1,0 +1,66 @@
+@import url('https://fonts.googleapis.com/css2?family=Great+Vibes&family=Special+Elite&family=Libre+Baskerville:ital@0;1&display=swap');
+
+.ll-page { --ll-red: #C8202F; --ll-ink: #1d1d1d; --ll-wood: #eceae7; background: #fff; color: var(--ll-ink); min-height: 100vh; }
+.ll-wrap { max-width: 1120px; margin: 0 auto; padding: 0 24px; }
+.ll-kicker { display: inline-block; color: var(--ll-red); text-transform: uppercase; letter-spacing: 2.5px; font-size: .74rem; font-weight: 800; margin-bottom: 14px; }
+
+.ll-hero { padding: 72px 0 84px; background:
+  repeating-linear-gradient(90deg, rgba(0,0,0,.025) 0 2px, transparent 2px 120px),
+  linear-gradient(180deg, #f4f3f1, var(--ll-wood)); }
+.ll-hero-grid { display: grid; grid-template-columns: minmax(0, 380px) 1fr; gap: 64px; align-items: center; }
+.ll-cover img { width: 100%; height: auto; border-radius: 4px; box-shadow: 0 28px 50px rgba(0,0,0,.22); transform: rotate(-1.5deg); }
+.ll-back { display: inline-block; font-size: .8rem; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: #6b6b6b; margin-bottom: 18px; }
+.ll-back:hover { color: var(--ll-red); }
+.ll-hero h1 { margin: 0; line-height: .9; display: flex; flex-direction: column; }
+.ll-script { font-family: 'Great Vibes', cursive; font-weight: 400; color: var(--ll-red); font-size: clamp(4.4rem, 9vw, 7rem); }
+.ll-type { font-family: 'Special Elite', 'Courier New', monospace; font-weight: 400; color: var(--ll-ink); font-size: clamp(3.6rem, 7.5vw, 5.8rem); letter-spacing: 2px; margin-top: -6px; }
+.ll-rule { display: flex; align-items: center; gap: 0; margin: 14px 0 18px; max-width: 460px; color: var(--ll-red); }
+.ll-heart { font-size: 1.1rem; line-height: 1; }
+.ll-line { flex: 1; height: 3px; background: var(--ll-red); }
+.ll-gavel { width: 12px; height: 22px; background: var(--ll-red); border-radius: 2px; }
+.ll-sub { font-family: 'Libre Baskerville', Georgia, serif; font-size: 1.3rem; line-height: 1.4; color: var(--ll-ink); margin: 0 0 20px; }
+.ll-hero-copy p { font-size: 1.04rem; line-height: 1.75; color: #444; margin: 0 0 14px; max-width: 600px; }
+.ll-hero-copy .ll-sub { color: var(--ll-ink); }
+.ll-actions { display: flex; gap: 14px; flex-wrap: wrap; margin-top: 22px; }
+.ll-btn-red { background: var(--ll-red); color: #fff; border: 2px solid var(--ll-red); }
+.ll-btn-red:hover { background: #a51824; border-color: #a51824; }
+.ll-btn-outline { background: transparent; color: var(--ll-ink); border: 2px solid var(--ll-ink); }
+.ll-btn-outline:hover { background: var(--ll-ink); color: #fff; }
+.ll-hero-copy .ll-meta { font-size: .82rem; color: #777; margin-top: 22px; letter-spacing: .3px; }
+
+.ll-laws { padding: 90px 0; background: #fff; }
+.ll-laws h2, .ll-about h2 { font-family: 'Libre Baskerville', Georgia, serif; font-size: clamp(2rem, 4vw, 2.8rem); color: var(--ll-ink); margin: 0 0 36px; font-weight: 400; }
+.ll-law-list { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 22px; }
+.ll-law-list li { border: 1px solid #e6e2dd; border-top: 4px solid var(--ll-red); border-radius: 6px; padding: 24px 24px 22px; background: #fbfaf8; }
+.ll-num { display: inline-block; background: var(--ll-red); color: #fff; font-size: .7rem; font-weight: 800; letter-spacing: 1.5px; text-transform: uppercase; padding: 4px 10px; border-radius: 3px; margin-bottom: 12px; }
+.ll-law-list h3 { font-family: 'Montserrat', sans-serif; font-size: 1.15rem; font-weight: 800; color: var(--ll-ink); margin: 0 0 8px; }
+@media (min-width: 901px) { .ll-law-list { grid-template-columns: repeat(3, minmax(0, 1fr)); } .ll-law-list li:last-child { grid-column: 1 / -1; } }
+.ll-law-list p { font-size: .96rem; line-height: 1.65; color: #555; margin: 0; }
+
+.ll-quote { padding: 80px 0; background: var(--ll-red); color: #fff; }
+.ll-quote-inner { max-width: 860px; text-align: center; }
+.ll-quote .ll-kicker { color: rgba(255,255,255,.8); }
+.ll-quote blockquote { margin: 0; }
+.ll-quote blockquote p { font-family: 'Libre Baskerville', Georgia, serif; font-style: italic; font-size: clamp(1.3rem, 2.6vw, 1.8rem); line-height: 1.5; margin: 0; }
+
+.ll-about { padding: 90px 0 100px; background: var(--ll-wood); }
+.ll-about-grid { display: grid; grid-template-columns: 1fr 320px; gap: 56px; align-items: start; }
+.ll-about p { font-size: 1.04rem; line-height: 1.75; color: #444; margin: 0 0 14px; }
+.ll-about h2 { margin-bottom: 20px; }
+.ll-more { background: #fff; border-radius: 10px; padding: 24px; box-shadow: 0 14px 30px rgba(0,0,0,.06); display: flex; flex-direction: column; gap: 14px; }
+.ll-more .ll-kicker { margin-bottom: 4px; }
+.ll-more-item { display: flex; gap: 14px; align-items: center; color: var(--ll-ink); }
+.ll-more-item img { width: 56px; height: auto; border-radius: 2px; box-shadow: 0 6px 12px rgba(0,0,0,.15); }
+.ll-more-item span { font-size: .85rem; color: #666; line-height: 1.4; }
+.ll-more-item strong { display: block; font-size: .98rem; color: var(--ll-ink); }
+.ll-more-item:hover strong { color: var(--ll-red); }
+.ll-more-all { font-size: .85rem; font-weight: 700; color: var(--ll-red); margin-top: 4px; }
+
+@media (max-width: 900px) {
+  .ll-hero { padding: 48px 0 64px; }
+  .ll-hero-grid, .ll-about-grid { grid-template-columns: 1fr; gap: 40px; }
+  .ll-cover { max-width: 260px; margin: 0 auto; }
+  .ll-law-list { grid-template-columns: 1fr; }
+  .ll-laws, .ll-about { padding: 64px 0; }
+  .ll-quote { padding: 60px 0; }
+}

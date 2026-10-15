@@ -178,6 +178,20 @@ nav .container { display: flex; align-items: center; justify-content: space-betw
 .book-content h2 .accent { color: var(--gold); }
 .book-content p { font-size: 1rem; line-height: 1.8; color: var(--gray-600); margin-bottom: 16px; }
 .book-buttons { display: flex; gap: 16px; margin-top: 8px; flex-wrap: wrap; }
+.pl-feature { padding: 90px 0; background: linear-gradient(90deg, #F7CC1B 0 50%, #F8AFCB 50% 100%); }
+.pl-feature .container { display: grid; grid-template-columns: auto 1fr; gap: 60px; align-items: center; background: var(--white); border-radius: 12px; padding: 48px; box-shadow: 0 20px 50px rgba(0,0,0,0.12); }
+.pl-feature-cover img { width: 260px; height: auto; border-radius: 6px; box-shadow: 0 20px 40px rgba(0,0,0,0.2); transition: transform .3s ease; }
+.pl-feature-cover:hover img { transform: translateY(-4px) rotate(-1deg); }
+.pl-feature-badge { display: inline-block; background: #151210; color: #F7CC1B; font-family: var(--font-heading); font-size: .75rem; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; padding: 8px 16px; border-radius: 50px; margin-bottom: 20px; }
+.pl-feature-content h2 { font-family: var(--font-heading); font-size: 2.8rem; font-weight: 900; text-transform: uppercase; line-height: 1.1; color: #151210; margin-bottom: 12px; }
+.pl-feature-content h2 span { color: #D3265E; }
+.pl-feature-content .pl-feature-sub { font-size: 1.2rem; font-weight: 600; color: var(--navy); margin-bottom: 14px; }
+.pl-feature-content p { font-size: 1rem; line-height: 1.8; color: var(--gray-600); margin-bottom: 16px; }
+.pl-feature-btn { background: #F7CC1B; color: #151210; border: 2px solid #151210; }
+.pl-feature-btn:hover { background: #F8AFCB; }
+@media (max-width: 1024px) { .pl-feature .container { grid-template-columns: 1fr; text-align: center; padding: 36px 24px; gap: 32px; } .pl-feature-cover { margin: 0 auto; } .pl-feature-cover img { width: 200px; } .pl-feature .book-buttons { justify-content: center; } }
+@media (max-width: 768px) { .pl-feature { padding: 48px 16px; background: linear-gradient(180deg, #F7CC1B 0 50%, #F8AFCB 50% 100%); } .pl-feature-content h2 { font-size: 2rem; } .pl-feature-badge { letter-spacing: 1px; font-size: .68rem; } }
+
 
 /* ===== REEL ===== */
 .reel-section { padding: 100px 0; background: var(--white); text-align: center; }

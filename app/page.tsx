@@ -132,6 +132,28 @@ export default function Home() {
         </div>
       </section>
 
+      {/* ===== NEW BOOK: THE PINK LEMON ===== */}
+      <section className="pl-feature" id="pink-lemon" aria-label="The Pink Lemon, the new book by Chris Marvel Davis">
+        <div className="container">
+          <a href="/pinklemon" className="pl-feature-cover" aria-label="Go to The Pink Lemon book page">
+            <img src="/pinklemon/cover-web.jpg" alt="The Pink Lemon by Chris Marvel Davis book cover" loading="lazy" width={720} height={1113} />
+          </a>
+          <div className="pl-feature-content">
+            <span className="pl-feature-badge">New Book &middot; Out November 30, 2026</span>
+            <h2>The Pink <span>Lemon</span></h2>
+            <p className="pl-feature-sub">Why losing isn&rsquo;t always what it looks like.</p>
+            <p>
+              Getting beaten, losing by an inch, having something taken, chasing the wrong prize and walking away on purpose all get called a loss.
+              Each one needs a different response, and the usual advice only fits one of them. Coming in paperback and ebook.
+            </p>
+            <div className="book-buttons">
+              <a href="/pinklemon" className="btn btn-navy">See the Book</a>
+              <a href="/pinklemon#chapter" className="btn pl-feature-btn">Read Chapter One Free</a>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* ===== ABOUT ===== */}
       <section className="mission" id="about" aria-label="About performance strategist Chris Marvel">
         <div className="container">

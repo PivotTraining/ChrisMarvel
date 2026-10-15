@@ -8,6 +8,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: baseUrl, lastModified: lastMod, changeFrequency: 'monthly', priority: 1 },
     { url: `${baseUrl}/book`, lastModified: lastMod, changeFrequency: 'monthly', priority: 0.95 },
     { url: `${baseUrl}/pinklemon`, lastModified: lastMod, changeFrequency: 'weekly', priority: 0.95 },
+    { url: `${baseUrl}/book/love-laws`, lastModified: lastMod, changeFrequency: 'monthly', priority: 0.85 },
     { url: `${baseUrl}/book/what-if-effect`, lastModified: lastMod, changeFrequency: 'monthly', priority: 0.9 },
     { url: `${baseUrl}/on-camera`, lastModified: lastMod, changeFrequency: 'monthly', priority: 0.9 },
     { url: `${baseUrl}/on-camera/field-kit`, lastModified: lastMod, changeFrequency: 'monthly', priority: 0.85 },

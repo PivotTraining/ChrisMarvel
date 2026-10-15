@@ -340,33 +340,37 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ===== BOOK ===== */}
-      <section className="book-section" id="book" aria-label="The What If Effect book by Chris Marvel Davis">
+      {/* ===== BOOKS GALLERY ===== */}
+      <section className="books-gallery" id="book" aria-labelledby="books-gallery-h">
         <div className="container">
-          <div className="book-cover">
-            <img src="/images/book-cover-v13.png" alt="The What If Effect: Twelve Questions That Will Change Your Life — book by Chris Marvel Davis" loading="lazy" width={400} height={640} />
+          <span className="badge badge-gold">Books by Chris Marvel Davis</span>
+          <h2 id="books-gallery-h">The <span className="accent">Books</span></h2>
+          <p className="books-gallery-intro">Every title has its own page. Pick one to read more, grab a free chapter or find where to buy it.</p>
+          <div className="bg-grid">
+            <a className="bg-card" href="/pinklemon">
+              <div className="bg-art bg-art-pink"><img src="/pinklemon/cover-web.jpg" alt="The Pink Lemon book cover" loading="lazy" width={720} height={1113} /></div>
+              <div className="bg-info"><span className="bg-tag bg-tag-new">New &middot; Nov 30, 2026</span><h3>The Pink Lemon</h3><p>Why losing isn&rsquo;t always what it looks like. Chapter One is free.</p><span className="bg-link">View book &rarr;</span></div>
+            </a>
+            <a className="bg-card" href="/pinklemon#story">
+              <div className="bg-art bg-art-yellow"><img src="/pinklemon/story-cover-web.jpg" alt="Same Sour Attitude book cover" loading="lazy" width={720} height={1113} /></div>
+              <div className="bg-info"><span className="bg-tag">Coming soon &middot; Fiction</span><h3>Same Sour Attitude</h3><p>A Pink Lemon story. One summer at Bellwether Market.</p><span className="bg-link">View book &rarr;</span></div>
+            </a>
+            <a className="bg-card" href="/book/what-if-effect">
+              <div className="bg-art"><img src="/images/book-cover-v13.png" alt="The What If Effect book cover" loading="lazy" width={400} height={640} /></div>
+              <div className="bg-info"><span className="bg-tag">Available now</span><h3>The What If Effect</h3><p>Twelve questions that will change your life.</p><span className="bg-link">View book &rarr;</span></div>
+            </a>
+            <a className="bg-card" href="/on-camera">
+              <div className="bg-art bg-art-teal"><div className="bg-oncam" aria-label="ON CAMERA book cover"><div className="small">A Field Manual</div><div className="title">ON<br/><span>CAMERA</span></div><div className="rule"></div><div className="small">Chris Marvel Davis</div></div></div>
+              <div className="bg-info"><span className="bg-tag">Digital field manual</span><h3>ON CAMERA</h3><p>A 105-page field manual for communicating on camera.</p><span className="bg-link">View book &rarr;</span></div>
+            </a>
+            <a className="bg-card" href="/book/love-laws">
+              <div className="bg-art bg-art-wood"><img src="/images/love-laws-cover.jpg" alt="Love Laws book cover" loading="lazy" width={932} height={1500} /></div>
+              <div className="bg-info"><span className="bg-tag">2015 &middot; Relationships</span><h3>Love Laws</h3><p>The rules of love and relationships in the 21st century.</p><span className="bg-link">View book &rarr;</span></div>
+            </a>
           </div>
-          <div className="book-content">
-            <span className="badge badge-gold">Available Now</span>
-            <h2>The What If <span className="accent">Effect</span></h2>
-            <p style={{ fontSize: '1.15rem', fontWeight: 500, color: 'var(--navy)' }}>
-              Twelve questions that will change your life.<br />
-              Drawn from a decade of practice and a lifetime of paying attention.
-            </p>
-            <p>
-              The new book from Chris Marvel Davis &mdash; available now in <strong>eBook, paperback, and hardcover</strong>.
-              Pick your format. Pick your platform.
-            </p>
-            <div className="book-buttons">
-              <a href="https://books.apple.com/us/book/the-what-if-effect/id6766121201" target="_blank" rel="noopener noreferrer" className="btn btn-navy">Apple Books</a>
-              <a href="https://www.amazon.com/dp/B0GZLV99W3" target="_blank" rel="noopener noreferrer" className="btn btn-navy">Amazon Kindle</a>
-              <a href="https://a.co/d/0hwfYrf7" target="_blank" rel="noopener noreferrer" className="btn btn-navy">Amazon Paperback</a>
-              <a href="https://a.co/d/03NqGLKi" target="_blank" rel="noopener noreferrer" className="btn btn-navy">Amazon Hardcover</a>
-            </div>
-            <div className="book-buttons" style={{ marginTop: '16px' }}>
-              <a href="/book" className="btn btn-outline-white" style={{ color: 'var(--navy)', borderColor: 'var(--navy)' }}>Read More About the Book</a>
-              <a href="#contact" className="btn btn-outline-white" style={{ color: 'var(--navy)', borderColor: 'var(--navy)' }} onClick={(e) => { e.preventDefault(); scrollTo('contact') }}>Bulk Orders for Events</a>
-            </div>
+          <div className="book-buttons books-gallery-cta">
+            <a href="/book" className="btn btn-navy">See All Books</a>
+            <a href="#contact" className="btn btn-outline-white" style={{ color: 'var(--navy)', borderColor: 'var(--navy)' }} onClick={(e) => { e.preventDefault(); scrollTo('contact') }}>Bulk Orders for Events</a>
           </div>
         </div>
       </section>

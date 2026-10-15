@@ -4,7 +4,7 @@ import './books.css'
 
 export const metadata: Metadata = {
   title: 'Books by Chris Marvel Davis | ChrisMarvelSpeaks.com',
-  description: 'Explore books and practical field manuals by Chris Marvel Davis, including The What If Effect and ON CAMERA.',
+  description: 'Explore books and practical field manuals by Chris Marvel Davis, including The Pink Lemon, The What If Effect, ON CAMERA and Love Laws.',
   alternates: { canonical: 'https://chrismarvelspeaks.com/book' },
   openGraph: {
     title: 'Books by Chris Marvel Davis',
@@ -34,6 +34,8 @@ export default function BooksPage() {
         <article className="book-tile"><div className="book-art gold"><img src="/images/book-cover-v13.png" alt="The What If Effect book cover" /></div><div className="book-info"><div className="book-meta">Book · Performance &amp; Possibility</div><h2>The What If Effect</h2><p>A psychology-backed framework for breaking through the thinking patterns that keep people stuck and turning doubt into direction.</p><div className="book-actions"><a className="btn btn-navy" href="/book/what-if-effect">View Book</a></div></div></article>
 
         <article className="book-tile"><div className="book-art rust"><div className="two-rooms-cover" aria-label="ON CAMERA book cover"><div className="small">A Field Manual</div><div className="title">ON<br/><span>CAMERA</span></div><div className="rule"></div><div className="small">The Two Rooms Framework</div><div className="author">Chris Marvel Davis</div></div></div><div className="book-info"><div className="book-meta">Digital Field Manual · Camera Communication</div><h2>ON CAMERA</h2><p>A 105-page field manual for people who already have something to say — built to help accomplished communicators recalibrate their real-world skill for the lens.</p><div className="book-actions"><a className="btn btn-navy" href="/on-camera">View Book</a><a className="btn btn-outline" href="https://buy.stripe.com/fZufZh9W51ZeaHB9nna3u0A">Get Digital Edition — $47</a></div></div></article>
+
+        <article className="book-tile"><div className="book-art" style={{ background: 'linear-gradient(180deg,#f4f3f1,#e4e1dd)' }}><img src="/images/love-laws-cover.jpg" alt="Love Laws book cover" /></div><div className="book-info"><div className="book-meta">Book · Love &amp; Relationships · 2015</div><h2>Love Laws</h2><p>The rules of love and relationships in the 21st century. Seven laws for dating, engagement and marriage, from Chris&rsquo;s years as a relationship coach.</p><div className="book-actions"><a className="btn btn-navy" href="/book/love-laws">View Book</a></div></div></article>
       </div></section>
 
       <section className="books-note"><div className="container"><div className="books-note-card"><h3>More titles will live here.</h3><p>The Books tab is the permanent library for Chris Marvel Davis titles. The Camera Field Kit, Camera Script Vault, and ON CAMERA Lab remain inside the ON CAMERA ecosystem rather than crowding the main shelf.</p></div></div></section>

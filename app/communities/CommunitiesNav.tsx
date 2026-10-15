@@ -13,6 +13,7 @@ export default function CommunitiesNav() {
         <li><a href="/#keynotes" onClick={() => setOpen(false)}>Keynotes</a></li>
         <li><a href="/#reel" onClick={() => setOpen(false)}>Reel</a></li>
         <li><a href="/#book" onClick={() => setOpen(false)}>Book</a></li>
+        <li><a href="/pinklemon" onClick={() => setOpen(false)}>The Pink Lemon</a></li>
         <li><a href="#" className="active" onClick={() => setOpen(false)}>Communities</a></li>
       </ul>
       <div className="cm-nav-right">

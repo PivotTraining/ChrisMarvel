@@ -5,10 +5,13 @@ const nextConfig: NextConfig = {
   async rewrites() {
     return [
       { source: '/book/what-if-effect', destination: '/book/index.html' },
+      { source: '/pinklemon', destination: '/pinklemon/index.html' },
     ]
   },
   async redirects() {
     return [
+      { source: '/pink-lemon', destination: '/pinklemon', permanent: true },
+      { source: '/thepinklemon', destination: '/pinklemon', permanent: true },
       { source: '/two-rooms', destination: '/on-camera', permanent: true },
       { source: '/two-rooms/thank-you', destination: '/on-camera/thank-you', permanent: true },
       { source: '/two-rooms/field-kit', destination: '/on-camera/field-kit', permanent: true },

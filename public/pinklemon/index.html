@@ -173,6 +173,9 @@ input:focus,select:focus{outline:3px solid #E9467F;outline-offset:1px}
 .status{font-family:var(--serif);font-size:17px;padding:14px 16px;background:#FDF0B8;border:1.5px solid #151210;display:grid;gap:8px}
 .status a{font-family:var(--display);font-weight:800}
 .err{color:#B8215A;font-family:var(--mono);font-size:12px}
+.hp{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}
+.dl{display:inline-block;background:#151210;color:#F7CC1B!important;padding:14px 18px;text-decoration:none;font-size:17px;letter-spacing:.02em}
+.dl:hover{background:#B8215A;color:#fff!important}
 @media (max-width:860px){.free::before{inset:0 0 55% 0}.free .wrap{grid-template-columns:1fr}.stack{height:340px}.row{grid-template-columns:1fr}}
 
 /* ---------- contents ---------- */
@@ -463,16 +466,17 @@ main{overflow-x:clip}
   <div class="wrap">
     <div class="stack" aria-hidden="true">
       <div class="pg p1"><div class="k">CHAPTER ONE</div><div class="t">What I Thought Losing Meant</div><div class="r"></div><p>I loved baseball before I understood very much about winning.</p><p>I grew up in Cleveland in the 1990s, which was a pretty good place and time to fall in love with the game. The Indians were loaded. Kenny Lofton. Albert Belle. Omar Vizquel.</p><p>They made the World Series twice during that decade and lost both times.</p></div>
-      <div class="pg p2"><div class="k">BEFORE WE START</div><div class="t">Before We Start</div><div class="r"></div><p>I did not know pink lemons were real.</p><p>I knew pink lemonade was real, obviously, although most of the pink lemonade I had seen probably had very little to do with an actual pink lemon.</p><p>That was the part that interested me.</p></div>
+      <div class="pg p2"><div class="k">CHAPTER ONE</div><div class="t">What I Thought Losing Meant</div><div class="r"></div><p>My dad had a pretty straightforward philosophy about that. If something did not work, keep going.</p><p>What does a loss actually prove?</p><p>It took me a while to see the difference.</p></div>
+
       <div class="pg p3"><img src="/pinklemon/cover-web.jpg" alt=""></div>
     </div>
     <div class="formcard">
       <p class="eyebrow" style="color:#B8215A">Free sample &middot; PDF</p>
       <h2>Read the first chapter on us.</h2>
-      <p class="what">Get the opening of the book, start to finish. It begins with a lemon most people have never seen and ends with a seventeen-year-old who made the baseball team and then lost the season.</p>
+      <p class="what">The baseball chapter, start to finish: a kid from Cleveland who made his high school team and then lost the season, and the question that started this book.</p>
       <ul>
-        <li>&ldquo;Before We Start&rdquo; plus Chapter One</li>
-        <li>A 20-page PDF, set for easy reading on any screen</li>
+        <li>Chapter One: What I Thought Losing Meant</li>
+        <li>A 9-page PDF, about a ten-minute read</li>
         <li>A launch-day email on November 30 with the links to buy</li>
       </ul>
       <form id="leadForm" novalidate>
@@ -480,20 +484,10 @@ main{overflow-x:clip}
           <label for="fname">First name<input id="fname" name="fname" autocomplete="given-name" required></label>
           <label for="email">Email<input id="email" name="email" type="email" autocomplete="email" required></label>
         </div>
-        <label for="role">I&rsquo;m reading as a&hellip;
-          <select id="role" name="role">
-            <option value="">Choose one (optional)</option>
-            <option>Reader who&rsquo;s been through a hard loss</option>
-            <option>Athlete or coach</option>
-            <option>Parent</option>
-            <option>Educator or school leader</option>
-            <option>Business owner or team leader</option>
-            <option>Event planner looking for a speaker</option>
-          </select>
-        </label>
+        <div class="hp" aria-hidden="true"><label>Leave this empty<input name="bot-field" tabindex="-1" autocomplete="off"></label></div>
         <p class="err" id="err" hidden></p>
         <button class="btn submit" type="submit" id="submitBtn">Send me Chapter One &rarr;</button>
-        <p class="fine">One email with your chapter, then occasional updates about the book. Unsubscribe anytime.</p>
+        <p class="fine">Your chapter downloads right away. We&rsquo;ll email you on launch day with the links to buy, plus the occasional update. Unsubscribe anytime.</p>
       </form>
       <div class="status" id="status" hidden></div>
     </div>
@@ -582,7 +576,7 @@ main{overflow-x:clip}
     <div class="faq">
       <details><summary>When does The Pink Lemon come out?</summary><p>November 30, 2026, in paperback and ebook.</p></details>
       <details><summary>Where can I buy it?</summary><p>On Amazon in paperback and Kindle. Bookstores and libraries can order the paperback through Ingram. Links go live on this page as soon as pre-orders open.</p></details>
-      <details><summary>Can I read some of it first?</summary><p>Yes. &ldquo;Before We Start&rdquo; and Chapter One are free as a 20-page PDF. <a href="#chapter">Get it here.</a></p></details>
+      <details><summary>Can I read some of it first?</summary><p>Yes. Chapter One is free as a 9-page PDF. <a href="#chapter">Get it here.</a></p></details>
       <details><summary>Who is this book for?</summary><p>Anyone who has taken a loss and been handed advice that didn&rsquo;t fit it: athletes and coaches, parents, educators, business owners and leaders. It uses sports, business and family life to sort out what kind of loss you&rsquo;re actually dealing with.</p></details>
       <details><summary>What is Same Sour Attitude?</summary><p>A short work of fiction set at a neighborhood grocery store, written as a companion to The Pink Lemon. It follows one summer, one promotion and a lot of opinions. Its release date is coming soon.</p></details>
       <details><summary>Can I order copies for a group?</summary><p>Yes. Bulk orders for schools, teams and companies can be paired with a keynote from Chris. <a href="#bulk">See the options.</a></p></details>
@@ -776,7 +770,7 @@ main{overflow-x:clip}
   });
 
   /* ---------------- Contents ---------------- */
-  var CH=[["—","Before We Start",1],["01","What I Thought Losing Meant",1],["02","The Score Isn’t the Story"],["03","By That Much"],["04","When the Line Decides"],["05","You Never Got to Play"],["06","Maybe Winning Is the Problem"],["07","What You Made It Mean"],["08","Advice We Never Checked"],["09","What Did You Actually Win?"],["10","The Winner Story"],["11","Cut It Open"],["12","What Kind of L Was It?"],["13","Not Everything Becomes Lemonade"],["14","Who Gets Another Shot?"],["15","Winning Can Fool You Too"],["16","Look Again"]];
+  var CH=[["—","Before We Start"],["01","What I Thought Losing Meant",1],["02","The Score Isn’t the Story"],["03","By That Much"],["04","When the Line Decides"],["05","You Never Got to Play"],["06","Maybe Winning Is the Problem"],["07","What You Made It Mean"],["08","Advice We Never Checked"],["09","What Did You Actually Win?"],["10","The Winner Story"],["11","Cut It Open"],["12","What Kind of L Was It?"],["13","Not Everything Becomes Lemonade"],["14","Who Gets Another Shot?"],["15","Winning Can Fool You Too"],["16","Look Again"]];
   var toc=document.getElementById('toc');
   CH.forEach(function(c){var li=document.createElement('li');
     li.innerHTML='<span class="no"></span><span class="nm"></span>'+(c[2]?'<span class="tag">FREE</span>':'<span></span>');
@@ -794,39 +788,35 @@ main{overflow-x:clip}
   var PDF='/pinklemon/The-Pink-Lemon-Free-Chapter.pdf', FILENAME='The-Pink-Lemon-Chapter-One.pdf';
   var form=document.getElementById('leadForm'), err=document.getElementById('err'), status=document.getElementById('status'), btn=document.getElementById('submitBtn');
 
-  /* Hook for the live site: when this page moves to ChrisMarvelSpeaks.com,
-     send the lead to the email platform here (Mailchimp, ConvertKit, Flodesk, etc.).
-     Return a promise; the download still happens if it fails. */
-  function sendLead(lead){ return Promise.resolve(lead); }
-
-  function fallbackLink(msg){
-    status.hidden=false; status.innerHTML='';
-    var p=document.createElement('p'); p.textContent=msg;
-    var a=document.createElement('a'); a.href=PDF; a.target='_blank'; a.rel='noopener'; a.textContent='Open Chapter One (PDF) →';
-    status.append(p,a);
+  /* Leads go to the "chapter" form on Netlify (site: nobody-wins-by-much).
+     View or export them in Netlify: Project > Forms > chapter. */
+  var LEAD_URL='https://nobody-wins-by-much.netlify.app/';
+  function sendLead(lead){
+    var body=new URLSearchParams({'form-name':'chapter','bot-field':lead.hp||'','first_name':lead.name,'email':lead.email}).toString();
+    try{ return fetch(LEAD_URL,{method:'POST',mode:'no-cors',keepalive:true,headers:{'Content-Type':'application/x-www-form-urlencoded'},body:body}).catch(function(){}); }
+    catch(e){ return Promise.resolve(); }
+  }
+  function startDownload(){
+    var d=document.createElement('a'); d.href=PDF; d.download=FILENAME; d.rel='noopener';
+    document.body.appendChild(d); d.click(); d.remove();
+  }
+  function done(name){
+    form.hidden=true; status.hidden=false; status.innerHTML='';
+    var p=document.createElement('p'); p.textContent='Thanks, '+name+'. Your chapter is downloading now. If it didn\u2019t start, tap the button.';
+    var a=document.createElement('a'); a.className='dl'; a.href=PDF; a.download=FILENAME; a.textContent='Download Chapter One (PDF) \u2193';
+    var o=document.createElement('a'); o.href=PDF; o.target='_blank'; o.rel='noopener'; o.textContent='Or read it in your browser';
+    status.append(p,a,o);
   }
   form.addEventListener('submit',function(e){
     e.preventDefault(); err.hidden=true;
     var name=form.fname.value.trim(), email=form.email.value.trim();
     if(!name){err.textContent='Add your first name so we know who to send it to.';err.hidden=false;form.fname.focus();return;}
-    if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){err.textContent='That email doesn’t look complete. Check for a missing @ or domain.';err.hidden=false;form.email.focus();return;}
-    btn.disabled=true; btn.textContent='Preparing your chapter…';
-    var lead={name:name,email:email,role:form.role.value,source:'pink-lemon-landing',at:new Date().toISOString()};
-    sendLead(lead).catch(function(){}).then(function(){
-      return (window.claude && window.claude.use) ? window.claude.use('downloads') : null;
-    }).then(function(dl){
-      if(!dl){ var d=document.createElement('a'); d.href=PDF; d.download=FILENAME; document.body.appendChild(d); d.click(); d.remove(); return; }
-      return fetch(PDF).then(function(r){if(!r.ok) throw {code:'unavailable'}; return r.blob();}).then(function(b){return dl.save({filename:FILENAME,data:b});});
-    }).then(function(){
-      form.hidden=true; status.hidden=false; status.innerHTML='';
-      var p=document.createElement('p'); p.textContent='Thanks, '+name+'. Chapter One is in your downloads. Start with “Before We Start.” It’s short and it sets up everything.';
-      status.appendChild(p);
-    }).catch(function(x){
-      btn.disabled=false; btn.textContent='Send me Chapter One →';
-      if(x && x.code==='declined'){ fallbackLink('No problem. If you’d rather read it in your browser, open it here:'); }
-      else if(x && x.code==='rate_limited'){ err.textContent='A download prompt is already open. Finish that one first.'; err.hidden=false; }
-      else { fallbackLink('Thanks, '+name+'. Your chapter is ready:'); }
-    });
+    if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){err.textContent='That email doesn\u2019t look complete. Check for a missing @ or domain.';err.hidden=false;form.email.focus();return;}
+    btn.disabled=true; btn.textContent='Sending your chapter\u2026';
+    var hp=(form.elements['bot-field']||{}).value||'';
+    var sent=sendLead({name:name,email:email,hp:hp});
+    var timeout=new Promise(function(r){setTimeout(r,1500);});
+    Promise.race([sent,timeout]).then(function(){ startDownload(); done(name); });
   });
 })();
 </script>

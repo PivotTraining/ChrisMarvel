@@ -442,7 +442,7 @@ export default function Home() {
             </details>
             <details className="faq-item">
               <summary>How much does it cost to book Chris Marvel?</summary>
-              <p>Speaking engagements start at $7,500 for corporate keynotes. K&ndash;12, university, and nonprofit rates are available upon request. Pricing varies based on event type, duration, travel requirements, and customization. Contact Jazmine@pivottraining.us or call (770) 313-1232 for a custom quote.</p>
+              <p>Speaking engagements start at $7,500 for corporate keynotes. K&ndash;12, university, and nonprofit rates are available upon request. Pricing varies based on event type, duration, travel requirements, and customization. Contact Jazmine@pivottraining.us for a custom quote.</p>
             </details>
             <details className="faq-item">
               <summary>What types of events does Chris speak at?</summary>
@@ -462,7 +462,7 @@ export default function Home() {
             </details>
             <details className="faq-item">
               <summary>How do I book Chris for my event?</summary>
-              <p>Fill out the booking inquiry form below, email Jazmine@pivottraining.us, or call (770) 313-1232. Please include your event date, audience size, and goals. Early booking is recommended as Chris&rsquo;s calendar fills quickly.</p>
+              <p>Fill out the booking inquiry form below or email Jazmine@pivottraining.us. Please include your event date, audience size, and goals. Early booking is recommended as Chris&rsquo;s calendar fills quickly.</p>
             </details>
             <details className="faq-item">
               <summary>Can Chris customize his keynote for our industry?</summary>
@@ -489,12 +489,6 @@ export default function Home() {
                 <div>
                   <span className="label">Booking Inquiries</span>
                   <a href="mailto:Jazmine@pivottraining.us">Jazmine@pivottraining.us</a>
-                </div>
-              </li>
-              <li>
-                <div>
-                  <span className="label">Phone</span>
-                  <a href="tel:+17703131232">(770) 313-1232</a>
                 </div>
               </li>
               <li>
@@ -613,10 +607,6 @@ export default function Home() {
               <div className="footer-contact-item">
                 <span className="footer-contact-icon">&#9993;</span>
                 <a href="mailto:Jazmine@pivottraining.us">Jazmine@pivottraining.us</a>
-              </div>
-              <div className="footer-contact-item">
-                <span className="footer-contact-icon">&#9742;</span>
-                <a href="tel:+17703131232">(770) 313-1232</a>
               </div>
               <div className="footer-contact-item">
                 <span className="footer-contact-icon">&#9679;</span>

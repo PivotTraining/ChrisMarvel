@@ -122,7 +122,6 @@ const personSchema = {
   url: 'https://chrismarvelspeaks.com',
   image: 'https://chrismarvelspeaks.com/images/hero-headshot.jpg',
   email: 'Jazmine@pivottraining.us',
-  telephone: '(770) 313-1232',
   address: [
     { '@type': 'PostalAddress', addressLocality: 'Cleveland', addressRegion: 'OH', addressCountry: 'US' },
     { '@type': 'PostalAddress', addressLocality: 'Atlanta', addressRegion: 'GA', addressCountry: 'US' },
@@ -188,7 +187,6 @@ const serviceSchema = {
   name: 'Chris Marvel — Performance Strategy & Keynote Speaking',
   description: 'Professional keynote speaking, corporate workshops, K-12 training, university programs, and multi-session performance development engagements nationwide.',
   url: 'https://chrismarvelspeaks.com',
-  telephone: '(770) 313-1232',
   email: 'Jazmine@pivottraining.us',
   image: 'https://chrismarvelspeaks.com/images/hero-headshot.jpg',
   priceRange: 'Starting at $7,500',
@@ -241,7 +239,7 @@ const faqSchema = {
       name: 'How much does it cost to book Chris Marvel?',
       acceptedAnswer: {
         '@type': 'Answer',
-        text: 'Speaking engagements start at $7,500 for corporate keynotes. K-12, university, and nonprofit rates are available. Pricing varies based on event type, duration, and customization. Contact Jazmine@pivottraining.us or call (770) 313-1232 for a custom quote.',
+        text: 'Speaking engagements start at $7,500 for corporate keynotes. K-12, university, and nonprofit rates are available. Pricing varies based on event type, duration, and customization. Contact Jazmine@pivottraining.us for a custom quote.',
       },
     },
     {
@@ -289,7 +287,7 @@ const faqSchema = {
       name: 'How do I book Chris Marvel for my event?',
       acceptedAnswer: {
         '@type': 'Answer',
-        text: 'Visit chrismarvelspeaks.com and fill out the booking inquiry form, email Jazmine@pivottraining.us, or call (770) 313-1232. Provide your event date, audience size, and performance goals for a custom proposal.',
+        text: 'Visit chrismarvelspeaks.com and fill out the booking inquiry form or email Jazmine@pivottraining.us. Provide your event date, audience size, and performance goals for a custom proposal.',
       },
     },
   ],

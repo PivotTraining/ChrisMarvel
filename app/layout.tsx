@@ -301,8 +301,8 @@ const faqSchema = {
 const reviewSchema = {
   '@context': 'https://schema.org',
   '@type': 'Person',
-  '@id': 'https://chrismarvelspeaks.com/#person-reviews',
-  name: 'Christopher "Chris Marvel" Davis',
+  '@id': 'https://chrismarvelspeaks.com/#person',
+  name: 'Chris Marvel Davis',
   review: [
     {
       '@type': 'Review',

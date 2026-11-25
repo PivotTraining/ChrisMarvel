@@ -112,7 +112,8 @@ const personSchema = {
   '@context': 'https://schema.org',
   '@type': 'Person',
   '@id': 'https://chrismarvelspeaks.com/#person',
-  name: 'Christopher "Chris Marvel" Davis',
+  name: 'Chris Marvel Davis',
+  alternateName: ['Chris Marvel', 'Christopher Davis', 'Christopher "Chris Marvel" Davis'],
   givenName: 'Christopher',
   familyName: 'Davis',
   additionalName: 'Chris Marvel',
@@ -120,13 +121,14 @@ const personSchema = {
   description:
     'Chris Marvel is a performance strategist and keynote speaker who uses psychology, behavioral science, and real-world application to help organizations and institutions increase engagement, elevate thinking, and drive measurable performance outcomes.',
   url: 'https://chrismarvelspeaks.com',
+  mainEntityOfPage: 'https://chrismarvelspeaks.com/about',
   image: 'https://chrismarvelspeaks.com/images/hero-headshot.jpg',
   email: 'Jazmine@pivottraining.us',
   address: [
     { '@type': 'PostalAddress', addressLocality: 'Cleveland', addressRegion: 'OH', addressCountry: 'US' },
     { '@type': 'PostalAddress', addressLocality: 'Atlanta', addressRegion: 'GA', addressCountry: 'US' },
   ],
-  alumniOf: { '@type': 'EducationalOrganization', name: 'M.S. Psychology Program' },
+  alumniOf: { '@type': 'CollegeOrUniversity', name: 'Walden University' },
   hasCredential: [
     { '@type': 'EducationalOccupationalCredential', credentialCategory: 'degree', name: 'Master of Science in Psychology' },
     { '@type': 'EducationalOccupationalCredential', credentialCategory: 'degree', name: 'Bachelor of Science in Psychology' },
@@ -164,6 +166,8 @@ const personSchema = {
   sameAs: [
     'https://www.linkedin.com/in/chrismarvel',
     'https://www.instagram.com/chrismarvel/',
+    'https://www.goodreads.com/author/show/14684440.Chris_Marvel',
+    'https://books.apple.com/us/author/chris-marvel/id1062992500',
   ],
 }
 
@@ -297,8 +301,8 @@ const faqSchema = {
 const reviewSchema = {
   '@context': 'https://schema.org',
   '@type': 'Person',
-  '@id': 'https://chrismarvelspeaks.com/#person-reviews',
-  name: 'Christopher "Chris Marvel" Davis',
+  '@id': 'https://chrismarvelspeaks.com/#person',
+  name: 'Chris Marvel Davis',
   review: [
     {
       '@type': 'Review',
@@ -324,13 +328,38 @@ const reviewSchema = {
 /* ===== STRUCTURED DATA — BOOK ===== */
 const bookSchema = {
   '@context': 'https://schema.org',
-  '@type': 'Book',
-  name: 'The What If Effect: Flip Doubt Into Direction',
-  author: { '@id': 'https://chrismarvelspeaks.com/#person' },
-  description: 'A psychology-backed performance playbook for breaking through the thinking patterns that keep high performers stuck. Transform fear-based thinking into possibility-driven strategy.',
-  genre: 'Self-Help / Psychology / Performance',
-  inLanguage: 'en',
-  url: 'https://chrismarvelspeaks.com/#book',
+  '@graph': [
+    {
+      '@type': 'Book',
+      '@id': 'https://chrismarvelspeaks.com/book/what-if-effect#book',
+      name: 'The What If Effect',
+      alternativeHeadline: 'Twelve Questions That Will Change Your Life',
+      author: { '@id': 'https://chrismarvelspeaks.com/#person' },
+      description: 'Twelve questions that will change your life, drawn from a decade of practice. A psychology-backed playbook for turning doubt into direction.',
+      genre: 'Self-Help / Psychology / Performance',
+      inLanguage: 'en',
+      url: 'https://chrismarvelspeaks.com/book/what-if-effect',
+      sameAs: ['https://books.apple.com/us/book/the-what-if-effect/id6766121201'],
+    },
+    {
+      '@type': 'Book',
+      '@id': 'https://chrismarvelspeaks.com/pinklemon#book',
+      name: 'The Pink Lemon',
+      author: { '@id': 'https://chrismarvelspeaks.com/#person' },
+      datePublished: '2026-12-30',
+      inLanguage: 'en',
+      url: 'https://chrismarvelspeaks.com/pinklemon',
+    },
+    {
+      '@type': 'Book',
+      '@id': 'https://chrismarvelspeaks.com/book/love-laws#book',
+      name: 'Love Laws: The Rules of Love & Relationships in the 21st Century',
+      author: { '@id': 'https://chrismarvelspeaks.com/#person' },
+      datePublished: '2015',
+      inLanguage: 'en',
+      url: 'https://chrismarvelspeaks.com/book/love-laws',
+    },
+  ],
 }
 
 /* ===== STRUCTURED DATA — BREADCRUMBS ===== */
@@ -359,7 +388,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Montserrat:wght@400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700&display=swap"
           rel="stylesheet"
         />
-        <link rel="canonical" href="https://chrismarvelspeaks.com" />
 
         {/* Structured Data — Person */}
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(personSchema) }} />

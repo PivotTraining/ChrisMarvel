@@ -34,7 +34,7 @@ export default function LoveLawsPage() {
         <div className="container">
           <a href="/" className="nav-logo" aria-label="Chris Marvel homepage">Chris<img src="/images/chris-marvel-logo.png" alt="Chris Marvel logo" className="nav-logo-icon" width={28} height={28}/><span>Marvel</span></a>
           <ul className="nav-links" role="menubar">
-            <li role="none"><a href="/#about" role="menuitem">About</a></li><li role="none"><a href="/#standard" role="menuitem">The Standard</a></li><li role="none"><a href="/#keynotes" role="menuitem">Keynotes</a></li><li role="none"><a href="/#reel" role="menuitem">Reel</a></li><li role="none"><a href="/book" role="menuitem" aria-current="page">Books</a></li><li role="none"><a href="/pinklemon" role="menuitem">The Pink Lemon</a></li><li role="none"><a href="/communities" role="menuitem">Communities</a></li><li role="none"><a href="/#contact" className="nav-cta" role="menuitem">Book Chris</a></li>
+            <li role="none"><a href="/about" role="menuitem">About</a></li><li role="none"><a href="/#standard" role="menuitem">The Standard</a></li><li role="none"><a href="/#keynotes" role="menuitem">Keynotes</a></li><li role="none"><a href="/#reel" role="menuitem">Reel</a></li><li role="none"><a href="/book" role="menuitem" aria-current="page">Books</a></li><li role="none"><a href="/pinklemon" role="menuitem">The Pink Lemon</a></li><li role="none"><a href="/communities" role="menuitem">Communities</a></li><li role="none"><a href="/#contact" className="nav-cta" role="menuitem">Book Chris</a></li>
           </ul>
         </div>
       </nav>
@@ -113,7 +113,7 @@ export default function LoveLawsPage() {
           </div>
           <aside className="ll-more" aria-label="More books by Chris Marvel Davis">
             <span className="ll-kicker">More from Chris</span>
-            <a href="/pinklemon" className="ll-more-item"><img src="/pinklemon/cover-web.jpg" alt="" width={72} height={111} /><span><strong>The Pink Lemon</strong>New &middot; Out November 30, 2026</span></a>
+            <a href="/pinklemon" className="ll-more-item"><img src="/pinklemon/cover-web.jpg" alt="" width={72} height={111} /><span><strong>The Pink Lemon</strong>New &middot; Out December 30, 2026</span></a>
             <a href="/book/what-if-effect" className="ll-more-item"><img src="/images/book-cover-v13.png" alt="" width={72} height={115} /><span><strong>The What If Effect</strong>Available now</span></a>
             <a href="/book" className="ll-more-all">See all books &rarr;</a>
           </aside>

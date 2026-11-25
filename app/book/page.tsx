@@ -71,7 +71,7 @@ export default function BooksPage() {
         <div className="container">
           <a href="/" className="nav-logo" aria-label="Chris Marvel homepage">Chris<img src="/images/chris-marvel-logo.png" alt="Chris Marvel logo" className="nav-logo-icon" width={28} height={28}/><span>Marvel</span></a>
           <ul className="nav-links" role="menubar">
-            <li role="none"><a href="/#about" role="menuitem">About</a></li><li role="none"><a href="/#standard" role="menuitem">The Standard</a></li><li role="none"><a href="/#keynotes" role="menuitem">Keynotes</a></li><li role="none"><a href="/#reel" role="menuitem">Reel</a></li><li role="none"><a href="/book" role="menuitem" aria-current="page">Books</a></li><li role="none"><a href="/pinklemon" role="menuitem">The Pink Lemon</a></li><li role="none"><a href="/communities" role="menuitem">Communities</a></li><li role="none"><a href="/#contact" className="nav-cta" role="menuitem">Book Chris</a></li>
+            <li role="none"><a href="/about" role="menuitem">About</a></li><li role="none"><a href="/#standard" role="menuitem">The Standard</a></li><li role="none"><a href="/#keynotes" role="menuitem">Keynotes</a></li><li role="none"><a href="/#reel" role="menuitem">Reel</a></li><li role="none"><a href="/book" role="menuitem" aria-current="page">Books</a></li><li role="none"><a href="/pinklemon" role="menuitem">The Pink Lemon</a></li><li role="none"><a href="/communities" role="menuitem">Communities</a></li><li role="none"><a href="/#contact" className="nav-cta" role="menuitem">Book Chris</a></li>
           </ul>
         </div>
       </nav>
@@ -90,7 +90,7 @@ export default function BooksPage() {
             <img src="/pinklemon/cover-web.jpg" alt="The Pink Lemon book cover" width={720} height={1113} />
           </a>
           <div className="lib-feature-copy">
-            <span className="lib-badge">New book &middot; Out November 30, 2026</span>
+            <span className="lib-badge">New book &middot; Out December 30, 2026</span>
             <h2 id="lib-feature-h">The Pink Lemon</h2>
             <p className="lib-feature-sub">Why losing isn&rsquo;t always what it looks like.</p>
             <p>

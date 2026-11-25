@@ -139,7 +139,7 @@ export default function Home() {
             <img src="/pinklemon/cover-web.jpg" alt="The Pink Lemon by Chris Marvel Davis book cover" loading="lazy" width={720} height={1113} />
           </a>
           <div className="pl-feature-content">
-            <span className="pl-feature-badge">New Book &middot; Out November 30, 2026</span>
+            <span className="pl-feature-badge">New Book &middot; Out December 30, 2026</span>
             <h2>The Pink <span>Lemon</span></h2>
             <p className="pl-feature-sub">Why losing isn&rsquo;t always what it looks like.</p>
             <p>
@@ -349,7 +349,7 @@ export default function Home() {
           <div className="bg-grid">
             <a className="bg-card" href="/pinklemon">
               <div className="bg-art bg-art-pink"><img src="/pinklemon/cover-web.jpg" alt="The Pink Lemon book cover" loading="lazy" width={720} height={1113} /></div>
-              <div className="bg-info"><span className="bg-tag bg-tag-new">New &middot; Nov 30, 2026</span><h3>The Pink Lemon</h3><p>Why losing isn&rsquo;t always what it looks like. Chapter One is free.</p><span className="bg-link">View book &rarr;</span></div>
+              <div className="bg-info"><span className="bg-tag bg-tag-new">New &middot; Dec 30, 2026</span><h3>The Pink Lemon</h3><p>Why losing isn&rsquo;t always what it looks like. Chapter One is free.</p><span className="bg-link">View book &rarr;</span></div>
             </a>
             <a className="bg-card" href="/pinklemon#story">
               <div className="bg-art bg-art-yellow"><img src="/pinklemon/story-cover-web.jpg" alt="Same Sour Attitude book cover" loading="lazy" width={720} height={1113} /></div>
